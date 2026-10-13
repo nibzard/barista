@@ -1,0 +1,12 @@
+# Godot generated caches
+game/.godot/
+
+# GdUnit4 test artifacts
+game/.gdunit/
+game/reports/
+
+# Build output
+builds/
+
+# OS
+.DS_Store
