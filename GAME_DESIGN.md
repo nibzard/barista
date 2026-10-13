@@ -130,6 +130,11 @@ The game is built for touch from day one: a virtual stick and touch buttons.
 Play sessions are short. One city block fits into one coffee break.
 Desktop and console versions can come later.
 
+Business model: the first city, San Coffesco, is free.
+One payment unlocks the full game.
+The free city teaches the whole game: throw, brew, meter, tower.
+The paywall stands at the road east, at the bridge out of San Coffesco.
+
 ## 5. The player character
 
 The game starts with character creation.
@@ -478,3 +483,172 @@ These numbers are working settings for the prototype. The prototype decides the 
 - Good brew (score 80 or more): +1 skill. Perfect brew (95 or more): +2.
 - One master lesson: +2 skill. Every master teaches three lessons.
 - Skill 10: auto-brew opens for the method. Auto-brew always scores 80. It never scores 95.
+
+## 15. Items and recipes
+
+### Beans (version 1)
+
+| Bean | Quality | Where |
+| --- | --- | --- |
+| House beans | Basic | Every city, common |
+| Golden Coast arabica | Good | Steamtle region |
+| Moss Hollow organic | Good | Pourtland region |
+| Geisha Vault | Excellent | One locked side room per city |
+
+### Roast levels
+
+| Roast | Effect |
+| --- | --- |
+| Light | Most caffeine. Best wake power. |
+| Medium | Balanced. |
+| Dark | Rich taste. Lower wake power. |
+
+Light roast keeps more caffeine. The game states this as a fact.
+
+### Brewed cup tiers
+
+| Minigame score | Cup tier | Effect |
+| --- | --- | --- |
+| Below 80 | Weak | Wakes basic types only. |
+| 80 or more | Good | Wakes all types that need this drink. |
+| 95 or more | Perfect | Wakes all types. Also wakes every sleepwalker in a small radius. |
+
+### Recipes (version 1)
+
+A recipe is bean + roast + method + extra.
+
+| Recipe | Mix | Wakes |
+| --- | --- | --- |
+| Super tall American | House or better, medium, filter, tall size | The Karen |
+| Triple shot | Any bean, light, Aeropress, three shots | The Gamer |
+| Bulletproof | Any bean, any roast, espresso base + butter | The Tech Bro |
+| Frappuccino | Any bean, any roast, blender + whipped cream | The Tourist |
+| Turkish | Any bean, medium, Turkish pot | The Tinfoil Man, and one husband |
+| Ristretto | Any bean, light, espresso, short pull | The Moonwalker |
+| Big filter pot | House, medium, filter, full pot | The Trucker (version 2 tease) |
+
+The blender and the Turkish pot are café appliances. The player scavenges them.
+
+### Gear and materials (scavenge)
+
+- Fuses: one fuse opens one broadcast tower.
+- Scrap parts: van upgrades.
+- Thermos belt: carry limit +3.
+- The designer dripper: Sam Oatman's own 700-dollar dripper. Part of his boss cure.
+- One sequined glove: part of the Moonwalker mystery (see section 24).
+
+## 16. Version 1 roster
+
+One new enemy type per city, plus the basic type everywhere.
+
+| City | Types | Boss | Signature quest |
+| --- | --- | --- | --- |
+| San Coffesco | The Neighbor, The Tourist, The Tech Bro | Sam Oatman | The Robotaxi Depot |
+| Steamtle | The Neighbor, The Tourist, The Gamer | The Fish Throwers | Sleepvana |
+| Pourtland | The Neighbor, The Tinfoil Man, first Karen | The Sleep Jam | The Aisle 7 |
+
+The Neighbor is the basic sleepwalker: pajamas, slow walk, simple hug.
+
+Rule for version 2 and later: one new type per city, one returning type with a twist.
+
+The Karen appears only in the Pourtland outro. She blocks the road east, demands the manager, and the credits catch her mid-sentence.
+
+Moka pot and French press have no master in version 1. The player learns them self-taught, through the Grind Dial only.
+
+## 17. City level design rules
+
+- One city = 6 to 9 blocks. One phone screen shows about 1.5 blocks.
+- Every city has the same landmark set: the café (start, safe zone), the broadcast tower (goal), one boss arena, one signature quest location, and scavenge buildings for the rest.
+- The café stands at one edge of the map. The tower stands at the other edge. The road between them is the difficulty curve.
+- Three speaker poles guard the last blocks before the tower. Each pole makes a sleep zone.
+- Sleep zones are always visible: purple haze, drooping street lamps, and the sound of the address.
+- Enemy density: 3 to 4 sleepwalkers per block, more near the tower.
+- One city = 20 to 30 minutes of play. One block = one coffee break, 3 to 5 minutes.
+- All cities share one block kit. Only landmarks, accents, and the crowd differ.
+
+## 18. Save system
+
+- Auto-save only. No manual save button.
+- Save points: entry to the café, tower switch, boss cured.
+- The save holds: position, meter value, wake-ups, beans, cups, gear, skill levels, SleepyDex, van level, quest state, tower state.
+- The player can close the app anywhere. The game reloads at the last save point.
+- Meter sleep does not reload a save. The player wakes in the café and loses one wake-up. The world stays as it is.
+- Full death, zero wake-ups: the game reloads the last save, with the wake-ups from that save.
+- Hardcore mode: one save slot. Death deletes the save.
+
+## 19. The first ten minutes
+
+No menus, no text walls. Everything is diegetic.
+
+1. Black screen. A phone leans against a beaker. The video of Dr. Morgen plays (see section 22). 20 seconds. Skippable.
+2. The player wakes in the café. One prompt: move. The café is wrecked but cozy. A full pot stands on the counter.
+3. Prompt: drink one cup. First lesson: the sleepy meter fills.
+4. A Neighbor sleepwalks past the window. Prompt: open the door.
+5. First throw. The cup hits. The Neighbor wakes, says thanks, and shuffles away.
+6. A speaker pole drones near the café. The meter drains visibly. Prompt: step back inside. Lesson: safe zones.
+7. A survivor at the door: "The tower. Kill the speaker." A marker appears on the tower, far away.
+8. On the way: first hug, first dodge roll, first Grind Dial brew.
+9. At the tower: scavenge one fuse, insert it, switch the tower off. The address stops mid-word. One second of silence. Birdsong. The toast says: wake-up restored.
+10. The camera pans out. Three cities on the map. Title card: Apocalypse Barista.
+
+## 20. Art direction (first pass)
+
+- Proportions: big heads, small bodies, about 3.5 heads tall. Oversized hands, made to hold cups.
+- Base palette: warm creams, wood browns, brick reds. Each city adds one accent: San Coffesco teal, Steamtle rain blue, Pourtland moss green.
+- Sleep zones desaturate. Purple haze, drooping lamps. No horror darkness anywhere.
+- Sleepwalkers wear pastel pajamas and nightcaps. Drool is a simple shine arc, comic, never gross.
+- The player wears the steampunk apron and goggles. The beard reads from top-down view as a silhouette.
+- Interface style: chalkboard menus, like a café wall. The SleepyDex looks like a phone app.
+- Mug Roasters Co. brand: corporate red and black, a smiling mug logo. Friendly evil.
+- Readability rule: every sleepwalker type is recognizable at one centimeter on a phone screen. Test with silhouettes only.
+
+## 21. Sound rules: the loop
+
+- The address never plays at full volume. It always arrives filtered, through walls or over a PA hum.
+- Three distance layers: far, a low muffled rumble. Mid, recognizable words. Near a speaker pole, the clear voice of Puck, annoying by design.
+- Every speaker pole plays a 5-second loop with a random start point. The loops never sync.
+- A hug swells the address for the grabbed player. The antagonist track gets loud when the enemy gets close.
+- When a tower dies, the address stops mid-word. One second of silence. Then morning birdsong. The silence is the reward.
+- Music is diegetic first: cafés play vinyl jazz, band bosses play their songs, Sleepvana plays "Smells Like Bean Spirit".
+- Tolerance rule: every sound must stay tolerable after 30 minutes of play. If it grates, it filters or it goes.
+
+## 22. The opening video
+
+Style: a phone camera video, shot in a lab at night. 2D animated stills with small motions, voice and subtitles. Skippable. Replays later on the café television.
+
+The scientist is Dr. Morgen.
+
+Script, about 20 seconds:
+
+INT. LAB, NIGHT. A phone leans against a beaker. DR. MORGEN stands in lab clothes, tired, hair down.
+
+DR. MORGEN: "If you see this, you drink real coffee. Good. Listen. The extraction works. We removed the caffeine, and the body... the body keeps the count. Every missed hour. We did not know. They did not listen."
+
+She looks off-camera, at a screen that plays an address rehearsal.
+
+DR. MORGEN: "It plays tonight. All channels. Do not watch it sleepy."
+
+She looks back at the camera.
+
+DR. MORGEN: "I did a very bad thing. I leave it to you to correct it. Brew it strong."
+
+She reaches for the phone. The video stops.
+
+"Brew it strong" is the thesis line of the game.
+
+## 23. After the cure
+
+- The second address plays. Credits roll over a waking nation.
+- Post-game: the cities stay open and awake. The streets are busy, the music is live, the cafés are full.
+- Post-game content: finish side quests, complete the SleepyDex, find every hidden glove, decorate the café.
+- New Game Plus, working name "Double Shot": restart with skill levels, SleepyDex, and the van. Weak cups cure nobody. Every wake condition needs the next tier up. The Moonwalker appears more often.
+- Sequel hook: a letter in the lab of Dr. Morgen speaks of an extraction plant in Europe.
+
+## 24. The Moonwalker mystery
+
+- San Coffesco: one sequined glove lies in a park. The SleepyDex shows nothing. An awakened busker says: "The gloved one? He dances where the speakers die."
+- Steamtle: awakened Elvis fans mention "the smooth one". No sightings.
+- Pourtland: at dawn, in any silent zone with the tower already off, a figure slides backwards across the plaza. That is the fight. His telegraphs run in reverse.
+- Cure: one ristretto.
+- On waking: one spin, one toe stand, one small "hee-hee". The hidden SleepyDex entry appears: "THE MOONWALKER. Status: smooth."
+- Optional after the fight: the dance-off, a short rhythm game. Win it and he teaches the Moonwalk dodge. The Moonwalk dodge is a cosmetic roll variant. No power, only style.
