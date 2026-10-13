@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="SleepwalkerBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/balance/sleepwalker_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+chase_speed = 70.0
+idle_chance = 0.25
+walk_speed = 40.0
+wander_change_max_seconds = 3.0
+wander_change_min_seconds = 1.0

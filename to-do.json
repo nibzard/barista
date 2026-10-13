@@ -1,0 +1,1095 @@
+{
+  "schema_version": 1,
+  "source_files": [
+    "GAME_DESIGN.md",
+    "CLAUDE.md",
+    "README.md",
+    "LOG.md",
+    "brainstorm.md"
+  ],
+  "goal": "Ship Version 1 of Apocalypse Barista: a comedy top-down 2D action-adventure for Android, touch-first, in which the barista brews coffee and wakes a nation of sleepwalkers across three cities (San Coffesco, Steamtle, Pourtland), each with its own enemy types, boss, broadcast tower, and signature side quest, plus brewing minigames and masters, the SleepyDex, the mobile cafe van, auto-save with Normal and Hardcore modes, the first city free and one payment unlocking the full game.",
+  "tasks": [
+    {
+      "id": "T001",
+      "title": "Baseline verified: make check green on the current worktree",
+      "priority": 1,
+      "status": "done",
+      "details": "Run make check (gdformat --check, gdlint, headless GdUnit4). Acceptance: all existing unit and integration tests (9 cases per LOG.md) pass, output pristine, exit code 0. If godot or gdtoolkit are missing from PATH, install per README (Godot 4.7.2, pipx gdtoolkit==4.*). From here on, every completed task appends one row to LOG.md per its instructions.",
+      "files": [
+        "LOG.md"
+      ],
+      "updated_at": "2026-10-13T10:47:17Z",
+      "unblock_when": "\"\""
+    },
+    {
+      "id": "T002",
+      "title": "All balance values live in .tres resources, not hardcoded numbers",
+      "priority": 1,
+      "status": "done",
+      "details": "CLAUDE.md architecture rule. Create typed Resource classes for player, sleepwalker, projectile, and meter balance; move every hardcoded constant (player speed 220, sleep recovery 0.06, walk/chase/hug speeds, cup speed 360 and range 500) into .tres files that scenes load. Acceptance: no gameplay constants remain in scripts; a unit test loads each .tres and asserts its values; make check green.",
+      "depends_on": [
+        "T001"
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/coffee_cup.tres",
+        "game/resources/balance/player.tres",
+        "game/resources/balance/sleep_meter.tres",
+        "game/resources/balance/sleepwalker.tres",
+        "game/scenes/enemies/sleepwalker.tscn",
+        "game/scenes/player/player.tscn",
+        "game/scenes/projectiles/coffee_cup.tscn",
+        "game/scripts/balance/coffee_cup_balance.gd",
+        "game/scripts/balance/coffee_cup_balance.gd.uid",
+        "game/scripts/balance/player_balance.gd",
+        "game/scripts/balance/player_balance.gd.uid",
+        "game/scripts/balance/sleep_meter_balance.gd",
+        "game/scripts/balance/sleep_meter_balance.gd.uid",
+        "game/scripts/balance/sleepwalker_balance.gd",
+        "game/scripts/balance/sleepwalker_balance.gd.uid",
+        "game/scripts/components/sleep_meter.gd",
+        "game/scripts/enemies/sleepwalker.gd",
+        "game/scripts/player/player.gd",
+        "game/scripts/projectiles/coffee_cup.gd",
+        "game/tests/integration/test_coffee_wake.gd",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_balance_resources.gd.uid",
+        "game/tests/unit/test_sleep_meter.gd"
+      ],
+      "updated_at": "2026-10-13T10:57:32Z",
+      "unblock_when": "\"\""
+    },
+    {
+      "id": "T003",
+      "title": "Sleepy meter matches the GAME_DESIGN section 14 working numbers",
+      "priority": 1,
+      "status": "done",
+      "details": "Spec: 0-100 scale, full means awake; passive drain 0.5/s; 1.5/s near loudspeakers and in sleep zones; 5/s during boring attacks; 15/s while hugged; drink one cup gives +40 over 1.5 s at slow walk; at 0 the player sleeps. Current SleepMeter inverts this (fills toward sleep, recovers passively). Write the new-semantics tests first, then rework player.gd and sleepwalker.gd to consume the component. Acceptance: meter unit tests cover every rate; cafe integration tests updated; make check green.",
+      "depends_on": [
+        "T002"
+      ],
+      "files": [
+        "LOG.md",
+        "game/project.godot",
+        "game/resources/balance/player.tres",
+        "game/resources/balance/sleep_meter.tres",
+        "game/resources/balance/sleepwalker.tres",
+        "game/scripts/balance/player_balance.gd",
+        "game/scripts/balance/sleep_meter_balance.gd",
+        "game/scripts/balance/sleepwalker_balance.gd",
+        "game/scripts/components/sleep_meter.gd",
+        "game/scripts/enemies/sleepwalker.gd",
+        "game/scripts/player/player.gd",
+        "game/tests/integration/test_cafe_flow.gd",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_sleep_meter.gd"
+      ],
+      "updated_at": "2026-10-13T11:09:56Z",
+      "unblock_when": "\"\""
+    },
+    {
+      "id": "T004",
+      "title": "Wake-ups and lives system working per spec",
+      "priority": 1,
+      "status": "done",
+      "details": "Start and maximum 5 wake-ups; empty meter means the player sleeps on the spot, wakes in the cafe, loses one wake-up, and the world stays as it is (no reload); switching off a city tower restores 1 wake-up up to the maximum; at zero wake-ups the player dies and the game reloads the last save. Acceptance: pure-logic component with unit tests for each rule, wired to the T003 meter; make check green.",
+      "depends_on": [
+        "T003"
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/wake_ups.tres",
+        "game/scenes/cafe/cafe.tscn",
+        "game/scenes/player/player.tscn",
+        "game/scripts/balance/wake_ups_balance.gd",
+        "game/scripts/balance/wake_ups_balance.gd.uid",
+        "game/scripts/cafe/cafe.gd",
+        "game/scripts/components/sleep_meter.gd",
+        "game/scripts/components/wake_ups.gd",
+        "game/scripts/components/wake_ups.gd.uid",
+        "game/scripts/player/player.gd",
+        "game/tests/integration/test_cafe_flow.gd",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_sleep_meter.gd",
+        "game/tests/unit/test_wake_ups.gd",
+        "game/tests/unit/test_wake_ups.gd.uid"
+      ],
+      "updated_at": "2026-10-13T15:01:47Z",
+      "unblock_when": "\"\""
+    },
+    {
+      "id": "T005",
+      "title": "Coffee supply economy implemented (mana, ammunition, health)",
+      "priority": 1,
+      "status": "done",
+      "details": "Sections 9, 11, 14: brewed cups in hand with carry limit 12 (20 at mobile cafe level 2, +3 with the thermos belt); free refill at the cafe; a throw costs 1 cup; drinking a cup costs the same cup and gives +40 meter (drink-versus-throw tradeoff); weapon costs ready for later tasks (travel mug 0, thermos 3, minigun 6 per second, moka launcher 4 per shot). Acceptance: supply component unit-tested for limits and costs; all values from .tres; make check green.",
+      "depends_on": [
+        "T002",
+        "T003"
+      ],
+      "files": [
+        "LOG.md",
+        "game/project.godot",
+        "game/resources/balance/coffee_supply.tres",
+        "game/scenes/player/player.tscn",
+        "game/scripts/balance/coffee_supply_balance.gd",
+        "game/scripts/balance/coffee_supply_balance.gd.uid",
+        "game/scripts/cafe/cafe.gd",
+        "game/scripts/components/coffee_supply.gd",
+        "game/scripts/components/coffee_supply.gd.uid",
+        "game/scripts/player/player.gd",
+        "game/tests/integration/test_cafe_flow.gd",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_coffee_supply.gd",
+        "game/tests/unit/test_coffee_supply.gd.uid"
+      ],
+      "updated_at": "2026-10-13T11:52:19Z",
+      "unblock_when": "\"\""
+    },
+    {
+      "id": "T006",
+      "title": "Inventory and scavenge system working",
+      "priority": 2,
+      "status": "done",
+      "details": "Core loop steps 2-3: collect beans, scavenge gear and materials from scavenge points in buildings. Inventory holds beans, brewed coffee, gear, and materials. V1 gear per section 15: fuses (one opens one tower), scrap parts (van upgrades), thermos belt (+3 carry), the designer dripper, one sequined glove, and the blender and Turkish pot cafe appliances. Acceptance: inventory add/remove/limit logic unit-tested; scavenge pickup covered by an integration test; make check green.",
+      "depends_on": [
+        "T005"
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/items/appliances/blender.tres",
+        "game/resources/items/appliances/turkish_pot.tres",
+        "game/resources/items/beans/geisha_vault.tres",
+        "game/resources/items/beans/golden_coast_arabica.tres",
+        "game/resources/items/beans/house.tres",
+        "game/resources/items/beans/moss_hollow_organic.tres",
+        "game/resources/items/gear/designer_dripper.tres",
+        "game/resources/items/gear/sequined_glove.tres",
+        "game/resources/items/gear/thermos_belt.tres",
+        "game/resources/items/materials/fuse.tres",
+        "game/resources/items/materials/scrap_part.tres",
+        "game/scenes/cafe/cafe.tscn",
+        "game/scenes/components/scavenge_point.tscn",
+        "game/scripts/components/inventory.gd",
+        "game/scripts/components/inventory.gd.uid",
+        "game/scripts/components/scavenge_point.gd",
+        "game/scripts/components/scavenge_point.gd.uid",
+        "game/scripts/items/item_type.gd",
+        "game/scripts/items/item_type.gd.uid",
+        "game/scripts/items/scavenge_drop.gd",
+        "game/scripts/items/scavenge_drop.gd.uid",
+        "game/scripts/player/player.gd",
+        "game/tests/integration/test_scavenge.gd",
+        "game/tests/integration/test_scavenge.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_inventory.gd",
+        "game/tests/unit/test_inventory.gd.uid"
+      ],
+      "updated_at": "2026-10-13T16:12:05Z",
+      "unblock_when": "\"\""
+    },
+    {
+      "id": "T007",
+      "title": "HUD shows all player status from section 9",
+      "priority": 1,
+      "status": "todo",
+      "details": "Interface shows the sleepy meter, coffee supply, brewed cups in hand, inventory (beans, coffee, gear, materials), and remaining wake-ups. Chalkboard-style placeholder is fine until the art pass. Acceptance: HUD reads from the logic components and never duplicates state; a scene test asserts the bindings update when components change; make check green.",
+      "depends_on": [
+        "T003",
+        "T004",
+        "T005",
+        "T006"
+      ]
+    },
+    {
+      "id": "T008",
+      "title": "Combat feel matches the working numbers (dodge, arc, hug break)",
+      "priority": 1,
+      "status": "done",
+      "details": "Section 14: dodge roll 0.4 s with invulnerability during the roll; cup flight about 1 s with an arc and a wide aim cone (the current cup flies straight); hug grab range short; a grabbed player mashes to break free. Acceptance: invulnerability window, arc flight, and mash-break each covered by tests; values from .tres; make check green.",
+      "depends_on": [
+        "T002"
+      ],
+      "files": [
+        "LOG.md",
+        "game/project.godot",
+        "game/resources/balance/coffee_cup.tres",
+        "game/resources/balance/player.tres",
+        "game/scenes/enemies/neighbor.tscn",
+        "game/scenes/player/player.tscn",
+        "game/scripts/balance/coffee_cup_balance.gd",
+        "game/scripts/balance/player_balance.gd",
+        "game/scripts/combat/aim_cone.gd",
+        "game/scripts/combat/aim_cone.gd.uid",
+        "game/scripts/enemies/sleepwalker.gd",
+        "game/scripts/player/player.gd",
+        "game/scripts/projectiles/coffee_cup.gd",
+        "game/tests/integration/test_combat_feel.gd",
+        "game/tests/integration/test_combat_feel.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_aim_cone.gd",
+        "game/tests/unit/test_aim_cone.gd.uid",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_cup_arc.gd",
+        "game/tests/unit/test_cup_arc.gd.uid"
+      ],
+      "updated_at": "2026-10-13T15:31:50Z"
+    },
+    {
+      "id": "T009",
+      "title": "Sleep zone component drains the meter faster",
+      "priority": 1,
+      "status": "done",
+      "details": "Reusable component for loudspeaker poles and sleep zones: inside the area the meter drains at 1.5/s instead of 0.5/s; the cafe is a safe zone with no drain. Placeholder marker now; purple haze and drooping lamps come with the art pass. Acceptance: area-driven drain rate unit and integration tested; make check green.",
+      "depends_on": [
+        "T003"
+      ],
+      "files": [
+        "LOG.md",
+        "game/scenes/cafe/cafe.tscn",
+        "game/scenes/components/sleep_zone.tscn",
+        "game/scripts/components/sleep_meter.gd",
+        "game/scripts/components/sleep_zone.gd",
+        "game/scripts/components/sleep_zone.gd.uid",
+        "game/tests/integration/test_cafe_flow.gd",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_sleep_meter.gd",
+        "game/tests/unit/test_sleep_zone.gd",
+        "game/tests/unit/test_sleep_zone.gd.uid"
+      ],
+      "updated_at": "2026-10-13T13:13:19Z"
+    },
+    {
+      "id": "T010",
+      "title": "Brewing data framework in place (methods, recipes, tiers, cures)",
+      "priority": 1,
+      "status": "done",
+      "details": "Section 8 and 15: data model for the 8 methods (filter, Turkish, French press, V60, moka pot, espresso, Aeropress, cold brew); a recipe is bean + roast + method + extra; V1 beans (House, Golden Coast arabica, Moss Hollow organic, Geisha Vault) with quality tiers; roasts (light most caffeine, medium, dark); cup tiers from minigame score (below 80 weak wakes basic types only, 80 or more good, 95 or more perfect wakes all types plus a small wake radius); cure-matching rules for which recipe wakes which sleepwalker type. All data in .tres. Acceptance: tier calculation and cure matching unit-tested; make check green.",
+      "depends_on": [
+        "T002"
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/brewing/beans/geisha_vault.tres",
+        "game/resources/brewing/beans/golden_coast_arabica.tres",
+        "game/resources/brewing/beans/house.tres",
+        "game/resources/brewing/beans/moss_hollow_organic.tres",
+        "game/resources/brewing/brewing_balance.tres",
+        "game/resources/brewing/brewing_library.tres",
+        "game/resources/brewing/cures/gamer.tres",
+        "game/resources/brewing/cures/karen.tres",
+        "game/resources/brewing/cures/moonwalker.tres",
+        "game/resources/brewing/cures/neighbor.tres",
+        "game/resources/brewing/cures/tech_bro.tres",
+        "game/resources/brewing/cures/tinfoil_man.tres",
+        "game/resources/brewing/cures/tourist.tres",
+        "game/resources/brewing/cures/trucker.tres",
+        "game/resources/brewing/extras/butter.tres",
+        "game/resources/brewing/extras/full_pot.tres",
+        "game/resources/brewing/extras/short_pull.tres",
+        "game/resources/brewing/extras/tall_size.tres",
+        "game/resources/brewing/extras/three_shots.tres",
+        "game/resources/brewing/extras/whipped_cream.tres",
+        "game/resources/brewing/methods/aeropress.tres",
+        "game/resources/brewing/methods/cold_brew.tres",
+        "game/resources/brewing/methods/espresso.tres",
+        "game/resources/brewing/methods/filter.tres",
+        "game/resources/brewing/methods/french_press.tres",
+        "game/resources/brewing/methods/moka_pot.tres",
+        "game/resources/brewing/methods/turkish.tres",
+        "game/resources/brewing/methods/v60.tres",
+        "game/resources/brewing/recipes/big_filter_pot.tres",
+        "game/resources/brewing/recipes/bulletproof.tres",
+        "game/resources/brewing/recipes/frappuccino.tres",
+        "game/resources/brewing/recipes/ristretto.tres",
+        "game/resources/brewing/recipes/super_tall_american.tres",
+        "game/resources/brewing/recipes/triple_shot.tres",
+        "game/resources/brewing/recipes/turkish_cup.tres",
+        "game/resources/brewing/roasts/dark.tres",
+        "game/resources/brewing/roasts/light.tres",
+        "game/resources/brewing/roasts/medium.tres",
+        "game/scripts/brewing/bean_type.gd",
+        "game/scripts/brewing/bean_type.gd.uid",
+        "game/scripts/brewing/brewed_cup.gd",
+        "game/scripts/brewing/brewed_cup.gd.uid",
+        "game/scripts/brewing/brewing_balance.gd",
+        "game/scripts/brewing/brewing_balance.gd.uid",
+        "game/scripts/brewing/brewing_library.gd",
+        "game/scripts/brewing/brewing_library.gd.uid",
+        "game/scripts/brewing/brewing_method.gd",
+        "game/scripts/brewing/brewing_method.gd.uid",
+        "game/scripts/brewing/cup_tier.gd",
+        "game/scripts/brewing/cup_tier.gd.uid",
+        "game/scripts/brewing/cure_matcher.gd",
+        "game/scripts/brewing/cure_matcher.gd.uid",
+        "game/scripts/brewing/recipe.gd",
+        "game/scripts/brewing/recipe.gd.uid",
+        "game/scripts/brewing/recipe_extra.gd",
+        "game/scripts/brewing/recipe_extra.gd.uid",
+        "game/scripts/brewing/roast_profile.gd",
+        "game/scripts/brewing/roast_profile.gd.uid",
+        "game/scripts/brewing/sleepwalker_cure.gd",
+        "game/scripts/brewing/sleepwalker_cure.gd.uid",
+        "game/tests/unit/test_brewing_data.gd",
+        "game/tests/unit/test_brewing_data.gd.uid",
+        "game/tests/unit/test_brewing_tiers.gd",
+        "game/tests/unit/test_brewing_tiers.gd.uid",
+        "game/tests/unit/test_cure_matching.gd",
+        "game/tests/unit/test_cure_matching.gd.uid"
+      ],
+      "updated_at": "2026-10-13T11:33:20Z",
+      "unblock_when": "\"\""
+    },
+    {
+      "id": "T011",
+      "title": "The Grind Dial pre-step minigame playable",
+      "priority": 2,
+      "status": "todo",
+      "details": "Every brew starts with it: a marker runs from fine to coarse, the player stops it in the correct zone for the method, a wrong grind lowers the cup quality. Works with touch and keyboard. Acceptance: scoring logic separated from presentation and unit-tested for hit, miss, and wrong zone; make check green.",
+      "depends_on": [
+        "T010"
+      ]
+    },
+    {
+      "id": "T012",
+      "title": "The Pour minigame playable (V60, filter, Aeropress)",
+      "priority": 2,
+      "status": "todo",
+      "details": "The player pours in a slow circle, the bloom ring fills up, too fast floods it, too slow stalls it, the ring shows the sweet spot. Acceptance: pour logic headless-testable (input stream in, score out) with flood and stall cases covered; make check green.",
+      "depends_on": [
+        "T011"
+      ]
+    },
+    {
+      "id": "T013",
+      "title": "The Press minigame playable (espresso, French press, moka pot)",
+      "priority": 2,
+      "status": "todo",
+      "details": "Two-step hold: hold the pressure in the green zone while it creeps, then release at the exact mark; early means sour, late means bitter. Acceptance: the two-step hold and release logic unit-tested including both failure modes; make check green.",
+      "depends_on": [
+        "T011"
+      ]
+    },
+    {
+      "id": "T014",
+      "title": "The Foam Watch minigame playable (Turkish coffee)",
+      "priority": 2,
+      "status": "todo",
+      "details": "The pot heats up and the foam rises; more foam gives a better cup, but the pot can boil over; the player lifts the pot at the last safe moment and greed costs the cup. Acceptance: foam growth and boil-over logic unit-tested; make check green.",
+      "depends_on": [
+        "T011"
+      ]
+    },
+    {
+      "id": "T015",
+      "title": "Cold brew works with no minigame",
+      "priority": 3,
+      "status": "todo",
+      "details": "The player starts it and comes back later; low ceiling, zero stress. Acceptance: timer-based completion unit-tested including the quality ceiling; make check green.",
+      "depends_on": [
+        "T010"
+      ]
+    },
+    {
+      "id": "T016",
+      "title": "Brewing skill progression and auto-brew working",
+      "priority": 2,
+      "status": "todo",
+      "details": "Section 14: skill 0-10 per method; good brew (80 or more) gives +1, perfect (95 or more) gives +2; one master lesson gives +2 (hook for the masters task); at skill 10 auto-brew opens for the method: always scores 80, never 95. Acceptance: skill gain, cap, and auto-brew rules unit-tested; state exposed for the save system; make check green.",
+      "depends_on": [
+        "T012",
+        "T013",
+        "T014"
+      ]
+    },
+    {
+      "id": "T017",
+      "title": "Enemy type framework with The Neighbor as the basic type",
+      "priority": 1,
+      "status": "done",
+      "details": "Data-driven enemy types: one special behavior plus one required cure per type, cures checked against the brewing data (basic types wake from weak cups, special types only from their recipe). Refactor the current sleepwalker into The Neighbor: pajamas placeholder, slow walk, simple hug. Emits a first-meet event for the SleepyDex. Acceptance: cure-match wake rules unit-tested (wrong cup does not wake, right cup does); existing wander/chase/hug tests keep passing; make check green.",
+      "depends_on": [
+        "T010"
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/brewing/brewing_balance.tres",
+        "game/resources/enemies/neighbor.tres",
+        "game/scenes/cafe/cafe.tscn",
+        "game/scenes/enemies/neighbor.tscn",
+        "game/scenes/player/player.tscn",
+        "game/scripts/brewing/brewing_balance.gd",
+        "game/scripts/enemies/enemy_type.gd",
+        "game/scripts/enemies/enemy_type.gd.uid",
+        "game/scripts/enemies/sleepwalker.gd",
+        "game/scripts/player/player.gd",
+        "game/scripts/projectiles/coffee_cup.gd",
+        "game/tests/integration/test_cafe_flow.gd",
+        "game/tests/integration/test_coffee_wake.gd",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_brewing_data.gd",
+        "game/tests/unit/test_enemy_types.gd",
+        "game/tests/unit/test_enemy_types.gd.uid"
+      ],
+      "updated_at": "2026-10-13T14:29:33Z"
+    },
+    {
+      "id": "T018",
+      "title": "The Tourist enemy implemented",
+      "priority": 2,
+      "status": "todo",
+      "details": "He stops and takes photos of everything; the camera flash stuns the player for a moment; cure is a Frappuccino with whipped cream. Acceptance: stun behavior and cure rule tested; make check green.",
+      "depends_on": [
+        "T017"
+      ]
+    },
+    {
+      "id": "T019",
+      "title": "The Tech Bro enemy implemented",
+      "priority": 2,
+      "status": "todo",
+      "details": "He sleep-pitches startup ideas to nobody; a drone circles him and attacks the player; cure is bulletproof coffee (espresso base + butter). Acceptance: drone attack pattern and cure rule tested; make check green.",
+      "depends_on": [
+        "T017"
+      ]
+    },
+    {
+      "id": "T020",
+      "title": "The Gamer enemy implemented",
+      "priority": 2,
+      "status": "todo",
+      "details": "He had the highest synthetic caffeine level in the country and moves in fast, short dashes; cure is a triple Aeropress shot. Acceptance: dash behavior and cure rule tested; make check green.",
+      "depends_on": [
+        "T017"
+      ]
+    },
+    {
+      "id": "T021",
+      "title": "The Tinfoil Man enemy implemented",
+      "priority": 2,
+      "status": "todo",
+      "details": "His tinfoil hat stops thrown coffee; splash attacks do not work on him; cure is Turkish coffee. Acceptance: a direct cup hit does not wake him and the Turkish recipe does, with tests for both; make check green.",
+      "depends_on": [
+        "T017"
+      ]
+    },
+    {
+      "id": "T022",
+      "title": "The Karen enemy implemented",
+      "priority": 2,
+      "status": "todo",
+      "details": "She is very fat and looks slow but moves very fast; surprise attack; she wakes only from a super tall American coffee; when she wakes she asks for the manager. Acceptance: speed switch and cure rule tested; make check green.",
+      "depends_on": [
+        "T017"
+      ]
+    },
+    {
+      "id": "T023",
+      "title": "SleepyDex smartphone app working",
+      "priority": 2,
+      "status": "todo",
+      "details": "Section 9: lists all sleepwalker types with picture, name, found or not found status, and the coffee that wakes the type; a new entry opens on first meeting; rare types are completely absent until found (no placeholder, no hint that a rare type exists); a completed dex gives the troll doll keychain: no stats, no skill, no secret, it hangs on the mobile cafe mirror, one line says 'It is just a keychain.' Acceptance: unlock rules unit-tested including the hidden-rare rule; make check green.",
+      "depends_on": [
+        "T017"
+      ]
+    },
+    {
+      "id": "T024",
+      "title": "Shared block kit and city structure per the level design rules",
+      "priority": 2,
+      "status": "todo",
+      "details": "Section 17: one city is 6-9 blocks, one phone screen shows about 1.5 blocks; every city has the same landmark set (cafe at one edge as start and safe zone, broadcast tower at the other edge, one boss arena, one signature quest location, scavenge buildings for the rest); three speaker poles guard the last blocks before the tower; enemy density 3-4 sleepwalkers per block, more near the tower; all cities share one block kit, only landmarks, accents, and crowds differ. Acceptance: block kit scenes composable; a test asserts each city's landmark set and density budget; make check green.",
+      "depends_on": [
+        "T009",
+        "T017"
+      ]
+    },
+    {
+      "id": "T025",
+      "title": "Broadcast tower mechanic working (fuse, switch-off, wake-up restore)",
+      "priority": 1,
+      "status": "todo",
+      "details": "Core loop step 7: scavenge one fuse, insert it, switch the tower off; the address stops mid-word, one second of silence, then birdsong; the toast says wake-up restored (+1 via T004); after the switch the woken people of the city stay awake; tower state exposed for the save system. Acceptance: fuse-gated switch flow and wake-up restore integration-tested; make check green.",
+      "depends_on": [
+        "T004",
+        "T006",
+        "T024"
+      ]
+    },
+    {
+      "id": "T026",
+      "title": "San Coffesco built (city 1, the free city)",
+      "priority": 2,
+      "status": "todo",
+      "details": "First city from the block kit with a teal accent placeholder; roster: Neighbor, Tourist, Tech Bro; cafe start and safe zone with free refill; tower at the far edge; boss arena for Sam Oatman; Robotaxi Depot quest location; the road east ends at the bridge paywall (gate reads unlock state; billing is external, see T053). The free city teaches the whole game: throw, brew, meter, tower (section 4). Replaces the current wake-all-to-win cafe overlay with the city completion flow. Acceptance: city scene loads headless with the full landmark set, density, and speaker poles; make check green.",
+      "depends_on": [
+        "T018",
+        "T019",
+        "T024",
+        "T025"
+      ]
+    },
+    {
+      "id": "T027",
+      "title": "Sam Oatman boss fight playable (San Coffesco)",
+      "priority": 2,
+      "status": "todo",
+      "details": "A keynote guru in a gray fleece vest sleep-presents a product show to a hall of sleepwalking founders; his boring slides drain the meter (boring-attack rate); live product demos send drones; every fight phase starts with 'One more thing'; cure: scavenge his 700-dollar designer dripper, brew one cup with it, serve it on the demo table; when he wakes he presents the cup as his next product. Builds the reusable boss framework (phases, cure delivery, wake sequence). Acceptance: phase progression and cure condition tested; make check green.",
+      "depends_on": [
+        "T026"
+      ]
+    },
+    {
+      "id": "T028",
+      "title": "Steamtle built (city 2)",
+      "priority": 2,
+      "status": "todo",
+      "details": "Rain-blue accent; roster: Neighbor, Tourist, Gamer; the public market with the Fish Throwers boss arena; Sleepvana quest locations (greenhouse, garage, sofa); a new cafe, bigger and better than the old one; moving day from San Coffesco with the van. Reached by traveling east after San Coffesco is complete. Acceptance: city loads headless with the full landmark set; make check green.",
+      "depends_on": [
+        "T020",
+        "T026",
+        "T034"
+      ]
+    },
+    {
+      "id": "T029",
+      "title": "The Fish Throwers boss fight playable (Steamtle)",
+      "priority": 2,
+      "status": "todo",
+      "details": "The fish sellers of the public market sleep-throw fish with perfect aim in a steady rhythm; the player dodges the volley and wakes the head fishmonger first (cure: one tall cup of the market dark roast thrown into his apron); when the crew wakes up they throw the fish one last time, all together, and cheer. Acceptance: volley pattern and head-first cure rule tested; make check green.",
+      "depends_on": [
+        "T028"
+      ]
+    },
+    {
+      "id": "T030",
+      "title": "Pourtland built (city 3)",
+      "priority": 2,
+      "status": "todo",
+      "details": "Moss-green accent; roster: Neighbor, Tinfoil Man, first Karen; the Sleep Jam boss arena; the Aisle 7 hardware store quest location; new cafe and moving day as in Steamtle. Acceptance: city loads headless with the full landmark set; make check green.",
+      "depends_on": [
+        "T021",
+        "T022",
+        "T028"
+      ]
+    },
+    {
+      "id": "T031",
+      "title": "The Sleep Jam boss fight playable (Pourtland)",
+      "priority": 2,
+      "status": "todo",
+      "details": "An indie band sleep-performs one endless song; the song is a lullaby that makes the player sleepy (aura drain); cure: a cup from the most obscure single-origin beans in the world (Geisha Vault tier recipe). Acceptance: aura drain and cure condition tested; make check green.",
+      "depends_on": [
+        "T030"
+      ]
+    },
+    {
+      "id": "T032",
+      "title": "Quest system framework working (main chain plus side quests)",
+      "priority": 2,
+      "status": "todo",
+      "details": "Main quest chain state (city, tower, unlock the next city) plus a side-quest state machine (offered, active, complete); quest state exposed for the save system; signals drive UI markers (for example the tower marker from section 19 step 7). Acceptance: state transitions unit-tested; make check green.",
+      "depends_on": [
+        "T017"
+      ]
+    },
+    {
+      "id": "T033",
+      "title": "The Robotaxi Depot side quest playable (San Coffesco)",
+      "priority": 2,
+      "status": "todo",
+      "details": "Driverless taxis still run: they pick up sleepwalkers and deliver them to the player; the routing engineer sleeps in the depot control room; his order is written like code (triple shot, oat cortado, milk at exactly 31 degrees); the player brews the order and wakes him; reward: the fleet re-routes and the taxis work as fast travel inside the city. Acceptance: order match, wake, and fast-travel unlock tested; make check green.",
+      "depends_on": [
+        "T026",
+        "T032"
+      ]
+    },
+    {
+      "id": "T034",
+      "title": "Mobile cafe van working with three upgrade levels",
+      "priority": 2,
+      "status": "todo",
+      "details": "Section 10: the survivors in San Coffesco give the van to the player (acquisition beat in city 1). Level 1: transport for tools, gear, beans, equipment. Level 2: a kitchen inside, brew outside the city cafe, carry limit 20. Level 3: the field cafe with tables, an awning, and a lamp; park anywhere and open a small field base where awakened survivors gather and give small side quests. Upgrades cost scrap parts. Also the moving-day tool between city cafes. Acceptance: upgrade levels, carry-limit change, and brew-anywhere rule tested; make check green.",
+      "depends_on": [
+        "T005",
+        "T010",
+        "T026"
+      ]
+    },
+    {
+      "id": "T035",
+      "title": "The Sleepvana side quest playable (Steamtle)",
+      "priority": 2,
+      "status": "todo",
+      "details": "The retired grunge band sleeps in three places (greenhouse, garage, sofa); three members wake to three simple orders; the frontman wakes only to a full crowd: gather awakened fans at the field cafe (van level 3) and lead them to the garage, then brew the frontman order during the encore; reward: one last concert, a city wake event that wakes every sleepwalker in hearing range; hit song 'Smells Like Bean Spirit' (diegetic music). Acceptance: crowd-gather condition and the wake event radius tested; make check green.",
+      "depends_on": [
+        "T028",
+        "T032",
+        "T034"
+      ]
+    },
+    {
+      "id": "T036",
+      "title": "Brewing masters implemented (Offmug, Hedrip, Raoast)",
+      "priority": 2,
+      "status": "todo",
+      "details": "Framework: a master has one fixed role and one fixed lesson, +2 skill per lesson, three lessons each, teaches faster than solo practice, and gives new recipes. V1 masters: James Offmug (V60, says 'Ultimately...'), Lance Hedrip (Aeropress and cold brew, scales and thermometers), Scott Raoast (espresso and filter, strict consultant). Each master lives in a different city (assignment decided during implementation); moka pot and French press stay self-taught in V1; the Turkish master comes from the Aisle 7 quest. Acceptance: lesson flow and skill grants tested; make check green.",
+      "depends_on": [
+        "T016"
+      ]
+    },
+    {
+      "id": "T037",
+      "title": "The Aisle 7 side quest and the Turkish master playable (Pourtland)",
+      "priority": 2,
+      "status": "todo",
+      "details": "A woman gives the player a photo; her husband sleeps in aisle 7 of the hardware store, between the screws and the sandpaper; he drank only Turkish coffee all his life; the player brews one Turkish cup in front of him; he wakes, cries, and hugs his wife (the only sweet hug in the game); he is the Turkish master and teaches the Turkish method and its recipes. Acceptance: quest flow and master unlock tested; make check green.",
+      "depends_on": [
+        "T014",
+        "T030",
+        "T032",
+        "T036"
+      ]
+    },
+    {
+      "id": "T038",
+      "title": "Cure weapons implemented",
+      "priority": 2,
+      "status": "todo",
+      "details": "Section 11: the Travel Mug (sealed steel, bounces from one sleepwalker to a second, also around corners, then rolls back; 0 supply cost, reusable), the Thermos (breaks and splashes a wide area, 3 cups), the French Press (pump-action close-range cone), the Moka Launcher (high-arc pressurized pots, coffee brews during the flight, large area, 4 cups per shot), the Coffee Minigun (continuous stream, 6 cups per second), the Auto-Drip Turret (deployable, drips on every sleepwalker below it, works alone). The player finds them along the route. Acceptance: each weapon's cost, area, and wake behavior tested; values from .tres; make check green.",
+      "depends_on": [
+        "T005",
+        "T008"
+      ]
+    },
+    {
+      "id": "T039",
+      "title": "Support tools implemented",
+      "priority": 2,
+      "status": "todo",
+      "details": "The Tamper (melee push, staggers one sleepwalker, wakes nobody), the Steam Wand (melee cone, 0.3 s parry window, a parried hug staggers the sleepwalker for 3 s), the Portafilter (shield that blocks hugs, bash attack), the Iced Sprayer (iced coffee wakes nobody, brain freeze slows them), the Bean Slick (dropped beans make sleepwalkers slip). None cost coffee. Acceptance: parry window timing and each effect tested; make check green.",
+      "depends_on": [
+        "T008"
+      ]
+    },
+    {
+      "id": "T040",
+      "title": "Auto-save system working per section 18",
+      "priority": 2,
+      "status": "todo",
+      "details": "Auto-save only, no manual save button; save points: entry to the cafe, tower switch, boss cured; the save holds position, meter value, wake-ups, beans, cups, gear, skill levels, SleepyDex, van level, quest state, tower state; the player can close the app anywhere and the game reloads at the last save point; meter sleep does not reload a save (wake in the cafe, lose one wake-up, the world stays as it is); full death reloads the last save with the wake-ups from that save. Acceptance: save/load round-trip test covers every field; sleep-versus-death paths tested; make check green.",
+      "depends_on": [
+        "T004",
+        "T005",
+        "T006",
+        "T016",
+        "T023",
+        "T025",
+        "T032",
+        "T034"
+      ]
+    },
+    {
+      "id": "T041",
+      "title": "Normal and Hardcore game modes selectable",
+      "priority": 3,
+      "status": "todo",
+      "details": "Mode select in the main menu. Normal: the wake-up system as specced. Hardcore: no wake-ups, the first sleep ends the game; one save slot; death deletes the save. Acceptance: mode rules and hardcore save deletion tested; make check green.",
+      "depends_on": [
+        "T040"
+      ]
+    },
+    {
+      "id": "T042",
+      "title": "The first ten minutes play as scripted (diegetic tutorial)",
+      "priority": 2,
+      "status": "todo",
+      "details": "Section 19, no menus, no text walls: the Dr. Morgen video plays on the cafe screen (20 s, skippable, placeholder stills acceptable until T043); the player wakes in the cafe; move prompt; drink prompt (the meter fills); a Neighbor sleepwalks past the window and the open-door prompt; first throw (he wakes, says thanks, shuffles away); a speaker pole near the cafe drains the meter visibly and the step-back-inside lesson; a survivor says 'The tower. Kill the speaker.' and the tower marker appears; on the way the first hug, first dodge roll, first Grind Dial brew; at the tower scavenge one fuse, switch it off, silence, birdsong, wake-up toast; camera pans out, three cities on the map, title card Apocalypse Barista. Character creation (T046) precedes the first run. Acceptance: the prompt sequence is a testable state machine with tests; make check green.",
+      "depends_on": [
+        "T003",
+        "T004",
+        "T005",
+        "T008",
+        "T011",
+        "T025",
+        "T026"
+      ]
+    },
+    {
+      "id": "T043",
+      "title": "Dr. Morgen opening video produced per the section 22 script",
+      "priority": 3,
+      "status": "todo",
+      "details": "Phone-camera framing in a lab at night, 2D animated stills with small motions, voice and subtitles, about 20 s, script verbatim ending on 'Brew it strong'; skippable; replays later on the cafe television. Placeholder art and a silent track are acceptable now and never block development (T054 replaces them). Acceptance: subtitle timing and skip/replay logic tested; make check green.",
+      "depends_on": [
+        "T042"
+      ]
+    },
+    {
+      "id": "T044",
+      "title": "Address audio loop system working per the sound rules",
+      "priority": 2,
+      "status": "todo",
+      "details": "Section 21: the address never plays at full volume, always filtered; three distance layers (far muffled rumble, mid recognizable words, near a speaker pole the clear annoying voice); every speaker pole plays a 5-second loop with a random start point and the loops never sync; a hug swells the address for the grabbed player; the antagonist track gets loud when an enemy gets close; tower death cuts the address mid-word, one second of silence, then morning birdsong; music is diegetic first (cafes play vinyl jazz, band bosses play their songs); tolerance rule: every sound must stay tolerable after 30 minutes, if it grates it filters or it goes. Placeholder audio acceptable. Acceptance: layer selection and seeded random loop offsets unit-tested; make check green.",
+      "depends_on": [
+        "T025"
+      ]
+    },
+    {
+      "id": "T045",
+      "title": "Art direction pass replaces placeholder shapes",
+      "priority": 3,
+      "status": "todo",
+      "details": "Section 20: proportions about 3.5 heads tall with oversized hands; warm creams, wood browns, brick reds plus one accent per city (San Coffesco teal, Steamtle rain blue, Pourtland moss green); sleep zones desaturate (purple haze, drooping lamps, no horror darkness); sleepwalkers in pastel pajamas and nightcaps with a comic drool shine arc; the player wears the steampunk apron and goggles; chalkboard-style menus, the SleepyDex as a phone app; Mug Roasters corporate red and black, friendly evil. Readability rule: every sleepwalker type is recognizable at one centimeter on a phone screen, verified with a silhouette-only test. Placeholder-quality vector art is fine until T054 lands real art.",
+      "depends_on": [
+        "T024"
+      ]
+    },
+    {
+      "id": "T046",
+      "title": "Character creation working (cosmetic only)",
+      "priority": 2,
+      "status": "todo",
+      "details": "Section 5: body type, skin tone, hair style, beard length (clean, stubble, hipster, lumberjack, wizard; open to all body types), tattoos (number and placement), steampunk clothing (hats, goggles, aprons, boots). All options are cosmetic only. Wired into the game start from the main menu; the selection persists through the save system. Placeholder visuals acceptable. Acceptance: creation state saves and loads in a round-trip test; make check green.",
+      "depends_on": [
+        "T040"
+      ]
+    },
+    {
+      "id": "T047",
+      "title": "Touch controls make the whole game keyboard-free",
+      "priority": 2,
+      "status": "todo",
+      "details": "Section 4 and CLAUDE.md: a virtual stick and touch buttons; the full game (move, aim, throw, dodge, brew minigames, menus, SleepyDex) is playable without a keyboard; desktop keys stay as development conveniences. Verify on desktop with emulated touch input. Acceptance: simulated touch-event tests drive the core actions; make check green.",
+      "depends_on": [
+        "T007",
+        "T008"
+      ]
+    },
+    {
+      "id": "T048",
+      "title": "V1 ending: Pourtland outro with the Karen and the credits",
+      "priority": 2,
+      "status": "todo",
+      "details": "Section 16: after Pourtland is complete, the Karen appears in the outro, blocks the road east, demands the manager, and the credits catch her mid-sentence. After the credits the three cities stay open and awake for the V1-fitting post-game activities: finish side quests, complete the SleepyDex, find every hidden glove. Acceptance: outro sequencing tested; make check green.",
+      "depends_on": [
+        "T022",
+        "T030",
+        "T031"
+      ]
+    },
+    {
+      "id": "T049",
+      "title": "City progression and the paywall gate working",
+      "priority": 2,
+      "status": "todo",
+      "details": "Main quest flow: complete a city (boss cured, tower off) and the road east opens to the next city; each new city has a new cafe, bigger and better; the moving day carries all belongings with the van. The paywall stands at the bridge out of San Coffesco: the first city is free, one payment unlocks the full game. Implementable part: an unlock-state gate behind a stubbed purchase interface; the real billing is external (T053). Acceptance: gate behavior tested with the unlock state forced both ways; make check green.",
+      "depends_on": [
+        "T026",
+        "T028",
+        "T030"
+      ]
+    },
+    {
+      "id": "T050",
+      "title": "The Moonwalker mystery playable across the three cities",
+      "priority": 3,
+      "status": "todo",
+      "details": "Section 24: one sequined glove lies in a San Coffesco park (the SleepyDex shows nothing); an awakened busker says 'The gloved one? He dances where the speakers die.'; Steamtle Elvis fans mention 'the smooth one', no sightings; in Pourtland at dawn, in any silent zone with the tower already off, a figure slides backwards across the plaza: that is the fight. He never walks forward, moves fast, gives wrong signals, does not hug, leans far back and slides under the guard; his telegraphs run in reverse; cure is one ristretto; on waking one spin, one toe stand, one small 'hee-hee'; the hidden entry appears: 'THE MOONWALKER. Status: smooth.' No real name, no real likeness, no real music. Optional dance-off after the fight: win the short rhythm game and he teaches the Moonwalk dodge, a cosmetic roll variant with no power, only style. Acceptance: spawn condition (dawn, silent zone, tower off), reverse telegraphs, and the hidden-dex rule tested; make check green.",
+      "depends_on": [
+        "T023",
+        "T026",
+        "T028",
+        "T030"
+      ]
+    },
+    {
+      "id": "T051",
+      "title": "Chemist side quest and caffeine cluster bomb (confirm V1 scope with Niko first)",
+      "priority": 4,
+      "status": "todo",
+      "details": "Section 12 defines this quest but the section 13 version 1 side-quest list does not include it; confirm with Niko whether it is V1 or V2 before building. If V1: a former chemistry teacher knows the Mug Roasters extraction process and applies it to real beans for super-concentrated real caffeine; reward is the caffeine cluster bomb: many mini bombs inside one large cardboard box, fired with a slingshot, all explode on impact and wake all sleepwalkers in a large area; a crafted charge, not from the supply, carry maximum 3.",
+      "depends_on": [
+        "T032",
+        "T038"
+      ]
+    },
+    {
+      "id": "T052",
+      "title": "EXTERNAL PREREQ: Android toolchain ready for on-device builds",
+      "priority": 3,
+      "status": "todo",
+      "details": "Not implementable game code: install a JDK and the Android SDK, download the Godot 4.7.2 export templates, and configure the Android export preset with Niko's approval (LOG.md records Java as absent and Android deferred; CLAUDE.md says do not add build targets speculatively and the agent never touches signing credentials). Needed before on-device verification of the touch-first build; until then desktop stays the development platform. Acceptance: the game runs on an Android device with touch controls.",
+      "depends_on": [
+        "T047"
+      ]
+    },
+    {
+      "id": "T053",
+      "title": "EXTERNAL PREREQ: store account and the one-payment unlock",
+      "priority": 4,
+      "status": "todo",
+      "details": "Business model per section 4: the first city is free, one payment unlocks the full game. Requires a store developer account, a one-time purchase product, and billing integration wired into the T049 gate; store publishing and signing stay with Niko per the CLAUDE.md agent-safety rules. Acceptance: a purchase on a store test track unlocks cities 2 and 3.",
+      "depends_on": [
+        "T049"
+      ]
+    },
+    {
+      "id": "T054",
+      "title": "EXTERNAL PREREQ: real art, audio, and voice assets",
+      "priority": 3,
+      "status": "todo",
+      "details": "Placeholder shapes and placeholder audio must never block development (CLAUDE.md). Before ship: real character and city art per section 20, President Puck's address voice-over, Dr. Morgen's voice for the opening video, diegetic music and SFX per section 21. The cameo strategy stays parody-only in V1; real cameos need written permission and are a promotion decision for Niko (priority contact list in section 8). Acceptance: assets integrated and the silhouette readability test re-verified.",
+      "depends_on": [
+        "T043",
+        "T045"
+      ]
+    },
+    {
+      "id": "T055",
+      "title": "V1 playthrough verification and release readiness",
+      "priority": 2,
+      "status": "todo",
+      "details": "Executable verification of the whole build on desktop with emulated touch: a full San Coffesco to Steamtle to Pourtland playthrough covering the tutorial, all 8 brewing methods, every V1 enemy type (Neighbor, Tourist, Tech Bro, Gamer, Tinfoil Man, Karen, Moonwalker), all three bosses, all three signature quests, the tower in each city, save points (close and reload at each), Normal and Hardcore death handling, and the outro credits. Acceptance: make check green with pristine output; no crashes; LOG.md row appended.",
+      "depends_on": [
+        "T027",
+        "T029",
+        "T033",
+        "T035",
+        "T037",
+        "T040",
+        "T041",
+        "T042",
+        "T046",
+        "T047",
+        "T048",
+        "T049",
+        "T050"
+      ]
+    },
+    {
+      "id": "T056",
+      "title": "Post-game extras scope check with Niko (Double Shot, cafe decoration)",
+      "priority": 4,
+      "status": "todo",
+      "details": "Section 23 lists these under after-the-cure, which is partly V2 territory: New Game Plus 'Double Shot' (restart with skill levels, SleepyDex, and the van; weak cups cure nobody; every wake condition needs the next tier up; the Moonwalker appears more often) and cafe decoration. Confirm with Niko early whether either ships in V1; the V2 sequel hook (the letter in Dr. Morgen's lab) stays out of scope either way.",
+      "depends_on": [
+        "T040",
+        "T048"
+      ]
+    },
+    {
+      "id": "T057",
+      "title": "Wire CureMatcher into the live cup-hit wake flow",
+      "priority": 2,
+      "status": "todo",
+      "details": "coffee_cup.gd currently wakes any sleepwalker on any hit. The enemy type framework must give each sleepwalker a sleeper_type_id and a BrewedCup, then gate wake_up() on CureMatcher.can_wake and apply CureMatcher.wake_radius for perfect cups. T017 (enemy type framework) is the natural integration point; cup projectiles carry a BrewedCup once brewing minigames exist (T011-T015).\nEvidence: game/scripts/projectiles/coffee_cup.gd:28-31 calls body.wake_up() unconditionally on hit.",
+      "depends_on": [
+        "T017"
+      ]
+    },
+    {
+      "id": "T058",
+      "title": "Add V2+ city cure data when those sleepwalker types ship",
+      "priority": 3,
+      "status": "todo",
+      "details": "Section 6 defines cures for later-city types: double espresso (Night Nurse), protein cold brew (Crossfitter), 12-dollar single-origin V60 (Executive), second cup within one minute (Withdrawer), plus boss cures (designer dripper cup, all-eight-methods cup, competition cup). The V1 recipe table in section 15 intentionally omits them; add Recipe/SleepwalkerCure .tres rows when those types are scheduled.\nEvidence: GAME_DESIGN.md section 6 enemy cure list vs section 15 'Recipes (version 1)' table.",
+      "depends_on": [
+        "T036"
+      ]
+    },
+    {
+      "id": "T059",
+      "title": "Add a score ceiling to BrewingMethod for cold brew",
+      "priority": 3,
+      "status": "todo",
+      "details": "Cold brew is 'low ceiling, zero stress' per section 8. BrewingMethod has no score-ceiling field yet; T015 should add it as .tres data (and pick the ceiling value with Niko) so cold brew cannot reach the perfect tier while staying stress-free.\nEvidence: game/scripts/brewing/brewing_method.gd has grind_target/grind_tolerance/minigame_group only; GAME_DESIGN.md section 8 cold brew entry.",
+      "depends_on": [
+        "T015"
+      ]
+    },
+    {
+      "id": "T060",
+      "title": "Caffeine cluster bomb charges: crafted, not from the supply, carry maximum 3",
+      "priority": 2,
+      "status": "todo",
+      "details": "The caffeine cluster bomb is a crafted charge that bypasses the coffee supply entirely, with its own carry maximum of 3. CoffeeSupply currently models per-cup weapon costs only; the charge counter belongs with the weapons/chemist-side-quest work (inventory crafting from T006 plus a weapons task).\nEvidence: GAME_DESIGN.md section 14: 'Caffeine cluster bomb: a crafted charge, not from the supply. Carry maximum 3.' Not covered by this task's contract, which listed only travel mug, thermos, minigun, and moka launcher costs.",
+      "depends_on": [
+        "T005",
+        "T006"
+      ]
+    },
+    {
+      "id": "T061",
+      "title": "Thrown cups ignore walls and static obstacles (collision detects sleepwalkers only)",
+      "priority": 3,
+      "status": "todo",
+      "details": "Cup projectiles must collide with environment geometry so coffee cannot wake sleepwalkers through walls; fold the environment-collision rule into the cup-flight rework (arc, aim cone) and the T024 block-kit buildings. Acceptance: a cup thrown at a sleepwalker behind a wall stops or breaks on the wall, covered by an integration test; make check green.\nEvidence: game/scenes/projectiles/coffee_cup.tscn sets collision_mask = 4 and game/scenes/enemies/sleepwalker.tscn sets collision_layer = 4, so the cup Area2D detects sleepwalkers only; coffee_cup.gd:_on_body_entered wakes and frees only on Sleepwalker, while cafe.tscn walls are StaticBody2D on default layer 1. Latent today because the cafe is one room with all three sleepwalkers inside; it becomes player-visible once cities with rooms and scavenge buildings exist (T024/T026). No backlog task text mentions projectile-environment collision (T008 covers flight time, arc, and aim cone only).",
+      "depends_on": [
+        "T008"
+      ]
+    },
+    {
+      "id": "T062",
+      "title": "Sleeping player can still throw and drink: input is not gated after fall_asleep",
+      "priority": 3,
+      "status": "todo",
+      "details": "Once the sleepy meter hits zero and the sleep state is announced, player input (throw, drink) must be ignored until the wake-in-cafe flow (T004) resolves the sleep; fold the input gate into the T004 wake-ups rework of the sleep path. Acceptance: after fall_asleep, pressing throw/drink changes nothing (no cup spent, no projectile), covered by an integration test; make check green.\nEvidence: game/scripts/player/player.gd:_physics_process returns early when _announced_sleep is set (velocity zeroed), but _unhandled_input (lines 55-59) still calls throw_cup and drink_cup unconditionally, so a sleeping player under the game-over overlay can spend and throw cups. Code-verified; the T004 rework owns the whole sleep/wake path, so this should be folded there rather than fixed as a standalone slice patch.",
+      "depends_on": [
+        "T004"
+      ]
+    },
+    {
+      "id": "T063",
+      "title": "Resize the cafe safe zone to the real cafe building when cities land",
+      "priority": 3,
+      "status": "todo",
+      "details": "The vertical slice is one room that also holds the speaker pole, so the CafeSafeZone circle covers only the player-start corner. When the real cafe building exists, the safe zone must cover its whole interior, and the three speaker-pole sleep zones must guard the last blocks before the tower per GAME_DESIGN section 17. Both are placements of the reusable SleepZone scene; no code change expected.\nEvidence: game/scenes/cafe/cafe.tscn: Zones/CafeSafeZone at (200,360) radius 180 inside a 1280x720 room that also contains Zones/SpeakerPole; GAME_DESIGN.md section 17 landmark rules.",
+      "depends_on": [
+        "T024",
+        "T026"
+      ]
+    },
+    {
+      "id": "T064",
+      "title": "Reuse SleepZone for boring-attack auras in boss fights",
+      "priority": 3,
+      "status": "todo",
+      "details": "The Sleep Jam lullaby and Sam Oatman's slides drain at the 5/s boring-attack tier (section 14). The SleepZone component currently escalates only the 1.5/s sleep-zone tier; a third Kind (or an exported DrainTier) would let boss auras reuse the same area-driven meter bridge.\nEvidence: game/scripts/components/sleep_zone.gd escalates SleepMeter.DrainTier.SLEEP_ZONE only; GAME_DESIGN.md section 6 bosses (Sleep Jam lullaby, boring slides) map to the boring-attack rate.",
+      "depends_on": [
+        "T031"
+      ]
+    },
+    {
+      "id": "T065",
+      "title": "Consume the first_met signal in the SleepyDex app",
+      "priority": 2,
+      "status": "todo",
+      "details": "Sleepwalker emits first_met(type_id) once when it first senses the player, but only tests listen today. The SleepyDex app must connect to this signal (per type, deduplicated across instances) to open entries per GAME_DESIGN section 9.\nEvidence: game/scripts/enemies/sleepwalker.gd _try_spot_player emits first_met; test_cafe_flow.gd test_neighbor_emits_first_met_for_the_sleepydex is the only consumer.",
+      "depends_on": [
+        "T023"
+      ]
+    },
+    {
+      "id": "T066",
+      "title": "Replace the fixed standard-cup payload with brewed cups from the minigames",
+      "priority": 2,
+      "status": "todo",
+      "details": "Player.throw_cup always attaches the cafe-standard cup (house/medium/filter, score from brewing_balance.tres standard_cup_score=85), which wakes only basic types. The brewing minigames must supply real BrewedCup payloads with earned scores so special types become wakeable through gameplay.\nEvidence: game/scripts/player/player.gd _standard_cup() builds the fixed payload; game/resources/brewing/brewing_balance.tres standard_cup_score.",
+      "depends_on": [
+        "T011",
+        "T012",
+        "T013",
+        "T014",
+        "T015"
+      ]
+    },
+    {
+      "id": "T067",
+      "title": "Extend the special behavior enum for the V1 enemy types",
+      "priority": 1,
+      "status": "todo",
+      "details": "EnemyType.SpecialBehavior has one value (SIMPLE_HUG) and _process_engage dispatches on it with a single branch. The Tourist, Tech Bro, Gamer, Tinfoil Man, and Karen each add their behavior enum value and engage implementation plus their own type .tres and scene.\nEvidence: game/scripts/enemies/enemy_type.gd enum SpecialBehavior { SIMPLE_HUG }; game/scripts/enemies/sleepwalker.gd _process_engage single-case match.",
+      "depends_on": [
+        "T018",
+        "T019",
+        "T020",
+        "T021",
+        "T022"
+      ]
+    },
+    {
+      "id": "T068",
+      "title": "T025: wire tower switch-off to WakeUps.restore_one()",
+      "priority": 2,
+      "status": "todo",
+      "details": "The tower mechanic task must call wake_ups.restore_one() on switch-off (rule already unit-tested: +1 up to max) and show the 'wake-up restored' toast per GAME_DESIGN section 19 step 9.\nEvidence: game/scripts/components/wake_ups.gd restore_one() is unwired; no tower scene exists yet.",
+      "depends_on": [
+        "T025"
+      ]
+    },
+    {
+      "id": "T069",
+      "title": "T040: death reloads the last save instead of the placeholder overlay",
+      "priority": 2,
+      "status": "todo",
+      "details": "The auto-save system must reload the last save (with saved wake-ups) on the player's died signal instead of the placeholder death overlay; meter sleep must never trigger a reload. WakeUps.remaining is a required save field.\nEvidence: game/scripts/cafe/cafe.gd _on_player_died shows DEATH_TEXT overlay; game/scripts/player/player.gd emits died.",
+      "depends_on": [
+        "T040"
+      ]
+    },
+    {
+      "id": "T070",
+      "title": "Close backlog item T062 as covered by T004",
+      "priority": 1,
+      "status": "done",
+      "details": "T062's acceptance (after fall_asleep, throw/drink change nothing, no cup spent, no projectile) is implemented and integration-tested in this task; its backlog entry should be marked done at the next backlog update.\nEvidence: player.gd throw_cup/drink_cup asleep guards; test_cafe_flow.gd test_sleeping_player_cannot_throw_or_drink passes (make check 115/115).",
+      "files": [
+        "LOG.md"
+      ],
+      "updated_at": "2026-10-13T15:42:32Z",
+      "unblock_when": "\"\""
+    },
+    {
+      "id": "T071",
+      "title": "Playtest-tune the combat feel values once touch controls exist",
+      "priority": 3,
+      "status": "todo",
+      "details": "Working numbers shipped per design (roll 0.4 s / 440 speed, cone half-angle 30 deg, arc peak 40 px, 5 mash presses, 0.5 s grace, hug radius 18). GAME_DESIGN section 14 says the prototype decides final values, so a human playtest of make run should confirm the feel, especially mash difficulty under hug drain and whether the dodge needs a cooldown.\nEvidence: game/resources/balance/player.tres and coffee_cup.tres hold the tunables; no GUI playtest possible in this headless worktree (headless boot smoke only).",
+      "depends_on": [
+        "T047"
+      ]
+    },
+    {
+      "id": "T072",
+      "title": "Mark T062 as done in the backlog at the next backlog update",
+      "priority": 2,
+      "status": "todo",
+      "details": "T062 ('Sleeping player can still throw and drink: input is not gated after fall_asleep') is implemented by T004's asleep guards in player.gd and integration-tested by test_cafe_flow.gd test_sleeping_player_cannot_throw_or_drink; make check is green at 140/140. Its backlog status is still 'todo'; this task's contract forbade editing the backlog, so the status flip happens in the next backlog update.\nEvidence: player.gd throw_cup/drink_cup asleep guards (lines 147-149, 182-184); test_cafe_flow.gd:94 test_sleeping_player_cannot_throw_or_drink PASSED in game/reports/report_1/results.xml; make check 140/140, exit 0; LOG.md row 'T070: close backlog item T062 as covered by T004' in commit fcc45a5; backlog.json still lists T062 as todo."
+    },
+    {
+      "id": "T073",
+      "title": "Sleepwalker foraging rule (they eat everything they find, including coffee plants) has no owning task",
+      "priority": 3,
+      "status": "todo",
+      "details": "GAME_DESIGN.md section 6 lists 'They eat everything they find, also coffee plants' as a sleepwalker rule, and brainstorm.md (raw transcript) confirms it is real design intent ('oni isto jedu sve... i kavu... mozes ti posaditi pantazu, a ti je pojede'). No backlog task (T001-T072) mentions foraging, eating, or coffee plants; T006 covers collecting beans, not enemies consuming them. Decide with Niko whether this ships in V1; if yes, it needs an owner (enemy behavior plus a plantable/edible coffee-plant item).\nEvidence: GAME_DESIGN.md section 6 sleepwalker rules bullet list; brainstorm.md transcript; grep of backlog.json for eat/plant/forage returns no task."
+    },
+    {
+      "id": "T074",
+      "title": "Geisha Vault bean placement (one locked side room per city) is not owned by any city task",
+      "priority": 3,
+      "status": "todo",
+      "details": "GAME_DESIGN.md section 15: Geisha Vault (Excellent tier) is found in 'One locked side room per city'. The T031 Sleep Jam boss cure requires a Geisha Vault tier recipe, so the beans must be obtainable in Pourtland at minimum. T024's landmark set (cafe, tower, boss arena, quest location, scavenge buildings) and the city tasks T026/T028/T030 do not mention the locked side room or Geisha Vault placement, so the boss cure could become unbrewable. Fold the placement into T024/T026/T028/T030 acceptance criteria or a small content task.\nEvidence: GAME_DESIGN.md section 15 beans table and section 6 Sleep Jam cure; backlog.json T024/T026/T028/T030/T031 details contain no Geisha Vault or locked-room requirement; only the data file game/resources/brewing/beans/geisha_vault.tres exists (T010)."
+    },
+    {
+      "id": "T075",
+      "title": "Backlog item T057's evidence is stale: can_wake gating already shipped in T017; only wake_radius wiring remains",
+      "priority": 3,
+      "status": "todo",
+      "details": "T057 says 'coffee_cup.gd currently wakes any sleepwalker on any hit' and asks to gate wake_up() on CureMatcher.can_wake. That gating is implemented and live since T017: coffee_cup.gd:_on_body_entered calls body.try_wake(brewed), and sleepwalker.gd:try_wake checks CureMatcher.can_wake before waking. The unmet residue of T057 is applying CureMatcher.wake_radius for perfect cups (section 15: a perfect cup wakes every sleepwalker in a small radius) — wake_radius() currently has zero live callers, only tests. Update T057's scope/evidence at the next backlog update so the finished half is not re-implemented.\nEvidence: game/scripts/projectiles/coffee_cup.gd:47-50 calls body.try_wake(brewed); game/scripts/enemies/sleepwalker.gd:67-73 gates on CureMatcher.can_wake; grep shows wake_radius referenced only in cure_matcher.gd and unit tests, no gameplay caller; integration tests test_wrong_cup_does_not_wake_a_special_type / test_thrown_wrong_cup_splashes_without_waking pass in make check."
+    },
+    {
+      "id": "T076",
+      "title": "HUD inventory panel needs an item-listing accessor on Inventory",
+      "priority": 3,
+      "status": "todo",
+      "details": "Inventory exposes add/remove/count/has_item but no way to enumerate held items; the HUD task needs an item-list accessor (id, category, count) to render the section 9 inventory panel.\nEvidence: game/scripts/components/inventory.gd has no listing API; T007 in backlog.json requires the HUD to show beans, gear, and materials.",
+      "depends_on": [
+        "T007"
+      ]
+    },
+    {
+      "id": "T077",
+      "title": "Tower mechanic (T025) must consume a fuse through Inventory.remove()",
+      "priority": 3,
+      "status": "todo",
+      "details": "The tower mechanic should call player.inventory.remove(\"fuse\", 1) as its gate; the removal rule is unit-tested here but no consumer exists yet.\nEvidence: game/tests/unit/test_inventory.gd covers remove(); backlog.json T025 requires fuse-gated switch-off; tower scene does not exist yet.",
+      "depends_on": [
+        "T025"
+      ]
+    }
+  ]
+}

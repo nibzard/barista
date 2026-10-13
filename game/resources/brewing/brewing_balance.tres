@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="BrewingBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/brewing/brewing_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+good_tier_min_score = 80.0
+perfect_tier_min_score = 95.0
+perfect_wake_radius = 100.0
+standard_cup_score = 85.0

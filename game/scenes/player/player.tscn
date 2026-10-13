@@ -1,6 +1,13 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/balance/player.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/balance/sleep_meter.tres" id="3"]
+[ext_resource type="Resource" path="res://resources/balance/wake_ups.tres" id="7"]
+[ext_resource type="Resource" path="res://resources/balance/coffee_supply.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/balance/coffee_cup.tres" id="8"]
+[ext_resource type="Resource" path="res://resources/brewing/brewing_library.tres" id="5"]
+[ext_resource type="Resource" path="res://resources/brewing/brewing_balance.tres" id="6"]
 
 [sub_resource type="RectangleShape2D" id="Body"]
 size = Vector2(28, 40)
@@ -9,6 +16,13 @@ size = Vector2(28, 40)
 collision_layer = 2
 collision_mask = 1
 script = ExtResource("1")
+balance = ExtResource("2")
+meter_balance = ExtResource("3")
+supply_balance = ExtResource("4")
+cup_balance = ExtResource("8")
+wake_ups_balance = ExtResource("7")
+brewing_library = ExtResource("5")
+brewing_balance = ExtResource("6")
 
 [node name="Visual" type="Polygon2D" parent="."]
 color = Color(0.2, 0.35, 0.7, 1)

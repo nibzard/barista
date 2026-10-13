@@ -6,8 +6,10 @@ const SCENE_PATHS := [
 	"res://scenes/main/menu.tscn",
 	"res://scenes/cafe/cafe.tscn",
 	"res://scenes/player/player.tscn",
-	"res://scenes/enemies/sleepwalker.tscn",
+	"res://scenes/enemies/neighbor.tscn",
 	"res://scenes/projectiles/coffee_cup.tscn",
+	"res://scenes/components/sleep_zone.tscn",
+	"res://scenes/components/scavenge_point.tscn",
 ]
 
 const INPUT_ACTIONS: Array[StringName] = [
@@ -16,6 +18,9 @@ const INPUT_ACTIONS: Array[StringName] = [
 	&"move_up",
 	&"move_down",
 	&"throw_coffee",
+	&"drink_coffee",
+	&"dodge",
+	&"refill_coffee",
 ]
 
 

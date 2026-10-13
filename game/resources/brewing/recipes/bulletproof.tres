@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Recipe" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/brewing/recipe.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+bean_id = ""
+bean_match = 0
+display_name = "Bulletproof"
+extra_id = "butter"
+method_id = "espresso"
+method_match = 1
+min_bean_quality = 0
+required_appliance = ""
+roast = 0
+roast_match = 0
+recipe_id = "bulletproof"

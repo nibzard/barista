@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EnemyType" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy_type.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/brewing/cures/neighbor.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+type_id = "neighbor"
+display_name = "The Neighbor"
+special_behavior = 0
+pajama_color = Color(0.62, 0.72, 0.9, 1)
+cure = ExtResource("2")

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RoastProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/brewing/roast_profile.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Dark Roast"
+kind = 2
+roast_id = "dark"
+wake_power_factor = 0.6

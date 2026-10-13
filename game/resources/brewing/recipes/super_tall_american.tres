@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Recipe" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/brewing/recipe.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+bean_id = ""
+bean_match = 2
+display_name = "Super Tall American"
+extra_id = "tall_size"
+method_id = "filter"
+method_match = 1
+min_bean_quality = 0
+required_appliance = ""
+roast = 1
+roast_match = 1
+recipe_id = "super_tall_american"

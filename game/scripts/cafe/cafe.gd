@@ -1,12 +1,12 @@
 # ABOUTME: Cafe is the first playable room: wake all sleepwalkers with coffee to win.
-# ABOUTME: Owns the win and lose overlays; the actors report their own state changes.
+# ABOUTME: Owns the win and death overlays; the actors report their own state changes.
 class_name Cafe
 extends Node2D
 
 signal game_over
 signal game_won
 
-const GAME_OVER_TEXT := "You fell asleep. The hug was too warm."
+const DEATH_TEXT := "Your last wake-up is gone. The dream takes you."
 const WIN_TEXT := "Block served! Everyone is awake."
 
 var _awake_count := 0
@@ -15,13 +15,15 @@ var _game_won := false
 
 @onready var player: Player = $Player
 @onready var sleepwalkers: Node2D = $Sleepwalkers
+@onready var cafe_spawn: Marker2D = $CafeSpawn
 @onready var overlay: ColorRect = $UI/Overlay
 @onready var status_label: Label = $UI/StatusLabel
 @onready var restart_button: Button = $UI/RestartButton
 
 
 func _ready() -> void:
-	player.fell_asleep.connect(_on_player_fell_asleep)
+	player.died.connect(_on_player_died)
+	player.woke_in_cafe.connect(_on_player_woke_in_cafe)
 	for child: Node in sleepwalkers.get_children():
 		var sleepwalker := child as Sleepwalker
 		if sleepwalker != null:
@@ -54,12 +56,17 @@ func _on_sleepwalker_woke() -> void:
 		_show_end_screen(WIN_TEXT)
 
 
-func _on_player_fell_asleep() -> void:
+func _on_player_died() -> void:
 	if _game_won:
 		return
 	_game_over = true
 	game_over.emit()
-	_show_end_screen(GAME_OVER_TEXT)
+	_show_end_screen(DEATH_TEXT)
+
+
+func _on_player_woke_in_cafe() -> void:
+	# The world stays as it is: only the player moves back to the cafe spawn.
+	player.global_position = cafe_spawn.global_position
 
 
 func _show_end_screen(message: String) -> void:
@@ -71,3 +78,12 @@ func _show_end_screen(message: String) -> void:
 
 func _on_restart_pressed() -> void:
 	get_tree().reload_current_scene()
+
+
+func refill_player_supply() -> int:
+	return player.refill_supply()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(&"refill_coffee"):
+		refill_player_supply()

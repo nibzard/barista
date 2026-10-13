@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="BrewingMethod" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/brewing/brewing_method.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Aeropress"
+grind_target = 0.42
+grind_tolerance = 0.08
+method_id = "aeropress"
+minigame_group = 1

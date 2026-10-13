@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="BrewingMethod" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/brewing/brewing_method.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Moka Pot"
+grind_target = 0.32
+grind_tolerance = 0.07
+method_id = "moka_pot"
+minigame_group = 2

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="CoffeeSupplyBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/balance/coffee_supply_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+base_carry_limit = 12
+mobile_cafe_level2_carry_limit = 20
+thermos_belt_carry_bonus = 3
+drink_cost = 1
+support_tool_cost = 0
+cup_throw_cost = 1
+travel_mug_cost = 0
+thermos_cost = 3
+moka_launcher_cost = 4
+minigun_cups_per_second = 6.0

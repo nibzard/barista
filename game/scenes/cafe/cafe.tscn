@@ -2,8 +2,29 @@
 
 [ext_resource type="PackedScene" path="res://scenes/player/player.tscn" id="1"]
 [ext_resource type="Script" path="res://scripts/cafe/cafe.gd" id="2"]
-[ext_resource type="PackedScene" path="res://scenes/enemies/sleepwalker.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/neighbor.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://scenes/projectiles/coffee_cup.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://scenes/components/sleep_zone.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://scenes/components/scavenge_point.tscn" id="6"]
+[ext_resource type="Script" path="res://scripts/items/scavenge_drop.gd" id="7"]
+[ext_resource type="Resource" path="res://resources/items/materials/fuse.tres" id="8"]
+[ext_resource type="Resource" path="res://resources/items/beans/house.tres" id="9"]
+
+[sub_resource type="RectangleShape2D" id="WallHorizontal"]
+size = Vector2(1280, 40)
+
+[sub_resource type="RectangleShape2D" id="WallVertical"]
+size = Vector2(40, 720)
+
+[sub_resource type="Resource" id="ShelfFuse"]
+script = ExtResource("7")
+item = ExtResource("8")
+amount = 1
+
+[sub_resource type="Resource" id="ShelfBeans"]
+script = ExtResource("7")
+item = ExtResource("9")
+amount = 3
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(1280, 40)
@@ -44,19 +65,37 @@ position = Vector2(1260, 360)
 [node name="Shape" type="CollisionShape2D" parent="Walls/Right"]
 shape = SubResource("WallVertical")
 
+[node name="CafeSpawn" type="Marker2D" parent="."]
+position = Vector2(200, 360)
+
+[node name="Zones" type="Node2D" parent="."]
+
+[node name="CafeSafeZone" parent="Zones" instance=ExtResource("5")]
+position = Vector2(200, 360)
+kind = 1
+
+[node name="SpeakerPole" parent="Zones" instance=ExtResource("5")]
+position = Vector2(920, 380)
+
 [node name="Player" parent="." instance=ExtResource("1")]
 position = Vector2(200, 360)
 cup_scene = ExtResource("4")
 
+[node name="Scavenge" type="Node2D" parent="."]
+
+[node name="StorageShelf" parent="Scavenge" instance=ExtResource("6")]
+position = Vector2(1120, 580)
+drops = [SubResource("ShelfFuse"), SubResource("ShelfBeans")]
+
 [node name="Sleepwalkers" type="Node2D" parent="."]
 
-[node name="Sleepwalker1" parent="Sleepwalkers" instance=ExtResource("3")]
+[node name="Neighbor1" parent="Sleepwalkers" instance=ExtResource("3")]
 position = Vector2(700, 220)
 
-[node name="Sleepwalker2" parent="Sleepwalkers" instance=ExtResource("3")]
+[node name="Neighbor2" parent="Sleepwalkers" instance=ExtResource("3")]
 position = Vector2(950, 450)
 
-[node name="Sleepwalker3" parent="Sleepwalkers" instance=ExtResource("3")]
+[node name="Neighbor3" parent="Sleepwalkers" instance=ExtResource("3")]
 position = Vector2(500, 560)
 
 [node name="UI" type="CanvasLayer" parent="."]

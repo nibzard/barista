@@ -39,6 +39,18 @@ throw_coffee={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"physical_keycode":32), Object(InputEventMouseButton,"button_index":1)]
 }
+drink_coffee={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":81)]
+}
+dodge={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":4194325)]
+}
+refill_coffee={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":82)]
+}
 
 [editor_plugins]
 
