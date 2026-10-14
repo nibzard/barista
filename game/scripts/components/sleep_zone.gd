@@ -13,6 +13,18 @@ const POLE_MARKER_RADIUS := 10.0
 
 @export var kind: Kind = Kind.SLEEP
 
+var _broadcast_silenced := false
+
+
+func silence_broadcast() -> void:
+	# The tower of the city is off: the address no longer plays through this
+	# pole, so the zone stops pulling the player down.
+	_broadcast_silenced = true
+
+
+func is_broadcast_silenced() -> bool:
+	return _broadcast_silenced
+
 
 func _physics_process(_delta: float) -> void:
 	# Poll the overlap every physics frame, like the sleepwalker sensors do:
@@ -23,7 +35,7 @@ func _physics_process(_delta: float) -> void:
 		return
 	if kind == Kind.SAFE:
 		player.sleep_meter.suppress_environmental_drain()
-	else:
+	elif not _broadcast_silenced:
 		player.sleep_meter.escalate_drain(SleepMeter.DrainTier.SLEEP_ZONE)
 
 

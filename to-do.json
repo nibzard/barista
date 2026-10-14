@@ -194,14 +194,28 @@
       "id": "T007",
       "title": "HUD shows all player status from section 9",
       "priority": 1,
-      "status": "todo",
+      "status": "done",
       "details": "Interface shows the sleepy meter, coffee supply, brewed cups in hand, inventory (beans, coffee, gear, materials), and remaining wake-ups. Chalkboard-style placeholder is fine until the art pass. Acceptance: HUD reads from the logic components and never duplicates state; a scene test asserts the bindings update when components change; make check green.",
       "depends_on": [
         "T003",
         "T004",
         "T005",
         "T006"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/scenes/cafe/cafe.tscn",
+        "game/scenes/hud/hud.tscn",
+        "game/scripts/components/inventory.gd",
+        "game/scripts/hud/hud.gd",
+        "game/scripts/hud/hud.gd.uid",
+        "game/tests/integration/test_hud.gd",
+        "game/tests/integration/test_hud.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_inventory.gd"
+      ],
+      "updated_at": "2026-10-14T10:56:33Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T008",
@@ -500,24 +514,80 @@
       "id": "T024",
       "title": "Shared block kit and city structure per the level design rules",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "Section 17: one city is 6-9 blocks, one phone screen shows about 1.5 blocks; every city has the same landmark set (cafe at one edge as start and safe zone, broadcast tower at the other edge, one boss arena, one signature quest location, scavenge buildings for the rest); three speaker poles guard the last blocks before the tower; enemy density 3-4 sleepwalkers per block, more near the tower; all cities share one block kit, only landmarks, accents, and crowds differ. Acceptance: block kit scenes composable; a test asserts each city's landmark set and density budget; make check green.",
       "depends_on": [
         "T009",
         "T017"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/city.tres",
+        "game/resources/city/pourtland.tres",
+        "game/resources/city/san_coffesco.tres",
+        "game/resources/city/steamtle.tres",
+        "game/scenes/city/city_block.tscn",
+        "game/scenes/city/city_map.tscn",
+        "game/scripts/city/city_balance.gd",
+        "game/scripts/city/city_balance.gd.uid",
+        "game/scripts/city/city_block.gd",
+        "game/scripts/city/city_block.gd.uid",
+        "game/scripts/city/city_block_view.gd",
+        "game/scripts/city/city_block_view.gd.uid",
+        "game/scripts/city/city_definition.gd",
+        "game/scripts/city/city_definition.gd.uid",
+        "game/scripts/city/city_map.gd",
+        "game/scripts/city/city_map.gd.uid",
+        "game/scripts/city/city_rules.gd",
+        "game/scripts/city/city_rules.gd.uid",
+        "game/tests/integration/test_city_map.gd",
+        "game/tests/integration/test_city_map.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_city_data.gd",
+        "game/tests/unit/test_city_data.gd.uid",
+        "game/tests/unit/test_city_rules.gd",
+        "game/tests/unit/test_city_rules.gd.uid"
+      ],
+      "updated_at": "2026-10-14T11:27:46Z"
     },
     {
       "id": "T025",
       "title": "Broadcast tower mechanic working (fuse, switch-off, wake-up restore)",
       "priority": 1,
-      "status": "todo",
+      "status": "done",
       "details": "Core loop step 7: scavenge one fuse, insert it, switch the tower off; the address stops mid-word, one second of silence, then birdsong; the toast says wake-up restored (+1 via T004); after the switch the woken people of the city stay awake; tower state exposed for the save system. Acceptance: fuse-gated switch flow and wake-up restore integration-tested; make check green.",
       "depends_on": [
         "T004",
         "T006",
         "T024"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/project.godot",
+        "game/resources/balance/broadcast_tower.tres",
+        "game/scenes/cafe/cafe.tscn",
+        "game/scenes/hud/hud.tscn",
+        "game/scenes/tower/broadcast_tower.tscn",
+        "game/scripts/balance/broadcast_tower_balance.gd",
+        "game/scripts/balance/broadcast_tower_balance.gd.uid",
+        "game/scripts/cafe/cafe.gd",
+        "game/scripts/city/city_block_view.gd",
+        "game/scripts/city/city_map.gd",
+        "game/scripts/components/sleep_zone.gd",
+        "game/scripts/hud/hud.gd",
+        "game/scripts/tower/broadcast_tower.gd",
+        "game/scripts/tower/broadcast_tower.gd.uid",
+        "game/tests/integration/test_broadcast_tower.gd",
+        "game/tests/integration/test_broadcast_tower.gd.uid",
+        "game/tests/integration/test_cafe_flow.gd",
+        "game/tests/integration/test_city_map.gd",
+        "game/tests/integration/test_hud.gd",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_balance_resources.gd"
+      ],
+      "updated_at": "2026-10-14T12:09:24Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T026",
@@ -1047,8 +1117,13 @@
       "id": "T072",
       "title": "Mark T062 as done in the backlog at the next backlog update",
       "priority": 2,
-      "status": "todo",
-      "details": "T062 ('Sleeping player can still throw and drink: input is not gated after fall_asleep') is implemented by T004's asleep guards in player.gd and integration-tested by test_cafe_flow.gd test_sleeping_player_cannot_throw_or_drink; make check is green at 140/140. Its backlog status is still 'todo'; this task's contract forbade editing the backlog, so the status flip happens in the next backlog update.\nEvidence: player.gd throw_cup/drink_cup asleep guards (lines 147-149, 182-184); test_cafe_flow.gd:94 test_sleeping_player_cannot_throw_or_drink PASSED in game/reports/report_1/results.xml; make check 140/140, exit 0; LOG.md row 'T070: close backlog item T062 as covered by T004' in commit fcc45a5; backlog.json still lists T062 as todo."
+      "status": "done",
+      "details": "T062 ('Sleeping player can still throw and drink: input is not gated after fall_asleep') is implemented by T004's asleep guards in player.gd and integration-tested by test_cafe_flow.gd test_sleeping_player_cannot_throw_or_drink; make check is green at 140/140. Its backlog status is still 'todo'; this task's contract forbade editing the backlog, so the status flip happens in the next backlog update.\nEvidence: player.gd throw_cup/drink_cup asleep guards (lines 147-149, 182-184); test_cafe_flow.gd:94 test_sleeping_player_cannot_throw_or_drink PASSED in game/reports/report_1/results.xml; make check 140/140, exit 0; LOG.md row 'T070: close backlog item T062 as covered by T004' in commit fcc45a5; backlog.json still lists T062 as todo.",
+      "files": [
+        "LOG.md"
+      ],
+      "updated_at": "2026-10-14T11:14:21Z",
+      "unblock_when": "Not blocked — no external prerequisites. The only remaining step is the mechanical status flip of T062 in the live backlog, which the orchestrator applies at the next backlog update (captured in followups)."
     },
     {
       "id": "T073",
@@ -1090,6 +1165,79 @@
       "depends_on": [
         "T025"
       ]
+    },
+    {
+      "id": "T078",
+      "title": "Mark backlog item T076 as done at the next backlog update",
+      "priority": 2,
+      "status": "done",
+      "details": "T076 ('HUD inventory panel needs an item-listing accessor on Inventory') is implemented by this task: Inventory.held_items() returns one ItemType per held stack in stable display order, unit-tested in test_inventory.gd, and consumed by the HUD bag panel in hud.gd/_bag_text. Its backlog status is still 'todo'; the status flip happens in the next backlog update (this task's contract forbids editing the backlog).\nEvidence: game/scripts/components/inventory.gd held_items(); game/scripts/hud/hud.gd _bag_text() uses it; test_inventory.gd test_held_items_* pass in make check 170/170; backlog.json T076 still lists status 'todo'.",
+      "files": [
+        "LOG.md"
+      ],
+      "updated_at": "2026-10-14T11:20:50Z",
+      "unblock_when": "Not blocked — no external prerequisites. The only remaining step is the mechanical status flip of T076 in the live backlog, which the orchestrator applies at the next backlog update (captured in followups)."
+    },
+    {
+      "id": "T079",
+      "title": "City scenes (T024/T026 onward) must instantiate their own Hud",
+      "priority": 3,
+      "status": "todo",
+      "details": "The HUD ships as a reusable scene instance wired only into cafe.tscn today. When the shared block kit and the three city scenes land, each playable scene must add the Hud instance with player_path pointing at its Player, or the city will run without the section 9 status panel.\nEvidence: game/scenes/cafe/cafe.tscn holds the only Hud instance (node Hud with player_path=NodePath('../Player')); no other scene references res://scenes/hud/hud.tscn.",
+      "depends_on": [
+        "T024",
+        "T026"
+      ]
+    },
+    {
+      "id": "T080",
+      "title": "Set T062 to 'done' in the live backlog (to-do.json)",
+      "priority": 1,
+      "status": "todo",
+      "details": "At the next backlog update, change task T062 ('Sleeping player can still throw and drink: input is not gated after fall_asleep') from status 'todo' to 'done' in the live backlog at /Users/air/dev/barista/to-do.json (and mirror/state), setting its updated_at. The T072 contract forbade editing the backlog and other worktrees, and the task worktree's to-do.json is only a snapshot, so the flip could not be performed inside the task. All T062 acceptance is verified at current HEAD: player.gd drink_cup (lines 150-151) returns false and throw_cup (lines 196-197) returns null while _asleep (the same guards also block the grabbed state added by T008); _physics_process early-returns while asleep; integration test test_cafe_flow.gd test_sleeping_player_cannot_throw_or_drink passes (sleeping player spends no cup, launches no projectile, opens no drink channel); make check 170/170 exit 0.\nEvidence: game/scripts/player/player.gd:150-151,196-197 asleep guards; game/tests/integration/test_cafe_flow.gd:94 PASSED (no failure/error children in game/reports/report_1/results.xml, suite exit 0); make check exit 0 with 170/170 test cases, 18/18 suites, 0 errors/failures/flaky/skipped/orphans; LOG.md rows T004, T070, T072; live backlog state (Looper state.db, read 2026-10-14) still lists T062 status 'todo'."
+    },
+    {
+      "id": "T081",
+      "title": "Set T076 to 'done' in the live backlog at the next backlog update",
+      "priority": 1,
+      "status": "todo",
+      "details": "At the next backlog update, change T076 ('HUD inventory panel needs an item-listing accessor on Inventory') from status 'todo' to 'done' in the live backlog and set its updated_at, mirroring what T080 does for T062. All T076 acceptance is verified at current HEAD: the accessor exists, is consumed by the HUD, and is unit- and integration-tested; no implementation work remains.\nEvidence: game/scripts/components/inventory.gd:47-62 held_items() with _compare_for_display (category, then id); game/scripts/hud/hud.gd:49-61 _bag_text() iterates player.inventory.held_items() and groups rows by category; game/tests/unit/test_inventory.gd:166-185 test_held_items_is_empty_on_a_new_bag / test_held_items_lists_one_entry_per_stack_in_display_order / test_held_items_drop_spent_stacks, plus test_hud.gd test_bag_rows_list_held_items_grouped_by_category and test_bag_row_disappears_when_the_last_item_is_spent, all PASSED with no failure/error children in game/reports/report_1/results.xml; make check exit 0 with 170/170 test cases, 18/18 suites, 0 errors/failures/flaky/skipped/orphans; backlog.json (read 2026-10-14) still lists T076 status 'todo'; LOG.md rows T007 and T078."
+    },
+    {
+      "id": "T082",
+      "title": "Brewing input economy has no owner: brewed cups must consume beans from the bag and require the recipe's cafe appliance",
+      "priority": 2,
+      "status": "todo",
+      "details": "When the brewing minigames (T011-T015) and real cup payloads (T066) land, a brew must: (a) let the player choose bean and roast and spend the bean from Inventory (GAME_DESIGN section 7 core loop: collect beans, then brew), and (b) be brewable only when the recipe's required cafe appliance (blender, turkish_pot) is held (GAME_DESIGN section 15: 'The blender and the Turkish pot are cafe appliances. The player scavenges them.'). Without an owner, the Frappuccino and Turkish cures bypass the scavenge loop, the appliance items stay dead weight, and Geisha Vault beans can never become the T031 Sleep Jam boss cure even after T074 places them, because no flow turns a bag bean into a BrewedCup payload. Fold the gate into T066 (or a new task depending on the minigame tasks).\nEvidence: grep over game/scripts shows required_appliance declared in game/scripts/brewing/recipe.gd:22 with zero runtime consumers (only data pins in test_brewing_data.gd:117,128 and test_inventory.gd:138-140); game/scripts/player/player.gd:227-235 _standard_cup() conjures the cup payload from library data without spending any bean; no backlog task text (T011-T016, T031, T066, T074) mentions consuming beans or gating a brew on an owned appliance; GAME_DESIGN.md sections 7 and 15 as cited.",
+      "depends_on": [
+        "T011",
+        "T012",
+        "T013",
+        "T014",
+        "T015",
+        "T066"
+      ]
+    },
+    {
+      "id": "T083",
+      "title": "Touch button for the tower interact action",
+      "priority": 3,
+      "status": "todo",
+      "details": "The tower insert/switch flow is driven by the new `interact` input action, which currently binds only the E key (a development convenience). Touch-first play needs an on-screen USE button near the tower; it belongs with the deferred touch-controls task.\nEvidence: game/project.godot interact action has only InputEventKey 69; CLAUDE.md: 'Touch-first design: gameplay must work without a keyboard.'"
+    },
+    {
+      "id": "T084",
+      "title": "Real audio for the switch beat (address cut, silence, birdsong)",
+      "priority": 3,
+      "status": "todo",
+      "details": "The beat is modeled by the tower phases (SILENCE/BIRDSONG) and is visually confirmed, but no audio assets exist yet; the address loop, the mid-word cut, one second of silence, and morning birdsong need the sound pass per GAME_DESIGN section 21.\nEvidence: No audio files in game/; broadcast_tower.gd phase machine comments mark the audio states for the sound pass."
+    },
+    {
+      "id": "T085",
+      "title": "Save system must persist BroadcastTower.save_state()",
+      "priority": 2,
+      "status": "todo",
+      "details": "Tower state is exposed via save_state()/load_state() and CityMap.broadcast_tower(), round-trip tested; the save-file writer/reader itself arrives with the save-system task (section 18: the save holds tower state; save point at tower switch).\nEvidence: test_broadcast_tower.gd test_tower_state_round_trips_for_the_save_system passes; no save autoload or file exists yet."
     }
   ]
 }

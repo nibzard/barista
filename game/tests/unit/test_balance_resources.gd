@@ -8,10 +8,13 @@ const COFFEE_CUP_BALANCE := preload("res://resources/balance/coffee_cup.tres")
 const SLEEP_METER_BALANCE := preload("res://resources/balance/sleep_meter.tres")
 const COFFEE_SUPPLY_BALANCE := preload("res://resources/balance/coffee_supply.tres")
 const WAKE_UPS_BALANCE := preload("res://resources/balance/wake_ups.tres")
+const CITY_BALANCE := preload("res://resources/balance/city.tres")
+const BROADCAST_TOWER_BALANCE := preload("res://resources/balance/broadcast_tower.tres")
 
 const PLAYER_SCENE := preload("res://scenes/player/player.tscn")
 const NEIGHBOR_SCENE := preload("res://scenes/enemies/neighbor.tscn")
 const COFFEE_CUP_SCENE := preload("res://scenes/projectiles/coffee_cup.tscn")
+const BROADCAST_TOWER_SCENE := preload("res://scenes/tower/broadcast_tower.tscn")
 
 
 func test_player_balance_values() -> void:
@@ -72,6 +75,23 @@ func test_wake_ups_balance_values() -> void:
 	assert_int(WAKE_UPS_BALANCE.max_wake_ups).is_equal(5)
 
 
+func test_city_balance_values() -> void:
+	assert_bool(CITY_BALANCE is CityBalance).is_true()
+	assert_int(CITY_BALANCE.min_blocks).is_equal(6)
+	assert_int(CITY_BALANCE.max_blocks).is_equal(9)
+	assert_int(CITY_BALANCE.density_min).is_equal(3)
+	assert_int(CITY_BALANCE.density_max).is_equal(4)
+	assert_int(CITY_BALANCE.speaker_pole_count).is_equal(3)
+	assert_float(CITY_BALANCE.blocks_per_screen).is_equal(1.5)
+
+
+func test_broadcast_tower_balance_values() -> void:
+	assert_bool(BROADCAST_TOWER_BALANCE is BroadcastTowerBalance).is_true()
+	# Section 21: one second of silence. Section 15: one fuse opens one tower.
+	assert_float(BROADCAST_TOWER_BALANCE.silence_seconds).is_equal(1.0)
+	assert_int(BROADCAST_TOWER_BALANCE.fuses_needed).is_equal(1)
+
+
 func test_scenes_load_balance_resources() -> void:
 	var player := auto_free(PLAYER_SCENE.instantiate()) as Player
 	assert_object(player.balance).is_not_null()
@@ -92,6 +112,10 @@ func test_scenes_load_balance_resources() -> void:
 	var cup := auto_free(COFFEE_CUP_SCENE.instantiate()) as CoffeeCup
 	assert_object(cup.balance).is_not_null()
 	assert_float(cup.balance.flight_time_seconds).is_equal(COFFEE_CUP_BALANCE.flight_time_seconds)
+	var tower := auto_free(BROADCAST_TOWER_SCENE.instantiate()) as BroadcastTower
+	assert_object(tower.balance).is_not_null()
+	assert_float(tower.balance.silence_seconds).is_equal(BROADCAST_TOWER_BALANCE.silence_seconds)
+	assert_int(tower.balance.fuses_needed).is_equal(BROADCAST_TOWER_BALANCE.fuses_needed)
 
 
 func test_neighbor_hug_grab_range_is_short() -> void:

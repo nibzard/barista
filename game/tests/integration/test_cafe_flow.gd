@@ -189,3 +189,65 @@ func test_neighbor_emits_first_met_for_the_sleepydex() -> void:
 	for extra_frame: int in range(30):
 		await get_tree().physics_frame
 	assert_int(met_types.size()).is_equal(1)
+
+
+func _switch_the_tower_off() -> void:
+	# Walk over the storage shelf to scavenge the fuse, then run the tower flow.
+	var shelf := _cafe.get_node("Scavenge/StorageShelf") as ScavengePoint
+	_cafe.player.position = shelf.position
+	var frames := 0
+	while not _cafe.player.inventory.has_item("fuse") and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().physics_frame
+		frames += 1
+	_cafe.broadcast_tower.insert_fuse(_cafe.player)
+	_cafe.broadcast_tower.switch_off()
+
+
+func test_tower_switch_restores_a_wake_up_and_keeps_the_city_awake() -> void:
+	for index: int in _cafe.sleepwalkers.get_child_count():
+		_cafe.get_sleepwalker(index).wake_up()
+
+	_cafe.player.wake_ups.register_sleep()
+	assert_int(_cafe.player.wake_ups.remaining).is_equal(4)
+
+	await _switch_the_tower_off()
+	# The fuse came from the shelf and left the bag in the tower slot.
+	assert_int(_cafe.player.inventory.count("fuse")).is_equal(0)
+	assert_bool(_cafe.broadcast_tower.is_switched_off()).is_true()
+	# Section 14: the switch restores 1 wake-up, up to the maximum.
+	assert_int(_cafe.player.wake_ups.remaining).is_equal(5)
+
+	# The beat ends on birdsong, and the toast says the wake-up is restored.
+	var frames := 0
+	while not _cafe.hud.is_toast_visible() and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().physics_frame
+		frames += 1
+	assert_bool(_cafe.hud.is_toast_visible()).is_true()
+	assert_str(_cafe.hud.toast_message()).is_equal(Cafe.WAKE_UP_RESTORED_TEXT)
+	assert_int(_cafe.broadcast_tower.phase).is_equal(BroadcastTower.Phase.BIRDSONG)
+
+	# After the switch, the woken people of the city stay awake.
+	for index: int in _cafe.sleepwalkers.get_child_count():
+		assert_bool(_cafe.get_sleepwalker(index).is_awake()).is_true()
+	assert_bool(_cafe.broadcast_tower.is_wake_up_restored()).is_true()
+
+
+func test_speaker_pole_goes_quiet_after_the_tower_switch() -> void:
+	for index: int in _cafe.sleepwalkers.get_child_count():
+		_cafe.get_sleepwalker(index).wake_up()
+
+	await _switch_the_tower_off()
+	var pole := _cafe.get_node("Zones/SpeakerPole") as SleepZone
+	assert_bool(pole.is_broadcast_silenced()).is_true()
+
+	# Standing at the pole now costs only the passive drain, not 1.5 per second.
+	_cafe.player.position = pole.position
+	await get_tree().physics_frame
+	var meter := _cafe.player.sleep_meter
+	var value_before := meter.value
+	var frames := 0
+	while frames < 60:
+		await get_tree().physics_frame
+		frames += 1
+	var drained := value_before - meter.value
+	assert_float(drained).is_between(0.3, 0.7)

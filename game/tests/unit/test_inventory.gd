@@ -161,3 +161,25 @@ func test_every_item_has_an_id_and_a_name() -> void:
 	for item: ItemType in ALL_ITEMS:
 		assert_str(item.item_id).is_not_empty()
 		assert_str(item.display_name).is_not_empty()
+
+
+func test_held_items_is_empty_on_a_new_bag() -> void:
+	assert_int(_inventory.held_items().size()).is_equal(0)
+
+
+func test_held_items_lists_one_entry_per_stack_in_display_order() -> void:
+	_inventory.add(FUSE, 1)
+	_inventory.add(HOUSE_BEANS, 3)
+	_inventory.add(THERMOS_BELT, 1)
+	var ids: Array[String] = []
+	for item: ItemType in _inventory.held_items():
+		ids.append(item.item_id)
+	# The display order is category first: beans, gear, materials.
+	var expected: Array[String] = ["house", "thermos_belt", "fuse"]
+	assert_array(ids).is_equal(expected)
+
+
+func test_held_items_drop_spent_stacks() -> void:
+	_inventory.add(FUSE, 1)
+	assert_bool(_inventory.remove("fuse", 1)).is_true()
+	assert_int(_inventory.held_items().size()).is_equal(0)

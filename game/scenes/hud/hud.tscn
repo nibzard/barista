@@ -1,0 +1,129 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scripts/hud/hud.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="ChalkBoard"]
+bg_color = Color(0.11, 0.15, 0.13, 0.85)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.93, 0.95, 0.88, 0.9)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="BarBackground"]
+bg_color = Color(0.07, 0.1, 0.08, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.93, 0.95, 0.88, 0.7)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="BarFill"]
+bg_color = Color(0.62, 0.82, 0.55, 1)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="Hud" type="CanvasLayer"]
+script = ExtResource("1")
+
+[node name="Board" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(330, 0)
+offset_left = 16.0
+offset_top = 16.0
+theme_override_styles/panel = SubResource("ChalkBoard")
+
+[node name="Margin" type="MarginContainer" parent="Board"]
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 10
+
+[node name="Rows" type="VBoxContainer" parent="Board/Margin"]
+theme_override_constants/separation = 6
+
+[node name="AwakeRow" type="HBoxContainer" parent="Board/Margin/Rows"]
+theme_override_constants/separation = 8
+
+[node name="AwakeTitle" type="Label" parent="Board/Margin/Rows/AwakeRow"]
+custom_minimum_size = Vector2(104, 0)
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 15
+text = "AWAKE"
+
+[node name="AwakeBar" type="ProgressBar" parent="Board/Margin/Rows/AwakeRow"]
+custom_minimum_size = Vector2(110, 18)
+theme_override_styles/background = SubResource("BarBackground")
+theme_override_styles/fill = SubResource("BarFill")
+max_value = 100.0
+value = 100.0
+show_percentage = false
+
+[node name="AwakeValue" type="Label" parent="Board/Margin/Rows/AwakeRow"]
+custom_minimum_size = Vector2(64, 0)
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 15
+text = "100/100"
+
+[node name="CoffeeRow" type="HBoxContainer" parent="Board/Margin/Rows"]
+theme_override_constants/separation = 8
+
+[node name="CoffeeTitle" type="Label" parent="Board/Margin/Rows/CoffeeRow"]
+custom_minimum_size = Vector2(104, 0)
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 15
+text = "COFFEE"
+
+[node name="CoffeeValue" type="Label" parent="Board/Margin/Rows/CoffeeRow"]
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 15
+text = "12/12 cups in hand"
+
+[node name="WakeUpsRow" type="HBoxContainer" parent="Board/Margin/Rows"]
+theme_override_constants/separation = 8
+
+[node name="WakeUpsTitle" type="Label" parent="Board/Margin/Rows/WakeUpsRow"]
+custom_minimum_size = Vector2(104, 0)
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 15
+text = "WAKE-UPS"
+
+[node name="WakeUpsValue" type="Label" parent="Board/Margin/Rows/WakeUpsRow"]
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 15
+text = "5/5"
+
+[node name="BagTitle" type="Label" parent="Board/Margin/Rows"]
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 15
+text = "BAG"
+
+[node name="BagLabel" type="Label" parent="Board/Margin/Rows"]
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 13
+text = "empty bag"
+
+[node name="Toast" type="Label" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -260.0
+offset_top = 120.0
+offset_right = 260.0
+offset_bottom = 170.0
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+vertical_alignment = 1
+text = ""

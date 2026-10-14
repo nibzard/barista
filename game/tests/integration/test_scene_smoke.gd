@@ -10,6 +10,10 @@ const SCENE_PATHS := [
 	"res://scenes/projectiles/coffee_cup.tscn",
 	"res://scenes/components/sleep_zone.tscn",
 	"res://scenes/components/scavenge_point.tscn",
+	"res://scenes/city/city_block.tscn",
+	"res://scenes/city/city_map.tscn",
+	"res://scenes/tower/broadcast_tower.tscn",
+	"res://scenes/hud/hud.tscn",
 ]
 
 const INPUT_ACTIONS: Array[StringName] = [
@@ -21,6 +25,7 @@ const INPUT_ACTIONS: Array[StringName] = [
 	&"drink_coffee",
 	&"dodge",
 	&"refill_coffee",
+	&"interact",
 ]
 
 

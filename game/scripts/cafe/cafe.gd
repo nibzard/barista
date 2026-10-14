@@ -8,6 +8,7 @@ signal game_won
 
 const DEATH_TEXT := "Your last wake-up is gone. The dream takes you."
 const WIN_TEXT := "Block served! Everyone is awake."
+const WAKE_UP_RESTORED_TEXT := "WAKE-UP RESTORED"
 
 var _awake_count := 0
 var _game_over := false
@@ -16,6 +17,9 @@ var _game_won := false
 @onready var player: Player = $Player
 @onready var sleepwalkers: Node2D = $Sleepwalkers
 @onready var cafe_spawn: Marker2D = $CafeSpawn
+@onready var broadcast_tower: BroadcastTower = $BroadcastTower
+@onready var speaker_pole: SleepZone = $Zones/SpeakerPole
+@onready var hud: Hud = $Hud
 @onready var overlay: ColorRect = $UI/Overlay
 @onready var status_label: Label = $UI/StatusLabel
 @onready var restart_button: Button = $UI/RestartButton
@@ -24,6 +28,8 @@ var _game_won := false
 func _ready() -> void:
 	player.died.connect(_on_player_died)
 	player.woke_in_cafe.connect(_on_player_woke_in_cafe)
+	broadcast_tower.switched_off.connect(_on_tower_switched_off)
+	broadcast_tower.birdsong.connect(_on_tower_birdsong)
 	for child: Node in sleepwalkers.get_children():
 		var sleepwalker := child as Sleepwalker
 		if sleepwalker != null:
@@ -67,6 +73,18 @@ func _on_player_died() -> void:
 func _on_player_woke_in_cafe() -> void:
 	# The world stays as it is: only the player moves back to the cafe spawn.
 	player.global_position = cafe_spawn.global_position
+
+
+func _on_tower_switched_off() -> void:
+	# Section 14: switching off a city tower restores 1 wake-up, up to the
+	# maximum. The address is dead, so the speaker pole of the city goes quiet.
+	player.wake_ups.restore_one()
+	speaker_pole.silence_broadcast()
+
+
+func _on_tower_birdsong() -> void:
+	# The beat ends on birdsong; the toast confirms the restored wake-up.
+	hud.show_toast(WAKE_UP_RESTORED_TEXT)
 
 
 func _show_end_screen(message: String) -> void:

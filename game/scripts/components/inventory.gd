@@ -4,6 +4,7 @@ class_name Inventory
 extends RefCounted
 
 var _counts: Dictionary = {}
+var _types: Dictionary = {}
 
 
 func add(item: ItemType, amount: int) -> int:
@@ -16,6 +17,7 @@ func add(item: ItemType, amount: int) -> int:
 		return 0
 	var added: int = mini(amount, room)
 	_counts[item.item_id] = current + added
+	_types[item.item_id] = item
 	return added
 
 
@@ -28,6 +30,7 @@ func remove(item_id: String, amount: int) -> bool:
 		return false
 	if current == amount:
 		_counts.erase(item_id)
+		_types.erase(item_id)
 	else:
 		_counts[item_id] = current - amount
 	return true
@@ -39,3 +42,21 @@ func count(item_id: String) -> int:
 
 func has_item(item_id: String) -> bool:
 	return count(item_id) > 0
+
+
+func held_items() -> Array[ItemType]:
+	# One ItemType per held stack, in a stable display order: category, then id.
+	# The HUD reads this to draw the bag; it never walks the item catalog itself.
+	var items: Array[ItemType] = []
+	for item_id: String in _counts:
+		var item := _types[item_id] as ItemType
+		if item != null:
+			items.append(item)
+	items.sort_custom(_compare_for_display)
+	return items
+
+
+func _compare_for_display(a: ItemType, b: ItemType) -> bool:
+	if a.category != b.category:
+		return a.category < b.category
+	return a.item_id < b.item_id

@@ -9,6 +9,8 @@
 [ext_resource type="Script" path="res://scripts/items/scavenge_drop.gd" id="7"]
 [ext_resource type="Resource" path="res://resources/items/materials/fuse.tres" id="8"]
 [ext_resource type="Resource" path="res://resources/items/beans/house.tres" id="9"]
+[ext_resource type="PackedScene" path="res://scenes/hud/hud.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://scenes/tower/broadcast_tower.tscn" id="11"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(1280, 40)
@@ -77,6 +79,9 @@ kind = 1
 [node name="SpeakerPole" parent="Zones" instance=ExtResource("5")]
 position = Vector2(920, 380)
 
+[node name="BroadcastTower" parent="." instance=ExtResource("11")]
+position = Vector2(1120, 220)
+
 [node name="Player" parent="." instance=ExtResource("1")]
 position = Vector2(200, 360)
 cup_scene = ExtResource("4")
@@ -137,3 +142,6 @@ offset_top = -100.0
 offset_right = 120.0
 offset_bottom = -40.0
 text = "Restart"
+
+[node name="Hud" parent="." instance=ExtResource("10")]
+player_path = NodePath("../Player")
