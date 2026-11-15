@@ -1,0 +1,37 @@
+# Design: Tower-state auto-save slice (T085)
+
+## Problem
+Section 18 needs an auto-save, but only the tower of T025 exposed a
+save contract. No writer, reader, or slot existed. The task carve-out
+(T085) ships the slice: the save holds tower state, and the save point
+sits at the tower switch.
+
+## Approach
+Three small classes under game/scripts/save: SaveData (versioned
+document, tower phase per city id), SaveStore (one JSON slot under
+user://saves/slot.json; corrupt or foreign slots read as no save),
+SaveSystem (records the switch, answers the load path). CityRun
+composes a SaveSystem per run instead of adding an autoload:
+cross-scene persistence comes from the file, not a live node, and the
+CLAUDE.md rule says to keep autoloads minimal.
+
+## Key Trade-offs
+- Composition over autoload: T040 can still promote this to an
+  autoload later; every save point it needs (cafe entry, boss cured,
+  death) already lives inside CityRun.
+- save_system stays null on a headless build until a test injects one
+  (the DisplayServer precedent of AddressAudioDirector). Without the
+  gate, existing city-run suites would read and write one shared
+  user:// slot and contaminate each other across runs.
+- The load path restores only the tower beat: tower phase, silenced
+  poles, cut address, progress, quest chain. No wake-up is granted on
+  load (one per switch, ever), and the intro tutorial skips the load
+  so a leftover slot cannot break the fuse step. Restoring the rest
+  (position, meter, inventory, and so on) belongs to T040.
+- The instance JSON.parse replaces JSON.parse_string in SaveStore
+  because the static call prints an engine ERROR on a corrupt slot and
+  the project demands pristine test output.
+
+## References
+- GAME_DESIGN.md section 18 (save system), section 21 (sound rules)
+- test_save_store.gd, test_save_system.gd pin the contract
