@@ -1,0 +1,10 @@
+# Todo after T085
+
+- T040 owns the remaining section 18 fields: position, meter value,
+  wake-ups, beans, cups, gear, skill levels, SleepyDex, van level,
+  quest state. SaveData.save_version stays 1 until then.
+- T040 also owns the remaining save points: cafe entry and boss cured
+  (the tower switch point shipped here), plus death reload and the
+  sleep-versus-death paths.
+- T041 (Normal and Hardcore modes) consumes SaveSystem.delete_save,
+  which shipped for exactly that rule.
