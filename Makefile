@@ -4,7 +4,7 @@
 GODOT ?= godot
 PROJECT := game
 
-.PHONY: import lint fmt test check run
+.PHONY: import lint fmt test check run lab
 
 import:
 	$(GODOT) --headless --path $(PROJECT) --import
@@ -26,3 +26,6 @@ check: lint test
 
 run:
 	$(GODOT) --path $(PROJECT)
+
+lab:
+	$(GODOT) --path $(PROJECT) res://scenes/prototypes/style_lab.tscn

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CityLook" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/art/city_look.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+city_id = "steamtle"
+display_name = "Steamtle"
+accent = Color(0.424, 0.529, 0.651, 1)
+morning_light = Color(0.93, 0.95, 1, 1)
+dusk_light = Color(0.74, 0.76, 0.90, 1)
+weather = 1
+weather_color = Color(0.96, 0.97, 1, 0.9)
