@@ -1,0 +1,22 @@
+# Context
+
+## Background
+Manual snapshot of the autonomous looper run (session
+run-c0c3b8b94e3cf4c1), taken at the game director's request.
+The batch holds about 30 backlog tasks completed over 22 hours:
+three cities, quests, bosses, brewing minigames, touch controls,
+tutorial, SleepyDex, endings, and audio scaffolding.
+
+## Why This Way
+Looper lands work in milestone batches. The director asked to
+commit and push ahead of the next milestone to get a testable
+build. make check passed before the commit: 899 test cases,
+0 failures, 75/75 suites.
+
+## Gotchas
+- The controller was mid-task (T057) when this snapshot was
+  taken; later batches land as separate commits.
+- to-do.json grew from 85 to 99 tasks during the run through
+  external edits; the file in this commit reflects that state.
+- Placeholder art and tones throughout; T045 and T054 track the
+  real-asset passes.
