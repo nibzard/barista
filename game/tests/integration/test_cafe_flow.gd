@@ -1,4 +1,4 @@
-# ABOUTME: Integration tests for the cafe level flow: throwing, hugging, losing, winning.
+# ABOUTME: Integration tests for the cafe room flow: throwing, hugging, losing.
 # ABOUTME: Drives the real cafe scene with physics frames, no input devices needed.
 extends GdUnitTestSuite
 
@@ -87,7 +87,6 @@ func test_sleep_at_zero_wake_ups_is_full_death() -> void:
 
 	assert_bool(_cafe.player.is_asleep()).is_true()
 	assert_bool(_cafe.is_game_over()).is_true()
-	assert_bool(_cafe.is_game_won()).is_false()
 	assert_str(_cafe.status_label.text).is_equal(Cafe.DEATH_TEXT)
 
 
@@ -164,13 +163,15 @@ func test_cafe_safe_zone_stops_the_meter_drain() -> void:
 	assert_float(meter.value).is_equal_approx(value_before, 0.001)
 
 
-func test_waking_all_sleepwalkers_wins() -> void:
+func test_waking_all_sleepwalkers_keeps_the_room_open() -> void:
+	# The wake-all-to-win overlay left with the city completion flow: the
+	# playable city completes on the tower and the boss cure instead, and the
+	# cafe test room simply goes on.
 	for index: int in _cafe.sleepwalkers.get_child_count():
 		_cafe.get_sleepwalker(index).wake_up()
 
-	assert_bool(_cafe.is_game_won()).is_true()
 	assert_bool(_cafe.is_game_over()).is_false()
-	assert_str(_cafe.status_label.text).is_equal(Cafe.WIN_TEXT)
+	assert_bool(_cafe.status_label.visible).is_false()
 
 
 func test_neighbor_emits_first_met_for_the_sleepydex() -> void:

@@ -10,21 +10,27 @@ const STANDARD_BEAN_ID := "house"
 const STANDARD_ROAST_ID := "medium"
 const STANDARD_METHOD_ID := "filter"
 const THERMOS_BELT_ID := "thermos_belt"
+# A dazzled player glows dazed yellow until the stun wears off.
+const STUN_MODULATE := Color(1.0, 0.92, 0.45, 1.0)
 
 @export var balance: PlayerBalance
 @export var meter_balance: SleepMeterBalance
 @export var supply_balance: CoffeeSupplyBalance
 @export var wake_ups_balance: WakeUpsBalance
 @export var cup_balance: CoffeeCupBalance
+@export var support_tools_balance: SupportToolsBalance
 @export var brewing_library: BrewingLibrary
 @export var brewing_balance: BrewingBalance
 @export var cup_scene: PackedScene
+@export var bean_slick_scene: PackedScene
 
 var _asleep := false
+var _input_locked := false
 var _grabber: Sleepwalker = null
 var _mash_presses := 0
 var _dodge_time_left := 0.0
 var _grace_time_left := 0.0
+var _stun_time_left := 0.0
 var _dodge_direction := Vector2.RIGHT
 var _last_move_direction := Vector2.RIGHT
 
@@ -32,6 +38,11 @@ var _last_move_direction := Vector2.RIGHT
 @onready var coffee_supply := CoffeeSupply.new(supply_balance)
 @onready var wake_ups := WakeUps.new(wake_ups_balance)
 @onready var inventory := Inventory.new()
+# Section 11: the support tools control the sleepwalkers and cost no coffee.
+@onready var toolbelt := SupportToolbelt.new(support_tools_balance)
+# Section 14: the brewing skill per method. Solo brews and master lessons
+# train it; the brew flow calls record_brew.
+@onready var brewing_skills := BrewingSkills.new(brewing_balance)
 @onready var cup_spawn: Marker2D = $CupSpawn
 @onready var visual: Polygon2D = $Visual
 
@@ -40,8 +51,13 @@ func _physics_process(delta: float) -> void:
 	if _asleep:
 		velocity = Vector2.ZERO
 		return
+	if _input_locked:
+		# A locked player is out of play, like during a tutorial cinematic or a
+		# minigame overlay: no moves, no drain, no grabs.
+		velocity = Vector2.ZERO
+		return
 	_tick_combat_timers(delta)
-	if _grabber != null:
+	if _grabber != null or is_stunned():
 		velocity = Vector2.ZERO
 	elif is_dodging():
 		velocity = _dodge_direction * balance.dodge_speed
@@ -66,7 +82,15 @@ func _tick_combat_timers(delta: float) -> void:
 		_dodge_time_left = maxf(0.0, _dodge_time_left - delta)
 	if _grace_time_left > 0.0:
 		_grace_time_left = maxf(0.0, _grace_time_left - delta)
-	visual.modulate.a = 0.5 if is_invulnerable() else 1.0
+	if _stun_time_left > 0.0:
+		_stun_time_left = maxf(0.0, _stun_time_left - delta)
+	toolbelt.tick(delta)
+	if is_stunned():
+		visual.modulate = STUN_MODULATE
+	elif is_invulnerable():
+		visual.modulate = Color(1.0, 1.0, 1.0, 0.5)
+	else:
+		visual.modulate = Color.WHITE
 
 
 func fall_asleep() -> void:
@@ -89,6 +113,7 @@ func wake_in_cafe() -> void:
 	sleep_meter.reset()
 	_grabber = null
 	_mash_presses = 0
+	_stun_time_left = 0.0
 	_asleep = false
 
 
@@ -96,10 +121,21 @@ func is_asleep() -> bool:
 	return _asleep
 
 
+func set_input_locked(locked: bool) -> void:
+	# The cinematics of the first ten minutes hold the player still: the
+	# opening video, the brew dial, and the finale pan.
+	_input_locked = locked
+
+
+func is_input_locked() -> bool:
+	return _input_locked
+
+
 func begin_dodge(direction: Vector2) -> bool:
 	# The dodge roll: a short burst of speed with invulnerability for the
-	# whole roll. A grabbed player cannot roll; mashing is the only way out.
-	if _asleep or _grabber != null or is_dodging():
+	# whole roll. A grabbed or dazzled player cannot roll; mashing is the
+	# only way out of a grab.
+	if _asleep or _grabber != null or is_stunned() or is_dodging():
 		return false
 	_dodge_direction = (
 		direction.normalized() if direction != Vector2.ZERO else _last_move_direction
@@ -113,7 +149,19 @@ func is_dodging() -> bool:
 
 
 func is_invulnerable() -> bool:
-	return is_dodging() or _grace_time_left > 0.0
+	# A locked player is out of play, so no hug and no flash can land.
+	return is_dodging() or _grace_time_left > 0.0 or _input_locked
+
+
+func apply_stun(duration: float) -> void:
+	# A dazzle from the Tourist's flash or a bump from the Tech Bro's drone
+	# staggers the player for a moment. Stuns do not stack: the longer stun
+	# wins while one runs.
+	_stun_time_left = maxf(_stun_time_left, duration)
+
+
+func is_stunned() -> bool:
+	return _stun_time_left > 0.0
 
 
 func is_grabbed() -> bool:
@@ -146,8 +194,152 @@ func struggle() -> bool:
 	return false
 
 
+func use_tool(aim: Vector2 = Vector2.ZERO) -> bool:
+	# The equipped support tool fires toward the aim, section 11. Support
+	# tools wake nobody and cost no coffee: they control the sleepwalkers.
+	if _asleep or _input_locked or _grabber != null or is_stunned():
+		return false
+	var tool := toolbelt.equipped_tool()
+	if tool == SupportToolbelt.NO_TOOL or toolbelt.is_on_cooldown(tool):
+		return false
+	if not coffee_supply.fire(CoffeeSupply.Weapon.SUPPORT_TOOL):
+		return false
+	var direction := aim.normalized() if aim != Vector2.ZERO else _last_move_direction
+	match tool:
+		SupportToolbelt.Tool.TAMPER:
+			_swing_tamper(direction)
+		SupportToolbelt.Tool.STEAM_WAND:
+			_swing_steam_wand(direction)
+		SupportToolbelt.Tool.PORTAFILTER:
+			_bash_portafilter(direction)
+		SupportToolbelt.Tool.ICED_SPRAYER:
+			_spray_iced(direction)
+		SupportToolbelt.Tool.BEAN_SLICK:
+			_drop_bean_slick()
+		_:
+			return false
+	toolbelt.start_cooldown(tool)
+	return true
+
+
+func _cycle_tool() -> bool:
+	# The swap: the next found tool rides in the slot. The shared action
+	# entry is the only caller, key and touch alike.
+	if _asleep or _input_locked:
+		return false
+	return toolbelt.cycle()
+
+
+func _swing_tamper(direction: Vector2) -> void:
+	# The Tamper: one melee push. It staggers the nearest sleepwalker in the
+	# short reach and shoves it back, section 11.
+	var target := _nearest_sleepwalker_in_cone(
+		direction,
+		support_tools_balance.tamper_reach,
+		support_tools_balance.tamper_half_angle_degrees
+	)
+	if target == null:
+		return
+	target.stagger(support_tools_balance.tamper_stagger_seconds)
+	target.push_away(
+		_away_from_player(target),
+		support_tools_balance.tamper_push_speed,
+		support_tools_balance.tamper_push_seconds
+	)
+
+
+func _swing_steam_wand(direction: Vector2) -> void:
+	# The Steam Wand: a melee cone of steam. Every sleepwalker inside
+	# staggers briefly, and the swing opens the parry window of section 14.
+	for walker: Sleepwalker in _sleepwalkers_in_cone(
+		direction,
+		support_tools_balance.steam_wand_reach,
+		support_tools_balance.steam_wand_half_angle_degrees
+	):
+		walker.stagger(support_tools_balance.steam_wand_stagger_seconds)
+	toolbelt.open_parry_window()
+
+
+func _bash_portafilter(direction: Vector2) -> void:
+	# The Portafilter bash: a heavy melee hit. It staggers and shoves every
+	# sleepwalker in the short arc in front of the player, section 11.
+	for walker: Sleepwalker in _sleepwalkers_in_cone(
+		direction,
+		support_tools_balance.portafilter_bash_reach,
+		support_tools_balance.portafilter_bash_half_angle_degrees
+	):
+		walker.stagger(support_tools_balance.portafilter_bash_stagger_seconds)
+		walker.push_away(
+			_away_from_player(walker),
+			support_tools_balance.portafilter_bash_push_speed,
+			support_tools_balance.portafilter_bash_push_seconds
+		)
+
+
+func _spray_iced(direction: Vector2) -> void:
+	# The Iced Sprayer: iced coffee wakes nobody, but the brain freeze slows
+	# every sleepwalker in the cone, section 11.
+	for walker: Sleepwalker in _sleepwalkers_in_cone(
+		direction,
+		support_tools_balance.sprayer_reach,
+		support_tools_balance.sprayer_half_angle_degrees
+	):
+		walker.apply_brain_freeze(
+			support_tools_balance.brain_freeze_seconds,
+			support_tools_balance.brain_freeze_speed_factor
+		)
+
+
+func _drop_bean_slick() -> void:
+	# The Bean Slick: a pile of beans lands under the player, and every
+	# sleepwalker that steps on it slips, section 11.
+	var slick := bean_slick_scene.instantiate() as BeanSlick
+	get_parent().add_child(slick)
+	slick.global_position = global_position
+
+
+func _sleepwalkers_in_cone(
+	direction: Vector2, reach: float, half_angle_degrees: float
+) -> Array[Sleepwalker]:
+	var hits: Array[Sleepwalker] = []
+	for node: Node in get_tree().get_nodes_in_group(&"sleepwalkers"):
+		var walker := node as Sleepwalker
+		if walker == null or walker.is_awake():
+			continue
+		var offset := walker.global_position - global_position
+		if offset.length() > reach:
+			continue
+		var angle := absf(rad_to_deg(angle_difference(direction.angle(), offset.angle())))
+		if angle > half_angle_degrees:
+			continue
+		hits.append(walker)
+	return hits
+
+
+func _nearest_sleepwalker_in_cone(
+	direction: Vector2, reach: float, half_angle_degrees: float
+) -> Sleepwalker:
+	var best: Sleepwalker = null
+	var best_distance := reach
+	for walker: Sleepwalker in _sleepwalkers_in_cone(direction, reach, half_angle_degrees):
+		var distance := walker.global_position.distance_to(global_position)
+		if distance <= best_distance:
+			best = walker
+			best_distance = distance
+	return best
+
+
+func _away_from_player(walker: Sleepwalker) -> Vector2:
+	# The shove direction of a melee hit: away from the player. A target on
+	# the exact same spot flies the way the swing aimed.
+	var away := walker.global_position - global_position
+	if away.length() > 1.0:
+		return away.normalized()
+	return _last_move_direction
+
+
 func drink_cup() -> bool:
-	if _asleep or _grabber != null:
+	if _asleep or _grabber != null or is_stunned():
 		return false
 	# The same cup heals the meter or wakes a sleepwalker, never both.
 	if not coffee_supply.spend_cups(supply_balance.drink_cost):
@@ -172,16 +364,59 @@ func pickup_item(item: ItemType, amount: int) -> int:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _asleep or _input_locked:
+		return
+	if _is_emulated_touch_click(event):
+		# A screen tap emulates a left click. The THROW button owns touch
+		# throws with its stick aim, so the emulated click must not also throw
+		# a cup toward the tap position, section 4.
+		return
 	if is_grabbed():
 		if _is_mash_press(event):
 			struggle()
 		return
 	if event.is_action_pressed(&"throw_coffee"):
-		throw_cup(get_global_mouse_position() - global_position)
+		try_action(&"throw_coffee", get_global_mouse_position() - global_position)
 	elif event.is_action_pressed(&"drink_coffee"):
-		drink_cup()
+		try_action(&"drink_coffee")
 	elif event.is_action_pressed(&"dodge"):
-		begin_dodge(Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down"))
+		try_action(
+			&"dodge", Input.get_vector(&"move_left", &"move_right", &"move_up", &"move_down")
+		)
+	elif event.is_action_pressed(&"use_tool"):
+		try_action(&"use_tool", get_global_mouse_position() - global_position)
+	elif event.is_action_pressed(&"cycle_tool"):
+		try_action(&"cycle_tool")
+
+
+func _is_emulated_touch_click(event: InputEvent) -> bool:
+	# The mouse event a touch emulates carries device -1, TouchControls.
+	var mouse := event as InputEventMouseButton
+	return mouse != null and mouse.device == TouchControls.EMULATED_MOUSE_DEVICE
+
+
+func try_action(action: StringName, aim_direction: Vector2 = Vector2.ZERO) -> bool:
+	# One entry for the key path and the touch buttons: the shared rules of a
+	# player press live here. A grabbed player mashes the hug instead of acting.
+	# The aim comes from the caller: the mouse on desktop, the stick on touch.
+	if _asleep or _input_locked:
+		return false
+	if _grabber != null:
+		struggle()
+		return false
+	var result := false
+	match action:
+		&"throw_coffee":
+			result = throw_cup(aim_direction) != null
+		&"drink_coffee":
+			result = drink_cup()
+		&"dodge":
+			result = begin_dodge(aim_direction)
+		&"use_tool":
+			result = use_tool(aim_direction)
+		&"cycle_tool":
+			result = _cycle_tool()
+	return result
 
 
 func _is_mash_press(event: InputEvent) -> bool:
@@ -189,11 +424,12 @@ func _is_mash_press(event: InputEvent) -> bool:
 		event.is_action_pressed(&"throw_coffee")
 		or event.is_action_pressed(&"drink_coffee")
 		or event.is_action_pressed(&"dodge")
+		or event.is_action_pressed(&"use_tool")
 	)
 
 
 func throw_cup(direction: Vector2) -> CoffeeCup:
-	if _asleep or _grabber != null:
+	if _asleep or _grabber != null or is_stunned():
 		return null
 	if not coffee_supply.fire(CoffeeSupply.Weapon.CUP_THROW):
 		return null

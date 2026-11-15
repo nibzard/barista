@@ -1,0 +1,58 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/sleepwalker.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/balance/sleepwalker.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/enemies/gamer.tres" id="3"]
+[ext_resource type="Resource" path="res://resources/brewing/brewing_library.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/brewing/brewing_balance.tres" id="5"]
+[ext_resource type="Resource" path="res://resources/balance/gamer.tres" id="6"]
+
+[sub_resource type="RectangleShape2D" id="Body"]
+size = Vector2(28, 40)
+
+[sub_resource type="CircleShape2D" id="Sense"]
+radius = 150.0
+
+[sub_resource type="CircleShape2D" id="Hug"]
+radius = 18.0
+
+[node name="Gamer" type="CharacterBody2D"]
+collision_layer = 4
+collision_mask = 1
+script = ExtResource("1")
+balance = ExtResource("2")
+enemy_type = ExtResource("3")
+library = ExtResource("4")
+brewing_balance = ExtResource("5")
+gamer_balance = ExtResource("6")
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(0.58, 0.42, 0.82, 1)
+polygon = PackedVector2Array(-16, -24, 16, -24, 16, 20, -16, 20)
+
+[node name="Nightcap" type="Polygon2D" parent="Visual"]
+color = Color(0.58, 0.42, 0.82, 1)
+polygon = PackedVector2Array(-14, -24, 12, -24, 17, -31, 5, -36, -8, -31)
+
+[node name="HeadsetCupLeft" type="Polygon2D" parent="Visual"]
+color = Color(0.12, 0.12, 0.15, 1)
+polygon = PackedVector2Array(-22, -18, -15, -18, -15, -6, -22, -6)
+
+[node name="HeadsetCupRight" type="Polygon2D" parent="Visual"]
+color = Color(0.12, 0.12, 0.15, 1)
+polygon = PackedVector2Array(15, -18, 22, -18, 22, -6, 15, -6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Body")
+
+[node name="SenseArea" type="Area2D" parent="."]
+collision_mask = 2
+
+[node name="SenseShape" type="CollisionShape2D" parent="SenseArea"]
+shape = SubResource("Sense")
+
+[node name="HugArea" type="Area2D" parent="."]
+collision_mask = 2
+
+[node name="HugShape" type="CollisionShape2D" parent="HugArea"]
+shape = SubResource("Hug")

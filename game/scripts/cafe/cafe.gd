@@ -1,18 +1,14 @@
-# ABOUTME: Cafe is the first playable room: wake all sleepwalkers with coffee to win.
-# ABOUTME: Owns the win and death overlays; the actors report their own state changes.
+# ABOUTME: Cafe is the development room for the core mechanics: throw, hug, refill.
+# ABOUTME: The playable city flow lives in CityRun; this room keeps the tests fast.
 class_name Cafe
 extends Node2D
 
 signal game_over
-signal game_won
 
 const DEATH_TEXT := "Your last wake-up is gone. The dream takes you."
-const WIN_TEXT := "Block served! Everyone is awake."
 const WAKE_UP_RESTORED_TEXT := "WAKE-UP RESTORED"
 
-var _awake_count := 0
 var _game_over := false
-var _game_won := false
 
 @onready var player: Player = $Player
 @onready var sleepwalkers: Node2D = $Sleepwalkers
@@ -26,14 +22,14 @@ var _game_won := false
 
 
 func _ready() -> void:
+	# The development room hands the whole support tool belt over, section 11:
+	# this room is the playground for the core mechanics. The cities hand the
+	# tools over where the route finds them.
+	player.toolbelt.unlock_all()
 	player.died.connect(_on_player_died)
 	player.woke_in_cafe.connect(_on_player_woke_in_cafe)
 	broadcast_tower.switched_off.connect(_on_tower_switched_off)
 	broadcast_tower.birdsong.connect(_on_tower_birdsong)
-	for child: Node in sleepwalkers.get_children():
-		var sleepwalker := child as Sleepwalker
-		if sleepwalker != null:
-			sleepwalker.woke_up.connect(_on_sleepwalker_woke)
 	overlay.visible = false
 	status_label.visible = false
 	restart_button.visible = false
@@ -48,23 +44,7 @@ func is_game_over() -> bool:
 	return _game_over
 
 
-func is_game_won() -> bool:
-	return _game_won
-
-
-func _on_sleepwalker_woke() -> void:
-	if _game_over:
-		return
-	_awake_count += 1
-	if _awake_count >= sleepwalkers.get_child_count():
-		_game_won = true
-		game_won.emit()
-		_show_end_screen(WIN_TEXT)
-
-
 func _on_player_died() -> void:
-	if _game_won:
-		return
 	_game_over = true
 	game_over.emit()
 	_show_end_screen(DEATH_TEXT)

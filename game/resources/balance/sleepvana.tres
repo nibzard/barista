@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SleepvanaBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/balance/sleepvana_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+concert_wake_radius = 1000.0
+crowd_size = 5
+encore_seconds = 12.0
+garage_arrival_radius = 180.0

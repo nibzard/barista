@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="TutorialBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/tutorial/tutorial_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+video_seconds = 20.0
+wake_meter_value = 60.0
+move_min_distance = 24.0
+pole_zone_radius = 120.0
+pole_min_seconds = 2.0
+survivor_notice_radius = 90.0
+survivor_door_gap = 48.0
+window_neighbor_fraction = Vector2(0.12, 0.82)
+line_hold_seconds = 4.5
+finale_pan_seconds = 2.5
+finale_map_hold_seconds = 1.25
+title_hold_seconds = 3.0
+finale_fade_seconds = 1.0
+finale_zoom_margin = 0.95

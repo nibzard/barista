@@ -360,41 +360,126 @@
       "id": "T011",
       "title": "The Grind Dial pre-step minigame playable",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "Every brew starts with it: a marker runs from fine to coarse, the player stops it in the correct zone for the method, a wrong grind lowers the cup quality. Works with touch and keyboard. Acceptance: scoring logic separated from presentation and unit-tested for hit, miss, and wrong zone; make check green.",
       "depends_on": [
         "T010"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/project.godot",
+        "game/resources/balance/grind_dial.tres",
+        "game/scenes/minigames/grind_dial.tscn",
+        "game/scripts/balance/grind_dial_balance.gd",
+        "game/scripts/balance/grind_dial_balance.gd.uid",
+        "game/scripts/brewing/grind_dial.gd",
+        "game/scripts/brewing/grind_dial.gd.uid",
+        "game/scripts/brewing/grind_result.gd",
+        "game/scripts/brewing/grind_result.gd.uid",
+        "game/scripts/minigames/grind_dial_view.gd",
+        "game/scripts/minigames/grind_dial_view.gd.uid",
+        "game/tests/integration/test_grind_dial_view.gd",
+        "game/tests/integration/test_grind_dial_view.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_grind_dial.gd",
+        "game/tests/unit/test_grind_dial.gd.uid"
+      ],
+      "updated_at": "2026-11-14T22:20:59Z"
     },
     {
       "id": "T012",
       "title": "The Pour minigame playable (V60, filter, Aeropress)",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "The player pours in a slow circle, the bloom ring fills up, too fast floods it, too slow stalls it, the ring shows the sweet spot. Acceptance: pour logic headless-testable (input stream in, score out) with flood and stall cases covered; make check green.",
       "depends_on": [
         "T011"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/pour.tres",
+        "game/scenes/minigames/pour_bloom.tscn",
+        "game/scripts/balance/pour_balance.gd",
+        "game/scripts/balance/pour_balance.gd.uid",
+        "game/scripts/brewing/pour_bloom.gd",
+        "game/scripts/brewing/pour_bloom.gd.uid",
+        "game/scripts/brewing/pour_result.gd",
+        "game/scripts/brewing/pour_result.gd.uid",
+        "game/scripts/minigames/pour_bloom_view.gd",
+        "game/scripts/minigames/pour_bloom_view.gd.uid",
+        "game/tests/integration/test_pour_bloom_view.gd",
+        "game/tests/integration/test_pour_bloom_view.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_pour_bloom.gd",
+        "game/tests/unit/test_pour_bloom.gd.uid"
+      ],
+      "updated_at": "2026-11-14T23:40:25Z"
     },
     {
       "id": "T013",
       "title": "The Press minigame playable (espresso, French press, moka pot)",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "Two-step hold: hold the pressure in the green zone while it creeps, then release at the exact mark; early means sour, late means bitter. Acceptance: the two-step hold and release logic unit-tested including both failure modes; make check green.",
       "depends_on": [
         "T011"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/project.godot",
+        "game/resources/balance/press.tres",
+        "game/scenes/minigames/press_shot.tscn",
+        "game/scripts/balance/press_balance.gd",
+        "game/scripts/balance/press_balance.gd.uid",
+        "game/scripts/brewing/press_result.gd",
+        "game/scripts/brewing/press_result.gd.uid",
+        "game/scripts/brewing/press_shot.gd",
+        "game/scripts/brewing/press_shot.gd.uid",
+        "game/scripts/minigames/press_shot_view.gd",
+        "game/scripts/minigames/press_shot_view.gd.uid",
+        "game/tests/integration/test_press_shot_view.gd",
+        "game/tests/integration/test_press_shot_view.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_press_shot.gd",
+        "game/tests/unit/test_press_shot.gd.uid"
+      ],
+      "updated_at": "2026-11-15T00:15:45Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T014",
       "title": "The Foam Watch minigame playable (Turkish coffee)",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "The pot heats up and the foam rises; more foam gives a better cup, but the pot can boil over; the player lifts the pot at the last safe moment and greed costs the cup. Acceptance: foam growth and boil-over logic unit-tested; make check green.",
       "depends_on": [
         "T011"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/project.godot",
+        "game/resources/balance/foam_watch.tres",
+        "game/scenes/minigames/foam_watch.tscn",
+        "game/scripts/balance/foam_watch_balance.gd",
+        "game/scripts/balance/foam_watch_balance.gd.uid",
+        "game/scripts/brewing/foam_result.gd",
+        "game/scripts/brewing/foam_result.gd.uid",
+        "game/scripts/brewing/foam_watch.gd",
+        "game/scripts/brewing/foam_watch.gd.uid",
+        "game/scripts/minigames/foam_watch_view.gd",
+        "game/scripts/minigames/foam_watch_view.gd.uid",
+        "game/tests/integration/test_foam_watch_view.gd",
+        "game/tests/integration/test_foam_watch_view.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_foam_watch.gd",
+        "game/tests/unit/test_foam_watch.gd.uid"
+      ],
+      "updated_at": "2026-11-15T00:59:57Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T015",
@@ -410,13 +495,25 @@
       "id": "T016",
       "title": "Brewing skill progression and auto-brew working",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "Section 14: skill 0-10 per method; good brew (80 or more) gives +1, perfect (95 or more) gives +2; one master lesson gives +2 (hook for the masters task); at skill 10 auto-brew opens for the method: always scores 80, never 95. Acceptance: skill gain, cap, and auto-brew rules unit-tested; state exposed for the save system; make check green.",
       "depends_on": [
         "T012",
         "T013",
         "T014"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/brewing/brewing_balance.tres",
+        "game/scripts/brewing/brewing_balance.gd",
+        "game/scripts/brewing/brewing_skills.gd",
+        "game/scripts/brewing/brewing_skills.gd.uid",
+        "game/tests/unit/test_brewing_data.gd",
+        "game/tests/unit/test_brewing_skills.gd",
+        "game/tests/unit/test_brewing_skills.gd.uid"
+      ],
+      "updated_at": "2026-11-15T04:54:47Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T017",
@@ -454,61 +551,183 @@
       "id": "T018",
       "title": "The Tourist enemy implemented",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "He stops and takes photos of everything; the camera flash stuns the player for a moment; cure is a Frappuccino with whipped cream. Acceptance: stun behavior and cure rule tested; make check green.",
       "depends_on": [
         "T017"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/tourist.tres",
+        "game/resources/enemies/tourist.tres",
+        "game/scenes/enemies/tourist.tscn",
+        "game/scripts/enemies/enemy_type.gd",
+        "game/scripts/enemies/sleepwalker.gd",
+        "game/scripts/enemies/tourist_balance.gd",
+        "game/scripts/enemies/tourist_balance.gd.uid",
+        "game/scripts/player/player.gd",
+        "game/tests/integration/test_coffee_wake.gd",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/integration/test_tourist_flash.gd",
+        "game/tests/integration/test_tourist_flash.gd.uid",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_enemy_types.gd"
+      ],
+      "updated_at": "2026-11-14T21:10:01Z"
     },
     {
       "id": "T019",
       "title": "The Tech Bro enemy implemented",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "He sleep-pitches startup ideas to nobody; a drone circles him and attacks the player; cure is bulletproof coffee (espresso base + butter). Acceptance: drone attack pattern and cure rule tested; make check green.",
       "depends_on": [
         "T017"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/tech_bro.tres",
+        "game/resources/enemies/tech_bro.tres",
+        "game/scenes/enemies/drone.tscn",
+        "game/scenes/enemies/tech_bro.tscn",
+        "game/scripts/enemies/drone.gd",
+        "game/scripts/enemies/drone.gd.uid",
+        "game/scripts/enemies/enemy_type.gd",
+        "game/scripts/enemies/sleepwalker.gd",
+        "game/scripts/enemies/tech_bro_balance.gd",
+        "game/scripts/enemies/tech_bro_balance.gd.uid",
+        "game/scripts/player/player.gd",
+        "game/tests/integration/test_coffee_wake.gd",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/integration/test_tech_bro_drone.gd",
+        "game/tests/integration/test_tech_bro_drone.gd.uid",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_enemy_types.gd"
+      ],
+      "updated_at": "2026-11-14T21:25:41Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T020",
       "title": "The Gamer enemy implemented",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "He had the highest synthetic caffeine level in the country and moves in fast, short dashes; cure is a triple Aeropress shot. Acceptance: dash behavior and cure rule tested; make check green.",
       "depends_on": [
         "T017"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/gamer.tres",
+        "game/resources/enemies/gamer.tres",
+        "game/scenes/enemies/gamer.tscn",
+        "game/scripts/enemies/enemy_type.gd",
+        "game/scripts/enemies/gamer_balance.gd",
+        "game/scripts/enemies/gamer_balance.gd.uid",
+        "game/scripts/enemies/sleepwalker.gd",
+        "game/tests/integration/test_coffee_wake.gd",
+        "game/tests/integration/test_gamer_dash.gd",
+        "game/tests/integration/test_gamer_dash.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_enemy_types.gd"
+      ],
+      "updated_at": "2026-11-14T22:44:10Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T021",
       "title": "The Tinfoil Man enemy implemented",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "His tinfoil hat stops thrown coffee; splash attacks do not work on him; cure is Turkish coffee. Acceptance: a direct cup hit does not wake him and the Turkish recipe does, with tests for both; make check green.",
       "depends_on": [
         "T017"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/enemies/tinfoil_man.tres",
+        "game/scenes/enemies/tinfoil_man.tscn",
+        "game/scripts/enemies/enemy_type.gd",
+        "game/scripts/enemies/sleepwalker.gd",
+        "game/scripts/projectiles/coffee_cup.gd",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/integration/test_tinfoil_man_hat.gd",
+        "game/tests/integration/test_tinfoil_man_hat.gd.uid",
+        "game/tests/unit/test_enemy_types.gd"
+      ],
+      "updated_at": "2026-11-15T01:35:10Z"
     },
     {
       "id": "T022",
       "title": "The Karen enemy implemented",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "She is very fat and looks slow but moves very fast; surprise attack; she wakes only from a super tall American coffee; when she wakes she asks for the manager. Acceptance: speed switch and cure rule tested; make check green.",
       "depends_on": [
         "T017"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/karen.tres",
+        "game/resources/enemies/karen.tres",
+        "game/scenes/enemies/karen.tscn",
+        "game/scripts/enemies/enemy_type.gd",
+        "game/scripts/enemies/karen_balance.gd",
+        "game/scripts/enemies/karen_balance.gd.uid",
+        "game/scripts/enemies/sleepwalker.gd",
+        "game/tests/integration/test_karen_surprise.gd",
+        "game/tests/integration/test_karen_surprise.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_enemy_types.gd"
+      ],
+      "updated_at": "2026-11-15T02:04:38Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T023",
       "title": "SleepyDex smartphone app working",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "Section 9: lists all sleepwalker types with picture, name, found or not found status, and the coffee that wakes the type; a new entry opens on first meeting; rare types are completely absent until found (no placeholder, no hint that a rare type exists); a completed dex gives the troll doll keychain: no stats, no skill, no secret, it hangs on the mobile cafe mirror, one line says 'It is just a keychain.' Acceptance: unlock rules unit-tested including the hidden-rare rule; make check green.",
       "depends_on": [
         "T017"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/project.godot",
+        "game/resources/dex/entries/gamer.tres",
+        "game/resources/dex/entries/karen.tres",
+        "game/resources/dex/entries/moonwalker.tres",
+        "game/resources/dex/entries/neighbor.tres",
+        "game/resources/dex/entries/tech_bro.tres",
+        "game/resources/dex/entries/tinfoil_man.tres",
+        "game/resources/dex/entries/tourist.tres",
+        "game/resources/dex/sleepy_dex.tres",
+        "game/resources/enemies/moonwalker.tres",
+        "game/scenes/dex/sleepy_dex_app.tscn",
+        "game/scenes/hud/hud.tscn",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/dex/sleepy_dex.gd",
+        "game/scripts/dex/sleepy_dex.gd.uid",
+        "game/scripts/dex/sleepy_dex_app.gd",
+        "game/scripts/dex/sleepy_dex_app.gd.uid",
+        "game/scripts/dex/sleepy_dex_catalog.gd",
+        "game/scripts/dex/sleepy_dex_catalog.gd.uid",
+        "game/scripts/dex/sleepy_dex_entry.gd",
+        "game/scripts/dex/sleepy_dex_entry.gd.uid",
+        "game/scripts/hud/hud.gd",
+        "game/scripts/van/mobile_cafe_van.gd",
+        "game/tests/integration/test_hud.gd",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/integration/test_sleepy_dex_app.gd",
+        "game/tests/integration/test_sleepy_dex_app.gd.uid",
+        "game/tests/unit/test_sleepy_dex.gd",
+        "game/tests/unit/test_sleepy_dex.gd.uid"
+      ],
+      "updated_at": "2026-11-15T05:49:15Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T024",
@@ -593,163 +812,517 @@
       "id": "T026",
       "title": "San Coffesco built (city 1, the free city)",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "First city from the block kit with a teal accent placeholder; roster: Neighbor, Tourist, Tech Bro; cafe start and safe zone with free refill; tower at the far edge; boss arena for Sam Oatman; Robotaxi Depot quest location; the road east ends at the bridge paywall (gate reads unlock state; billing is external, see T053). The free city teaches the whole game: throw, brew, meter, tower (section 4). Replaces the current wake-all-to-win cafe overlay with the city completion flow. Acceptance: city scene loads headless with the full landmark set, density, and speaker poles; make check green.",
       "depends_on": [
         "T018",
         "T019",
         "T024",
         "T025"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/city/san_coffesco.tres",
+        "game/scenes/city/bridge_gate.tscn",
+        "game/scenes/city/city_run.tscn",
+        "game/scenes/city/san_coffesco.tscn",
+        "game/scripts/cafe/cafe.gd",
+        "game/scripts/city/bridge_gate.gd",
+        "game/scripts/city/bridge_gate.gd.uid",
+        "game/scripts/city/city_block_view.gd",
+        "game/scripts/city/city_definition.gd",
+        "game/scripts/city/city_map.gd",
+        "game/scripts/city/city_progress.gd",
+        "game/scripts/city/city_progress.gd.uid",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/city/city_run.gd.uid",
+        "game/scripts/city/enemy_spawn.gd",
+        "game/scripts/city/enemy_spawn.gd.uid",
+        "game/scripts/city/unlock_state.gd",
+        "game/scripts/city/unlock_state.gd.uid",
+        "game/scripts/components/sleep_zone.gd",
+        "game/scripts/main/menu.gd",
+        "game/tests/integration/test_cafe_flow.gd",
+        "game/tests/integration/test_city_map.gd",
+        "game/tests/integration/test_city_run.gd",
+        "game/tests/integration/test_city_run.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_city_data.gd",
+        "game/tests/unit/test_city_progress.gd",
+        "game/tests/unit/test_city_progress.gd.uid",
+        "game/tests/unit/test_unlock_state.gd",
+        "game/tests/unit/test_unlock_state.gd.uid"
+      ],
+      "updated_at": "2026-11-14T21:53:04Z"
     },
     {
       "id": "T027",
       "title": "Sam Oatman boss fight playable (San Coffesco)",
       "priority": 2,
-      "status": "todo",
+      "status": "blocked",
       "details": "A keynote guru in a gray fleece vest sleep-presents a product show to a hall of sleepwalking founders; his boring slides drain the meter (boring-attack rate); live product demos send drones; every fight phase starts with 'One more thing'; cure: scavenge his 700-dollar designer dripper, brew one cup with it, serve it on the demo table; when he wakes he presents the cup as his next product. Builds the reusable boss framework (phases, cure delivery, wake sequence). Acceptance: phase progression and cure condition tested; make check green.",
       "depends_on": [
         "T026"
-      ]
+      ],
+      "blockers": [
+        "Deferred: T027 starts implementation"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:t026-boss-cure-hook"
+      ],
+      "unblock_when": "T027 starts implementation; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T028",
       "title": "Steamtle built (city 2)",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "Rain-blue accent; roster: Neighbor, Tourist, Gamer; the public market with the Fish Throwers boss arena; Sleepvana quest locations (greenhouse, garage, sofa); a new cafe, bigger and better than the old one; moving day from San Coffesco with the van. Reached by traveling east after San Coffesco is complete. Acceptance: city loads headless with the full landmark set; make check green.",
       "depends_on": [
         "T020",
         "T026",
         "T034"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/city.tres",
+        "game/resources/city/san_coffesco.tres",
+        "game/resources/city/steamtle.tres",
+        "game/scenes/city/san_coffesco.tscn",
+        "game/scenes/city/steamtle.tscn",
+        "game/scripts/city/city_balance.gd",
+        "game/scripts/city/city_block.gd",
+        "game/scripts/city/city_block_view.gd",
+        "game/scripts/city/city_definition.gd",
+        "game/scripts/city/city_map.gd",
+        "game/scripts/city/city_rules.gd",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/city/moving_day.gd",
+        "game/scripts/city/moving_day.gd.uid",
+        "game/tests/integration/test_city_map.gd",
+        "game/tests/integration/test_city_run.gd",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/integration/test_steamtle.gd",
+        "game/tests/integration/test_steamtle.gd.uid",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_city_data.gd",
+        "game/tests/unit/test_city_rules.gd",
+        "game/tests/unit/test_moving_day.gd",
+        "game/tests/unit/test_moving_day.gd.uid"
+      ],
+      "updated_at": "2026-11-15T04:31:51Z"
     },
     {
       "id": "T029",
       "title": "The Fish Throwers boss fight playable (Steamtle)",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "The fish sellers of the public market sleep-throw fish with perfect aim in a steady rhythm; the player dodges the volley and wakes the head fishmonger first (cure: one tall cup of the market dark roast thrown into his apron); when the crew wakes up they throw the fish one last time, all together, and cheer. Acceptance: volley pattern and head-first cure rule tested; make check green.",
       "depends_on": [
         "T028"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/fish_throwers.tres",
+        "game/resources/brewing/brewing_library.tres",
+        "game/resources/brewing/recipes/market_dark_roast_tall.tres",
+        "game/resources/city/steamtle.tres",
+        "game/scenes/bosses/fish_throwers.tscn",
+        "game/scenes/projectiles/fish.tscn",
+        "game/scripts/bosses/boss_cure.gd",
+        "game/scripts/bosses/boss_cure.gd.uid",
+        "game/scripts/bosses/fish_seller.gd",
+        "game/scripts/bosses/fish_seller.gd.uid",
+        "game/scripts/bosses/fish_throwers.gd",
+        "game/scripts/bosses/fish_throwers.gd.uid",
+        "game/scripts/bosses/fish_throwers_balance.gd",
+        "game/scripts/bosses/fish_throwers_balance.gd.uid",
+        "game/scripts/bosses/fish_volley.gd",
+        "game/scripts/bosses/fish_volley.gd.uid",
+        "game/scripts/bosses/sleep_jam_band.gd",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/projectiles/coffee_cup.gd",
+        "game/scripts/projectiles/fish.gd",
+        "game/scripts/projectiles/fish.gd.uid",
+        "game/tests/integration/test_fish_throwers.gd",
+        "game/tests/integration/test_fish_throwers.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/integration/test_steamtle.gd",
+        "game/tests/unit/test_brewing_data.gd",
+        "game/tests/unit/test_city_data.gd",
+        "game/tests/unit/test_fish_throwers_cure.gd",
+        "game/tests/unit/test_fish_throwers_cure.gd.uid",
+        "game/tests/unit/test_fish_volley.gd",
+        "game/tests/unit/test_fish_volley.gd.uid"
+      ],
+      "updated_at": "2026-11-15T10:41:35Z"
     },
     {
       "id": "T030",
       "title": "Pourtland built (city 3)",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "Moss-green accent; roster: Neighbor, Tinfoil Man, first Karen; the Sleep Jam boss arena; the Aisle 7 hardware store quest location; new cafe and moving day as in Steamtle. Acceptance: city loads headless with the full landmark set; make check green.",
       "depends_on": [
         "T021",
         "T022",
         "T028"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/city/pourtland.tres",
+        "game/scenes/city/pourtland.tscn",
+        "game/scenes/city/steamtle.tscn",
+        "game/scripts/city/city_block_view.gd",
+        "game/tests/integration/test_city_map.gd",
+        "game/tests/integration/test_pourtland.gd",
+        "game/tests/integration/test_pourtland.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/integration/test_steamtle.gd",
+        "game/tests/unit/test_city_data.gd"
+      ],
+      "updated_at": "2026-11-15T06:22:33Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T031",
       "title": "The Sleep Jam boss fight playable (Pourtland)",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "An indie band sleep-performs one endless song; the song is a lullaby that makes the player sleepy (aura drain); cure: a cup from the most obscure single-origin beans in the world (Geisha Vault tier recipe). Acceptance: aura drain and cure condition tested; make check green.",
       "depends_on": [
         "T030"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/sleep_jam.tres",
+        "game/resources/brewing/brewing_library.tres",
+        "game/resources/brewing/recipes/geisha_vault_cup.tres",
+        "game/resources/city/pourtland.tres",
+        "game/scenes/bosses/sleep_jam_band.tscn",
+        "game/scripts/bosses/sleep_jam_balance.gd",
+        "game/scripts/bosses/sleep_jam_balance.gd.uid",
+        "game/scripts/bosses/sleep_jam_band.gd",
+        "game/scripts/bosses/sleep_jam_band.gd.uid",
+        "game/scripts/city/city_definition.gd",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/components/sleep_zone.gd",
+        "game/scripts/projectiles/coffee_cup.gd",
+        "game/tests/integration/test_sleep_jam.gd",
+        "game/tests/integration/test_sleep_jam.gd.uid",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_brewing_data.gd",
+        "game/tests/unit/test_city_data.gd",
+        "game/tests/unit/test_sleep_jam_cure.gd",
+        "game/tests/unit/test_sleep_jam_cure.gd.uid"
+      ],
+      "updated_at": "2026-11-15T07:35:36Z"
     },
     {
       "id": "T032",
       "title": "Quest system framework working (main chain plus side quests)",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "Main quest chain state (city, tower, unlock the next city) plus a side-quest state machine (offered, active, complete); quest state exposed for the save system; signals drive UI markers (for example the tower marker from section 19 step 7). Acceptance: state transitions unit-tested; make check green.",
       "depends_on": [
         "T017"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/city/pourtland.tres",
+        "game/resources/city/san_coffesco.tres",
+        "game/resources/city/steamtle.tres",
+        "game/resources/quests/main_route.tres",
+        "game/resources/quests/side/aisle_7.tres",
+        "game/resources/quests/side/robotaxi_depot.tres",
+        "game/resources/quests/side/sleepvana.tres",
+        "game/scripts/city/city_definition.gd",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/city/quest_markers.gd",
+        "game/scripts/city/quest_markers.gd.uid",
+        "game/scripts/quests/main_quest.gd",
+        "game/scripts/quests/main_quest.gd.uid",
+        "game/scripts/quests/main_route.gd",
+        "game/scripts/quests/main_route.gd.uid",
+        "game/scripts/quests/quest_log.gd",
+        "game/scripts/quests/quest_log.gd.uid",
+        "game/scripts/quests/side_quest.gd",
+        "game/scripts/quests/side_quest.gd.uid",
+        "game/scripts/quests/side_quest_definition.gd",
+        "game/scripts/quests/side_quest_definition.gd.uid",
+        "game/tests/integration/test_city_quest_wiring.gd",
+        "game/tests/integration/test_city_quest_wiring.gd.uid",
+        "game/tests/integration/test_quest_markers.gd",
+        "game/tests/integration/test_quest_markers.gd.uid",
+        "game/tests/unit/test_main_quest.gd",
+        "game/tests/unit/test_main_quest.gd.uid",
+        "game/tests/unit/test_quest_log.gd",
+        "game/tests/unit/test_quest_log.gd.uid",
+        "game/tests/unit/test_side_quest.gd",
+        "game/tests/unit/test_side_quest.gd.uid"
+      ],
+      "updated_at": "2026-11-15T07:00:46Z"
     },
     {
       "id": "T033",
       "title": "The Robotaxi Depot side quest playable (San Coffesco)",
       "priority": 2,
-      "status": "todo",
+      "status": "blocked",
       "details": "Driverless taxis still run: they pick up sleepwalkers and deliver them to the player; the routing engineer sleeps in the depot control room; his order is written like code (triple shot, oat cortado, milk at exactly 31 degrees); the player brews the order and wakes him; reward: the fleet re-routes and the taxis work as fast travel inside the city. Acceptance: order match, wake, and fast-travel unlock tested; make check green.",
       "depends_on": [
         "T026",
         "T032"
-      ]
+      ],
+      "blockers": [
+        "Deferred: T033 starts implementation"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:t026-quest-depot-content"
+      ],
+      "unblock_when": "T033 starts implementation; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T034",
       "title": "Mobile cafe van working with three upgrade levels",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "Section 10: the survivors in San Coffesco give the van to the player (acquisition beat in city 1). Level 1: transport for tools, gear, beans, equipment. Level 2: a kitchen inside, brew outside the city cafe, carry limit 20. Level 3: the field cafe with tables, an awning, and a lamp; park anywhere and open a small field base where awakened survivors gather and give small side quests. Upgrades cost scrap parts. Also the moving-day tool between city cafes. Acceptance: upgrade levels, carry-limit change, and brew-anywhere rule tested; make check green.",
       "depends_on": [
         "T005",
         "T010",
         "T026"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/project.godot",
+        "game/resources/balance/mobile_cafe.tres",
+        "game/resources/balance/sleepwalker.tres",
+        "game/scenes/van/mobile_cafe.tscn",
+        "game/scripts/balance/mobile_cafe_balance.gd",
+        "game/scripts/balance/mobile_cafe_balance.gd.uid",
+        "game/scripts/balance/sleepwalker_balance.gd",
+        "game/scripts/city/city_block_view.gd",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/enemies/sleepwalker.gd",
+        "game/scripts/van/mobile_cafe.gd",
+        "game/scripts/van/mobile_cafe.gd.uid",
+        "game/scripts/van/mobile_cafe_van.gd",
+        "game/scripts/van/mobile_cafe_van.gd.uid",
+        "game/tests/integration/test_city_map.gd",
+        "game/tests/integration/test_mobile_cafe_van.gd",
+        "game/tests/integration/test_mobile_cafe_van.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_mobile_cafe.gd",
+        "game/tests/unit/test_mobile_cafe.gd.uid"
+      ],
+      "updated_at": "2026-11-14T23:12:45Z"
     },
     {
       "id": "T035",
       "title": "The Sleepvana side quest playable (Steamtle)",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "The retired grunge band sleeps in three places (greenhouse, garage, sofa); three members wake to three simple orders; the frontman wakes only to a full crowd: gather awakened fans at the field cafe (van level 3) and lead them to the garage, then brew the frontman order during the encore; reward: one last concert, a city wake event that wakes every sleepwalker in hearing range; hit song 'Smells Like Bean Spirit' (diegetic music). Acceptance: crowd-gather condition and the wake event radius tested; make check green.",
       "depends_on": [
         "T028",
         "T032",
         "T034"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/sleepvana.tres",
+        "game/resources/balance/sleepwalker.tres",
+        "game/resources/brewing/brewing_library.tres",
+        "game/resources/brewing/recipes/sleepvana_order_bassist.tres",
+        "game/resources/brewing/recipes/sleepvana_order_drummer.tres",
+        "game/resources/brewing/recipes/sleepvana_order_frontman.tres",
+        "game/resources/brewing/recipes/sleepvana_order_guitarist.tres",
+        "game/resources/city/steamtle.tres",
+        "game/scenes/quests/band_member.tscn",
+        "game/scenes/quests/sleepvana_stage.tscn",
+        "game/scripts/balance/sleepvana_balance.gd",
+        "game/scripts/balance/sleepvana_balance.gd.uid",
+        "game/scripts/balance/sleepwalker_balance.gd",
+        "game/scripts/city/city_definition.gd",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/enemies/sleepwalker.gd",
+        "game/scripts/projectiles/coffee_cup.gd",
+        "game/scripts/quests/band_member.gd",
+        "game/scripts/quests/band_member.gd.uid",
+        "game/scripts/quests/signature_quest.gd",
+        "game/scripts/quests/signature_quest.gd.uid",
+        "game/scripts/quests/sleepvana_quest.gd",
+        "game/scripts/quests/sleepvana_quest.gd.uid",
+        "game/scripts/quests/sleepvana_stage.gd",
+        "game/scripts/quests/sleepvana_stage.gd.uid",
+        "game/scripts/van/mobile_cafe_van.gd",
+        "game/tests/integration/test_mobile_cafe_van.gd",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/integration/test_sleepvana.gd",
+        "game/tests/integration/test_sleepvana.gd.uid",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_brewing_data.gd",
+        "game/tests/unit/test_city_data.gd",
+        "game/tests/unit/test_sleepvana_quest.gd",
+        "game/tests/unit/test_sleepvana_quest.gd.uid"
+      ],
+      "updated_at": "2026-11-15T11:27:09Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T036",
       "title": "Brewing masters implemented (Offmug, Hedrip, Raoast)",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "Framework: a master has one fixed role and one fixed lesson, +2 skill per lesson, three lessons each, teaches faster than solo practice, and gives new recipes. V1 masters: James Offmug (V60, says 'Ultimately...'), Lance Hedrip (Aeropress and cold brew, scales and thermometers), Scott Raoast (espresso and filter, strict consultant). Each master lives in a different city (assignment decided during implementation); moka pot and French press stay self-taught in V1; the Turkish master comes from the Aisle 7 quest. Acceptance: lesson flow and skill grants tested; make check green.",
       "depends_on": [
         "T016"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/brewing/brewing_balance.tres",
+        "game/resources/brewing/brewing_library.tres",
+        "game/resources/brewing/recipes/cold_brew_concentrate.tres",
+        "game/resources/brewing/recipes/single_origin_v60.tres",
+        "game/resources/city/pourtland.tres",
+        "game/resources/city/san_coffesco.tres",
+        "game/resources/city/steamtle.tres",
+        "game/resources/masters/hedrip.tres",
+        "game/resources/masters/offmug.tres",
+        "game/resources/masters/raoast.tres",
+        "game/scenes/masters/master_npc.tscn",
+        "game/scripts/brewing/brewing_balance.gd",
+        "game/scripts/city/city_block_view.gd",
+        "game/scripts/city/city_definition.gd",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/masters/brewing_master.gd",
+        "game/scripts/masters/brewing_master.gd.uid",
+        "game/scripts/masters/master_lessons.gd",
+        "game/scripts/masters/master_lessons.gd.uid",
+        "game/scripts/masters/master_npc.gd",
+        "game/scripts/masters/master_npc.gd.uid",
+        "game/scripts/player/player.gd",
+        "game/tests/integration/test_city_map.gd",
+        "game/tests/integration/test_master_npc.gd",
+        "game/tests/integration/test_master_npc.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_brewing_data.gd",
+        "game/tests/unit/test_brewing_masters.gd",
+        "game/tests/unit/test_brewing_masters.gd.uid",
+        "game/tests/unit/test_city_data.gd"
+      ],
+      "updated_at": "2026-11-15T08:11:11Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T037",
       "title": "The Aisle 7 side quest and the Turkish master playable (Pourtland)",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "A woman gives the player a photo; her husband sleeps in aisle 7 of the hardware store, between the screws and the sandpaper; he drank only Turkish coffee all his life; the player brews one Turkish cup in front of him; he wakes, cries, and hugs his wife (the only sweet hug in the game); he is the Turkish master and teaches the Turkish method and its recipes. Acceptance: quest flow and master unlock tested; make check green.",
       "depends_on": [
         "T014",
         "T030",
         "T032",
         "T036"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/aisle_7.tres",
+        "game/resources/city/pourtland.tres",
+        "game/resources/items/gear/husband_photo.tres",
+        "game/resources/masters/turkish_husband.tres",
+        "game/scenes/quests/aisle_7_husband.tscn",
+        "game/scenes/quests/aisle_7_stage.tscn",
+        "game/scenes/quests/aisle_7_wife.tscn",
+        "game/scripts/balance/aisle_7_balance.gd",
+        "game/scripts/balance/aisle_7_balance.gd.uid",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/masters/master_lessons.gd",
+        "game/scripts/masters/master_npc.gd",
+        "game/scripts/projectiles/coffee_cup.gd",
+        "game/scripts/quests/aisle_7_husband.gd",
+        "game/scripts/quests/aisle_7_husband.gd.uid",
+        "game/scripts/quests/aisle_7_quest.gd",
+        "game/scripts/quests/aisle_7_quest.gd.uid",
+        "game/scripts/quests/aisle_7_stage.gd",
+        "game/scripts/quests/aisle_7_stage.gd.uid",
+        "game/scripts/quests/aisle_7_wife.gd",
+        "game/scripts/quests/aisle_7_wife.gd.uid",
+        "game/scripts/quests/signature_quest.gd",
+        "game/tests/integration/test_aisle_7.gd",
+        "game/tests/integration/test_aisle_7.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_aisle_7_quest.gd",
+        "game/tests/unit/test_aisle_7_quest.gd.uid",
+        "game/tests/unit/test_brewing_masters.gd",
+        "game/tests/unit/test_city_data.gd",
+        "game/tests/unit/test_inventory.gd"
+      ],
+      "updated_at": "2026-11-15T12:32:47Z"
     },
     {
       "id": "T038",
       "title": "Cure weapons implemented",
       "priority": 2,
-      "status": "todo",
+      "status": "blocked",
       "details": "Section 11: the Travel Mug (sealed steel, bounces from one sleepwalker to a second, also around corners, then rolls back; 0 supply cost, reusable), the Thermos (breaks and splashes a wide area, 3 cups), the French Press (pump-action close-range cone), the Moka Launcher (high-arc pressurized pots, coffee brews during the flight, large area, 4 cups per shot), the Coffee Minigun (continuous stream, 6 cups per second), the Auto-Drip Turret (deployable, drips on every sleepwalker below it, works alone). The player finds them along the route. Acceptance: each weapon's cost, area, and wake behavior tested; values from .tres; make check green.",
       "depends_on": [
         "T005",
         "T008"
-      ]
+      ],
+      "blockers": [
+        "Deferred: T038 or T075 starts implementation"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:splash-delivery-consults-hat-guard"
+      ],
+      "unblock_when": "T038 or T075 starts implementation; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T039",
       "title": "Support tools implemented",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "The Tamper (melee push, staggers one sleepwalker, wakes nobody), the Steam Wand (melee cone, 0.3 s parry window, a parried hug staggers the sleepwalker for 3 s), the Portafilter (shield that blocks hugs, bash attack), the Iced Sprayer (iced coffee wakes nobody, brain freeze slows them), the Bean Slick (dropped beans make sleepwalkers slip). None cost coffee. Acceptance: parry window timing and each effect tested; make check green.",
       "depends_on": [
         "T008"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/project.godot",
+        "game/resources/balance/support_tools.tres",
+        "game/scenes/components/bean_slick.tscn",
+        "game/scenes/player/player.tscn",
+        "game/scenes/touch/touch_controls.tscn",
+        "game/scripts/balance/support_tools_balance.gd",
+        "game/scripts/balance/support_tools_balance.gd.uid",
+        "game/scripts/cafe/cafe.gd",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/combat/support_toolbelt.gd",
+        "game/scripts/combat/support_toolbelt.gd.uid",
+        "game/scripts/components/bean_slick.gd",
+        "game/scripts/components/bean_slick.gd.uid",
+        "game/scripts/enemies/sleepwalker.gd",
+        "game/scripts/player/player.gd",
+        "game/scripts/touch/touch_controls.gd",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/integration/test_support_tools.gd",
+        "game/tests/integration/test_support_tools.gd.uid",
+        "game/tests/unit/test_support_toolbelt.gd",
+        "game/tests/unit/test_support_toolbelt.gd.uid"
+      ],
+      "updated_at": "2026-11-15T16:32:41Z"
     },
     {
       "id": "T040",
       "title": "Auto-save system working per section 18",
       "priority": 2,
-      "status": "todo",
+      "status": "blocked",
       "details": "Auto-save only, no manual save button; save points: entry to the cafe, tower switch, boss cured; the save holds position, meter value, wake-ups, beans, cups, gear, skill levels, SleepyDex, van level, quest state, tower state; the player can close the app anywhere and the game reloads at the last save point; meter sleep does not reload a save (wake in the cafe, lose one wake-up, the world stays as it is); full death reloads the last save with the wake-ups from that save. Acceptance: save/load round-trip test covers every field; sleep-versus-death paths tested; make check green.",
       "depends_on": [
         "T004",
@@ -760,7 +1333,20 @@
         "T025",
         "T032",
         "T034"
-      ]
+      ],
+      "blockers": [
+        "Deferred: Resume when T040 unblocks and starts implementation; store the outro step beside quest and tower state.",
+        "Deferred: T040 starts implementation",
+        "Deferred: T040 starts implementation (its unblock_when: remove looper:deferred and set todo)"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:moving-day-van-level-carryover",
+        "looper:finding:outro-save-state",
+        "looper:finding:sleepydex-save-persistence",
+        "looper:finding:t040-persist-tutorial-state"
+      ],
+      "unblock_when": "Resume when T040 unblocks and starts implementation; store the outro step beside quest and tower state.; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T041",
@@ -776,7 +1362,7 @@
       "id": "T042",
       "title": "The first ten minutes play as scripted (diegetic tutorial)",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "Section 19, no menus, no text walls: the Dr. Morgen video plays on the cafe screen (20 s, skippable, placeholder stills acceptable until T043); the player wakes in the cafe; move prompt; drink prompt (the meter fills); a Neighbor sleepwalks past the window and the open-door prompt; first throw (he wakes, says thanks, shuffles away); a speaker pole near the cafe drains the meter visibly and the step-back-inside lesson; a survivor says 'The tower. Kill the speaker.' and the tower marker appears; on the way the first hug, first dodge roll, first Grind Dial brew; at the tower scavenge one fuse, switch it off, silence, birdsong, wake-up toast; camera pans out, three cities on the map, title card Apocalypse Barista. Character creation (T046) precedes the first run. Acceptance: the prompt sequence is a testable state machine with tests; make check green.",
       "depends_on": [
         "T003",
@@ -786,95 +1372,242 @@
         "T011",
         "T025",
         "T026"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/project.godot",
+        "game/resources/balance/tutorial.tres",
+        "game/resources/enemies/neighbor.tres",
+        "game/scenes/city/san_coffesco_intro.tscn",
+        "game/scenes/tutorial/tutorial_director.tscn",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/city/quest_markers.gd",
+        "game/scripts/main/menu.gd",
+        "game/scripts/player/player.gd",
+        "game/scripts/tutorial/tutorial_balance.gd",
+        "game/scripts/tutorial/tutorial_balance.gd.uid",
+        "game/scripts/tutorial/tutorial_director.gd",
+        "game/scripts/tutorial/tutorial_director.gd.uid",
+        "game/scripts/tutorial/tutorial_finale_view.gd",
+        "game/scripts/tutorial/tutorial_finale_view.gd.uid",
+        "game/scripts/tutorial/tutorial_flow.gd",
+        "game/scripts/tutorial/tutorial_flow.gd.uid",
+        "game/scripts/tutorial/tutorial_survivor.gd",
+        "game/scripts/tutorial/tutorial_survivor.gd.uid",
+        "game/scripts/tutorial/tutorial_video_view.gd",
+        "game/scripts/tutorial/tutorial_video_view.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/integration/test_tutorial_run.gd",
+        "game/tests/integration/test_tutorial_run.gd.uid",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_tutorial_flow.gd",
+        "game/tests/unit/test_tutorial_flow.gd.uid"
+      ],
+      "updated_at": "2026-11-15T09:52:23Z"
     },
     {
       "id": "T043",
       "title": "Dr. Morgen opening video produced per the section 22 script",
       "priority": 3,
       "status": "todo",
-      "details": "Phone-camera framing in a lab at night, 2D animated stills with small motions, voice and subtitles, about 20 s, script verbatim ending on 'Brew it strong'; skippable; replays later on the cafe television. Placeholder art and a silent track are acceptable now and never block development (T054 replaces them). Acceptance: subtitle timing and skip/replay logic tested; make check green.",
+      "details": "Phone-camera framing in a lab at night, 2D animated stills with small motions, voice and subtitles, about 20 s, script verbatim ending on 'Brew it strong'; skippable; replays later on the cafe television. Placeholder art and a silent track are acceptable now and never block development (T054 replaces them). Acceptance: subtitle timing and skip/replay logic tested; make check green.\n\nReview repair: Produce the real Dr. Morgen opening video\nThe tutorial ships placeholder stills (TutorialVideoView draws the night lab, beaker, leaning phone, tired Morgen, and the five section 22 subtitle beats). T043 replaces them with the produced 2D-animated video, still 20 s and skippable through the same TutorialFlow.end_video path.\nEvidence: game/scripts/tutorial/tutorial_video_view.gd carries the SCRIPT_LINES of section 22 and placeholder draw code; make check pins the video length at 20 s in game/resources/balance/tutorial.tres.",
       "depends_on": [
         "T042"
+      ],
+      "tags": [
+        "looper:finding:t043-opening-video-produced"
       ]
     },
     {
       "id": "T044",
       "title": "Address audio loop system working per the sound rules",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "Section 21: the address never plays at full volume, always filtered; three distance layers (far muffled rumble, mid recognizable words, near a speaker pole the clear annoying voice); every speaker pole plays a 5-second loop with a random start point and the loops never sync; a hug swells the address for the grabbed player; the antagonist track gets loud when an enemy gets close; tower death cuts the address mid-word, one second of silence, then morning birdsong; music is diegetic first (cafes play vinyl jazz, band bosses play their songs); tolerance rule: every sound must stay tolerable after 30 minutes, if it grates it filters or it goes. Placeholder audio acceptable. Acceptance: layer selection and seeded random loop offsets unit-tested; make check green.",
       "depends_on": [
         "T025"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/address_audio.tres",
+        "game/scenes/audio/address_audio_director.tscn",
+        "game/scripts/audio/address_audio.gd",
+        "game/scripts/audio/address_audio.gd.uid",
+        "game/scripts/audio/address_audio_director.gd",
+        "game/scripts/audio/address_audio_director.gd.uid",
+        "game/scripts/audio/diegetic_music.gd",
+        "game/scripts/audio/diegetic_music.gd.uid",
+        "game/scripts/audio/placeholder_tones.gd",
+        "game/scripts/audio/placeholder_tones.gd.uid",
+        "game/scripts/audio/sound_tolerance.gd",
+        "game/scripts/audio/sound_tolerance.gd.uid",
+        "game/scripts/balance/address_audio_balance.gd",
+        "game/scripts/balance/address_audio_balance.gd.uid",
+        "game/scripts/bosses/sleep_jam_band.gd",
+        "game/scripts/city/city_map.gd",
+        "game/scripts/city/city_run.gd",
+        "game/tests/integration/test_address_audio_director.gd",
+        "game/tests/integration/test_address_audio_director.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_address_audio.gd",
+        "game/tests/unit/test_address_audio.gd.uid",
+        "game/tests/unit/test_diegetic_music.gd",
+        "game/tests/unit/test_diegetic_music.gd.uid",
+        "game/tests/unit/test_placeholder_tones.gd",
+        "game/tests/unit/test_placeholder_tones.gd.uid",
+        "game/tests/unit/test_sound_tolerance.gd",
+        "game/tests/unit/test_sound_tolerance.gd.uid"
+      ],
+      "updated_at": "2026-11-15T17:51:44Z"
     },
     {
       "id": "T045",
       "title": "Art direction pass replaces placeholder shapes",
       "priority": 3,
-      "status": "todo",
+      "status": "blocked",
       "details": "Section 20: proportions about 3.5 heads tall with oversized hands; warm creams, wood browns, brick reds plus one accent per city (San Coffesco teal, Steamtle rain blue, Pourtland moss green); sleep zones desaturate (purple haze, drooping lamps, no horror darkness); sleepwalkers in pastel pajamas and nightcaps with a comic drool shine arc; the player wears the steampunk apron and goggles; chalkboard-style menus, the SleepyDex as a phone app; Mug Roasters corporate red and black, friendly evil. Readability rule: every sleepwalker type is recognizable at one centimeter on a phone screen, verified with a silhouette-only test. Placeholder-quality vector art is fine until T054 lands real art.",
       "depends_on": [
         "T024"
-      ]
+      ],
+      "blockers": [
+        "Deferred: T045 art direction pass starts"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:sleepydex-portrait-art"
+      ],
+      "unblock_when": "T045 art direction pass starts; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T046",
       "title": "Character creation working (cosmetic only)",
       "priority": 2,
       "status": "todo",
-      "details": "Section 5: body type, skin tone, hair style, beard length (clean, stubble, hipster, lumberjack, wizard; open to all body types), tattoos (number and placement), steampunk clothing (hats, goggles, aprons, boots). All options are cosmetic only. Wired into the game start from the main menu; the selection persists through the save system. Placeholder visuals acceptable. Acceptance: creation state saves and loads in a round-trip test; make check green.",
+      "details": "Section 5: body type, skin tone, hair style, beard length (clean, stubble, hipster, lumberjack, wizard; open to all body types), tattoos (number and placement), steampunk clothing (hats, goggles, aprons, boots). All options are cosmetic only. Wired into the game start from the main menu; the selection persists through the save system. Placeholder visuals acceptable. Acceptance: creation state saves and loads in a round-trip test; make check green.\n\nReview repair: Put character creation before the intro run\nThe menu Play button loads san_coffesco_intro.tscn, the tutorial run. When character creation ships it must stand between the menu and that scene; the seam is documented in menu.gd and the CityRun.run_tutorial comment.\nEvidence: game/scripts/main/menu.gd points at res://scenes/city/san_coffesco_intro.tscn with the T046 note; section 19 names character creation as the step before the first run.",
       "depends_on": [
         "T040"
+      ],
+      "tags": [
+        "looper:finding:t046-character-creation-precedes-intro"
       ]
     },
     {
       "id": "T047",
       "title": "Touch controls make the whole game keyboard-free",
       "priority": 2,
-      "status": "todo",
-      "details": "Section 4 and CLAUDE.md: a virtual stick and touch buttons; the full game (move, aim, throw, dodge, brew minigames, menus, SleepyDex) is playable without a keyboard; desktop keys stay as development conveniences. Verify on desktop with emulated touch input. Acceptance: simulated touch-event tests drive the core actions; make check green.",
+      "status": "done",
+      "details": "Section 4 and CLAUDE.md: a virtual stick and touch buttons; the full game (move, aim, throw, dodge, brew minigames, menus, SleepyDex) is playable without a keyboard; desktop keys stay as development conveniences. Verify on desktop with emulated touch input. Acceptance: simulated touch-event tests drive the core actions; make check green.\n\nReview repair: Free-refill action is keyboard-only (R); T047's touch scope must cover a refill control\nThe free cafe refill now flows through the refill_coffee input action, which binds only the R key. CLAUDE.md requires gameplay to work without a keyboard. T083 tracks the touch button for the tower interact action; the refill action has the same hole but no explicit line in T047's scope list. Extend T047 (or T083's pattern) with a refill touch control or an automatic refill inside the cafe safe zone.\nEvidence: game/project.godot refill_coffee binds only InputEventKey physical_keycode 82; game/scripts/city/city_run.gd:240-242 _unhandled_input triggers refill_player_supply on refill_coffee; the free refill is a core loop step (GAME_DESIGN section 11 'Free refill at the café'); make check tests drive it with Input.action_press only.\n\nReview repair: Touch-first gap: the van interact and call_van actions are keyboard-only and absent from every touch scope line\nT047's scope list (move, aim, throw, dodge, brew minigames, menus, SleepyDex) names neither the van interact nor call_van, T083 covers only the tower interact, and T047's repair note covers only the refill. Extend T047 with a touch path for the van actions: an on-screen USE control that covers the shared interact action (tower fuse/switch and van upgrade/field-base toggle) and a touch path for call_van (or make the level-3 field-base call automatic). Acceptance: simulated touch input drives the van gift, upgrade, and field-base call with no keyboard, per the CLAUDE.md touch-first rule.\nEvidence: game/project.godot: call_van binds only InputEventKey physical_keycode 86 (V); interact binds only 69 (E); no InputEventScreenTouch or joystick bindings exist anywhere in the input map. game/scripts/city/city_run.gd:314-320 _unhandled_input drives refill, interact_with_van, and call_van; game/scripts/van/mobile_cafe_van.gd interact() gates upgrades and the field base, call_to() is the only field-base entry while away from the van spot. grep of the live backlog: 'call_van' appears 0 times; T083 evidence names only the tower interact key. The van level 3 field base is a section 10 capability a keyboard-free player cannot reach.",
       "depends_on": [
         "T007",
         "T008"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/touch_controls.tres",
+        "game/scenes/city/city_run.tscn",
+        "game/scenes/touch/touch_controls.tscn",
+        "game/scripts/balance/touch_controls_balance.gd",
+        "game/scripts/balance/touch_controls_balance.gd.uid",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/player/player.gd",
+        "game/scripts/touch/touch_button.gd",
+        "game/scripts/touch/touch_button.gd.uid",
+        "game/scripts/touch/touch_controls.gd",
+        "game/scripts/touch/touch_controls.gd.uid",
+        "game/scripts/touch/touch_stick.gd",
+        "game/scripts/touch/touch_stick.gd.uid",
+        "game/scripts/touch/touch_stick_view.gd",
+        "game/scripts/touch/touch_stick_view.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/integration/test_touch_controls.gd",
+        "game/tests/integration/test_touch_controls.gd.uid",
+        "game/tests/unit/test_touch_stick.gd",
+        "game/tests/unit/test_touch_stick.gd.uid"
+      ],
+      "tags": [
+        "looper:finding:touch-refill-button",
+        "looper:finding:touch-van-actions"
+      ],
+      "updated_at": "2026-11-15T14:19:54Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T048",
       "title": "V1 ending: Pourtland outro with the Karen and the credits",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "Section 16: after Pourtland is complete, the Karen appears in the outro, blocks the road east, demands the manager, and the credits catch her mid-sentence. After the credits the three cities stay open and awake for the V1-fitting post-game activities: finish side quests, complete the SleepyDex, find every hidden glove. Acceptance: outro sequencing tested; make check green.",
       "depends_on": [
         "T022",
         "T030",
         "T031"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/outro.tres",
+        "game/scenes/ending/outro_director.tscn",
+        "game/scenes/ending/outro_karen.tscn",
+        "game/scripts/balance/outro_balance.gd",
+        "game/scripts/balance/outro_balance.gd.uid",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/ending/outro_credits_view.gd",
+        "game/scripts/ending/outro_credits_view.gd.uid",
+        "game/scripts/ending/outro_director.gd",
+        "game/scripts/ending/outro_director.gd.uid",
+        "game/scripts/ending/outro_flow.gd",
+        "game/scripts/ending/outro_flow.gd.uid",
+        "game/scripts/ending/outro_karen.gd",
+        "game/scripts/ending/outro_karen.gd.uid",
+        "game/tests/integration/test_outro_run.gd",
+        "game/tests/integration/test_outro_run.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/integration/test_sleep_jam.gd",
+        "game/tests/unit/test_outro_flow.gd",
+        "game/tests/unit/test_outro_flow.gd.uid"
+      ],
+      "updated_at": "2026-11-15T15:21:30Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T049",
       "title": "City progression and the paywall gate working",
       "priority": 2,
-      "status": "todo",
+      "status": "blocked",
       "details": "Main quest flow: complete a city (boss cured, tower off) and the road east opens to the next city; each new city has a new cafe, bigger and better; the moving day carries all belongings with the van. The paywall stands at the bridge out of San Coffesco: the first city is free, one payment unlocks the full game. Implementable part: an unlock-state gate behind a stubbed purchase interface; the real billing is external (T053). Acceptance: gate behavior tested with the unlock state forced both ways; make check green.",
       "depends_on": [
         "T026",
         "T028",
         "T030"
-      ]
+      ],
+      "blockers": [
+        "Deferred: T049 starts implementation"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:t026-bridge-paywall-stub"
+      ],
+      "unblock_when": "T049 starts implementation; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T050",
       "title": "The Moonwalker mystery playable across the three cities",
       "priority": 3,
-      "status": "todo",
+      "status": "blocked",
       "details": "Section 24: one sequined glove lies in a San Coffesco park (the SleepyDex shows nothing); an awakened busker says 'The gloved one? He dances where the speakers die.'; Steamtle Elvis fans mention 'the smooth one', no sightings; in Pourtland at dawn, in any silent zone with the tower already off, a figure slides backwards across the plaza: that is the fight. He never walks forward, moves fast, gives wrong signals, does not hug, leans far back and slides under the guard; his telegraphs run in reverse; cure is one ristretto; on waking one spin, one toe stand, one small 'hee-hee'; the hidden entry appears: 'THE MOONWALKER. Status: smooth.' No real name, no real likeness, no real music. Optional dance-off after the fight: win the short rhythm game and he teaches the Moonwalk dodge, a cosmetic roll variant with no power, only style. Acceptance: spawn condition (dawn, silent zone, tower off), reverse telegraphs, and the hidden-dex rule tested; make check green.",
       "depends_on": [
         "T023",
         "T026",
         "T028",
         "T030"
-      ]
+      ],
+      "blockers": [
+        "Deferred: T030 (Pourtland) is complete and T050 starts implementation"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:moonwalker-dex-entry-live"
+      ],
+      "unblock_when": "T030 (Pourtland) is complete and T050 starts implementation; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T051",
@@ -911,18 +1644,28 @@
       "id": "T054",
       "title": "EXTERNAL PREREQ: real art, audio, and voice assets",
       "priority": 3,
-      "status": "todo",
+      "status": "blocked",
       "details": "Placeholder shapes and placeholder audio must never block development (CLAUDE.md). Before ship: real character and city art per section 20, President Puck's address voice-over, Dr. Morgen's voice for the opening video, diegetic music and SFX per section 21. The cameo strategy stays parody-only in V1; real cameos need written permission and are a promotion decision for Niko (priority contact list in section 8). Acceptance: assets integrated and the silhouette readability test re-verified.",
       "depends_on": [
         "T043",
         "T045"
-      ]
+      ],
+      "blockers": [
+        "Deferred: T054 delivers the real audio and voice assets",
+        "Deferred: T054 real audio production begins, before version 1 ship"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:sleepvana-song-diegetic-audio",
+        "looper:finding:t054-real-audio-assets"
+      ],
+      "unblock_when": "T054 delivers the real audio and voice assets; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T055",
       "title": "V1 playthrough verification and release readiness",
       "priority": 2,
-      "status": "todo",
+      "status": "blocked",
       "details": "Executable verification of the whole build on desktop with emulated touch: a full San Coffesco to Steamtle to Pourtland playthrough covering the tutorial, all 8 brewing methods, every V1 enemy type (Neighbor, Tourist, Tech Bro, Gamer, Tinfoil Man, Karen, Moonwalker), all three bosses, all three signature quests, the tower in each city, save points (close and reload at each), Normal and Hardcore death handling, and the outro credits. Acceptance: make check green with pristine output; no crashes; LOG.md row appended.",
       "depends_on": [
         "T027",
@@ -938,7 +1681,15 @@
         "T048",
         "T049",
         "T050"
-      ]
+      ],
+      "blockers": [
+        "Deferred: T055 playthrough begins"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:t055-tolerance-ear-check"
+      ],
+      "unblock_when": "T055 playthrough begins; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T056",
@@ -955,11 +1706,19 @@
       "id": "T057",
       "title": "Wire CureMatcher into the live cup-hit wake flow",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "coffee_cup.gd currently wakes any sleepwalker on any hit. The enemy type framework must give each sleepwalker a sleeper_type_id and a BrewedCup, then gate wake_up() on CureMatcher.can_wake and apply CureMatcher.wake_radius for perfect cups. T017 (enemy type framework) is the natural integration point; cup projectiles carry a BrewedCup once brewing minigames exist (T011-T015).\nEvidence: game/scripts/projectiles/coffee_cup.gd:28-31 calls body.wake_up() unconditionally on hit.",
       "depends_on": [
         "T017"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/scenes/projectiles/coffee_cup.tscn",
+        "game/scripts/projectiles/coffee_cup.gd",
+        "game/tests/integration/test_perfect_cup_splash.gd",
+        "game/tests/integration/test_perfect_cup_splash.gd.uid"
+      ],
+      "updated_at": "2026-11-15T18:34:03Z"
     },
     {
       "id": "T058",
@@ -1006,31 +1765,43 @@
       "id": "T062",
       "title": "Sleeping player can still throw and drink: input is not gated after fall_asleep",
       "priority": 3,
-      "status": "todo",
+      "status": "done",
       "details": "Once the sleepy meter hits zero and the sleep state is announced, player input (throw, drink) must be ignored until the wake-in-cafe flow (T004) resolves the sleep; fold the input gate into the T004 wake-ups rework of the sleep path. Acceptance: after fall_asleep, pressing throw/drink changes nothing (no cup spent, no projectile), covered by an integration test; make check green.\nEvidence: game/scripts/player/player.gd:_physics_process returns early when _announced_sleep is set (velocity zeroed), but _unhandled_input (lines 55-59) still calls throw_cup and drink_cup unconditionally, so a sleeping player under the game-over overlay can spend and throw cups. Code-verified; the T004 rework owns the whole sleep/wake path, so this should be folded there rather than fixed as a standalone slice patch.",
       "depends_on": [
         "T004"
-      ]
+      ],
+      "updated_at": "2026-11-14T20:28:46Z"
     },
     {
       "id": "T063",
       "title": "Resize the cafe safe zone to the real cafe building when cities land",
       "priority": 3,
-      "status": "todo",
+      "status": "blocked",
       "details": "The vertical slice is one room that also holds the speaker pole, so the CafeSafeZone circle covers only the player-start corner. When the real cafe building exists, the safe zone must cover its whole interior, and the three speaker-pole sleep zones must guard the last blocks before the tower per GAME_DESIGN section 17. Both are placements of the reusable SleepZone scene; no code change expected.\nEvidence: game/scenes/cafe/cafe.tscn: Zones/CafeSafeZone at (200,360) radius 180 inside a 1280x720 room that also contains Zones/SpeakerPole; GAME_DESIGN.md section 17 landmark rules.",
       "depends_on": [
         "T024",
         "T026"
-      ]
+      ],
+      "blockers": [
+        "Deferred: The cafe building art pass starts"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:t026-cafe-safe-zone-art-resize"
+      ],
+      "unblock_when": "The cafe building art pass starts; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T064",
       "title": "Reuse SleepZone for boring-attack auras in boss fights",
       "priority": 3,
       "status": "todo",
-      "details": "The Sleep Jam lullaby and Sam Oatman's slides drain at the 5/s boring-attack tier (section 14). The SleepZone component currently escalates only the 1.5/s sleep-zone tier; a third Kind (or an exported DrainTier) would let boss auras reuse the same area-driven meter bridge.\nEvidence: game/scripts/components/sleep_zone.gd escalates SleepMeter.DrainTier.SLEEP_ZONE only; GAME_DESIGN.md section 6 bosses (Sleep Jam lullaby, boring slides) map to the boring-attack rate.",
+      "details": "The Sleep Jam lullaby and Sam Oatman's slides drain at the 5/s boring-attack tier (section 14). The SleepZone component currently escalates only the 1.5/s sleep-zone tier; a third Kind (or an exported DrainTier) would let boss auras reuse the same area-driven meter bridge.\nEvidence: game/scripts/components/sleep_zone.gd escalates SleepMeter.DrainTier.SLEEP_ZONE only; GAME_DESIGN.md section 6 bosses (Sleep Jam lullaby, boring slides) map to the boring-attack rate.\n\nReview repair: The SleepZone boring-attack bridge T064 describes landed with T031; only the Oatman-side adoption remains\nT064 asked for SleepZone reuse for boss boring-attack auras. SleepZone now has Kind.BORING (escalates SleepMeter.DrainTier.BORING_ATTACK, ignores broadcast silence, deactivatable) and the Sleep Jam uses it live; the Sam Oatman slide aura can adopt the same kind when T027 starts.\nEvidence: game/scripts/components/sleep_zone.gd _physics_process escalates BORING_ATTACK; game/scripts/bosses/sleep_jam_band.gd _build_lullaby() composes a Kind.BORING zone; game/tests/integration/test_sleep_jam.gd pins the 5/s drain, the tower-independence, and the quiet-after-wake.",
       "depends_on": [
         "T031"
+      ],
+      "tags": [
+        "looper:finding:sleep-zone-boring-aura"
       ]
     },
     {
@@ -1038,47 +1809,82 @@
       "title": "Consume the first_met signal in the SleepyDex app",
       "priority": 2,
       "status": "todo",
-      "details": "Sleepwalker emits first_met(type_id) once when it first senses the player, but only tests listen today. The SleepyDex app must connect to this signal (per type, deduplicated across instances) to open entries per GAME_DESIGN section 9.\nEvidence: game/scripts/enemies/sleepwalker.gd _try_spot_player emits first_met; test_cafe_flow.gd test_neighbor_emits_first_met_for_the_sleepydex is the only consumer.",
+      "details": "Sleepwalker emits first_met(type_id) once when it first senses the player, but only tests listen today. The SleepyDex app must connect to this signal (per type, deduplicated across instances) to open entries per GAME_DESIGN section 9.\nEvidence: game/scripts/enemies/sleepwalker.gd _try_spot_player emits first_met; test_cafe_flow.gd test_neighbor_emits_first_met_for_the_sleepydex is the only consumer.\n\nReview repair: T065 outcome met: the city run consumes first_met into the SleepyDex; status stale\nT065 asks that the SleepyDex app connect to the sleepwalker first_met signal. This is live since the city runs landed: every spawned sleepwalker connects first_met to dex.meet, and the app opens entries from it. Set T065 to done at the next backlog update so no worker re-implements it.\nEvidence: game/scripts/city/city_run.gd:479 wires enemy.first_met.connect(dex.meet) for every crowd spawn; game/scripts/hud/hud.gd bind_dex() opens the app. Live Xvfb run this review: after a Neighbor woke, the dex app listed 'The Neighbor | Status: found' with 6 rows (the rare Moonwalker correctly hidden). make check 643/643.",
       "depends_on": [
         "T023"
+      ],
+      "tags": [
+        "looper:finding:sleepydex-first-met-consumed"
       ]
     },
     {
       "id": "T066",
       "title": "Replace the fixed standard-cup payload with brewed cups from the minigames",
       "priority": 2,
-      "status": "todo",
-      "details": "Player.throw_cup always attaches the cafe-standard cup (house/medium/filter, score from brewing_balance.tres standard_cup_score=85), which wakes only basic types. The brewing minigames must supply real BrewedCup payloads with earned scores so special types become wakeable through gameplay.\nEvidence: game/scripts/player/player.gd _standard_cup() builds the fixed payload; game/resources/brewing/brewing_balance.tres standard_cup_score.",
+      "status": "blocked",
+      "details": "Player.throw_cup always attaches the cafe-standard cup (house/medium/filter, score from brewing_balance.tres standard_cup_score=85), which wakes only basic types. The brewing minigames must supply real BrewedCup payloads with earned scores so special types become wakeable through gameplay.\nEvidence: game/scripts/player/player.gd _standard_cup() builds the fixed payload; game/resources/brewing/brewing_balance.tres standard_cup_score.\n\nReview repair: Gate player input while a brew minigame overlay is open\nThe stop_grind action shares keys with live gameplay actions (Space with throw_coffee, E with interact, left click with throw_coffee). When T066 opens a Grind Dial (and later method minigames) from the live game, both handlers will receive the same press, so the player would throw a cup while grinding. The brew overlay must gate player input (or the dial must consume the event) for the duration of the minigame.\nEvidence: game/project.godot maps stop_grind to Space (32), E (69), and left mouse, the same events bound to throw_coffee and interact; GrindDialView._unhandled_input and Player._unhandled_input both run on unhandled input, so neither excludes the other today. No conflict exists yet because nothing instantiates grind_dial.tscn during gameplay.\n\nReview repair: Wire The Pour into the brew flow\nThe Pour scene runs standalone and emits finished(PourResult). The brew flow still needs to open it after the Grind Dial pre-step for POUR-group methods (V60, filter, Aeropress), spend the beans, and carry the result quality_factor into the cup. This work is already owned by the existing brew-flow tasks; no new task is needed.\nEvidence: game/scripts/minigames/pour_bloom_view.gd:66 documents begin(p_method) as the brew-flow entry; LOG.md row for T012 states the wiring stays with T066/T082/T042, mirroring the T011 precedent.",
       "depends_on": [
         "T011",
         "T012",
         "T013",
         "T014",
         "T015"
-      ]
+      ],
+      "blockers": [
+        "Deferred: T066 is unblocked (its dependency T015 has landed) and real minigame BrewedCup payloads reach Player.throw_cup",
+        "Deferred: T066 lands the real brewed-cup payloads and the brew picker UI takes shape",
+        "Deferred: T066 loses its deferred tag and starts implementation",
+        "Deferred: T066 loses its looper:deferred tag and starts implementation",
+        "Deferred: T066 unblocks and the minigame BrewedCup payloads land",
+        "Deferred: when T066 starts"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:brew-flow-minigame-overlay",
+        "looper:finding:brew-minigame-input-gating",
+        "looper:finding:brewed-cup-payload-reaches-boss-cures",
+        "looper:finding:brewed-cup-payloads",
+        "looper:finding:brewed-cup-payloads-live-throw",
+        "looper:finding:masters-recipe-knowledge-brew-flow",
+        "looper:finding:t066-brewed-cup-payload",
+        "looper:finding:touch-brew-button-live-flow",
+        "looper:finding:wire-pour-into-brew-flow"
+      ],
+      "unblock_when": "T066 loses its deferred tag and starts implementation; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T067",
       "title": "Extend the special behavior enum for the V1 enemy types",
       "priority": 1,
-      "status": "todo",
-      "details": "EnemyType.SpecialBehavior has one value (SIMPLE_HUG) and _process_engage dispatches on it with a single branch. The Tourist, Tech Bro, Gamer, Tinfoil Man, and Karen each add their behavior enum value and engage implementation plus their own type .tres and scene.\nEvidence: game/scripts/enemies/enemy_type.gd enum SpecialBehavior { SIMPLE_HUG }; game/scripts/enemies/sleepwalker.gd _process_engage single-case match.",
+      "status": "done",
+      "details": "EnemyType.SpecialBehavior has one value (SIMPLE_HUG) and _process_engage dispatches on it with a single branch. The Tourist, Tech Bro, Gamer, Tinfoil Man, and Karen each add their behavior enum value and engage implementation plus their own type .tres and scene.\nEvidence: game/scripts/enemies/enemy_type.gd enum SpecialBehavior { SIMPLE_HUG }; game/scripts/enemies/sleepwalker.gd _process_engage single-case match.\n\nReview repair: T067's evidence is stale: three of the five special behaviors already shipped; only Tinfoil Man and Karen remain\nUpdate T067's scope and evidence at the next backlog update so a worker does not re-implement existing behaviors: PHOTO_FLASH shipped with T018, DRONE_ATTACK with T019, DASH_CHARGE with T020. The residue T067 owns is the Tinfoil Man (blocked thrown coffee) and Karen (speed switch, surprise attack) behavior values, their .tres types, scenes, and tests. This mirrors the T075 pattern for stale backlog evidence.\nEvidence: game/scripts/enemies/enemy_type.gd enum SpecialBehavior now holds SIMPLE_HUG, PHOTO_FLASH, DRONE_ATTACK, DASH_CHARGE; game/scripts/enemies/sleepwalker.gd _process_engage dispatches all four branches. T067 details still claim 'EnemyType.SpecialBehavior has one value (SIMPLE_HUG)' and 'a single-case match'. Integration suites test_tourist_flash.gd (8 cases), test_tech_bro_drone.gd (9 cases), and test_gamer_dash.gd (7 cases) pass in make check 398/398 at HEAD.\n\nReview repair: Mark T067 done in the live backlog and drop its stale evidence\nT067's backlog details still say 'EnemyType.SpecialBehavior has one value (SIMPLE_HUG)' and 'a single-case match'. That evidence is stale twice over: PHOTO_FLASH, DRONE_ATTACK, and DASH_CHARGE shipped with T018-T020, and the repair-note residue (Tinfoil Man TINFOIL_HAT, Karen KAREN_SURPRISE) shipped with T021/T022. The full outcome is verified at commit 8f24d60: enum holds all six values, _process_engage dispatches every branch with no default, all six .tres types and scenes exist, and make check passes 455/455 across 40 suites with pristine output. Mark T067 done at the next backlog update and replace the stale evidence so no worker re-implements existing behaviors.\nEvidence: game/scripts/enemies/enemy_type.gd:6-13 enum SpecialBehavior { SIMPLE_HUG, PHOTO_FLASH, DRONE_ATTACK, DASH_CHARGE, TINFOIL_HAT, KAREN_SURPRISE }; game/scripts/enemies/sleepwalker.gd:156-169 _process_engage dispatches all six; game/resources/enemies/{tourist,tech_bro,gamer,tinfoil_man,karen}.tres pin special_behavior 1-5; game/tests/integration/test_{tourist_flash,tech_bro_drone,gamer_dash,tinfoil_man_hat,karen_surprise}.gd pass 45 cases; make check 455/455, exit 0; LOG.md row 'T067: verify the special behavior enum covers every V1 enemy type' in commit 8f24d60.\n\nReview repair: Mark T067 done in the live backlog and replace its stale evidence\nThe live backlog still lists T067 with details that say EnemyType.SpecialBehavior 'has one value (SIMPLE_HUG)' and _process_engage is 'a single-case match'. That evidence is stale twice over: PHOTO_FLASH, DRONE_ATTACK, and DASH_CHARGE shipped with T018-T020, and the repair-note residue (Tinfoil Man TINFOIL_HAT, Karen KAREN_SURPRISE) shipped with T021/T022. At the next backlog update, set T067 to done and replace the details with the verified evidence so no worker re-implements existing behaviors. Follow the T080/T081 pattern for the edit through the backlog update channel.\nEvidence: game/scripts/enemies/enemy_type.gd:6-13 enum SpecialBehavior { SIMPLE_HUG, PHOTO_FLASH, DRONE_ATTACK, DASH_CHARGE, TINFOIL_HAT, KAREN_SURPRISE }; game/scripts/enemies/sleepwalker.gd:156-169 _process_engage dispatches all six with no default; game/resources/enemies/{neighbor,tourist,tech_bro,gamer,tinfoil_man,karen}.tres pin special_behavior 0-5; game/scenes/enemies/ holds all six scenes plus drone.tscn; test_{tourist_flash,tech_bro_drone,gamer_dash,tinfoil_man_hat,karen_surprise}.gd pass 45 cases (8+9+7+9+12); make check green 455/455 across 40 suites, exit code 0, pristine output, re-verified 2026-11-15; LOG.md line 55 carries the T067 verification row.\n\nReview repair: T067 outcome is verified complete at HEAD; its backlog status is still todo and its evidence is stale\nAcceptance: EnemyType.SpecialBehavior covers all six V1 behaviors and every type owns its enum value, .tres, and scene, so no worker re-implements existing behavior. The outcome is met; only the status flip to done and the replacement of the stale 'one value (SIMPLE_HUG)' evidence remain. Attach this verification to T067 at the next backlog update.\nEvidence: game/scripts/enemies/enemy_type.gd holds enum SpecialBehavior with SIMPLE_HUG, PHOTO_FLASH, DRONE_ATTACK, DASH_CHARGE, TINFOIL_HAT, KAREN_SURPRISE; game/scripts/enemies/sleepwalker.gd _process_engage dispatches all six with no default; game/resources/enemies/{neighbor,tourist,tech_bro,gamer,tinfoil_man,karen}.tres pin special_behavior 0-5; all six scenes exist under game/scenes/enemies/; the five behavior suites (45 cases) and test_enemy_types.gd pass. This review re-ran make check at 714e0e8: 455/455 cases, 40/40 suites, exit 0, pristine output. LOG.md carries the T067 verification row. T067 status in the accepted backlog is still todo after three repair notes.\n\nReview repair: Mark T067 done in the accepted backlog and replace its stale evidence\nThe code outcome is complete and re-verified, but T067 in the accepted backlog (and the live to-do.json the controller imports) still says status todo/doing and its details still open with the stale claim that EnemyType.SpecialBehavior 'has one value (SIMPLE_HUG)' and _process_engage is 'a single-case match'. At the next backlog update, set T067 status to done, replace the stale details with the verified evidence, and resolve the looper:finding:t067-stale-behavior-evidence tag. Follow the T078/T080 pattern: the flip goes through the backlog update channel because this task's contract forbids editing the backlog. Prerequisite: a task contract that permits the external to-do.json edit (the T080 flip for T062 is the precedent a worker task performed).\nEvidence: Re-verified at HEAD 714e0e8 on 2026-11-15 in the task worktree: game/scripts/enemies/enemy_type.gd:6-13 enum SpecialBehavior { SIMPLE_HUG, PHOTO_FLASH, DRONE_ATTACK, DASH_CHARGE, TINFOIL_HAT, KAREN_SURPRISE }; game/scripts/enemies/sleepwalker.gd:156-169 _process_engage dispatches all six with no default; game/resources/enemies/{neighbor,tourist,tech_bro,gamer,tinfoil_man,karen}.tres pin special_behavior 0-5; all six scenes plus drone.tscn exist under game/scenes/enemies/ and in test_scene_smoke.gd:9-15; test_{tourist_flash,tech_bro_drone,gamer_dash,tinfoil_man_hat,karen_surprise}.gd passed 45 cases (8+9+7+9+12) and test_enemy_types.gd passed 19 in this run; make check green 455/455 across 40/40 suites, 0 errors, 0 failures, 0 flaky, 0 skipped, 0 orphans, exit code 0, pristine output; LOG.md line 55 carries the T067 verification row; accepted backlog still lists T067 not done with the stale 'one value' evidence after four repair notes.\n\nReview repair: Set T067 to done in the live backlog and replace its stale evidence\nMechanical flip, same as T080 performed for T062 and T081 for T076. In the live to-do.json, set task T067 status to done and set its updated_at. Replace the stale details ('EnemyType.SpecialBehavior has one value (SIMPLE_HUG)' and '_process_engage dispatches on it with a single branch') with the verified evidence below, and resolve the looper:finding:t067-stale-behavior-evidence tag. Prerequisite: a task contract that permits the external to-do.json edit. The T067 contract forbids backlog edits, and the task worktree's to-do.json is only a snapshot. The T080 flip for T062 is the precedent a worker task performed.\nEvidence: Verified at head f1289d1 on 2026-11-15: game/scripts/enemies/enemy_type.gd:6-13 enum SpecialBehavior { SIMPLE_HUG, PHOTO_FLASH, DRONE_ATTACK, DASH_CHARGE, TINFOIL_HAT, KAREN_SURPRISE }; game/scripts/enemies/sleepwalker.gd:156-171 _process_engage dispatches all six with no default; game/resources/enemies/{neighbor,tourist,tech_bro,gamer,tinfoil_man,karen}.tres pin special_behavior 0-5; all six scenes plus drone.tscn exist under game/scemies/enemies/ and sit in game/tests/integration/test_scene_smoke.gd:9-15; test_{tourist_flash,tech_bro_drone,gamer_dash,tinfoil_man_hat,karen_surprise}.gd pass 45 cases (8+9+7+9+12) and test_enemy_types.gd passes 19; make check green 455/455 across 40 suites, 0 errors, 0 failures, 0 flaky, 0 skipped, 0 orphans, exit 0, output pristine; LOG.md line 55 carries the T067 row with the f1289d1 re-verification; the accepted backlog read 2026-11-15 still lists T067 'doing' with the stale one-value evidence after five repair notes.",
       "depends_on": [
         "T018",
         "T019",
         "T020",
         "T021",
         "T022"
-      ]
+      ],
+      "files": [
+        "LOG.md"
+      ],
+      "tags": [
+        "looper:finding:t067-stale-behavior-evidence"
+      ],
+      "updated_at": "2026-11-15T03:53:18Z",
+      "unblock_when": "The operator backlog update sets T067 to done in the live to-do.json with the stale 'one value' evidence replaced and the looper:finding:t067-stale-behavior-evidence tag resolved; until then, T067 code work stays complete at head 98ea327 and needs no further worker dispatch."
     },
     {
       "id": "T068",
       "title": "T025: wire tower switch-off to WakeUps.restore_one()",
       "priority": 2,
       "status": "todo",
-      "details": "The tower mechanic task must call wake_ups.restore_one() on switch-off (rule already unit-tested: +1 up to max) and show the 'wake-up restored' toast per GAME_DESIGN section 19 step 9.\nEvidence: game/scripts/components/wake_ups.gd restore_one() is unwired; no tower scene exists yet.",
+      "details": "The tower mechanic task must call wake_ups.restore_one() on switch-off (rule already unit-tested: +1 up to max) and show the 'wake-up restored' toast per GAME_DESIGN section 19 step 9.\nEvidence: game/scripts/components/wake_ups.gd restore_one() is unwired; no tower scene exists yet.\n\nReview repair: T068 outcome met: tower switch-off restores one wake-up and shows the toast; status stale\nT068 requires the tower switch-off to call wake_ups.restore_one() and show the 'wake-up restored' toast per GAME_DESIGN section 19 step 9. Both the city run and the cafe room wire this today; its backlog evidence ('restore_one() is unwired; no tower scene exists yet') is stale. Mark T068 done at the next backlog update instead of scheduling new work.\nEvidence: game/scripts/city/city_run.gd:203-212 _on_tower_switched_off calls player.wake_ups.restore_one() and _on_tower_birdsong shows WAKE_UP_RESTORED_TEXT; game/scripts/cafe/cafe.gd:57 and _on_tower_birdsong do the same; test_city_run.gd test_the_tower_switch_beat_runs_without_completing_the_city asserts remaining wake-ups 4 to 5 plus the toast, passing in make check 277/277.\n\nReview repair: T068 outcome is met: the tower switch restores one wake-up and shows the toast; status still todo\nAcceptance: the tower switch-off calls wake_ups.restore_one() and the player sees the wake-up restored toast per GAME_DESIGN section 19 step 9. Both hold in the city run and the cafe room; the backlog evidence ('restore_one() is unwired; no tower scene exists yet') is stale. Attach this verification to T068 and set it done at the next backlog update.\nEvidence: game/scripts/city/city_run.gd:281 calls player.wake_ups.restore_one() in _on_tower_switched_off and line 286 shows the WAKE_UP_RESTORED_TEXT toast on birdsong; game/scripts/cafe/cafe.gd wires the same beat; test_city_run.gd test_the_tower_switch_beat_runs_without_completing_the_city asserts wake-ups 4 to 5 plus the toast and passed in this review's make check run (455/455, exit 0).\n\nReview repair: T068 outcome verified complete at HEAD and in a live run; backlog status still todo\nAcceptance of T068 is met: the tower switch-off calls wake_ups.restore_one() and shows the wake-up restored toast. Set T068 to done at the next backlog update and retire the stale evidence ('restore_one() is unwired; no tower scene exists yet').\nEvidence: game/scripts/city/city_run.gd:340-349 _on_tower_switched_off calls player.wake_ups.restore_one() and _on_tower_birdsong shows WAKE_UP_RESTORED_TEXT; game/scripts/cafe/cafe.gd wires the same beat. This review's live Xvfb workflow switched the tower off and observed toast 'WAKE-UP RESTORED' with 5/5 wake-ups, and make check passes 502/502 including the tower suites. Two prior repair notes on T068 already say the same; the status flip is still pending.\n\nReview repair: T068 outcome verified live again: the tower switch restores a wake-up and shows the toast; status stale\nT068 requires the tower switch-off to call wake_ups.restore_one() and show the wake-up restored toast. Both hold in the city run and the cafe room, and three repair notes already say so. Set T068 to done at the next backlog update and retire the stale evidence.\nEvidence: Live Xvfb run this review: after insert_fuse and switch_off the probe read toast=WAKE-UP RESTORED and wake_ups 5/5 (capped at max, correct per section 14). game/scripts/city/city_run.gd:483-493 wires both beats. Fresh make check 643/643 includes the tower suites.",
       "depends_on": [
         "T025"
+      ],
+      "tags": [
+        "looper:finding:t025-wake-up-restore-wired"
       ]
     },
     {
@@ -1108,9 +1914,12 @@
       "title": "Playtest-tune the combat feel values once touch controls exist",
       "priority": 3,
       "status": "todo",
-      "details": "Working numbers shipped per design (roll 0.4 s / 440 speed, cone half-angle 30 deg, arc peak 40 px, 5 mash presses, 0.5 s grace, hug radius 18). GAME_DESIGN section 14 says the prototype decides final values, so a human playtest of make run should confirm the feel, especially mash difficulty under hug drain and whether the dodge needs a cooldown.\nEvidence: game/resources/balance/player.tres and coffee_cup.tres hold the tunables; no GUI playtest possible in this headless worktree (headless boot smoke only).",
+      "details": "Working numbers shipped per design (roll 0.4 s / 440 speed, cone half-angle 30 deg, arc peak 40 px, 5 mash presses, 0.5 s grace, hug radius 18). GAME_DESIGN section 14 says the prototype decides final values, so a human playtest of make run should confirm the feel, especially mash difficulty under hug drain and whether the dodge needs a cooldown.\nEvidence: game/resources/balance/player.tres and coffee_cup.tres hold the tunables; no GUI playtest possible in this headless worktree (headless boot smoke only).\n\nReview repair: Thrown cups cannot lead moving targets: the aim assist locks the landing to the target position one second before impact\nPlaytest evidence for the T071 combat-feel session: decide whether the aim assist should lead a moving target, shorten the flight, or widen the cup tolerance, so a throw at a plainly visible wandering sleeper connects at a normal rate. No code change is requested from this review; attach this evidence to the T071 playtest.\nEvidence: Live Xvfb run inside San Coffesco: player.throw_cup aimed at a neighbor 90 px away; the cup landing equaled the target position at throw time (landing=(331.6,340.5), target_pos=(331.6,340.5)), but after 3 s the aimed neighbor was still asleep and a different sleeper woke instead. AimCone.landing_point (game/scripts/combat/aim_cone.gd:7-29) snaps to the candidate position; coffee_cup.gd flies a fixed flight_time_seconds=1.0 (game/resources/balance/coffee_cup.tres); sleepwalkers move at walk_speed 40 or chase_speed 70 px/s (game/resources/balance/sleepwalker.tres), so movers drift past the cup tolerance during the flight, and the assisted landing point gives the player no way to compensate by aiming ahead.",
       "depends_on": [
         "T047"
+      ],
+      "tags": [
+        "looper:finding:cup-aim-lead-moving-targets"
       ]
     },
     {
@@ -1136,78 +1945,112 @@
       "id": "T074",
       "title": "Geisha Vault bean placement (one locked side room per city) is not owned by any city task",
       "priority": 3,
-      "status": "todo",
-      "details": "GAME_DESIGN.md section 15: Geisha Vault (Excellent tier) is found in 'One locked side room per city'. The T031 Sleep Jam boss cure requires a Geisha Vault tier recipe, so the beans must be obtainable in Pourtland at minimum. T024's landmark set (cafe, tower, boss arena, quest location, scavenge buildings) and the city tasks T026/T028/T030 do not mention the locked side room or Geisha Vault placement, so the boss cure could become unbrewable. Fold the placement into T024/T026/T028/T030 acceptance criteria or a small content task.\nEvidence: GAME_DESIGN.md section 15 beans table and section 6 Sleep Jam cure; backlog.json T024/T026/T028/T030/T031 details contain no Geisha Vault or locked-room requirement; only the data file game/resources/brewing/beans/geisha_vault.tres exists (T010)."
+      "status": "blocked",
+      "details": "GAME_DESIGN.md section 15: Geisha Vault (Excellent tier) is found in 'One locked side room per city'. The T031 Sleep Jam boss cure requires a Geisha Vault tier recipe, so the beans must be obtainable in Pourtland at minimum. T024's landmark set (cafe, tower, boss arena, quest location, scavenge buildings) and the city tasks T026/T028/T030 do not mention the locked side room or Geisha Vault placement, so the boss cure could become unbrewable. Fold the placement into T024/T026/T028/T030 acceptance criteria or a small content task.\nEvidence: GAME_DESIGN.md section 15 beans table and section 6 Sleep Jam cure; backlog.json T024/T026/T028/T030/T031 details contain no Geisha Vault or locked-room requirement; only the data file game/resources/brewing/beans/geisha_vault.tres exists (T010).",
+      "blockers": [
+        "Deferred: T030 starts implementation or Niko scopes a dedicated content task",
+        "Deferred: T074 loses its looper:deferred tag; its recorded unblock condition (T030 starting implementation) is already met, so only the tag removal is missing"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:geisha-vault-locked-room-placement"
+      ],
+      "unblock_when": "T074 loses its looper:deferred tag; its recorded unblock condition (T030 starting implementation) is already met, so only the tag removal is missing; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T075",
       "title": "Backlog item T057's evidence is stale: can_wake gating already shipped in T017; only wake_radius wiring remains",
       "priority": 3,
       "status": "todo",
-      "details": "T057 says 'coffee_cup.gd currently wakes any sleepwalker on any hit' and asks to gate wake_up() on CureMatcher.can_wake. That gating is implemented and live since T017: coffee_cup.gd:_on_body_entered calls body.try_wake(brewed), and sleepwalker.gd:try_wake checks CureMatcher.can_wake before waking. The unmet residue of T057 is applying CureMatcher.wake_radius for perfect cups (section 15: a perfect cup wakes every sleepwalker in a small radius) — wake_radius() currently has zero live callers, only tests. Update T057's scope/evidence at the next backlog update so the finished half is not re-implemented.\nEvidence: game/scripts/projectiles/coffee_cup.gd:47-50 calls body.try_wake(brewed); game/scripts/enemies/sleepwalker.gd:67-73 gates on CureMatcher.can_wake; grep shows wake_radius referenced only in cure_matcher.gd and unit tests, no gameplay caller; integration tests test_wrong_cup_does_not_wake_a_special_type / test_thrown_wrong_cup_splashes_without_waking pass in make check."
+      "details": "T057 says 'coffee_cup.gd currently wakes any sleepwalker on any hit' and asks to gate wake_up() on CureMatcher.can_wake. That gating is implemented and live since T017: coffee_cup.gd:_on_body_entered calls body.try_wake(brewed), and sleepwalker.gd:try_wake checks CureMatcher.can_wake before waking. The unmet residue of T057 is applying CureMatcher.wake_radius for perfect cups (section 15: a perfect cup wakes every sleepwalker in a small radius) — wake_radius() currently has zero live callers, only tests. Update T057's scope/evidence at the next backlog update so the finished half is not re-implemented.\nEvidence: game/scripts/projectiles/coffee_cup.gd:47-50 calls body.try_wake(brewed); game/scripts/enemies/sleepwalker.gd:67-73 gates on CureMatcher.can_wake; grep shows wake_radius referenced only in cure_matcher.gd and unit tests, no gameplay caller; integration tests test_wrong_cup_does_not_wake_a_special_type / test_thrown_wrong_cup_splashes_without_waking pass in make check.",
+      "tags": [
+        "looper:finding:t075-wake-radius-residue"
+      ]
     },
     {
       "id": "T076",
       "title": "HUD inventory panel needs an item-listing accessor on Inventory",
       "priority": 3,
-      "status": "todo",
+      "status": "done",
       "details": "Inventory exposes add/remove/count/has_item but no way to enumerate held items; the HUD task needs an item-list accessor (id, category, count) to render the section 9 inventory panel.\nEvidence: game/scripts/components/inventory.gd has no listing API; T007 in backlog.json requires the HUD to show beans, gear, and materials.",
       "depends_on": [
         "T007"
-      ]
+      ],
+      "updated_at": "2026-11-14T20:39:25Z"
     },
     {
       "id": "T077",
       "title": "Tower mechanic (T025) must consume a fuse through Inventory.remove()",
       "priority": 3,
       "status": "todo",
-      "details": "The tower mechanic should call player.inventory.remove(\"fuse\", 1) as its gate; the removal rule is unit-tested here but no consumer exists yet.\nEvidence: game/tests/unit/test_inventory.gd covers remove(); backlog.json T025 requires fuse-gated switch-off; tower scene does not exist yet.",
+      "details": "The tower mechanic should call player.inventory.remove(\"fuse\", 1) as its gate; the removal rule is unit-tested here but no consumer exists yet.\nEvidence: game/tests/unit/test_inventory.gd covers remove(); backlog.json T025 requires fuse-gated switch-off; tower scene does not exist yet.\n\nReview repair: T077 outcome met: the tower consumes a fuse through Inventory.remove(); status stale\nT077 requires the tower mechanic to gate on player.inventory.remove of the fuse. insert_fuse checks the count, removes balance.fuses_needed fuses, and integration tests cover the consumption. Its backlog evidence ('tower scene does not exist yet') is stale. Mark T077 done at the next backlog update.\nEvidence: game/scripts/tower/broadcast_tower.gd:53-64 can_insert_fuse checks inventory.count and insert_fuse calls player.inventory.remove(FUSE_ITEM.item_id, balance.fuses_needed); test_city_run.gd test_the_tower_switch_beat... picks up the fuse then inserts it; test_broadcast_tower.gd covers fuse consumption (make check 277/277, exit 0).\n\nReview repair: T077 outcome is met: the tower consumes a fuse through Inventory.remove(); status still todo\nAcceptance: the tower mechanic gates the switch on the player's fuse and removes it from the bag through Inventory.remove(). Both hold; the backlog evidence ('tower scene does not exist yet') is stale. Attach this verification to T077 and set it done at the next backlog update.\nEvidence: game/scripts/tower/broadcast_tower.gd:48 can_insert_fuse checks player.inventory.count and line 60 calls player.inventory.remove(FUSE_ITEM.item_id, balance.fuses_needed); test_broadcast_tower.gd test_insert_fuse_consumes_one_fuse_and_fills_the_slot and the city-run fuse pickup case passed in this review's make check run (455/455, exit 0).\n\nReview repair: T077 outcome verified complete at HEAD and in a live run; backlog status still todo\nAcceptance of T077 is met: the tower gates the switch on the player's fuse and removes it through Inventory.remove(). Set T077 to done at the next backlog update and retire the stale evidence ('tower scene does not exist yet').\nEvidence: game/scripts/tower/broadcast_tower.gd:48-64 can_insert_fuse checks player.inventory.count and insert_fuse calls player.inventory.remove(FUSE_ITEM.item_id, balance.fuses_needed). This review's live workflow picked up the fuse at the tower scavenge point (bag_fuse=1), sent the interact action, and the tower advanced to FUSED; make check passes 502/502 including test_broadcast_tower.gd test_insert_fuse_consumes_one_fuse_and_fills_the_slot. Two prior repair notes on T077 already say the same; the status flip is still pending.\n\nReview repair: T077 outcome verified live again: the tower consumes a fuse through Inventory.remove(); status stale\nT077 requires the tower gate to spend the player's fuse through Inventory.remove(). This holds and three repair notes already say so. Set T077 to done at the next backlog update and retire the stale evidence.\nEvidence: Live Xvfb run this review: probe gave the player one fuse, stood at the tower, and read fuse_insert=true with bag_fuse_after_insert=0. game/scripts/tower/broadcast_tower.gd:48-64 checks inventory.count then calls inventory.remove(). Fresh make check 643/643 includes test_broadcast_tower.gd.",
       "depends_on": [
         "T025"
+      ],
+      "tags": [
+        "looper:finding:t025-fuse-consumed-through-inventory"
       ]
     },
     {
       "id": "T078",
       "title": "Mark backlog item T076 as done at the next backlog update",
       "priority": 2,
-      "status": "done",
-      "details": "T076 ('HUD inventory panel needs an item-listing accessor on Inventory') is implemented by this task: Inventory.held_items() returns one ItemType per held stack in stable display order, unit-tested in test_inventory.gd, and consumed by the HUD bag panel in hud.gd/_bag_text. Its backlog status is still 'todo'; the status flip happens in the next backlog update (this task's contract forbids editing the backlog).\nEvidence: game/scripts/components/inventory.gd held_items(); game/scripts/hud/hud.gd _bag_text() uses it; test_inventory.gd test_held_items_* pass in make check 170/170; backlog.json T076 still lists status 'todo'.",
+      "status": "todo",
+      "details": "T076 ('HUD inventory panel needs an item-listing accessor on Inventory') is implemented by this task: Inventory.held_items() returns one ItemType per held stack in stable display order, unit-tested in test_inventory.gd, and consumed by the HUD bag panel in hud.gd/_bag_text. Its backlog status is still 'todo'; the status flip happens in the next backlog update (this task's contract forbids editing the backlog).\nEvidence: game/scripts/components/inventory.gd held_items(); game/scripts/hud/hud.gd _bag_text() uses it; test_inventory.gd test_held_items_* pass in make check 170/170; backlog.json T076 still lists status 'todo'.\n\nReview repair: Set T076 to 'done' in the live backlog (to-do.json)\nSame mechanical flip as T080 performed for T062: in the live backlog at /home/agent/barista/to-do.json (this environment's counterpart of /Users/air/dev/barista/to-do.json), change task T076 (Inventory.held_items stable display order for the HUD bag) from status 'todo' to 'done' and set its updated_at, through the same external task-file edit the controller imports at its boundary. T080's contract named only T062, so T076 was left untouched.\nEvidence: Live to-do.json read 2026-11-14 shows T076 status 'todo' with no updated_at, while T078 (done) records in LOG.md: Inventory.held_items unit tests and HUD bag tests pass, make check green 170/170 at T078's head (214/214 at current HEAD), and 'the next backlog update must set T076 to done'.",
       "files": [
         "LOG.md"
       ],
-      "updated_at": "2026-10-14T11:20:50Z",
-      "unblock_when": "Not blocked — no external prerequisites. The only remaining step is the mechanical status flip of T076 in the live backlog, which the orchestrator applies at the next backlog update (captured in followups)."
+      "tags": [
+        "looper:finding:backlog-t076-status-flip"
+      ],
+      "updated_at": "2026-10-14T11:20:50Z"
     },
     {
       "id": "T079",
       "title": "City scenes (T024/T026 onward) must instantiate their own Hud",
       "priority": 3,
-      "status": "todo",
+      "status": "blocked",
       "details": "The HUD ships as a reusable scene instance wired only into cafe.tscn today. When the shared block kit and the three city scenes land, each playable scene must add the Hud instance with player_path pointing at its Player, or the city will run without the section 9 status panel.\nEvidence: game/scenes/cafe/cafe.tscn holds the only Hud instance (node Hud with player_path=NodePath('../Player')); no other scene references res://scenes/hud/hud.tscn.",
       "depends_on": [
         "T024",
         "T026"
-      ]
+      ],
+      "blockers": [
+        "Deferred: The next backlog update round"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:t026-city-hud-instantiated"
+      ],
+      "unblock_when": "The next backlog update round; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T080",
       "title": "Set T062 to 'done' in the live backlog (to-do.json)",
       "priority": 1,
-      "status": "todo",
-      "details": "At the next backlog update, change task T062 ('Sleeping player can still throw and drink: input is not gated after fall_asleep') from status 'todo' to 'done' in the live backlog at /Users/air/dev/barista/to-do.json (and mirror/state), setting its updated_at. The T072 contract forbade editing the backlog and other worktrees, and the task worktree's to-do.json is only a snapshot, so the flip could not be performed inside the task. All T062 acceptance is verified at current HEAD: player.gd drink_cup (lines 150-151) returns false and throw_cup (lines 196-197) returns null while _asleep (the same guards also block the grabbed state added by T008); _physics_process early-returns while asleep; integration test test_cafe_flow.gd test_sleeping_player_cannot_throw_or_drink passes (sleeping player spends no cup, launches no projectile, opens no drink channel); make check 170/170 exit 0.\nEvidence: game/scripts/player/player.gd:150-151,196-197 asleep guards; game/tests/integration/test_cafe_flow.gd:94 PASSED (no failure/error children in game/reports/report_1/results.xml, suite exit 0); make check exit 0 with 170/170 test cases, 18/18 suites, 0 errors/failures/flaky/skipped/orphans; LOG.md rows T004, T070, T072; live backlog state (Looper state.db, read 2026-10-14) still lists T062 status 'todo'."
+      "status": "done",
+      "details": "At the next backlog update, change task T062 ('Sleeping player can still throw and drink: input is not gated after fall_asleep') from status 'todo' to 'done' in the live backlog at /Users/air/dev/barista/to-do.json (and mirror/state), setting its updated_at. The T072 contract forbade editing the backlog and other worktrees, and the task worktree's to-do.json is only a snapshot, so the flip could not be performed inside the task. All T062 acceptance is verified at current HEAD: player.gd drink_cup (lines 150-151) returns false and throw_cup (lines 196-197) returns null while _asleep (the same guards also block the grabbed state added by T008); _physics_process early-returns while asleep; integration test test_cafe_flow.gd test_sleeping_player_cannot_throw_or_drink passes (sleeping player spends no cup, launches no projectile, opens no drink channel); make check 170/170 exit 0.\nEvidence: game/scripts/player/player.gd:150-151,196-197 asleep guards; game/tests/integration/test_cafe_flow.gd:94 PASSED (no failure/error children in game/reports/report_1/results.xml, suite exit 0); make check exit 0 with 170/170 test cases, 18/18 suites, 0 errors/failures/flaky/skipped/orphans; LOG.md rows T004, T070, T072; live backlog state (Looper state.db, read 2026-10-14) still lists T062 status 'todo'.",
+      "files": [
+        "LOG.md"
+      ],
+      "updated_at": "2026-11-14T20:31:21Z"
     },
     {
       "id": "T081",
       "title": "Set T076 to 'done' in the live backlog at the next backlog update",
       "priority": 1,
-      "status": "todo",
-      "details": "At the next backlog update, change T076 ('HUD inventory panel needs an item-listing accessor on Inventory') from status 'todo' to 'done' in the live backlog and set its updated_at, mirroring what T080 does for T062. All T076 acceptance is verified at current HEAD: the accessor exists, is consumed by the HUD, and is unit- and integration-tested; no implementation work remains.\nEvidence: game/scripts/components/inventory.gd:47-62 held_items() with _compare_for_display (category, then id); game/scripts/hud/hud.gd:49-61 _bag_text() iterates player.inventory.held_items() and groups rows by category; game/tests/unit/test_inventory.gd:166-185 test_held_items_is_empty_on_a_new_bag / test_held_items_lists_one_entry_per_stack_in_display_order / test_held_items_drop_spent_stacks, plus test_hud.gd test_bag_rows_list_held_items_grouped_by_category and test_bag_row_disappears_when_the_last_item_is_spent, all PASSED with no failure/error children in game/reports/report_1/results.xml; make check exit 0 with 170/170 test cases, 18/18 suites, 0 errors/failures/flaky/skipped/orphans; backlog.json (read 2026-10-14) still lists T076 status 'todo'; LOG.md rows T007 and T078."
+      "status": "done",
+      "details": "At the next backlog update, change T076 ('HUD inventory panel needs an item-listing accessor on Inventory') from status 'todo' to 'done' in the live backlog and set its updated_at, mirroring what T080 does for T062. All T076 acceptance is verified at current HEAD: the accessor exists, is consumed by the HUD, and is unit- and integration-tested; no implementation work remains.\nEvidence: game/scripts/components/inventory.gd:47-62 held_items() with _compare_for_display (category, then id); game/scripts/hud/hud.gd:49-61 _bag_text() iterates player.inventory.held_items() and groups rows by category; game/tests/unit/test_inventory.gd:166-185 test_held_items_is_empty_on_a_new_bag / test_held_items_lists_one_entry_per_stack_in_display_order / test_held_items_drop_spent_stacks, plus test_hud.gd test_bag_rows_list_held_items_grouped_by_category and test_bag_row_disappears_when_the_last_item_is_spent, all PASSED with no failure/error children in game/reports/report_1/results.xml; make check exit 0 with 170/170 test cases, 18/18 suites, 0 errors/failures/flaky/skipped/orphans; backlog.json (read 2026-10-14) still lists T076 status 'todo'; LOG.md rows T007 and T078.",
+      "files": [
+        "LOG.md"
+      ],
+      "updated_at": "2026-11-14T20:41:44Z"
     },
     {
       "id": "T082",
       "title": "Brewing input economy has no owner: brewed cups must consume beans from the bag and require the recipe's cafe appliance",
       "priority": 2,
-      "status": "todo",
+      "status": "blocked",
       "details": "When the brewing minigames (T011-T015) and real cup payloads (T066) land, a brew must: (a) let the player choose bean and roast and spend the bean from Inventory (GAME_DESIGN section 7 core loop: collect beans, then brew), and (b) be brewable only when the recipe's required cafe appliance (blender, turkish_pot) is held (GAME_DESIGN section 15: 'The blender and the Turkish pot are cafe appliances. The player scavenges them.'). Without an owner, the Frappuccino and Turkish cures bypass the scavenge loop, the appliance items stay dead weight, and Geisha Vault beans can never become the T031 Sleep Jam boss cure even after T074 places them, because no flow turns a bag bean into a BrewedCup payload. Fold the gate into T066 (or a new task depending on the minigame tasks).\nEvidence: grep over game/scripts shows required_appliance declared in game/scripts/brewing/recipe.gd:22 with zero runtime consumers (only data pins in test_brewing_data.gd:117,128 and test_inventory.gd:138-140); game/scripts/player/player.gd:227-235 _standard_cup() conjures the cup payload from library data without spending any bean; no backlog task text (T011-T016, T031, T066, T074) mentions consuming beans or gating a brew on an owned appliance; GAME_DESIGN.md sections 7 and 15 as cited.",
       "depends_on": [
         "T011",
@@ -1216,14 +2059,25 @@
         "T014",
         "T015",
         "T066"
-      ]
+      ],
+      "blockers": [
+        "Deferred: T066 lands real brewed-cup payloads and T082 opens the brew economy"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:aisle7-serve-brew-economy"
+      ],
+      "unblock_when": "T066 lands real brewed-cup payloads and T082 opens the brew economy; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T083",
       "title": "Touch button for the tower interact action",
       "priority": 3,
       "status": "todo",
-      "details": "The tower insert/switch flow is driven by the new `interact` input action, which currently binds only the E key (a development convenience). Touch-first play needs an on-screen USE button near the tower; it belongs with the deferred touch-controls task.\nEvidence: game/project.godot interact action has only InputEventKey 69; CLAUDE.md: 'Touch-first design: gameplay must work without a keyboard.'"
+      "details": "The tower insert/switch flow is driven by the new `interact` input action, which currently binds only the E key (a development convenience). Touch-first play needs an on-screen USE button near the tower; it belongs with the deferred touch-controls task.\nEvidence: game/project.godot interact action has only InputEventKey 69; CLAUDE.md: 'Touch-first design: gameplay must work without a keyboard.'\n\nReview repair: Flip T083 done: the tower interact touch button shipped as the shared USE control of T047\nT047 shipped the on-screen USE button, which fires the shared interact action through one synthesized InputEventAction: the tower fuse insert and switch-off, the van upgrade and field-base toggle, masters, and signature quests all answer it. test_the_use_button_runs_the_tower_beat drives fuse pickup to birdsong with simulated touches, and test_the_use_button_upgrades_the_van covers the van side. T083 asked for exactly this tower touch button, so the backlog update should set T083 done and attach this evidence.\nEvidence: game/scripts/touch/touch_controls.gd _ready wires the USE button to _fire_action(\u0026\"interact\"); game/tests/integration/test_touch_controls.gd test_the_use_button_runs_the_tower_beat and test_the_use_button_upgrades_the_van pass with simulated InputEventScreenTouch events; make check 797/797.",
+      "tags": [
+        "looper:finding:touch-tower-use-button"
+      ]
     },
     {
       "id": "T084",
@@ -1238,6 +2092,184 @@
       "priority": 2,
       "status": "todo",
       "details": "Tower state is exposed via save_state()/load_state() and CityMap.broadcast_tower(), round-trip tested; the save-file writer/reader itself arrives with the save-system task (section 18: the save holds tower state; save point at tower switch).\nEvidence: test_broadcast_tower.gd test_tower_state_round_trips_for_the_save_system passes; no save autoload or file exists yet."
+    },
+    {
+      "id": "T086",
+      "title": "City block kit hardcodes gameplay loot data in script instead of .tres resources",
+      "priority": 3,
+      "status": "todo",
+      "details": "CLAUDE.md requires balance values to live in .tres resources, not hardcoded numbers. The shared block kit hardcodes the scavenge loot (3 house beans per scavenge block) and the tower fuse stock (1) as literals in city_block_view.gd. The fuse stock is a desync risk: broadcast_tower.tres drives fuses_needed, but the kit stock does not read it, so a balance change to fuses_needed leaves the tower unopenable. Move both values into .tres data (extend city.tres or the tower balance) and pin them in test_balance_resources.gd.\nEvidence: game/scripts/city/city_block_view.gd:24 'KIT_LOOT_AMOUNT := 3' used at line 165 (drop.amount = KIT_LOOT_AMOUNT) and line 153 (fuse_drop.amount = 1); game/resources/balance/broadcast_tower.tres fuses_needed = 1 is not consulted for the stock; game/tests/integration/test_city_map.gd:15 mirrors the hardcoded KIT_LOOT_AMOUNT := 3. No backlog task covers kit loot data (T002 covered only the pre-city constants).\n\nReview repair: T086's scope misses the kit scrap-amount literal that T034 added to city_block_view.gd\nFold the scavenge scrap amount into T086's move-to-.tres work alongside the bean loot and the tower fuse stock, so the whole kit economy lives in data and a balance change to the van upgrade costs cannot silently make the van unupgradable (San Coffesco yields 6 scrap; the kitchen plus field cafe together cost 17). Pin the value in test_balance_resources.gd and stop mirroring the literal inside test_city_map.gd.\nEvidence: game/scripts/city/city_block_view.gd:30 'const KIT_SCRAP_AMOUNT := 2', consumed when composing scavenge blocks; game/tests/integration/test_city_map.gd:17 mirrors 'const KIT_SCRAP_AMOUNT := 2' instead of pinning a resource. The costs it funds live in game/resources/balance/mobile_cafe.tres (kitchen_scrap_cost 5, field_cafe_scrap_cost 12). T034's LOG row states the kit drops 2 scrap per point to fund the kitchen; T086's evidence, written before T034, names only KIT_LOOT_AMOUNT and the fuse stock.",
+      "tags": [
+        "looper:finding:city-kit-loot-data-in-tres",
+        "looper:finding:city-kit-scrap-data"
+      ]
+    },
+    {
+      "id": "T087",
+      "title": "No gameplay serve path hands a brewed cup to a sleepwalker; the Tinfoil Man is unwakeable in live play until one exists",
+      "priority": 2,
+      "status": "blocked",
+      "details": "Player.throw_cup is the only gameplay coffee delivery and it attaches the fixed standard cup. Sleepwalker.try_wake — the path that wakes the Tinfoil Man with Turkish coffee — has no gameplay caller for him (tests only). A serve action (hand a brewed cup directly to a sleepwalker, as the Aisle 7 quest scripts for one NPC) is needed so the Turkish cure is reachable in live play before the Tinfoil Man appears in Pourtland (T030).\nEvidence: game/scripts/player/player.gd _standard_cup() builds the only thrown payload; game/scripts/enemies/sleepwalker.gd try_wake is called only from coffee_cup.gd (which the hat guard blocks for tinfoil_man) and from tests; T066 covers throw payloads only, T037 covers one scripted quest serve.",
+      "depends_on": [
+        "T066"
+      ],
+      "blockers": [
+        "Deferred: T066 lands real brewed-cup payloads",
+        "Deferred: T066 lands real brewed-cup payloads or T030 (Pourtland) starts implementation"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:serve-cup-to-sleeper-action"
+      ],
+      "unblock_when": "T066 lands real brewed-cup payloads; remove looper:deferred and set todo when this condition is met."
+    },
+    {
+      "id": "T088",
+      "title": "Traveling east changes the scene inside a physics callback and errors on every live use",
+      "priority": 2,
+      "status": "todo",
+      "details": "The road-east travel must not free collision nodes during the physics step. Acceptance: walking onto the road-east trigger after city completion changes the scene with no engine ERROR in the log (defer the scene change), and a regression test drives the wired east_city_scene path, not only a run built without an east scene.\nEvidence: Live Xvfb run of the menu-to-Steamtle workflow printed: ERROR 'Removing a CollisionObject node during a physics callback is not allowed and will cause undesired behavior. Remove with call_deferred() instead.' with backtrace _on_east_road_taken (game/scripts/city/city_run.gd:380) \u003c- _on_road_east_entered (game/scripts/city/city_run.gd:373). The Area2D body_entered handler emits east_road_taken, whose handler calls get_tree().change_scene_to_packed(east_city_scene) synchronously. The test suite never exercises this path: test_city_run.gd _build_raw_run() builds a run 'without an east scene ... so no scene change fires during the test'. Travel still completed and Steamtle loaded, but the error fires on every real travel east and violates the pristine-output quality rule. No backlog task mentions change_scene, physics callbacks, or deferral (grep over to-do.json: 0 hits).\n\nReview repair: East-travel scene change inside a physics callback now runs on two live legs\nNo new defect, but the buggy path doubled its live reach this task: Steamtle now wires east_city_scene to pourtland.tscn, so completing Steamtle and stepping past the open gate runs the same change_scene_to_packed on the second leg of the route.\nEvidence: game/scenes/city/steamtle.tscn sets east_city_scene = pourtland.tscn; game/scripts/city/city_run.gd _on_road_east_entered emits east_road_taken from the RoadEast body_entered physics signal and _on_east_road_taken calls get_tree().change_scene_to_packed() directly.",
+      "tags": [
+        "looper:finding:east-road-scene-change-in-physics-callback",
+        "looper:finding:east-travel-scene-change-in-physics-callback"
+      ]
+    },
+    {
+      "id": "T089",
+      "title": "Section 15 obtainables have no world placement: region beans, thermos belt, blender, and Turkish pot are unobtainable",
+      "priority": 3,
+      "status": "todo",
+      "details": "Every version 1 obtainable must have a placement owner. Acceptance: the Steamtle scavenge content yields Golden Coast arabica, the Pourtland content yields Moss Hollow organic (section 15 beans table), and the thermos belt (+3 carry), the blender, and the Turkish pot are scavengable somewhere, each with a test pinning the placement. Keep this distinct from T074 (Geisha Vault locked rooms), T050 (the glove), T027 (the designer dripper), T082 (the brew gate that consumes them), and T086 (loot amounts in .tres).\nEvidence: The only gameplay loot sources at HEAD are game/scripts/city/city_block_view.gd:208-222 (SCAVENGE blocks drop HOUSE_BEANS amount 3 and SCRAP_PART amount 2 only) and the tower fuse stock; no scene authors other drops (grep 'drops' over game/scenes: only the empty export). golden_coast_arabica and moss_hollow_organic appear only in tests, never in city data; GAME_DESIGN.md section 15 places them in the Steamtle and Pourtland regions. player.gd:192 equips the thermos belt on pickup, but no drop source exists, so the +3 carry limit is unreachable in play. T082 gates Frappuccino and Turkish brews on owning the blender and Turkish pot ('The player scavenges them') but places neither, so both cures stay dead ends even after the brew flow lands. Grep over the backlog finds placement owners only for the glove (T050), the dripper (T027), and Geisha Vault (T074).",
+      "tags": [
+        "looper:finding:city-scavenge-item-placement"
+      ]
+    },
+    {
+      "id": "T090",
+      "title": "City player sprite renders under the city map floor",
+      "priority": 4,
+      "status": "todo",
+      "details": "In CityRun the Player is scene-authored at tree index 0 while build() adds the CityMap later (index 4), so the opaque block floor draws over the player sprite in every city run. Pre-existing since T026 and invisible to tests; found during the T036 Xvfb visual check (zero player-blue pixels in the frame while the probe confirmed player position, camera clamp, and visibility flags). Fix by reordering the player above the world children in CityRun.build(), with a screenshot verification.\nEvidence: Xvfb probe printed player_index=0, map_index=4, player_visible=true; full-frame scan for the player color (51, 89, 178) found 0 pixels in game runs, while the same scan sees the player in the cafe scene.",
+      "tags": [
+        "looper:finding:city-player-hidden-under-map-floor"
+      ]
+    },
+    {
+      "id": "T091",
+      "title": "Field-base survivors give no small side quests; the level 3 van promise has no owner",
+      "priority": 3,
+      "status": "todo",
+      "details": "GAME_DESIGN section 10, van level 3: awakened survivors gather at the field base and give small side quests. The gather behavior ships (MobileCafeVan._invite_nearby_awakened), but nothing in live play offers or accepts any side quest: QuestLog.accept() has no caller outside tests, and no task owns survivor quest content at the field base. T034 is done with a narrower acceptance (upgrade levels, carry limit, brew-anywhere), and T035 covers only the Sleepvana quest. Acceptance: gathered survivors at a level 3 field base offer at least one small side quest, with a test that drives offer and accept.\nEvidence: grep over game/scripts: quest_log.accept() is called only inside game/scripts/quests/quest_log.gd:63; no van or survivor code references side quests; game/tests/integration/test_city_quest_wiring.gd drives quest beats programmatically (insert_fuse, switch_off) and never an accept flow. Live run: van gift and field-base beats work, quests stay offered with no interaction.",
+      "tags": [
+        "looper:finding:field-base-survivor-side-quests"
+      ]
+    },
+    {
+      "id": "T092",
+      "title": "Wake lines have no presenter: the Karen's manager line never shows in live play",
+      "priority": 4,
+      "status": "blocked",
+      "details": "Sleepwalker emits spoke(wake_line) once on wake and the Karen's line is 'Manager! I want to see the manager.' (GAME_DESIGN section 6), but no live scene connects to the signal; only tests do. A presenter (for example a HUD toast near the woken sleeper) is needed so the beat plays. Acceptance: waking a special type shows its wake line, with an integration test.\nEvidence: grep over game/scripts: signal spoke at game/scripts/enemies/sleepwalker.gd:10 and the emit at line 93 have zero connect() callers outside game/tests/integration/test_karen_surprise.gd; SleepJamBand.spoke at game/scripts/bosses/sleep_jam_band.gd:7 is likewise unconsumed (the band toast comes from a separate constant).",
+      "depends_on": [
+        "T066"
+      ],
+      "blockers": [
+        "Deferred: T066 lands real brewed-cup payloads so special types such as the Karen are wakeable in live play"
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:wake-line-presenter"
+      ],
+      "unblock_when": "T066 lands real brewed-cup payloads so special types such as the Karen are wakeable in live play; remove looper:deferred and set todo when this condition is met."
+    },
+    {
+      "id": "T093",
+      "title": "City completion screen never dismisses and permanently stands down the touch controls",
+      "priority": 2,
+      "status": "todo",
+      "details": "Acceptance: after the city-complete beat, the game returns control to the player. The completion screen needs a dismiss path (a continue button or a timed fade) and the touch layer must come back, so the player can walk to the road-east trigger and keep playing, including post-city side quests. An integration test drives a city to completion and asserts the overlay clears and the touch controls return; make check green.\nEvidence: game/scripts/city/city_run.gd:601-605 _on_city_completed calls _show_end_screen(..., false); city_run.gd:624-629 sets _end_screen_shown and shows the overlay, and grep shows no writer that ever clears them (only _ready initializes and _show_end_screen sets). city_run.gd:184 feeds _end_screen_shown into touch_controls.set_overlay_open, and game/scripts/touch/touch_controls.gd:66-84 _process hides the whole layer while _overlay_open is true. Executable probe (headless SceneTree script on pourtland.tscn): before completion touch layer visible=true; after progress.mark_tower_off() plus progress.mark_boss_cured(): overlay=true, restart button visible=false, touch layer visible=false; 5 seconds later still false while the player is awake and unlocked. A touch-only player, the target platform per CLAUDE.md, is stuck after the victory beat; a desktop player keeps a permanent 55 percent dim overlay. Distinct from T069 (death overlay reload) and T088 (physics-callback error on the same travel path). Latent in live play only because no city can complete today (T027 boss missing, T049 gate locked), but it fires on every completion once those land.",
+      "tags": [
+        "looper:finding:city-complete-screen-dismiss-touch-lock"
+      ]
+    },
+    {
+      "id": "T094",
+      "title": "Enterable houses and scavenge buildings have no owner; the city kit ships open-air blocks",
+      "priority": 3,
+      "status": "todo",
+      "details": "Acceptance: decide with Niko whether V1 ships building interiors. Either a block-kit task adds building shells with enterable doors, scavenge loot inside them, and walls that respect the cup collision of T061, or the flat open-air scavenge block is recorded as an accepted V1 deviation. Keep the work distinct from T063 (the cafe building), T074 (one locked Geisha Vault side room per city), and T045 (the art pass).\nEvidence: GAME_DESIGN.md:123 'The player walks through the world and enters houses.' and GAME_DESIGN.md:561 the landmark set includes 'scavenge buildings for the rest'. game/scripts/city/city_block_view.gd:164-238 composes only zones, crowd markers, the tower, and one open-air loot crate; game/scripts/city/city_map.gd:19-35 lays the blocks in one open row; the only solid geometry in a city is the boundary wall (game/scripts/city/city_run.gd:309-341). A grep over the backlog finds no task that owns building interiors: T063 covers only the cafe building and T074 only the Geisha Vault side room; T045 is an art pass over existing shapes.",
+      "tags": [
+        "looper:finding:city-buildings-enterable-interiors"
+      ]
+    },
+    {
+      "id": "T095",
+      "title": "Roast-level wake power is specified and loaded as data but has no gameplay effect",
+      "priority": 3,
+      "status": "todo",
+      "details": "Acceptance: wire RoastProfile.wake_power_factor into a live rule, for example it scales the cup tier thresholds or gates which sleeper strengths one cup can wake, or record a deliberate decision to drop the rule. Have the game tell the player the section 15 fact that light roast keeps more caffeine, for example in the SleepyDex cure rows or the brew flow. Pin the live rule with a test, not only the data values.\nEvidence: GAME_DESIGN.md:498-506: the roast table says 'Light | Most caffeine. Best wake power.' and 'Dark | Rich taste. Lower wake power.', and 'Light roast keeps more caffeine. The game states this as a fact.' game/scripts/brewing/roast_profile.gd:15 declares wake_power_factor and the roast resources set light 1.0, medium 0.8, dark 0.6, but a grep over game/scripts shows zero gameplay consumers; only game/tests/unit/test_brewing_data.gd:73-77 pins the numbers. CureMatcher (game/scripts/brewing/cure_matcher.gd) decides wakes from tier and recipe match only, so a dark-roast cup wakes exactly as well as a light-roast cup of the same recipe. No backlog task mentions wake power (T010 shipped the data only; T066 covers payloads).",
+      "tags": [
+        "looper:finding:roast-wake-power-no-effect"
+      ]
+    },
+    {
+      "id": "T096",
+      "title": "Give the post-game player a way back west to the earlier cities",
+      "priority": 3,
+      "status": "blocked",
+      "details": "After the credits the world stays open, but the route only travels east: a post-game player in Pourtland has no path back to Steamtle or San Coffesco, so the V1 post-game activities that live there (Robotaxi Depot, Sleepvana encore content, remaining dex entries and gloves) are unreachable from a finished session. The outro correctly names the activities; the traversal gap belongs to the city-progression round. A road-west hook or a city select on the map screen would close it once persistent state (T040/T049) makes a return meaningful.\nEvidence: Only eastward travel exists: city_run.gd _on_road_east_entered changes scene to east_city_scene (null for Pourtland), and test_pourtland.gd pins east_city_scene as null; test_outro_run.gd proves the deck stops at the Karen.",
+      "depends_on": [
+        "T040",
+        "T049"
+      ],
+      "blockers": [
+        "Deferred: Resume when T040 and T049 land, so a return west carries persistent progression; implement alongside the city-progression round."
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:post-game-west-travel"
+      ],
+      "unblock_when": "Resume when T040 and T049 land, so a return west carries persistent progression; implement alongside the city-progression round.; remove looper:deferred and set todo when this condition is met."
+    },
+    {
+      "id": "T097",
+      "title": "Place the five support tool unlocks along the main route",
+      "priority": 2,
+      "status": "blocked",
+      "details": "SupportToolbelt.unlock() exists and CityRun already opens the TOOL and SWAP touch buttons for any tool the belt holds, but nothing in live city play calls unlock(): only the cafe development room hands the full belt over (game/scripts/cafe/cafe.gd). Section 11 says the player finds tools along the route; the placement decision (which city or quest hands over which tool) has no owner. T038 covers the same find-along-route question for cure weapons and stays blocked/deferred; support tools need their own placement once that acquisition pattern starts.\nEvidence: grep for unlock_all/unlock call sites shows only cafe.gd and the two test suites; city runs never unlock a tool, so the TOOL/SWAP buttons stay hidden in San Coffesco, Steamtle, and Pourtland.",
+      "blockers": [
+        "Deferred: The found-gear acquisition pass of the T038 family starts; then place the five unlock events along the main route through the three cities."
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:support-tool-route-placement"
+      ],
+      "unblock_when": "The found-gear acquisition pass of the T038 family starts; then place the five unlock events along the main route through the three cities.; remove looper:deferred and set todo when this condition is met."
+    },
+    {
+      "id": "T098",
+      "title": "Show the equipped support tool on the HUD",
+      "priority": 3,
+      "status": "blocked",
+      "details": "The SWAP button cycles the equipped tool through try_action with no on-screen feedback, so a touch player cannot see which of the five tools is in the slot. The HUD (game/scripts/hud/hud.gd) shows the section 9 status only. A small equipped-tool label near the TOOL/SWAP buttons closes the gap once tools reach city play.\nEvidence: game/scripts/touch/touch_controls.gd wires SWAP to player.try_action(\u0026\"cycle_tool\") with no readout of SupportToolbelt.equipped_tool(); no HUD element reads the toolbelt.",
+      "blockers": [
+        "Deferred: Support tools become unlockable in city runs (see support-tool-route-placement)."
+      ],
+      "tags": [
+        "looper:deferred",
+        "looper:finding:hud-equipped-tool-label"
+      ],
+      "unblock_when": "Support tools become unlockable in city runs (see support-tool-route-placement).; remove looper:deferred and set todo when this condition is met."
+    },
+    {
+      "id": "T099",
+      "title": "Wire the address audio director into the cafe development room",
+      "priority": 4,
+      "status": "todo",
+      "details": "Only CityRun wires the director. scenes/cafe/cafe.tscn has its own SpeakerPole zone and tower; giving it the same director would let the dev room demo the address loop, but it needs a small setup variant because the cafe room has no CityMap.\nEvidence: game/scripts/cafe/cafe.gd holds its own $Zones/SpeakerPole and BroadcastTower and already silences the pole on tower switch-off; AddressAudioDirector.setup() takes a CityMap for pole positions and the cafe circle.",
+      "tags": [
+        "looper:finding:cafe-room-address-audio"
+      ]
     }
   ]
 }

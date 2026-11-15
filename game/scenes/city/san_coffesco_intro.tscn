@@ -1,0 +1,13 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://scenes/city/city_run.tscn" id="1"]
+[ext_resource type="Resource" path="res://resources/city/san_coffesco.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/balance/city.tres" id="3"]
+[ext_resource type="PackedScene" path="res://scenes/city/steamtle.tscn" id="4"]
+
+[node name="SanCoffescoIntro" instance=ExtResource("1")]
+definition = ExtResource("2")
+balance = ExtResource("3")
+city_index = 1
+east_city_scene = ExtResource("4")
+run_tutorial = true

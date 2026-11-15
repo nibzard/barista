@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Recipe" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/brewing/recipe.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+recipe_id = "sleepvana_order_drummer"
+display_name = "One Moka Pot, Medium Roast"
+method_match = 1
+method_id = "moka_pot"
+extra_id = ""
+bean_match = 0
+bean_id = ""
+min_bean_quality = 0
+roast_match = 1
+roast = 1
+required_appliance = ""

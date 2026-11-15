@@ -1,0 +1,43 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/bosses/sleep_jam_band.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/balance/sleep_jam.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/brewing/brewing_balance.tres" id="3"]
+[ext_resource type="Resource" path="res://resources/brewing/recipes/geisha_vault_cup.tres" id="4"]
+
+[sub_resource type="RectangleShape2D" id="Stage"]
+size = Vector2(220, 120)
+
+[node name="SleepJamBand" type="StaticBody2D"]
+collision_layer = 5
+script = ExtResource("1")
+balance = ExtResource("2")
+brewing_balance = ExtResource("3")
+cure = ExtResource("4")
+
+[node name="Platform" type="Polygon2D" parent="."]
+color = Color(0.24, 0.18, 0.3, 1)
+polygon = PackedVector2Array(-110, -150, 110, -150, 110, -100, -110, -100)
+
+[node name="Members" type="Node2D" parent="."]
+
+[node name="Member0" type="Polygon2D" parent="Members"]
+position = Vector2(-70, -172)
+polygon = PackedVector2Array(-16, -22, 16, -22, 16, 22, -16, 22)
+
+[node name="Member1" type="Polygon2D" parent="Members"]
+position = Vector2(0, -172)
+polygon = PackedVector2Array(-16, -22, 16, -22, 16, 22, -16, 22)
+
+[node name="Member2" type="Polygon2D" parent="Members"]
+position = Vector2(70, -172)
+polygon = PackedVector2Array(-16, -22, 16, -22, 16, 22, -16, 22)
+
+[node name="MicStand" type="Polygon2D" parent="."]
+position = Vector2(26, -160)
+color = Color(0.12, 0.1, 0.14, 1)
+polygon = PackedVector2Array(-2, -26, 2, -26, 2, 0, -2, 0)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -140)
+shape = SubResource("Stage")

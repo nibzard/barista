@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="OutroBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/balance/outro_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+karen_march_seconds = 1.4
+demand_hold_seconds = 2.6
+credits_roll_seconds = 9.0

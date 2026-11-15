@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="FoamWatchBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/balance/foam_watch_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+heat_rate_per_second = 0.5
+foam_rate_per_second = 0.3
+rush_start_foam = 0.6
+rush_multiplier = 2.2
+boil_over_grace_seconds = 0.8
+lifted_score = 100.0
+boil_over_score = 0.0
+cold_score = 0.0

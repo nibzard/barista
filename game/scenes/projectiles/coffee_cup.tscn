@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/projectiles/coffee_cup.gd" id="1"]
 [ext_resource type="Resource" path="res://resources/balance/coffee_cup.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/brewing/brewing_balance.tres" id="3"]
 
 [sub_resource type="RectangleShape2D" id="Cup"]
 size = Vector2(14, 14)
@@ -10,6 +11,7 @@ size = Vector2(14, 14)
 collision_mask = 4
 script = ExtResource("1")
 balance = ExtResource("2")
+brewing_balance = ExtResource("3")
 
 [node name="Visual" type="Polygon2D" parent="."]
 color = Color(0.78, 0.55, 0.3, 1)

@@ -42,6 +42,7 @@ func test_kind_enum_order_is_stable() -> void:
 	assert_int(CityBlock.Kind.BOSS_ARENA).is_equal(2)
 	assert_int(CityBlock.Kind.QUEST).is_equal(3)
 	assert_int(CityBlock.Kind.SCAVENGE).is_equal(4)
+	assert_int(CityBlock.Kind.QUEST_SITE).is_equal(5)
 
 
 func test_valid_city_has_no_violations() -> void:
@@ -147,3 +148,46 @@ func test_block_size_matches_the_screen_rule() -> void:
 	assert_bool(absf(size.x * BALANCE.blocks_per_screen - 1280.0) < 0.01).is_true()
 	assert_bool(absf(size.y - 720.0) < 0.01).is_true()
 	assert_bool(absf(size.x - 1280.0 / 1.5) < 0.01).is_true()
+
+
+func test_quest_site_without_a_name_reported() -> void:
+	var city := _make_valid_city()
+	city.blocks[1].kind = CityBlock.Kind.QUEST_SITE
+	var violations := CityRules.validate(city, BALANCE)
+	assert_bool(_has_violation(violations, "quest site block needs a site name")).is_true()
+
+
+func test_site_name_on_two_blocks_reported() -> void:
+	var city := _make_valid_city()
+	city.blocks[1].site_name = "The Garage"
+	city.blocks[2].site_name = "The Garage"
+	var violations := CityRules.validate(city, BALANCE)
+	assert_bool(_has_violation(violations, "The Garage marks two blocks")).is_true()
+
+
+func test_named_sites_on_a_valid_city_pass() -> void:
+	var city := _make_valid_city()
+	city.blocks[1].site_name = "The Garage"
+	city.blocks[2].kind = CityBlock.Kind.QUEST_SITE
+	city.blocks[2].site_name = "Greenhouse"
+	var violations := CityRules.validate(city, BALANCE)
+	assert_str(str(violations)).is_equal("[]")
+
+
+func test_cafe_tier_below_one_reported() -> void:
+	var city := _make_valid_city()
+	city.cafe_tier = 0
+	var violations := CityRules.validate(city, BALANCE)
+	assert_bool(_has_violation(violations, "cafe tier must start at 1")).is_true()
+
+
+func test_cafe_zone_radius_grows_with_the_tier() -> void:
+	# Section 10: each new city on the route holds a bigger cafe. The table
+	# serves every tier, and the last entry serves every tier above it.
+	assert_float(CityRules.cafe_zone_radius(BALANCE, 1)).is_equal(180.0)
+	assert_float(CityRules.cafe_zone_radius(BALANCE, 2)).is_equal(240.0)
+	assert_float(CityRules.cafe_zone_radius(BALANCE, 3)).is_equal(300.0)
+	assert_float(CityRules.cafe_zone_radius(BALANCE, 9)).is_equal(300.0)
+	assert_float(CityRules.cafe_zone_radius(BALANCE, 2)).is_greater(
+		CityRules.cafe_zone_radius(BALANCE, 1)
+	)

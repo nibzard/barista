@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EnemyType" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy_type.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/brewing/cures/karen.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+type_id = "karen"
+display_name = "The Karen"
+special_behavior = 5
+pajama_color = Color(0.87, 0.55, 0.66, 1)
+cure = ExtResource("2")
+wake_line = "Manager! I want to see the manager!"

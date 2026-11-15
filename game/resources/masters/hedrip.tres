@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BrewingMaster" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/masters/brewing_master.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+master_id = "hedrip"
+display_name = "Lance Hedrip"
+city_id = "steamtle"
+catchphrase = "Measured to the gram!"
+role_line = "He teaches the Aeropress and the cold brew."
+lesson_line = "Weigh the beans. Watch the heat. The numbers make the cup."
+accent_color = Color(0.3, 0.48, 0.7, 1)
+taught_methods = ["aeropress", "cold_brew"]
+lesson_recipes = ["triple_shot", "cold_brew_concentrate"]

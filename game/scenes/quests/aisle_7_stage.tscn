@@ -1,0 +1,16 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/aisle_7_stage.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/balance/aisle_7.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/brewing/brewing_balance.tres" id="3"]
+[ext_resource type="Resource" path="res://resources/brewing/recipes/turkish_cup.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/masters/turkish_husband.tres" id="5"]
+[ext_resource type="Resource" path="res://resources/items/gear/husband_photo.tres" id="6"]
+
+[node name="Aisle7Stage" type="Node2D"]
+script = ExtResource("1")
+balance = ExtResource("2")
+brewing_balance = ExtResource("3")
+turkish_cure = ExtResource("4")
+master = ExtResource("5")
+photo_item = ExtResource("6")

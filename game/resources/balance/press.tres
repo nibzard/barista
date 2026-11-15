@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="PressBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/balance/press_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+pressure_build_per_second = 0.55
+pressure_bleed_per_second = 0.75
+pressure_max = 1.5
+zone_start_center = 0.35
+zone_width = 0.18
+zone_creep_per_second = 0.045
+hold_fill_per_second = 0.3
+press_window_seconds = 12.0
+release_mark_pressure = 0.95
+perfect_tolerance = 0.05
+pull_window_seconds = 4.0
+pressed_score = 100.0
+drift_penalty_per_second = 12.0
+off_mark_penalty_per_unit = 140.0
+off_mark_floor_score = 30.0
+no_shot_score_max = 40.0

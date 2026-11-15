@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="MainRoute" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/main_route.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/city/san_coffesco.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/city/steamtle.tres" id="3"]
+[ext_resource type="Resource" path="res://resources/city/pourtland.tres" id="4"]
+
+[resource]
+script = ExtResource("1")
+cities = [ExtResource("2"), ExtResource("3"), ExtResource("4")]

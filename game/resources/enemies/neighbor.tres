@@ -10,3 +10,4 @@ display_name = "The Neighbor"
 special_behavior = 0
 pajama_color = Color(0.62, 0.72, 0.9, 1)
 cure = ExtResource("2")
+wake_line = "Thanks... coffee..."

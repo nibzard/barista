@@ -1,0 +1,80 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/tutorial/tutorial_director.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/tutorial/tutorial_video_view.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/tutorial/tutorial_finale_view.gd" id="3"]
+[ext_resource type="Resource" path="res://resources/balance/tutorial.tres" id="4"]
+
+[node name="Tutorial" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1")
+balance = ExtResource("4")
+
+[node name="VideoView" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("2")
+
+[node name="SubtitleLabel" type="Label" parent="VideoView"]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 140.0
+offset_top = -150.0
+offset_right = -140.0
+offset_bottom = -70.0
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+text = "If you see this, you drink real coffee. Good. Listen."
+
+[node name="SkipLabel" type="Label" parent="VideoView"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 54.0
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 0.55)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 2
+vertical_alignment = 1
+text = "TAP TO SKIP"
+
+[node name="PromptLabel" type="Label" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -400.0
+offset_top = -96.0
+offset_right = 400.0
+offset_bottom = -44.0
+theme_override_colors/font_color = Color(0.96, 0.93, 0.85, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.07, 0.06, 0.9)
+theme_override_constants/outline_size = 10
+theme_override_font_sizes/font_size = 26
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "MOVE."
+
+[node name="FinaleView" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("3")

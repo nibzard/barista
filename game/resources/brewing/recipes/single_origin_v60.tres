@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Recipe" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/brewing/recipe.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+recipe_id = "single_origin_v60"
+display_name = "Single-Origin V60"
+method_match = 1
+method_id = "v60"
+extra_id = ""
+bean_match = 1
+bean_id = "golden_coast_arabica"
+min_bean_quality = 0
+roast_match = 1
+roast = 0
+required_appliance = ""

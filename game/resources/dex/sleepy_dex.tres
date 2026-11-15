@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SleepyDexCatalog" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/dex/sleepy_dex_catalog.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/dex/entries/neighbor.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/dex/entries/tourist.tres" id="3"]
+[ext_resource type="Resource" path="res://resources/dex/entries/tech_bro.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/dex/entries/gamer.tres" id="5"]
+[ext_resource type="Resource" path="res://resources/dex/entries/tinfoil_man.tres" id="6"]
+[ext_resource type="Resource" path="res://resources/dex/entries/karen.tres" id="7"]
+[ext_resource type="Resource" path="res://resources/dex/entries/moonwalker.tres" id="8"]
+
+[resource]
+script = ExtResource("1")
+entries = [ExtResource("2"), ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("6"), ExtResource("7"), ExtResource("8")]

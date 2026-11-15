@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Recipe" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/brewing/recipe.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+bean_id = ""
+bean_match = 2
+display_name = "Geisha Vault Cup"
+extra_id = ""
+method_id = ""
+method_match = 0
+min_bean_quality = 2
+required_appliance = ""
+roast = 0
+roast_match = 0
+recipe_id = "geisha_vault_cup"

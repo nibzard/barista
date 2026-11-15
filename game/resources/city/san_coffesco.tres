@@ -1,7 +1,16 @@
-[gd_resource type="Resource" script_class="CityDefinition" load_steps=10 format=3]
+[gd_resource type="Resource" script_class="CityDefinition" load_steps=22 format=3]
 
 [ext_resource type="Script" path="res://scripts/city/city_definition.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/city/city_block.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/city/enemy_spawn.gd" id="3"]
+[ext_resource type="Resource" path="res://resources/enemies/neighbor.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/enemies/tourist.tres" id="5"]
+[ext_resource type="Resource" path="res://resources/enemies/tech_bro.tres" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/neighbor.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tourist.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tech_bro.tscn" id="9"]
+[ext_resource type="Resource" path="res://resources/quests/side/robotaxi_depot.tres" id="10"]
+[ext_resource type="Resource" path="res://resources/masters/offmug.tres" id="11"]
 
 [sub_resource type="Resource" id="Block0"]
 script = ExtResource("2")
@@ -41,11 +50,30 @@ script = ExtResource("2")
 kind = 1
 sleepwalker_count = 4
 
+[sub_resource type="Resource" id="RosterNeighbor"]
+script = ExtResource("3")
+enemy_type = ExtResource("4")
+scene = ExtResource("7")
+
+[sub_resource type="Resource" id="RosterTourist"]
+script = ExtResource("3")
+enemy_type = ExtResource("5")
+scene = ExtResource("8")
+
+[sub_resource type="Resource" id="RosterTechBro"]
+script = ExtResource("3")
+enemy_type = ExtResource("6")
+scene = ExtResource("9")
+
 [resource]
 script = ExtResource("1")
 city_id = "san_coffesco"
 display_name = "San Coffesco"
 accent_color = Color(0.1, 0.65, 0.65, 1)
+cafe_tier = 1
 boss_name = "Sam Oatman"
 quest_name = "The Robotaxi Depot"
 blocks = [SubResource("Block0"), SubResource("Block1"), SubResource("Block2"), SubResource("Block3"), SubResource("Block4"), SubResource("Block5"), SubResource("Block6")]
+roster = [SubResource("RosterNeighbor"), SubResource("RosterTourist"), SubResource("RosterTechBro")]
+side_quests = [ExtResource("10")]
+masters = [ExtResource("11")]

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SideQuestDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/side_quest_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "aisle_7"
+title = "The Aisle 7"
+city_id = "pourtland"
+site_name = "The Hardware Store"

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="Aisle7Balance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/balance/aisle_7_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+brew_stand_radius = 120.0
+hug_arrive_radius = 30.0
+master_unlock_delay = 2.5
+wife_walk_speed = 110.0

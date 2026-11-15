@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Recipe" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/brewing/recipe.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+recipe_id = "cold_brew_concentrate"
+display_name = "Cold Brew Concentrate"
+method_match = 1
+method_id = "cold_brew"
+extra_id = ""
+bean_match = 2
+bean_id = ""
+min_bean_quality = 1
+roast_match = 0
+roast = 0
+required_appliance = ""

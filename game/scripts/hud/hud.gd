@@ -18,11 +18,15 @@ var _toast_time_left := 0.0
 @onready var wake_ups_value: Label = $Board/Margin/Rows/WakeUpsRow/WakeUpsValue
 @onready var bag_label: Label = $Board/Margin/Rows/BagLabel
 @onready var toast_label: Label = $Toast
+@onready var dex_button: Button = $DexButton
+@onready var dex_app: SleepyDexApp = $DexApp
 
 
 func _ready() -> void:
 	if not player_path.is_empty():
 		set_player(get_node_or_null(player_path) as Player)
+	dex_button.visible = false
+	dex_button.pressed.connect(open_dex)
 
 
 func _process(_delta: float) -> void:
@@ -59,6 +63,31 @@ func _tick_toast(delta: float) -> void:
 func set_player(target: Player) -> void:
 	player = target
 	refresh()
+
+
+func bind_dex(sleepy_dex: SleepyDex, library: BrewingLibrary) -> void:
+	# The smartphone lives on the HUD: one button opens the one app, section 9.
+	# Scenes without a dex, like the cafe development room, keep the button hid.
+	dex_app.bind(sleepy_dex)
+	dex_app.library = library
+	dex_button.visible = true
+
+
+func open_dex() -> void:
+	dex_app.open()
+
+
+func toggle_dex() -> void:
+	if dex_app.is_open():
+		dex_app.close()
+	else:
+		dex_app.open()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	# The Tab key is the desktop convenience for the phone button, section 4.
+	if event.is_action_pressed(&"toggle_dex"):
+		toggle_dex()
 
 
 func refresh() -> void:

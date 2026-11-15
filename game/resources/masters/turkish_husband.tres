@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BrewingMaster" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/masters/brewing_master.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+master_id = "husband"
+display_name = "The Turkish Husband"
+city_id = "pourtland"
+catchphrase = "A cup keeps its promise."
+role_line = "He teaches the Turkish coffee."
+lesson_line = "Low heat. Patient foam. Lift at the last safe moment."
+accent_color = Color(0.78, 0.52, 0.24, 1)
+taught_methods = ["turkish"]
+lesson_recipes = ["turkish_cup"]

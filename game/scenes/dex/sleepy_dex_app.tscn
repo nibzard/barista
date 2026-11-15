@@ -1,0 +1,93 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/dex/sleepy_dex_app.gd" id="1"]
+
+[sub_resource type="StyleBoxFlat" id="PhoneBody"]
+bg_color = Color(0.08, 0.09, 0.1, 0.97)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.93, 0.95, 0.88, 0.9)
+corner_radius_top_left = 22
+corner_radius_top_right = 22
+corner_radius_bottom_right = 22
+corner_radius_bottom_left = 22
+
+[node name="SleepyDexApp" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.45)
+
+[node name="Phone" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(520, 620)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -310.0
+offset_right = 260.0
+offset_bottom = 310.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("PhoneBody")
+
+[node name="Margin" type="MarginContainer" parent="Phone"]
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="Rows" type="VBoxContainer" parent="Phone/Margin"]
+theme_override_constants/separation = 12
+
+[node name="Header" type="HBoxContainer" parent="Phone/Margin/Rows"]
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="Phone/Margin/Rows/Header"]
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
+theme_override_font_sizes/font_size = 30
+text = "SLEEPYDEX"
+
+[node name="CounterLabel" type="Label" parent="Phone/Margin/Rows/Header"]
+custom_minimum_size = Vector2(140, 0)
+size_flags_horizontal = 8
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 0.8)
+theme_override_font_sizes/font_size = 20
+text = "0/0 FOUND"
+horizontal_alignment = 2
+
+[node name="ListScroll" type="ScrollContainer" parent="Phone/Margin/Rows"]
+size_flags_vertical = 3
+
+[node name="List" type="VBoxContainer" parent="Phone/Margin/Rows/ListScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Footer" type="VBoxContainer" parent="Phone/Margin/Rows"]
+theme_override_constants/separation = 10
+
+[node name="KeychainLabel" type="Label" parent="Phone/Margin/Rows/Footer"]
+visible = false
+theme_override_colors/font_color = Color(0.98, 0.9, 0.55, 1)
+theme_override_font_sizes/font_size = 18
+text = "TROLL DOLL KEYCHAIN"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="CloseButton" type="Button" parent="Phone/Margin/Rows/Footer"]
+custom_minimum_size = Vector2(0, 56)
+theme_override_font_sizes/font_size = 20
+text = "CLOSE"

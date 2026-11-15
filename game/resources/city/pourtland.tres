@@ -1,7 +1,18 @@
-[gd_resource type="Resource" script_class="CityDefinition" load_steps=9 format=3]
+[gd_resource type="Resource" script_class="CityDefinition" load_steps=25 format=3]
 
 [ext_resource type="Script" path="res://scripts/city/city_definition.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/city/city_block.gd" id="2"]
+[ext_resource type="Script" path="res://scripts/city/enemy_spawn.gd" id="3"]
+[ext_resource type="Resource" path="res://resources/enemies/neighbor.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/enemies/tinfoil_man.tres" id="5"]
+[ext_resource type="Resource" path="res://resources/enemies/karen.tres" id="6"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/neighbor.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/tinfoil_man.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://scenes/enemies/karen.tscn" id="9"]
+[ext_resource type="Resource" path="res://resources/quests/side/aisle_7.tres" id="10"]
+[ext_resource type="PackedScene" path="res://scenes/bosses/sleep_jam_band.tscn" id="11"]
+[ext_resource type="Resource" path="res://resources/masters/raoast.tres" id="12"]
+[ext_resource type="PackedScene" path="res://scenes/quests/aisle_7_stage.tscn" id="13"]
 
 [sub_resource type="Resource" id="Block0"]
 script = ExtResource("2")
@@ -10,37 +21,72 @@ sleepwalker_count = 3
 
 [sub_resource type="Resource" id="Block1"]
 script = ExtResource("2")
-kind = 3
+kind = 4
 sleepwalker_count = 3
 
 [sub_resource type="Resource" id="Block2"]
 script = ExtResource("2")
-kind = 4
-sleepwalker_count = 4
-has_speaker_pole = true
+kind = 2
+sleepwalker_count = 3
+site_name = "The Crystal Beanroom"
 
 [sub_resource type="Resource" id="Block3"]
 script = ExtResource("2")
+kind = 5
+sleepwalker_count = 3
+site_name = "The Screw Wall"
+
+[sub_resource type="Resource" id="Block4"]
+script = ExtResource("2")
+kind = 3
+sleepwalker_count = 3
+has_speaker_pole = true
+site_name = "The Hardware Store"
+
+[sub_resource type="Resource" id="Block5"]
+script = ExtResource("2")
+kind = 5
+sleepwalker_count = 4
+has_speaker_pole = true
+site_name = "The Sandpaper Rack"
+
+[sub_resource type="Resource" id="Block6"]
+script = ExtResource("2")
 kind = 4
 sleepwalker_count = 4
 has_speaker_pole = true
 
-[sub_resource type="Resource" id="Block4"]
-script = ExtResource("2")
-kind = 2
-sleepwalker_count = 4
-has_speaker_pole = true
-
-[sub_resource type="Resource" id="Block5"]
+[sub_resource type="Resource" id="Block7"]
 script = ExtResource("2")
 kind = 1
 sleepwalker_count = 4
+
+[sub_resource type="Resource" id="RosterNeighbor"]
+script = ExtResource("3")
+enemy_type = ExtResource("4")
+scene = ExtResource("7")
+
+[sub_resource type="Resource" id="RosterTinfoilMan"]
+script = ExtResource("3")
+enemy_type = ExtResource("5")
+scene = ExtResource("8")
+
+[sub_resource type="Resource" id="RosterKaren"]
+script = ExtResource("3")
+enemy_type = ExtResource("6")
+scene = ExtResource("9")
 
 [resource]
 script = ExtResource("1")
 city_id = "pourtland"
 display_name = "Pourtland"
 accent_color = Color(0.38, 0.6, 0.3, 1)
+cafe_tier = 3
 boss_name = "The Sleep Jam"
+boss_scene = ExtResource("11")
 quest_name = "The Aisle 7"
-blocks = [SubResource("Block0"), SubResource("Block1"), SubResource("Block2"), SubResource("Block3"), SubResource("Block4"), SubResource("Block5")]
+quest_scene = ExtResource("13")
+blocks = [SubResource("Block0"), SubResource("Block1"), SubResource("Block2"), SubResource("Block3"), SubResource("Block4"), SubResource("Block5"), SubResource("Block6"), SubResource("Block7")]
+roster = [SubResource("RosterNeighbor"), SubResource("RosterTinfoilMan"), SubResource("RosterKaren")]
+side_quests = [ExtResource("10")]
+masters = [ExtResource("12")]

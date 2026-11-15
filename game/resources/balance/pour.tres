@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="PourBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/balance/pour_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+sweet_spot_start = 0.55
+sweet_spot_end = 0.85
+fill_rate_per_second = 0.25
+dry_rate_per_second = 0.12
+flood_build_multiplier = 2.0
+drain_rate_per_second = 0.1
+flood_excess = 1.0
+brew_window_seconds = 10.0
+bloomed_score = 100.0
+excess_penalty_per_unit = 25.0
+flood_score = 0.0
+stalled_score_max = 40.0
+full_turn_seconds = 2.0

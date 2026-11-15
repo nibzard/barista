@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SideQuestDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/side_quest_definition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+quest_id = "robotaxi_depot"
+title = "The Robotaxi Depot"
+city_id = "san_coffesco"
+site_name = ""

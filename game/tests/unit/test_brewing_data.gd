@@ -40,7 +40,7 @@ func test_library_holds_the_full_dataset() -> void:
 	assert_int(LIBRARY.beans.size()).is_equal(4)
 	assert_int(LIBRARY.roasts.size()).is_equal(3)
 	assert_int(LIBRARY.extras.size()).is_equal(6)
-	assert_int(LIBRARY.recipes.size()).is_equal(7)
+	assert_int(LIBRARY.recipes.size()).is_equal(15)
 	assert_int(LIBRARY.cures.size()).is_equal(8)
 
 
@@ -82,6 +82,17 @@ func test_brewing_balance_values() -> void:
 	assert_float(BALANCE.perfect_tier_min_score).is_equal(95.0)
 	assert_float(BALANCE.perfect_wake_radius).is_equal(100.0)
 	assert_float(BALANCE.standard_cup_score).is_equal(85.0)
+
+
+func test_brewing_skill_balance_values() -> void:
+	assert_int(BALANCE.max_method_skill).is_equal(10)
+	assert_int(BALANCE.good_brew_skill_gain).is_equal(1)
+	assert_int(BALANCE.perfect_brew_skill_gain).is_equal(2)
+	assert_int(BALANCE.master_lesson_skill_gain).is_equal(2)
+	assert_int(BALANCE.lessons_per_master).is_equal(3)
+	assert_float(BALANCE.auto_brew_score).is_equal(80.0)
+	assert_float(BALANCE.auto_brew_score).is_greater_equal(BALANCE.good_tier_min_score)
+	assert_float(BALANCE.auto_brew_score).is_less(BALANCE.perfect_tier_min_score)
 
 
 func test_super_tall_american_constraints() -> void:
@@ -135,6 +146,86 @@ func test_big_filter_pot_requires_house_beans() -> void:
 	assert_str(recipe.bean_id).is_equal("house")
 	assert_int(recipe.roast_match).is_equal(Recipe.Match.EXACT)
 	assert_int(recipe.roast).is_equal(RoastProfile.Kind.MEDIUM)
+
+
+func test_single_origin_v60_pins_the_offmug_recipe() -> void:
+	# The V60 master recipe of James Offmug: one named origin, a light roast,
+	# the pour-over, and a plain serve.
+	var recipe := LIBRARY.find_recipe("single_origin_v60")
+	assert_object(recipe).is_not_null()
+	assert_int(recipe.method_match).is_equal(Recipe.Match.EXACT)
+	assert_str(recipe.method_id).is_equal("v60")
+	assert_str(recipe.extra_id).is_equal("")
+	assert_int(recipe.bean_match).is_equal(Recipe.Match.EXACT)
+	assert_str(recipe.bean_id).is_equal("golden_coast_arabica")
+	assert_int(recipe.roast_match).is_equal(Recipe.Match.EXACT)
+	assert_int(recipe.roast).is_equal(RoastProfile.Kind.LIGHT)
+
+
+func test_cold_brew_concentrate_needs_good_beans() -> void:
+	# The cold brew recipe of Lance Hedrip: a master recipe asks for good
+	# beans or better, any roast, the long steep, and a plain serve.
+	var recipe := LIBRARY.find_recipe("cold_brew_concentrate")
+	assert_object(recipe).is_not_null()
+	assert_int(recipe.method_match).is_equal(Recipe.Match.EXACT)
+	assert_str(recipe.method_id).is_equal("cold_brew")
+	assert_str(recipe.extra_id).is_equal("")
+	assert_int(recipe.bean_match).is_equal(Recipe.Match.QUALITY_MIN)
+	assert_int(recipe.min_bean_quality).is_equal(BeanType.Quality.GOOD)
+	assert_int(recipe.roast_match).is_equal(Recipe.Match.ANY)
+
+
+func test_market_dark_roast_tall_pins_the_fishmonger_cure() -> void:
+	# The boss cure of Steamtle, section 6: the beans of the Steamtle region,
+	# the dark roast of the market, the tall cup, and any pour method.
+	var recipe := LIBRARY.find_recipe("market_dark_roast_tall")
+	assert_object(recipe).is_not_null()
+	assert_int(recipe.method_match).is_equal(Recipe.Match.ANY)
+	assert_str(recipe.extra_id).is_equal("tall_size")
+	assert_int(recipe.bean_match).is_equal(Recipe.Match.EXACT)
+	assert_str(recipe.bean_id).is_equal("golden_coast_arabica")
+	assert_int(recipe.roast_match).is_equal(Recipe.Match.EXACT)
+	assert_int(recipe.roast).is_equal(RoastProfile.Kind.DARK)
+
+
+func test_the_sleepvana_orders_pin_the_band_requests() -> void:
+	# The three simple orders of the band, section 13: plain serves of common
+	# methods, each with its own pinned roast, any beans.
+	var bassist := LIBRARY.find_recipe("sleepvana_order_bassist")
+	assert_object(bassist).is_not_null()
+	assert_int(bassist.method_match).is_equal(Recipe.Match.EXACT)
+	assert_str(bassist.method_id).is_equal("filter")
+	assert_str(bassist.extra_id).is_equal("")
+	assert_int(bassist.bean_match).is_equal(Recipe.Match.ANY)
+	assert_int(bassist.roast_match).is_equal(Recipe.Match.EXACT)
+	assert_int(bassist.roast).is_equal(RoastProfile.Kind.LIGHT)
+
+	var drummer := LIBRARY.find_recipe("sleepvana_order_drummer")
+	assert_object(drummer).is_not_null()
+	assert_str(drummer.method_id).is_equal("moka_pot")
+	assert_int(drummer.roast_match).is_equal(Recipe.Match.EXACT)
+	assert_int(drummer.roast).is_equal(RoastProfile.Kind.MEDIUM)
+
+	var guitarist := LIBRARY.find_recipe("sleepvana_order_guitarist")
+	assert_object(guitarist).is_not_null()
+	assert_str(guitarist.method_id).is_equal("french_press")
+	assert_int(guitarist.bean_match).is_equal(Recipe.Match.ANY)
+	assert_int(guitarist.roast_match).is_equal(Recipe.Match.ANY)
+
+
+func test_the_frontman_order_pins_the_bean_spirit() -> void:
+	# The frontman order of the encore, section 13: the beans of the Steamtle
+	# region, good or better, a light roast, and three espresso shots.
+	var frontman := LIBRARY.find_recipe("sleepvana_order_frontman")
+	assert_object(frontman).is_not_null()
+	assert_str(frontman.display_name).is_equal("The Bean Spirit")
+	assert_int(frontman.method_match).is_equal(Recipe.Match.EXACT)
+	assert_str(frontman.method_id).is_equal("espresso")
+	assert_str(frontman.extra_id).is_equal("three_shots")
+	assert_int(frontman.bean_match).is_equal(Recipe.Match.QUALITY_MIN)
+	assert_int(frontman.min_bean_quality).is_equal(BeanType.Quality.GOOD)
+	assert_int(frontman.roast_match).is_equal(Recipe.Match.EXACT)
+	assert_int(frontman.roast).is_equal(RoastProfile.Kind.LIGHT)
 
 
 func test_cures_pin_recipes() -> void:

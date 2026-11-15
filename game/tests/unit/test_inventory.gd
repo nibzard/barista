@@ -11,6 +11,7 @@ const SCRAP_PART := preload("res://resources/items/materials/scrap_part.tres")
 const THERMOS_BELT := preload("res://resources/items/gear/thermos_belt.tres")
 const DESIGNER_DRIPPER := preload("res://resources/items/gear/designer_dripper.tres")
 const SEQUINED_GLOVE := preload("res://resources/items/gear/sequined_glove.tres")
+const HUSBAND_PHOTO := preload("res://resources/items/gear/husband_photo.tres")
 const BLENDER := preload("res://resources/items/appliances/blender.tres")
 const TURKISH_POT := preload("res://resources/items/appliances/turkish_pot.tres")
 
@@ -26,6 +27,7 @@ const ALL_ITEMS: Array[ItemType] = [
 	THERMOS_BELT,
 	DESIGNER_DRIPPER,
 	SEQUINED_GLOVE,
+	HUSBAND_PHOTO,
 	BLENDER,
 	TURKISH_POT,
 ]
@@ -41,6 +43,7 @@ const UNIQUE_ITEMS: Array[ItemType] = [
 	THERMOS_BELT,
 	DESIGNER_DRIPPER,
 	SEQUINED_GLOVE,
+	HUSBAND_PHOTO,
 	BLENDER,
 	TURKISH_POT,
 ]
@@ -125,6 +128,12 @@ func test_v1_gear_and_material_data() -> void:
 	assert_int(DESIGNER_DRIPPER.category).is_equal(ItemType.Category.GEAR)
 	assert_str(SEQUINED_GLOVE.item_id).is_equal("sequined_glove")
 	assert_int(SEQUINED_GLOVE.category).is_equal(ItemType.Category.GEAR)
+	# The photo of the husband, section 13: the wife hands it over, the bag
+	# holds it, and it never stacks.
+	assert_str(HUSBAND_PHOTO.item_id).is_equal("husband_photo")
+	assert_str(HUSBAND_PHOTO.display_name).is_equal("Photo of the Husband")
+	assert_int(HUSBAND_PHOTO.category).is_equal(ItemType.Category.GEAR)
+	assert_int(HUSBAND_PHOTO.max_stack).is_equal(1)
 
 
 func test_v1_appliances_match_the_recipe_appliance_ids() -> void:

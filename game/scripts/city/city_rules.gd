@@ -34,6 +34,8 @@ static func validate(city: CityDefinition, balance: CityBalance) -> Array[String
 	if blocks.is_empty():
 		return violations
 	violations.append_array(_landmark_violations(city))
+	violations.append_array(_site_violations(city))
+	violations.append_array(_tier_violations(city, balance))
 	violations.append_array(_density_violations(city, balance))
 	violations.append_array(_pole_violations(city, balance))
 	return violations
@@ -69,6 +71,15 @@ static func block_size(balance: CityBalance) -> Vector2:
 	return Vector2(viewport_width / balance.blocks_per_screen, viewport_height)
 
 
+static func cafe_zone_radius(balance: CityBalance, cafe_tier: int) -> float:
+	# Section 10: the cafe safe zone grows with the city on the route. Tier 1
+	# reads the first entry; every tier above the table reads the last one.
+	if balance == null or balance.cafe_zone_radius_per_tier.is_empty():
+		return 0.0
+	var index := clampi(cafe_tier, 1, balance.cafe_zone_radius_per_tier.size()) - 1
+	return balance.cafe_zone_radius_per_tier[index]
+
+
 static func kind_name(kind: CityBlock.Kind) -> String:
 	return CityBlock.Kind.keys()[kind].to_lower().replace("_", " ")
 
@@ -87,6 +98,32 @@ static func _landmark_violations(city: CityDefinition) -> Array[String]:
 		violations.append("The cafe block must stand at the first edge of the city.")
 	if blocks[blocks.size() - 1].kind != CityBlock.Kind.TOWER:
 		violations.append("The tower block must stand at the last edge of the city.")
+	return violations
+
+
+static func _site_violations(city: CityDefinition) -> Array[String]:
+	# Named sites, like the Sleepvana places, need a name on every site block,
+	# and one name may not mark two places in one city.
+	var violations: Array[String] = []
+	var seen: Dictionary = {}
+	for block: CityBlock in city.blocks:
+		if block.kind != CityBlock.Kind.QUEST_SITE and block.site_name.is_empty():
+			continue
+		if block.site_name.is_empty():
+			violations.append("A quest site block needs a site name.")
+			continue
+		if seen.has(block.site_name):
+			violations.append("The site name %s marks two blocks." % block.site_name)
+		seen[block.site_name] = true
+	return violations
+
+
+static func _tier_violations(city: CityDefinition, balance: CityBalance) -> Array[String]:
+	var violations: Array[String] = []
+	if city.cafe_tier < 1:
+		violations.append("The cafe tier must start at 1, found %d." % city.cafe_tier)
+	if cafe_zone_radius(balance, city.cafe_tier) <= 0.0:
+		violations.append("The cafe tier %d has no safe zone radius." % city.cafe_tier)
 	return violations
 
 

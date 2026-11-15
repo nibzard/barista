@@ -1,0 +1,83 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/bosses/fish_throwers.gd" id="1"]
+[ext_resource type="Script" path="res://scripts/bosses/fish_seller.gd" id="2"]
+[ext_resource type="Resource" path="res://resources/balance/fish_throwers.tres" id="3"]
+[ext_resource type="Resource" path="res://resources/brewing/brewing_balance.tres" id="4"]
+[ext_resource type="Resource" path="res://resources/brewing/recipes/market_dark_roast_tall.tres" id="5"]
+
+[sub_resource type="RectangleShape2D" id="SellerBody"]
+size = Vector2(30, 44)
+
+[sub_resource type="RectangleShape2D" id="HeadBody"]
+size = Vector2(34, 50)
+
+[node name="FishThrowers" type="Node2D"]
+script = ExtResource("1")
+balance = ExtResource("3")
+brewing_balance = ExtResource("4")
+cure = ExtResource("5")
+
+[node name="Awning" type="Polygon2D" parent="."]
+color = Color(0.35, 0.5, 0.78, 1)
+polygon = PackedVector2Array(-150, -210, 150, -210, 140, -186, -140, -186)
+
+[node name="Counter" type="Polygon2D" parent="."]
+color = Color(0.45, 0.34, 0.24, 1)
+polygon = PackedVector2Array(-140, -110, 140, -110, 140, -76, -140, -76)
+
+[node name="IceBox" type="Polygon2D" parent="."]
+position = Vector2(-190, -60)
+color = Color(0.6, 0.63, 0.68, 1)
+polygon = PackedVector2Array(-26, -20, 26, -20, 26, 20, -26, 20)
+
+[node name="Members" type="Node2D" parent="."]
+
+[node name="Crew0" type="StaticBody2D" parent="Members"]
+position = Vector2(-92, -140)
+collision_layer = 5
+script = ExtResource("2")
+
+[node name="Visual" type="Polygon2D" parent="Members/Crew0"]
+polygon = PackedVector2Array(-15, -22, 15, -22, 15, 22, -15, 22)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Members/Crew0"]
+shape = SubResource("SellerBody")
+
+[node name="Crew1" type="StaticBody2D" parent="Members"]
+position = Vector2(0, -150)
+collision_layer = 5
+script = ExtResource("2")
+
+[node name="Visual" type="Polygon2D" parent="Members/Crew1"]
+polygon = PackedVector2Array(-15, -22, 15, -22, 15, 22, -15, 22)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Members/Crew1"]
+shape = SubResource("SellerBody")
+
+[node name="Crew2" type="StaticBody2D" parent="Members"]
+position = Vector2(92, -140)
+collision_layer = 5
+script = ExtResource("2")
+
+[node name="Visual" type="Polygon2D" parent="Members/Crew2"]
+polygon = PackedVector2Array(-15, -22, 15, -22, 15, 22, -15, 22)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Members/Crew2"]
+shape = SubResource("SellerBody")
+
+[node name="HeadFishmonger" type="StaticBody2D" parent="Members"]
+position = Vector2(0, -34)
+collision_layer = 5
+script = ExtResource("2")
+is_head = true
+
+[node name="Visual" type="Polygon2D" parent="Members/HeadFishmonger"]
+polygon = PackedVector2Array(-17, -25, 17, -25, 17, 25, -17, 25)
+
+[node name="Apron" type="Polygon2D" parent="Members/HeadFishmonger/Visual"]
+color = Color(0.75, 0.62, 0.35, 1)
+polygon = PackedVector2Array(-11, -8, 11, -8, 11, 23, -11, 23)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Members/HeadFishmonger"]
+shape = SubResource("HeadBody")

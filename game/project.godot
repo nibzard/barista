@@ -47,6 +47,14 @@ dodge={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"physical_keycode":4194325)]
 }
+use_tool={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":70)]
+}
+cycle_tool={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":67)]
+}
 refill_coffee={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"physical_keycode":82)]
@@ -54,6 +62,30 @@ refill_coffee={
 interact={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"physical_keycode":69)]
+}
+stop_grind={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":32), Object(InputEventKey,"physical_keycode":69), Object(InputEventMouseButton,"button_index":1)]
+}
+hold_pressure={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":32), Object(InputEventMouseButton,"button_index":1)]
+}
+lift_pot={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":32), Object(InputEventKey,"physical_keycode":69), Object(InputEventMouseButton,"button_index":1)]
+}
+call_van={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":86)]
+}
+start_brew={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":66)]
+}
+toggle_dex={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":4194306)]
 }
 
 [editor_plugins]

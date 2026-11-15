@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BrewingMaster" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/masters/brewing_master.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+master_id = "raoast"
+display_name = "Scott Raoast"
+city_id = "pourtland"
+catchphrase = "Every cup gets notes."
+role_line = "He teaches the espresso and the filter coffee."
+lesson_line = "Dial in the grind. Hold the pressure. Taste, then write the notes."
+accent_color = Color(0.4, 0.4, 0.43, 1)
+taught_methods = ["espresso", "filter"]
+lesson_recipes = ["super_tall_american", "ristretto", "bulletproof"]

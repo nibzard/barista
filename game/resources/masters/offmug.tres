@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="BrewingMaster" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/masters/brewing_master.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+master_id = "offmug"
+display_name = "James Offmug"
+city_id = "san_coffesco"
+catchphrase = "Ultimately..."
+role_line = "He teaches the V60 pour-over."
+lesson_line = "Pour in a slow circle. Let the bloom lead. Patience makes the cup."
+accent_color = Color(0.5, 0.22, 0.28, 1)
+taught_methods = ["v60"]
+lesson_recipes = ["single_origin_v60"]

@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="TechBroBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/tech_bro_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+bump_radius = 22.0
+bump_stun_seconds = 0.35
+dive_cooldown_seconds = 1.2
+dive_speed = 300.0
+dive_trigger_radius = 130.0
+orbit_angular_speed_degrees_per_second = 140.0
+orbit_radius = 56.0
+pitch_interval_seconds = 2.5

@@ -113,3 +113,11 @@ func test_toast_shows_its_message_and_fades_after_a_hold() -> void:
 		frames += 1
 	assert_bool(_hud.is_toast_visible()).is_false()
 	assert_int(frames).is_between(170, 190)
+
+
+func test_the_dex_button_stays_hidden_without_a_bound_dex() -> void:
+	# The cafe development room binds no dex, so the phone button stays hid.
+	assert_bool(_hud.dex_button.visible).is_false()
+	assert_bool(_hud.dex_app.is_open()).is_false()
+	_hud.open_dex()
+	assert_bool(_hud.dex_app.is_open()).is_false()

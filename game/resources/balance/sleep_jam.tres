@@ -1,0 +1,8 @@
+[gd_resource type="Resource" script_class="SleepJamBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/bosses/sleep_jam_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+lullaby_radius = 360.0
+wake_line = "Best set ever. What year is it?"

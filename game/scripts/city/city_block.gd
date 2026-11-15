@@ -3,8 +3,11 @@
 class_name CityBlock
 extends Resource
 
-enum Kind { CAFE, TOWER, BOSS_ARENA, QUEST, SCAVENGE }
+enum Kind { CAFE, TOWER, BOSS_ARENA, QUEST, SCAVENGE, QUEST_SITE }
 
 @export var kind: Kind = Kind.SCAVENGE
 @export var sleepwalker_count: int = 3
 @export var has_speaker_pole := false
+# The named place on the block when the landmark has one, like the greenhouse
+# of the Sleepvana quest. Empty on plain kit blocks.
+@export var site_name := ""
