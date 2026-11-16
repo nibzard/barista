@@ -18,6 +18,7 @@ sleepwalkers, one cup at a time. The design spec lives in `GAME_DESIGN.md`.
 | --- | --- |
 | `make check` | Format check, lint, headless test run |
 | `make run` | Launch the game on desktop |
+| `make lab` | Launch the art style lab prototype |
 | `make fmt` | Auto-format GDScript |
 
 First-time setup: install Godot 4.7.2, then `pipx install 'gdtoolkit==4.*'`.
