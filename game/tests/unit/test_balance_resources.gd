@@ -11,6 +11,7 @@ const KAREN_BALANCE := preload("res://resources/balance/karen.tres")
 const COFFEE_CUP_BALANCE := preload("res://resources/balance/coffee_cup.tres")
 const SLEEP_METER_BALANCE := preload("res://resources/balance/sleep_meter.tres")
 const COFFEE_SUPPLY_BALANCE := preload("res://resources/balance/coffee_supply.tres")
+const CLUSTER_BOMB_BALANCE := preload("res://resources/balance/cluster_bomb.tres")
 const WAKE_UPS_BALANCE := preload("res://resources/balance/wake_ups.tres")
 const CITY_BALANCE := preload("res://resources/balance/city.tres")
 const BROADCAST_TOWER_BALANCE := preload("res://resources/balance/broadcast_tower.tres")
@@ -310,6 +311,8 @@ func test_scenes_load_balance_resources() -> void:
 	assert_float(player.cup_balance.flight_time_seconds).is_equal(
 		COFFEE_CUP_BALANCE.flight_time_seconds
 	)
+	assert_object(player.cluster_bomb_balance).is_not_null()
+	assert_int(player.cluster_bomb_balance.max_charges).is_equal(CLUSTER_BOMB_BALANCE.max_charges)
 	var sleepwalker := auto_free(NEIGHBOR_SCENE.instantiate()) as Sleepwalker
 	assert_object(sleepwalker.balance).is_not_null()
 	assert_float(sleepwalker.balance.walk_speed).is_equal(SLEEPWALKER_BALANCE.walk_speed)

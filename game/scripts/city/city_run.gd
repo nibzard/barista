@@ -71,6 +71,9 @@ var cinematic_camera := false
 # Section 21: the address loop rides the run. The director reads the poles,
 # the crowd, and the tower, and mixes the loop by the sound rules.
 var address_audio: AddressAudioDirector = null
+# Section 18: the auto-save rides the run. It stays null in a headless test
+# build until a test injects one; a player build owns the default slot.
+var save_system: SaveSystem = null
 
 var _map: CityMap = null
 var _bridge_gate: BridgeGate = null
@@ -112,6 +115,8 @@ func _ready() -> void:
 	# itself: the chain there has no next city.
 	east_road_taken.connect(_on_east_road_taken)
 	master_lessons = MasterLessons.new(_definition_masters(), player.brewing_skills)
+	if save_system == null and DisplayServer.get_name() != "headless":
+		save_system = SaveSystem.new()
 	if definition != null and balance != null:
 		build()
 
@@ -135,6 +140,7 @@ func build() -> void:
 	_buildaddress_audio(tower)
 	_spawn_crowd()
 	_build_quest_markers()
+	_apply_saved_tower_state()
 	_build_outro()
 	if run_tutorial and city_index == 1:
 		_build_tutorial()
@@ -618,6 +624,41 @@ func _on_tower_switched_off() -> void:
 	progress.mark_tower_off()
 	quest_log.mark_tower_off()
 	player.wake_ups.restore_one()
+	_record_tower_save_point()
+
+
+func _record_tower_save_point() -> void:
+	# Save point of section 18: the tower switch writes the slot at once. The
+	# phase travels as the plain number the tower save contract pins.
+	if save_system == null:
+		return
+	var tower := _map.broadcast_tower()
+	if tower == null:
+		return
+	save_system.record_tower_switch(definition.city_id, tower.save_state())
+
+
+func _apply_saved_tower_state() -> void:
+	# Section 18: the save holds the tower state, and a fresh run loads it
+	# back into its tower. The intro tutorial is the fresh start of the game,
+	# so a leftover slot from an earlier session must not darken its tower.
+	# A loaded switch never replays its beat: the poles and the address go
+	# quiet through the load path, the chain keeps its progress, and no
+	# wake-up is granted again.
+	if save_system == null or run_tutorial:
+		return
+	if not save_system.has_tower_state(definition.city_id):
+		return
+	var saved_phase := save_system.saved_tower_phase(
+		definition.city_id, BroadcastTower.Phase.BROADCASTING
+	)
+	_map.load_tower_state(saved_phase)
+	var tower := _map.broadcast_tower()
+	if tower == null or not tower.is_switched_off():
+		return
+	progress.mark_tower_off()
+	quest_log.mark_tower_off()
+	address_audio.cut_address()
 
 
 func _on_tower_birdsong() -> void:

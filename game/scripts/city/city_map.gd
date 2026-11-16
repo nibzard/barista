@@ -82,6 +82,18 @@ func broadcast_tower() -> BroadcastTower:
 	return tower_block.broadcast_tower()
 
 
+func load_tower_state(saved_phase: int) -> void:
+	# The save system hands the stored tower phase back on a reload. A loaded
+	# tower never replays the beat, so the map silences the poles itself when
+	# the saved phase is off, like the live switch does.
+	var tower := broadcast_tower()
+	if tower == null:
+		return
+	tower.load_state(saved_phase)
+	if tower.is_switched_off():
+		_on_tower_switched_off()
+
+
 func _on_tower_switched_off() -> void:
 	# The address of the city is dead: every speaker pole zone goes quiet.
 	for view: CityBlockView in _block_views:

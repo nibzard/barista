@@ -19,6 +19,7 @@ const STUN_MODULATE := Color(1.0, 0.92, 0.45, 1.0)
 @export var wake_ups_balance: WakeUpsBalance
 @export var cup_balance: CoffeeCupBalance
 @export var support_tools_balance: SupportToolsBalance
+@export var cluster_bomb_balance: ClusterBombBalance
 @export var brewing_library: BrewingLibrary
 @export var brewing_balance: BrewingBalance
 @export var cup_scene: PackedScene
@@ -40,6 +41,9 @@ var _last_move_direction := Vector2.RIGHT
 @onready var inventory := Inventory.new()
 # Section 11: the support tools control the sleepwalkers and cost no coffee.
 @onready var toolbelt := SupportToolbelt.new(support_tools_balance)
+# Section 14: the caffeine cluster bomb charges. Crafted from bag beans,
+# never drawn from the coffee supply, maximum 3 on the rack.
+@onready var cluster_bombs := ClusterBombRack.new(cluster_bomb_balance)
 # Section 14: the brewing skill per method. Solo brews and master lessons
 # train it; the brew flow calls record_brew.
 @onready var brewing_skills := BrewingSkills.new(brewing_balance)

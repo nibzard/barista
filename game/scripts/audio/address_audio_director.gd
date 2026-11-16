@@ -315,12 +315,18 @@ func _switch_track() -> void:
 		_diegetic_player.play()
 
 
-func _on_tower_switched_off() -> void:
+func cut_address() -> void:
 	# The address stops mid-word: a plain stop the same frame, no fade and no
-	# tail. The tower clock now holds the one second of silence.
+	# tail. The live switch leaves the one second of silence to the tower
+	# clock; the save-load path calls this directly, because a loaded tower
+	# never replays the beat.
 	_address_cut = true
 	for pole_player: AudioStreamPlayer in _address_players:
 		pole_player.stop()
+
+
+func _on_tower_switched_off() -> void:
+	cut_address()
 
 
 func _on_tower_birdsong() -> void:

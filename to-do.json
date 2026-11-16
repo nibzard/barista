@@ -867,6 +867,12 @@
       "blockers": [
         "Deferred: T027 starts implementation"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:t026-boss-cure-hook"
@@ -1077,6 +1083,12 @@
       "blockers": [
         "Deferred: T033 starts implementation"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:t026-quest-depot-content"
@@ -1277,6 +1289,12 @@
       "blockers": [
         "Deferred: T038 or T075 starts implementation"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:splash-delivery-consults-hat-guard"
@@ -1335,18 +1353,27 @@
         "T034"
       ],
       "blockers": [
+        "Deferred: Next backlog update after T085 is integrated",
         "Deferred: Resume when T040 unblocks and starts implementation; store the outro step beside quest and tower state.",
         "Deferred: T040 starts implementation",
         "Deferred: T040 starts implementation (its unblock_when: remove looper:deferred and set todo)"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "controller"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:moving-day-van-level-carryover",
         "looper:finding:outro-save-state",
         "looper:finding:sleepydex-save-persistence",
-        "looper:finding:t040-persist-tutorial-state"
+        "looper:finding:t040-blocked-status-flip",
+        "looper:finding:t040-persist-tutorial-state",
+        "looper:finding:t040-remaining-section18-save-fields"
       ],
-      "unblock_when": "Resume when T040 unblocks and starts implementation; store the outro step beside quest and tower state.; remove looper:deferred and set todo when this condition is met."
+      "unblock_when": "Next backlog update after T085 is integrated; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T041",
@@ -1363,7 +1390,7 @@
       "title": "The first ten minutes play as scripted (diegetic tutorial)",
       "priority": 2,
       "status": "done",
-      "details": "Section 19, no menus, no text walls: the Dr. Morgen video plays on the cafe screen (20 s, skippable, placeholder stills acceptable until T043); the player wakes in the cafe; move prompt; drink prompt (the meter fills); a Neighbor sleepwalks past the window and the open-door prompt; first throw (he wakes, says thanks, shuffles away); a speaker pole near the cafe drains the meter visibly and the step-back-inside lesson; a survivor says 'The tower. Kill the speaker.' and the tower marker appears; on the way the first hug, first dodge roll, first Grind Dial brew; at the tower scavenge one fuse, switch it off, silence, birdsong, wake-up toast; camera pans out, three cities on the map, title card Apocalypse Barista. Character creation (T046) precedes the first run. Acceptance: the prompt sequence is a testable state machine with tests; make check green.",
+      "details": "Section 19, no menus, no text walls: the Dr. Morgen video plays on the cafe screen (20 s, skippable, placeholder stills acceptable until T043); the player wakes in the cafe; move prompt; drink prompt (the meter fills); a Neighbor sleepwalks past the window and the open-door prompt; first throw (he wakes, says thanks, shuffles away); a speaker pole near the cafe drains the meter visibly and the step-back-inside lesson; a survivor says 'The tower. Kill the speaker.' and the tower marker appears; on the way the first hug, first dodge roll, first Grind Dial brew; at the tower scavenge one fuse, switch it off, silence, birdsong, wake-up toast; camera pans out, three cities on the map, title card Apocalypse Barista. Character creation (T046) precedes the first run. Acceptance: the prompt sequence is a testable state machine with tests; make check green.\n\nReview repair: Keep the opening-video player out of enemy sensing, or move the cafe crowd lane\nThe nearest cafe-block crowd Neighbor spawns about 5 px outside its 110 px sense radius from the player start, and its wander direction is randomized per run. On some runs it senses the player within the first physics frames: the Neighbor SleepyDex entry opens by itself during the 20 second opening video, and the neighbor can chase at 70 px/s and hug the input-locked player. Verify whether a hug can empty the sleepy meter mid-video (a wake-up loss inside the intro), then fix: move the crowd lane or the player start outside the sense radius, or gate enemy sensing while the video plays. The dex app test suite is already hardened (crowd parked before the first physics step), so this is gameplay verification, not test repair.\nEvidence: Temporary SceneTree debug run in this worktree: crowd[0] at (336.0, 353.1), 107.7 px from the player start (298.7, 252) after about one frame; sense radius 110.0 in game/scenes/enemies/neighbor.tscn; _rng.randomize() per enemy in sleepwalker.gd; _try_spot_player has no input-lock check; the race made the first draft of the tutorial dex test fail with the entry already found at the DOOR step. T042 owns the scripted intro, so the evidence attaches there.",
       "depends_on": [
         "T003",
         "T004",
@@ -1380,8 +1407,10 @@
         "game/resources/enemies/neighbor.tres",
         "game/scenes/city/san_coffesco_intro.tscn",
         "game/scenes/tutorial/tutorial_director.tscn",
+        "game/scripts/city/city_block_view.gd",
         "game/scripts/city/city_run.gd",
         "game/scripts/city/quest_markers.gd",
+        "game/scripts/enemies/sleepwalker.gd",
         "game/scripts/main/menu.gd",
         "game/scripts/player/player.gd",
         "game/scripts/tutorial/tutorial_balance.gd",
@@ -1396,6 +1425,9 @@
         "game/scripts/tutorial/tutorial_survivor.gd.uid",
         "game/scripts/tutorial/tutorial_video_view.gd",
         "game/scripts/tutorial/tutorial_video_view.gd.uid",
+        "game/tests/integration/test_city_map.gd",
+        "game/tests/integration/test_enemy_sense.gd",
+        "game/tests/integration/test_enemy_sense.gd.uid",
         "game/tests/integration/test_scene_smoke.gd",
         "game/tests/integration/test_tutorial_run.gd",
         "game/tests/integration/test_tutorial_run.gd.uid",
@@ -1403,7 +1435,10 @@
         "game/tests/unit/test_tutorial_flow.gd",
         "game/tests/unit/test_tutorial_flow.gd.uid"
       ],
-      "updated_at": "2026-11-15T09:52:23Z"
+      "tags": [
+        "looper:finding:cafe-start-neighbor-sense-race"
+      ],
+      "updated_at": "2026-11-15T21:09:33Z"
     },
     {
       "id": "T043",
@@ -1472,6 +1507,12 @@
       "blockers": [
         "Deferred: T045 art direction pass starts"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:sleepydex-portrait-art"
@@ -1582,6 +1623,12 @@
       "blockers": [
         "Deferred: T049 starts implementation"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:t026-bridge-paywall-stub"
@@ -1603,6 +1650,12 @@
       "blockers": [
         "Deferred: T030 (Pourtland) is complete and T050 starts implementation"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:moonwalker-dex-entry-live"
@@ -1613,12 +1666,26 @@
       "id": "T051",
       "title": "Chemist side quest and caffeine cluster bomb (confirm V1 scope with Niko first)",
       "priority": 4,
-      "status": "todo",
+      "status": "blocked",
       "details": "Section 12 defines this quest but the section 13 version 1 side-quest list does not include it; confirm with Niko whether it is V1 or V2 before building. If V1: a former chemistry teacher knows the Mug Roasters extraction process and applies it to real beans for super-concentrated real caffeine; reward is the caffeine cluster bomb: many mini bombs inside one large cardboard box, fired with a slingshot, all explode on impact and wake all sleepwalkers in a large area; a crafted charge, not from the supply, carry maximum 3.",
       "depends_on": [
         "T032",
         "T038"
-      ]
+      ],
+      "blockers": [
+        "Deferred: T038 (cure weapons) starts implementation, which unblocks T051"
+      ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "controller"
+      },
+      "tags": [
+        "looper:deferred",
+        "looper:finding:cluster-bomb-weapon-serve-path"
+      ],
+      "unblock_when": "T038 (cure weapons) starts implementation, which unblocks T051; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T052",
@@ -1654,6 +1721,12 @@
         "Deferred: T054 delivers the real audio and voice assets",
         "Deferred: T054 real audio production begins, before version 1 ship"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:sleepvana-song-diegetic-audio",
@@ -1685,6 +1758,12 @@
       "blockers": [
         "Deferred: T055 playthrough begins"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:t055-tolerance-ear-check"
@@ -1744,12 +1823,28 @@
       "id": "T060",
       "title": "Caffeine cluster bomb charges: crafted, not from the supply, carry maximum 3",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "The caffeine cluster bomb is a crafted charge that bypasses the coffee supply entirely, with its own carry maximum of 3. CoffeeSupply currently models per-cup weapon costs only; the charge counter belongs with the weapons/chemist-side-quest work (inventory crafting from T006 plus a weapons task).\nEvidence: GAME_DESIGN.md section 14: 'Caffeine cluster bomb: a crafted charge, not from the supply. Carry maximum 3.' Not covered by this task's contract, which listed only travel mug, thermos, minigun, and moka launcher costs.",
       "depends_on": [
         "T005",
         "T006"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/cluster_bomb.tres",
+        "game/scenes/player/player.tscn",
+        "game/scripts/balance/cluster_bomb_balance.gd",
+        "game/scripts/balance/cluster_bomb_balance.gd.uid",
+        "game/scripts/combat/cluster_bomb_rack.gd",
+        "game/scripts/combat/cluster_bomb_rack.gd.uid",
+        "game/scripts/player/player.gd",
+        "game/tests/integration/test_cluster_bomb.gd",
+        "game/tests/integration/test_cluster_bomb.gd.uid",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_cluster_bomb_rack.gd",
+        "game/tests/unit/test_cluster_bomb_rack.gd.uid"
+      ],
+      "updated_at": "2026-11-15T19:21:15Z"
     },
     {
       "id": "T061",
@@ -1785,6 +1880,12 @@
       "blockers": [
         "Deferred: The cafe building art pass starts"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:t026-cafe-safe-zone-art-resize"
@@ -1808,14 +1909,21 @@
       "id": "T065",
       "title": "Consume the first_met signal in the SleepyDex app",
       "priority": 2,
-      "status": "todo",
-      "details": "Sleepwalker emits first_met(type_id) once when it first senses the player, but only tests listen today. The SleepyDex app must connect to this signal (per type, deduplicated across instances) to open entries per GAME_DESIGN section 9.\nEvidence: game/scripts/enemies/sleepwalker.gd _try_spot_player emits first_met; test_cafe_flow.gd test_neighbor_emits_first_met_for_the_sleepydex is the only consumer.\n\nReview repair: T065 outcome met: the city run consumes first_met into the SleepyDex; status stale\nT065 asks that the SleepyDex app connect to the sleepwalker first_met signal. This is live since the city runs landed: every spawned sleepwalker connects first_met to dex.meet, and the app opens entries from it. Set T065 to done at the next backlog update so no worker re-implements it.\nEvidence: game/scripts/city/city_run.gd:479 wires enemy.first_met.connect(dex.meet) for every crowd spawn; game/scripts/hud/hud.gd bind_dex() opens the app. Live Xvfb run this review: after a Neighbor woke, the dex app listed 'The Neighbor | Status: found' with 6 rows (the rare Moonwalker correctly hidden). make check 643/643.",
+      "status": "done",
+      "details": "Sleepwalker emits first_met(type_id) once when it first senses the player, but only tests listen today. The SleepyDex app must connect to this signal (per type, deduplicated across instances) to open entries per GAME_DESIGN section 9.\nEvidence: game/scripts/enemies/sleepwalker.gd _try_spot_player emits first_met; test_cafe_flow.gd test_neighbor_emits_first_met_for_the_sleepydex is the only consumer.\n\nReview repair: T065 outcome met: the city run consumes first_met into the SleepyDex; status stale\nT065 asks that the SleepyDex app connect to the sleepwalker first_met signal. This is live since the city runs landed: every spawned sleepwalker connects first_met to dex.meet, and the app opens entries from it. Set T065 to done at the next backlog update so no worker re-implements it.\nEvidence: game/scripts/city/city_run.gd:479 wires enemy.first_met.connect(dex.meet) for every crowd spawn; game/scripts/hud/hud.gd bind_dex() opens the app. Live Xvfb run this review: after a Neighbor woke, the dex app listed 'The Neighbor | Status: found' with 6 rows (the rare Moonwalker correctly hidden). make check 643/643.\n\nReview repair: T065 (consume first_met in the SleepyDex) is stale: CityRun feeds every spawned enemy into the dex\nFlip T065 to done at the next backlog update. Acceptance was the app connecting first_met per type, deduplicated.\nEvidence: game/scripts/city/city_run.gd:611 connects enemy.first_met to dex.meet for every crowd spawn; SleepyDex.meet deduplicates and emits entry_opened; test_sleepy_dex_app.gd covers the live first_met path opening an entry. T065's in-task review repair note already records the outcome as met.",
       "depends_on": [
         "T023"
       ],
+      "files": [
+        "LOG.md",
+        "game/tests/integration/test_sleepy_dex_app.gd",
+        "game/tests/integration/test_tutorial_run.gd"
+      ],
       "tags": [
-        "looper:finding:sleepydex-first-met-consumed"
-      ]
+        "looper:finding:sleepydex-first-met-consumed",
+        "looper:finding:sleepydex-firstmet-flip-done"
+      ],
+      "updated_at": "2026-11-15T20:36:41Z"
     },
     {
       "id": "T066",
@@ -1838,6 +1946,12 @@
         "Deferred: T066 unblocks and the minigame BrewedCup payloads land",
         "Deferred: when T066 starts"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:brew-flow-minigame-overlay",
@@ -1878,14 +1992,16 @@
       "id": "T068",
       "title": "T025: wire tower switch-off to WakeUps.restore_one()",
       "priority": 2,
-      "status": "todo",
-      "details": "The tower mechanic task must call wake_ups.restore_one() on switch-off (rule already unit-tested: +1 up to max) and show the 'wake-up restored' toast per GAME_DESIGN section 19 step 9.\nEvidence: game/scripts/components/wake_ups.gd restore_one() is unwired; no tower scene exists yet.\n\nReview repair: T068 outcome met: tower switch-off restores one wake-up and shows the toast; status stale\nT068 requires the tower switch-off to call wake_ups.restore_one() and show the 'wake-up restored' toast per GAME_DESIGN section 19 step 9. Both the city run and the cafe room wire this today; its backlog evidence ('restore_one() is unwired; no tower scene exists yet') is stale. Mark T068 done at the next backlog update instead of scheduling new work.\nEvidence: game/scripts/city/city_run.gd:203-212 _on_tower_switched_off calls player.wake_ups.restore_one() and _on_tower_birdsong shows WAKE_UP_RESTORED_TEXT; game/scripts/cafe/cafe.gd:57 and _on_tower_birdsong do the same; test_city_run.gd test_the_tower_switch_beat_runs_without_completing_the_city asserts remaining wake-ups 4 to 5 plus the toast, passing in make check 277/277.\n\nReview repair: T068 outcome is met: the tower switch restores one wake-up and shows the toast; status still todo\nAcceptance: the tower switch-off calls wake_ups.restore_one() and the player sees the wake-up restored toast per GAME_DESIGN section 19 step 9. Both hold in the city run and the cafe room; the backlog evidence ('restore_one() is unwired; no tower scene exists yet') is stale. Attach this verification to T068 and set it done at the next backlog update.\nEvidence: game/scripts/city/city_run.gd:281 calls player.wake_ups.restore_one() in _on_tower_switched_off and line 286 shows the WAKE_UP_RESTORED_TEXT toast on birdsong; game/scripts/cafe/cafe.gd wires the same beat; test_city_run.gd test_the_tower_switch_beat_runs_without_completing_the_city asserts wake-ups 4 to 5 plus the toast and passed in this review's make check run (455/455, exit 0).\n\nReview repair: T068 outcome verified complete at HEAD and in a live run; backlog status still todo\nAcceptance of T068 is met: the tower switch-off calls wake_ups.restore_one() and shows the wake-up restored toast. Set T068 to done at the next backlog update and retire the stale evidence ('restore_one() is unwired; no tower scene exists yet').\nEvidence: game/scripts/city/city_run.gd:340-349 _on_tower_switched_off calls player.wake_ups.restore_one() and _on_tower_birdsong shows WAKE_UP_RESTORED_TEXT; game/scripts/cafe/cafe.gd wires the same beat. This review's live Xvfb workflow switched the tower off and observed toast 'WAKE-UP RESTORED' with 5/5 wake-ups, and make check passes 502/502 including the tower suites. Two prior repair notes on T068 already say the same; the status flip is still pending.\n\nReview repair: T068 outcome verified live again: the tower switch restores a wake-up and shows the toast; status stale\nT068 requires the tower switch-off to call wake_ups.restore_one() and show the wake-up restored toast. Both hold in the city run and the cafe room, and three repair notes already say so. Set T068 to done at the next backlog update and retire the stale evidence.\nEvidence: Live Xvfb run this review: after insert_fuse and switch_off the probe read toast=WAKE-UP RESTORED and wake_ups 5/5 (capped at max, correct per section 14). game/scripts/city/city_run.gd:483-493 wires both beats. Fresh make check 643/643 includes the tower suites.",
+      "status": "done",
+      "details": "The tower mechanic task must call wake_ups.restore_one() on switch-off (rule already unit-tested: +1 up to max) and show the 'wake-up restored' toast per GAME_DESIGN section 19 step 9.\nEvidence: game/scripts/components/wake_ups.gd restore_one() is unwired; no tower scene exists yet.\n\nReview repair: T068 outcome met: tower switch-off restores one wake-up and shows the toast; status stale\nT068 requires the tower switch-off to call wake_ups.restore_one() and show the 'wake-up restored' toast per GAME_DESIGN section 19 step 9. Both the city run and the cafe room wire this today; its backlog evidence ('restore_one() is unwired; no tower scene exists yet') is stale. Mark T068 done at the next backlog update instead of scheduling new work.\nEvidence: game/scripts/city/city_run.gd:203-212 _on_tower_switched_off calls player.wake_ups.restore_one() and _on_tower_birdsong shows WAKE_UP_RESTORED_TEXT; game/scripts/cafe/cafe.gd:57 and _on_tower_birdsong do the same; test_city_run.gd test_the_tower_switch_beat_runs_without_completing_the_city asserts remaining wake-ups 4 to 5 plus the toast, passing in make check 277/277.\n\nReview repair: T068 outcome is met: the tower switch restores one wake-up and shows the toast; status still todo\nAcceptance: the tower switch-off calls wake_ups.restore_one() and the player sees the wake-up restored toast per GAME_DESIGN section 19 step 9. Both hold in the city run and the cafe room; the backlog evidence ('restore_one() is unwired; no tower scene exists yet') is stale. Attach this verification to T068 and set it done at the next backlog update.\nEvidence: game/scripts/city/city_run.gd:281 calls player.wake_ups.restore_one() in _on_tower_switched_off and line 286 shows the WAKE_UP_RESTORED_TEXT toast on birdsong; game/scripts/cafe/cafe.gd wires the same beat; test_city_run.gd test_the_tower_switch_beat_runs_without_completing_the_city asserts wake-ups 4 to 5 plus the toast and passed in this review's make check run (455/455, exit 0).\n\nReview repair: T068 outcome verified complete at HEAD and in a live run; backlog status still todo\nAcceptance of T068 is met: the tower switch-off calls wake_ups.restore_one() and shows the wake-up restored toast. Set T068 to done at the next backlog update and retire the stale evidence ('restore_one() is unwired; no tower scene exists yet').\nEvidence: game/scripts/city/city_run.gd:340-349 _on_tower_switched_off calls player.wake_ups.restore_one() and _on_tower_birdsong shows WAKE_UP_RESTORED_TEXT; game/scripts/cafe/cafe.gd wires the same beat. This review's live Xvfb workflow switched the tower off and observed toast 'WAKE-UP RESTORED' with 5/5 wake-ups, and make check passes 502/502 including the tower suites. Two prior repair notes on T068 already say the same; the status flip is still pending.\n\nReview repair: T068 outcome verified live again: the tower switch restores a wake-up and shows the toast; status stale\nT068 requires the tower switch-off to call wake_ups.restore_one() and show the wake-up restored toast. Both hold in the city run and the cafe room, and three repair notes already say so. Set T068 to done at the next backlog update and retire the stale evidence.\nEvidence: Live Xvfb run this review: after insert_fuse and switch_off the probe read toast=WAKE-UP RESTORED and wake_ups 5/5 (capped at max, correct per section 14). game/scripts/city/city_run.gd:483-493 wires both beats. Fresh make check 643/643 includes the tower suites.\n\nReview repair: T068 (tower switch-off wires WakeUps.restore_one) is stale: the wiring and toast shipped with T025\nFlip T068 to done at the next backlog update. Acceptance was tower switch-off calling restore_one() plus the wake-up-restored toast, both covered by tests.\nEvidence: game/scripts/city/city_run.gd:620 _on_tower_switched_off calls player.wake_ups.restore_one(); :625 _on_tower_birdsong shows the WAKE_UP_RESTORED_TEXT toast; cafe.gd wires the same pair for the development room. test_broadcast_tower.gd and the cafe flow suite cover the beat. T068's in-task review repair note already records the outcome as met.",
       "depends_on": [
         "T025"
       ],
       "tags": [
-        "looper:finding:t025-wake-up-restore-wired"
-      ]
+        "looper:finding:t025-wake-up-restore-wired",
+        "looper:finding:tower-restore-flip-done"
+      ],
+      "updated_at": "2026-11-15T21:29:47Z"
     },
     {
       "id": "T069",
@@ -1951,9 +2067,16 @@
         "Deferred: T030 starts implementation or Niko scopes a dedicated content task",
         "Deferred: T074 loses its looper:deferred tag; its recorded unblock condition (T030 starting implementation) is already met, so only the tag removal is missing"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
-        "looper:finding:geisha-vault-locked-room-placement"
+        "looper:finding:geisha-vault-locked-room-placement",
+        "looper:finding:geisha-vault-placement-dispatch-ready"
       ],
       "unblock_when": "T074 loses its looper:deferred tag; its recorded unblock condition (T030 starting implementation) is already met, so only the tag removal is missing; remove looper:deferred and set todo when this condition is met."
     },
@@ -1961,11 +2084,13 @@
       "id": "T075",
       "title": "Backlog item T057's evidence is stale: can_wake gating already shipped in T017; only wake_radius wiring remains",
       "priority": 3,
-      "status": "todo",
-      "details": "T057 says 'coffee_cup.gd currently wakes any sleepwalker on any hit' and asks to gate wake_up() on CureMatcher.can_wake. That gating is implemented and live since T017: coffee_cup.gd:_on_body_entered calls body.try_wake(brewed), and sleepwalker.gd:try_wake checks CureMatcher.can_wake before waking. The unmet residue of T057 is applying CureMatcher.wake_radius for perfect cups (section 15: a perfect cup wakes every sleepwalker in a small radius) — wake_radius() currently has zero live callers, only tests. Update T057's scope/evidence at the next backlog update so the finished half is not re-implemented.\nEvidence: game/scripts/projectiles/coffee_cup.gd:47-50 calls body.try_wake(brewed); game/scripts/enemies/sleepwalker.gd:67-73 gates on CureMatcher.can_wake; grep shows wake_radius referenced only in cure_matcher.gd and unit tests, no gameplay caller; integration tests test_wrong_cup_does_not_wake_a_special_type / test_thrown_wrong_cup_splashes_without_waking pass in make check.",
+      "status": "done",
+      "details": "T057 says 'coffee_cup.gd currently wakes any sleepwalker on any hit' and asks to gate wake_up() on CureMatcher.can_wake. That gating is implemented and live since T017: coffee_cup.gd:_on_body_entered calls body.try_wake(brewed), and sleepwalker.gd:try_wake checks CureMatcher.can_wake before waking. The unmet residue of T057 is applying CureMatcher.wake_radius for perfect cups (section 15: a perfect cup wakes every sleepwalker in a small radius) — wake_radius() currently has zero live callers, only tests. Update T057's scope/evidence at the next backlog update so the finished half is not re-implemented.\nEvidence: game/scripts/projectiles/coffee_cup.gd:47-50 calls body.try_wake(brewed); game/scripts/enemies/sleepwalker.gd:67-73 gates on CureMatcher.can_wake; grep shows wake_radius referenced only in cure_matcher.gd and unit tests, no gameplay caller; integration tests test_wrong_cup_does_not_wake_a_special_type / test_thrown_wrong_cup_splashes_without_waking pass in make check.\n\nReview repair: T075 (update T057's stale evidence) is stale: T057 completed with fresh evidence covering the wake_radius residue\nFlip T075 to done at the next backlog update; its purpose (T057's evidence refreshed so finished work is not re-implemented) is fulfilled by T057's completion.\nEvidence: T057 is done and integrated (commits 51a6d34, 836a94c) with the exact residue T075 named: wake_radius gained live callers through CoffeeCup splash (test_perfect_cup_splash.gd, 7 cases). T075 remains todo with no remaining deliverable.",
       "tags": [
-        "looper:finding:t075-wake-radius-residue"
-      ]
+        "looper:finding:t075-wake-radius-residue",
+        "looper:finding:t057-evidence-update-done"
+      ],
+      "updated_at": "2026-11-15T23:08:56Z"
     },
     {
       "id": "T076",
@@ -1982,28 +2107,38 @@
       "id": "T077",
       "title": "Tower mechanic (T025) must consume a fuse through Inventory.remove()",
       "priority": 3,
-      "status": "todo",
-      "details": "The tower mechanic should call player.inventory.remove(\"fuse\", 1) as its gate; the removal rule is unit-tested here but no consumer exists yet.\nEvidence: game/tests/unit/test_inventory.gd covers remove(); backlog.json T025 requires fuse-gated switch-off; tower scene does not exist yet.\n\nReview repair: T077 outcome met: the tower consumes a fuse through Inventory.remove(); status stale\nT077 requires the tower mechanic to gate on player.inventory.remove of the fuse. insert_fuse checks the count, removes balance.fuses_needed fuses, and integration tests cover the consumption. Its backlog evidence ('tower scene does not exist yet') is stale. Mark T077 done at the next backlog update.\nEvidence: game/scripts/tower/broadcast_tower.gd:53-64 can_insert_fuse checks inventory.count and insert_fuse calls player.inventory.remove(FUSE_ITEM.item_id, balance.fuses_needed); test_city_run.gd test_the_tower_switch_beat... picks up the fuse then inserts it; test_broadcast_tower.gd covers fuse consumption (make check 277/277, exit 0).\n\nReview repair: T077 outcome is met: the tower consumes a fuse through Inventory.remove(); status still todo\nAcceptance: the tower mechanic gates the switch on the player's fuse and removes it from the bag through Inventory.remove(). Both hold; the backlog evidence ('tower scene does not exist yet') is stale. Attach this verification to T077 and set it done at the next backlog update.\nEvidence: game/scripts/tower/broadcast_tower.gd:48 can_insert_fuse checks player.inventory.count and line 60 calls player.inventory.remove(FUSE_ITEM.item_id, balance.fuses_needed); test_broadcast_tower.gd test_insert_fuse_consumes_one_fuse_and_fills_the_slot and the city-run fuse pickup case passed in this review's make check run (455/455, exit 0).\n\nReview repair: T077 outcome verified complete at HEAD and in a live run; backlog status still todo\nAcceptance of T077 is met: the tower gates the switch on the player's fuse and removes it through Inventory.remove(). Set T077 to done at the next backlog update and retire the stale evidence ('tower scene does not exist yet').\nEvidence: game/scripts/tower/broadcast_tower.gd:48-64 can_insert_fuse checks player.inventory.count and insert_fuse calls player.inventory.remove(FUSE_ITEM.item_id, balance.fuses_needed). This review's live workflow picked up the fuse at the tower scavenge point (bag_fuse=1), sent the interact action, and the tower advanced to FUSED; make check passes 502/502 including test_broadcast_tower.gd test_insert_fuse_consumes_one_fuse_and_fills_the_slot. Two prior repair notes on T077 already say the same; the status flip is still pending.\n\nReview repair: T077 outcome verified live again: the tower consumes a fuse through Inventory.remove(); status stale\nT077 requires the tower gate to spend the player's fuse through Inventory.remove(). This holds and three repair notes already say so. Set T077 to done at the next backlog update and retire the stale evidence.\nEvidence: Live Xvfb run this review: probe gave the player one fuse, stood at the tower, and read fuse_insert=true with bag_fuse_after_insert=0. game/scripts/tower/broadcast_tower.gd:48-64 checks inventory.count then calls inventory.remove(). Fresh make check 643/643 includes test_broadcast_tower.gd.",
+      "status": "blocked",
+      "details": "The tower mechanic should call player.inventory.remove(\"fuse\", 1) as its gate; the removal rule is unit-tested here but no consumer exists yet.\nEvidence: game/tests/unit/test_inventory.gd covers remove(); backlog.json T025 requires fuse-gated switch-off; tower scene does not exist yet.\n\nReview repair: T077 outcome met: the tower consumes a fuse through Inventory.remove(); status stale\nT077 requires the tower mechanic to gate on player.inventory.remove of the fuse. insert_fuse checks the count, removes balance.fuses_needed fuses, and integration tests cover the consumption. Its backlog evidence ('tower scene does not exist yet') is stale. Mark T077 done at the next backlog update.\nEvidence: game/scripts/tower/broadcast_tower.gd:53-64 can_insert_fuse checks inventory.count and insert_fuse calls player.inventory.remove(FUSE_ITEM.item_id, balance.fuses_needed); test_city_run.gd test_the_tower_switch_beat... picks up the fuse then inserts it; test_broadcast_tower.gd covers fuse consumption (make check 277/277, exit 0).\n\nReview repair: T077 outcome is met: the tower consumes a fuse through Inventory.remove(); status still todo\nAcceptance: the tower mechanic gates the switch on the player's fuse and removes it from the bag through Inventory.remove(). Both hold; the backlog evidence ('tower scene does not exist yet') is stale. Attach this verification to T077 and set it done at the next backlog update.\nEvidence: game/scripts/tower/broadcast_tower.gd:48 can_insert_fuse checks player.inventory.count and line 60 calls player.inventory.remove(FUSE_ITEM.item_id, balance.fuses_needed); test_broadcast_tower.gd test_insert_fuse_consumes_one_fuse_and_fills_the_slot and the city-run fuse pickup case passed in this review's make check run (455/455, exit 0).\n\nReview repair: T077 outcome verified complete at HEAD and in a live run; backlog status still todo\nAcceptance of T077 is met: the tower gates the switch on the player's fuse and removes it through Inventory.remove(). Set T077 to done at the next backlog update and retire the stale evidence ('tower scene does not exist yet').\nEvidence: game/scripts/tower/broadcast_tower.gd:48-64 can_insert_fuse checks player.inventory.count and insert_fuse calls player.inventory.remove(FUSE_ITEM.item_id, balance.fuses_needed). This review's live workflow picked up the fuse at the tower scavenge point (bag_fuse=1), sent the interact action, and the tower advanced to FUSED; make check passes 502/502 including test_broadcast_tower.gd test_insert_fuse_consumes_one_fuse_and_fills_the_slot. Two prior repair notes on T077 already say the same; the status flip is still pending.\n\nReview repair: T077 outcome verified live again: the tower consumes a fuse through Inventory.remove(); status stale\nT077 requires the tower gate to spend the player's fuse through Inventory.remove(). This holds and three repair notes already say so. Set T077 to done at the next backlog update and retire the stale evidence.\nEvidence: Live Xvfb run this review: probe gave the player one fuse, stood at the tower, and read fuse_insert=true with bag_fuse_after_insert=0. game/scripts/tower/broadcast_tower.gd:48-64 checks inventory.count then calls inventory.remove(). Fresh make check 643/643 includes test_broadcast_tower.gd.\n\nReview repair: T077 (tower consumes a fuse through Inventory.remove) is stale: insert_fuse removes the fuse\nFlip T077 to done at the next backlog update. Acceptance was the tower gating on a bag fuse removed through Inventory.\nEvidence: game/scripts/tower/broadcast_tower.gd:56-64 insert_fuse checks can_insert_fuse then calls player.inventory.remove(FUSE_ITEM.item_id, balance.fuses_needed); test_broadcast_tower.gd covers fuse consumption and the scavenge-fuse-to-restore flow runs in test_cafe_flow.gd. T077's own review repair note already records the outcome as met.",
       "depends_on": [
         "T025"
       ],
+      "blockers": [
+        "Repair 1 of at most 6.\nLatest worker report: T077 outcome verified complete at HEAD; no code change was needed. The broadcast tower gates its switch on the player's bag fuse and spends it through Inventory.remove(): broadcast_tower.gd:48-53 c...\nEarlier attempt records: /home/agent/.looper/barista-bdbd24f2/runtime/task-5424238c681bd9d1.\nInspect prior results before repeating an approach.\nIf this task cannot fix the recorded condition, report blocked with evidence.\n\nThe task conflicts with the integrated project. Resolve the content conflicts in: LOG.md.\ngit -c user.name=Looper -c user.email=looper@localhost -c core.hooksPath=/dev/null merge --no-commit --no-ff a8515e784c376add793c7292eda69e36c568fbdd: : exit status 1\nAuto-merging LOG.md\nCONFLICT (content): Merge conflict in LOG.md\nAutomatic merge failed; fix conflicts and then commit the result.\nThe retained result conflicts with the integrated project. Resolve the content conflicts in: LOG.md.\ngit -c user.name=Looper -c user.email=looper@localhost -c core.hooksPath=/dev/null merge --no-commit --no-ff a8515e784c376add793c7292eda69e36c568fbdd: : exit status 1\nAuto-merging LOG.md\nCONFLICT (content): Merge conflict in LOG.md\nAutomatic merge failed; fix conflicts and then commit the result."
+      ],
+      "block_reason": {
+        "class": "failure",
+        "code": "merge_failed",
+        "retry": "after-change",
+        "attempt_id": "task-5424238c681bd9d1",
+        "source": "controller"
+      },
       "tags": [
-        "looper:finding:t025-fuse-consumed-through-inventory"
-      ]
+        "looper:finding:t025-fuse-consumed-through-inventory",
+        "looper:finding:tower-fuse-consume-flip-done"
+      ],
+      "updated_at": "2026-11-16T00:08:44Z",
+      "unblock_when": "Resolve the recorded condition and set this task to todo."
     },
     {
       "id": "T078",
       "title": "Mark backlog item T076 as done at the next backlog update",
       "priority": 2,
-      "status": "todo",
-      "details": "T076 ('HUD inventory panel needs an item-listing accessor on Inventory') is implemented by this task: Inventory.held_items() returns one ItemType per held stack in stable display order, unit-tested in test_inventory.gd, and consumed by the HUD bag panel in hud.gd/_bag_text. Its backlog status is still 'todo'; the status flip happens in the next backlog update (this task's contract forbids editing the backlog).\nEvidence: game/scripts/components/inventory.gd held_items(); game/scripts/hud/hud.gd _bag_text() uses it; test_inventory.gd test_held_items_* pass in make check 170/170; backlog.json T076 still lists status 'todo'.\n\nReview repair: Set T076 to 'done' in the live backlog (to-do.json)\nSame mechanical flip as T080 performed for T062: in the live backlog at /home/agent/barista/to-do.json (this environment's counterpart of /Users/air/dev/barista/to-do.json), change task T076 (Inventory.held_items stable display order for the HUD bag) from status 'todo' to 'done' and set its updated_at, through the same external task-file edit the controller imports at its boundary. T080's contract named only T062, so T076 was left untouched.\nEvidence: Live to-do.json read 2026-11-14 shows T076 status 'todo' with no updated_at, while T078 (done) records in LOG.md: Inventory.held_items unit tests and HUD bag tests pass, make check green 170/170 at T078's head (214/214 at current HEAD), and 'the next backlog update must set T076 to done'.",
+      "status": "done",
+      "details": "T076 ('HUD inventory panel needs an item-listing accessor on Inventory') is implemented by this task: Inventory.held_items() returns one ItemType per held stack in stable display order, unit-tested in test_inventory.gd, and consumed by the HUD bag panel in hud.gd/_bag_text. Its backlog status is still 'todo'; the status flip happens in the next backlog update (this task's contract forbids editing the backlog).\nEvidence: game/scripts/components/inventory.gd held_items(); game/scripts/hud/hud.gd _bag_text() uses it; test_inventory.gd test_held_items_* pass in make check 170/170; backlog.json T076 still lists status 'todo'.\n\nReview repair: Set T076 to 'done' in the live backlog (to-do.json)\nSame mechanical flip as T080 performed for T062: in the live backlog at /home/agent/barista/to-do.json (this environment's counterpart of /Users/air/dev/barista/to-do.json), change task T076 (Inventory.held_items stable display order for the HUD bag) from status 'todo' to 'done' and set its updated_at, through the same external task-file edit the controller imports at its boundary. T080's contract named only T062, so T076 was left untouched.\nEvidence: Live to-do.json read 2026-11-14 shows T076 status 'todo' with no updated_at, while T078 (done) records in LOG.md: Inventory.held_items unit tests and HUD bag tests pass, make check green 170/170 at T078's head (214/214 at current HEAD), and 'the next backlog update must set T076 to done'.\n\nReview repair: T078 (mark T076 done) is stale: T081 already flipped T076 in the live backlog\nFlip T078 to done at the next backlog update; its purpose (T076 showing done) is fulfilled, so it must not spawn re-verification work.\nEvidence: Accepted backlog shows T076 status done (flipped by T081, updated_at 2026-11-14T20:39:25Z); T078 remains todo although its only deliverable was that flip.\n\nReview repair: Flip T078 to 'done' at the next backlog update\nT078's purpose is fulfilled: T076 shows status 'done' with updated_at 2026-11-14T20:39:25Z in the live backlog (/home/agent/barista/to-do.json), flipped by T081. The remaining step is mechanical: at the next backlog update, change T078 from 'todo'/'doing' to 'done' and set its updated_at, mirroring the T080 and T081 flips through the external task-file channel. No re-verification work must spawn from this flip: held_items() evidence re-checked at this head (game/scripts/components/inventory.gd held_items() with _compare_for_display; game/scripts/hud/hud.gd:109 _bag_text() consumes it) and make check is green (932/932 cases, 79 suites, 0 errors, 0 failures, 0 flaky, 0 skipped, 0 orphans, exit 0). This task's contract forbids backlog edits, so the flip stays with the backlog update.\nEvidence: Accepted backlog (to-do.json.context/work-00-session-23a11f0796a53eb7/backlog.json) and live to-do.json both list T076 status 'done', updated_at 2026-11-14T20:39:25Z, T081 'done'; T078 still 'doing'/'todo' with no completion updated_at. LOG.md row dated 2026-11-15 records T078 completion and the make check 932/932 green run.\n\nReview repair: Flip T078 to 'done' in the live backlog at the next backlog update\nAt the next backlog update, change T078 from 'doing' to 'done' in the live backlog (/home/agent/barista/to-do.json), set its updated_at, and resolve the tags looper:finding:backlog-t076-status-flip and looper:finding:t076-flip-bookkeeping-done. This mirrors the flips T080 performed for T062 and T081 performed for T076, through the external task-file edit the controller imports at its boundary. The flip is purely mechanical: T078's only deliverable (T076 showing 'done') is fulfilled, so no re-verification work must spawn from it. This dispatch's contract forbade backlog edits, which is why the worker left the flip to the controller.\nEvidence: Live to-do.json and accepted backlog (to-do.json.context/work-00-session-9e336167248eb4de/backlog.json) both show T076 status 'done' with updated_at 2026-11-14T20:39:25Z and T081 'done', while T078 remains 'doing' with no completion updated_at (read 2026-11-15). LOG.md's T078 row (2026-11-15) records the completion, this re-verification pass, and make check green 932/932 cases across 79 suites, 0 errors, 0 failures, exit 0; inventory.gd held_items() with _compare_for_display and hud.gd:109 _bag_text() re-confirmed at head c630a2e, with test_held_items_* and test_bag_* passing inside the same run (report XML: zero failure elements).",
       "files": [
         "LOG.md"
       ],
-      "tags": [
-        "looper:finding:backlog-t076-status-flip"
-      ],
-      "updated_at": "2026-10-14T11:20:50Z"
+      "updated_at": "2026-11-15T22:48:28Z"
     },
     {
       "id": "T079",
@@ -2018,9 +2153,16 @@
       "blockers": [
         "Deferred: The next backlog update round"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
-        "looper:finding:t026-city-hud-instantiated"
+        "looper:finding:t026-city-hud-instantiated",
+        "looper:finding:city-hud-flip-done"
       ],
       "unblock_when": "The next backlog update round; remove looper:deferred and set todo when this condition is met."
     },
@@ -2063,6 +2205,12 @@
       "blockers": [
         "Deferred: T066 lands real brewed-cup payloads and T082 opens the brew economy"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:aisle7-serve-brew-economy"
@@ -2074,9 +2222,10 @@
       "title": "Touch button for the tower interact action",
       "priority": 3,
       "status": "todo",
-      "details": "The tower insert/switch flow is driven by the new `interact` input action, which currently binds only the E key (a development convenience). Touch-first play needs an on-screen USE button near the tower; it belongs with the deferred touch-controls task.\nEvidence: game/project.godot interact action has only InputEventKey 69; CLAUDE.md: 'Touch-first design: gameplay must work without a keyboard.'\n\nReview repair: Flip T083 done: the tower interact touch button shipped as the shared USE control of T047\nT047 shipped the on-screen USE button, which fires the shared interact action through one synthesized InputEventAction: the tower fuse insert and switch-off, the van upgrade and field-base toggle, masters, and signature quests all answer it. test_the_use_button_runs_the_tower_beat drives fuse pickup to birdsong with simulated touches, and test_the_use_button_upgrades_the_van covers the van side. T083 asked for exactly this tower touch button, so the backlog update should set T083 done and attach this evidence.\nEvidence: game/scripts/touch/touch_controls.gd _ready wires the USE button to _fire_action(\u0026\"interact\"); game/tests/integration/test_touch_controls.gd test_the_use_button_runs_the_tower_beat and test_the_use_button_upgrades_the_van pass with simulated InputEventScreenTouch events; make check 797/797.",
+      "details": "The tower insert/switch flow is driven by the new `interact` input action, which currently binds only the E key (a development convenience). Touch-first play needs an on-screen USE button near the tower; it belongs with the deferred touch-controls task.\nEvidence: game/project.godot interact action has only InputEventKey 69; CLAUDE.md: 'Touch-first design: gameplay must work without a keyboard.'\n\nReview repair: Flip T083 done: the tower interact touch button shipped as the shared USE control of T047\nT047 shipped the on-screen USE button, which fires the shared interact action through one synthesized InputEventAction: the tower fuse insert and switch-off, the van upgrade and field-base toggle, masters, and signature quests all answer it. test_the_use_button_runs_the_tower_beat drives fuse pickup to birdsong with simulated touches, and test_the_use_button_upgrades_the_van covers the van side. T083 asked for exactly this tower touch button, so the backlog update should set T083 done and attach this evidence.\nEvidence: game/scripts/touch/touch_controls.gd _ready wires the USE button to _fire_action(\u0026\"interact\"); game/tests/integration/test_touch_controls.gd test_the_use_button_runs_the_tower_beat and test_the_use_button_upgrades_the_van pass with simulated InputEventScreenTouch events; make check 797/797.\n\nReview repair: T083 (touch button for tower interact) is stale: the shared USE button covers the tower beat\nFlip T083 to done at the next backlog update. Acceptance was an on-screen touch path for the tower insert and switch actions.\nEvidence: T047 shipped the USE button synthesizing the interact action; test_touch_controls.gd includes the USE tower beat from fuse pickup to birdsong. T083's in-task review repair note already records the outcome as met.",
       "tags": [
-        "looper:finding:touch-tower-use-button"
+        "looper:finding:touch-tower-use-button",
+        "looper:finding:tower-touch-button-flip-done"
       ]
     },
     {
@@ -2084,14 +2233,34 @@
       "title": "Real audio for the switch beat (address cut, silence, birdsong)",
       "priority": 3,
       "status": "todo",
-      "details": "The beat is modeled by the tower phases (SILENCE/BIRDSONG) and is visually confirmed, but no audio assets exist yet; the address loop, the mid-word cut, one second of silence, and morning birdsong need the sound pass per GAME_DESIGN section 21.\nEvidence: No audio files in game/; broadcast_tower.gd phase machine comments mark the audio states for the sound pass."
+      "details": "The beat is modeled by the tower phases (SILENCE/BIRDSONG) and is visually confirmed, but no audio assets exist yet; the address loop, the mid-word cut, one second of silence, and morning birdsong need the sound pass per GAME_DESIGN section 21.\nEvidence: No audio files in game/; broadcast_tower.gd phase machine comments mark the audio states for the sound pass.\n\nReview repair: T084 (real audio for the switch beat) is now a duplicate of T054: T044 shipped the placeholder beat audio\nClose T084 or fold its wording into T054 to avoid duplicate audio work. The beat itself (address cut mid-word, one second of silence, birdsong) already plays in live city runs with T044's generated tones; per CLAUDE.md placeholders never block, and the real recordings stay owned by T054.\nEvidence: T084's evidence 'No audio files in game/' predates T044. game/scripts/audio/address_audio_director.gd stops every pole the same frame on switched_off, holds the tower's one-second silence, and plays PlaceholderTones.birdsong() on the birdsong signal in live city runs; test_address_audio_director.gd covers the tower cut and the birdsong player. T054 already owns 'President Puck's address voice-over' and the real sound pass.",
+      "tags": [
+        "looper:finding:switch-beat-audio-fold-into-t054"
+      ]
     },
     {
       "id": "T085",
       "title": "Save system must persist BroadcastTower.save_state()",
       "priority": 2,
-      "status": "todo",
-      "details": "Tower state is exposed via save_state()/load_state() and CityMap.broadcast_tower(), round-trip tested; the save-file writer/reader itself arrives with the save-system task (section 18: the save holds tower state; save point at tower switch).\nEvidence: test_broadcast_tower.gd test_tower_state_round_trips_for_the_save_system passes; no save autoload or file exists yet."
+      "status": "done",
+      "details": "Tower state is exposed via save_state()/load_state() and CityMap.broadcast_tower(), round-trip tested; the save-file writer/reader itself arrives with the save-system task (section 18: the save holds tower state; save point at tower switch).\nEvidence: test_broadcast_tower.gd test_tower_state_round_trips_for_the_save_system passes; no save autoload or file exists yet.",
+      "files": [
+        "LOG.md",
+        "game/scripts/audio/address_audio_director.gd",
+        "game/scripts/city/city_map.gd",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/save/save_data.gd",
+        "game/scripts/save/save_data.gd.uid",
+        "game/scripts/save/save_store.gd",
+        "game/scripts/save/save_store.gd.uid",
+        "game/scripts/save/save_system.gd",
+        "game/scripts/save/save_system.gd.uid",
+        "game/tests/integration/test_save_system.gd",
+        "game/tests/integration/test_save_system.gd.uid",
+        "game/tests/unit/test_save_store.gd",
+        "game/tests/unit/test_save_store.gd.uid"
+      ],
+      "updated_at": "2026-11-15T23:54:05Z"
     },
     {
       "id": "T086",
@@ -2117,6 +2286,12 @@
         "Deferred: T066 lands real brewed-cup payloads",
         "Deferred: T066 lands real brewed-cup payloads or T030 (Pourtland) starts implementation"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:serve-cup-to-sleeper-action"
@@ -2127,7 +2302,7 @@
       "id": "T088",
       "title": "Traveling east changes the scene inside a physics callback and errors on every live use",
       "priority": 2,
-      "status": "todo",
+      "status": "doing",
       "details": "The road-east travel must not free collision nodes during the physics step. Acceptance: walking onto the road-east trigger after city completion changes the scene with no engine ERROR in the log (defer the scene change), and a regression test drives the wired east_city_scene path, not only a run built without an east scene.\nEvidence: Live Xvfb run of the menu-to-Steamtle workflow printed: ERROR 'Removing a CollisionObject node during a physics callback is not allowed and will cause undesired behavior. Remove with call_deferred() instead.' with backtrace _on_east_road_taken (game/scripts/city/city_run.gd:380) \u003c- _on_road_east_entered (game/scripts/city/city_run.gd:373). The Area2D body_entered handler emits east_road_taken, whose handler calls get_tree().change_scene_to_packed(east_city_scene) synchronously. The test suite never exercises this path: test_city_run.gd _build_raw_run() builds a run 'without an east scene ... so no scene change fires during the test'. Travel still completed and Steamtle loaded, but the error fires on every real travel east and violates the pristine-output quality rule. No backlog task mentions change_scene, physics callbacks, or deferral (grep over to-do.json: 0 hits).\n\nReview repair: East-travel scene change inside a physics callback now runs on two live legs\nNo new defect, but the buggy path doubled its live reach this task: Steamtle now wires east_city_scene to pourtland.tscn, so completing Steamtle and stepping past the open gate runs the same change_scene_to_packed on the second leg of the route.\nEvidence: game/scenes/city/steamtle.tscn sets east_city_scene = pourtland.tscn; game/scripts/city/city_run.gd _on_road_east_entered emits east_road_taken from the RoadEast body_entered physics signal and _on_east_road_taken calls get_tree().change_scene_to_packed() directly.",
       "tags": [
         "looper:finding:east-road-scene-change-in-physics-callback",
@@ -2176,6 +2351,12 @@
       "blockers": [
         "Deferred: T066 lands real brewed-cup payloads so special types such as the Karen are wakeable in live play"
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:wake-line-presenter"
@@ -2225,6 +2406,12 @@
       "blockers": [
         "Deferred: Resume when T040 and T049 land, so a return west carries persistent progression; implement alongside the city-progression round."
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:post-game-west-travel"
@@ -2240,6 +2427,12 @@
       "blockers": [
         "Deferred: The found-gear acquisition pass of the T038 family starts; then place the five unlock events along the main route through the three cities."
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:support-tool-route-placement"
@@ -2255,6 +2448,12 @@
       "blockers": [
         "Deferred: Support tools become unlockable in city runs (see support-tool-route-placement)."
       ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "import"
+      },
       "tags": [
         "looper:deferred",
         "looper:finding:hud-equipped-tool-label"
@@ -2269,6 +2468,60 @@
       "details": "Only CityRun wires the director. scenes/cafe/cafe.tscn has its own SpeakerPole zone and tower; giving it the same director would let the dev room demo the address loop, but it needs a small setup variant because the cafe room has no CityMap.\nEvidence: game/scripts/cafe/cafe.gd holds its own $Zones/SpeakerPole and BroadcastTower and already silences the pole on tower switch-off; AddressAudioDirector.setup() takes a CityMap for pole positions and the cafe circle.",
       "tags": [
         "looper:finding:cafe-room-address-audio"
+      ]
+    },
+    {
+      "id": "T100",
+      "title": "Show cluster bomb charges on the HUD when the weapon ships",
+      "priority": 3,
+      "status": "blocked",
+      "details": "Section 9 lists player status on the HUD (cups, meter, wake-ups). The rack charge count (x/3) should appear once a charge can exist in normal play. No existing task tracks the bomb counter on the HUD; T098 covers only the equipped support tool.\nEvidence: game/scripts/hud/hud.gd refresh() reads sleep_meter, coffee_supply, wake_ups, and inventory; nothing reads player.cluster_bombs. GAME_DESIGN.md section 9 lists the shown status.",
+      "depends_on": [
+        "T051"
+      ],
+      "blockers": [
+        "Deferred: The cluster bomb weapon has a live fire path (T051 ships)"
+      ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "controller"
+      },
+      "tags": [
+        "looper:deferred",
+        "looper:finding:cluster-bomb-hud-charge-display"
+      ],
+      "unblock_when": "The cluster bomb weapon has a live fire path (T051 ships); remove looper:deferred and set todo when this condition is met."
+    },
+    {
+      "id": "T101",
+      "title": "Van level 3 is unreachable in live play: total scrap (14) is below the 17 needed, and the bag resets every city, locking the Sleepvana crowd step and the field cafe forever",
+      "priority": 2,
+      "status": "todo",
+      "details": "Section 10 van level 3 (field cafe) and the Sleepvana crowd recruit are unreachable through normal play. Acceptance: either lower/raise the scrap sources so a player who scavenges Steamtle can fund kitchen (5) plus field cafe (12), or place extra scrap rewards, or carry the bag across cities; then pin with an integration test that reaches an open field base in Steamtle using only gameplay loot (no load_state), and confirm the Sleepvana recruit step runs.\nEvidence: game/resources/balance/mobile_cafe.tres: kitchen_scrap_cost 5, field_cafe_scrap_cost 12 (17 total; levels step in order). game/scripts/city/city_block_view.gd:41 KIT_SCRAP_AMOUNT := 2 is the only scrap source in the game (grep over scripts found no other grant). Scavenge blocks (kind 4) per city definition: san_coffesco 3 (6 scrap), steamtle 2 (4), pourtland 2 (4) = 14 across all three cities, below 17 even with perfect carry-over. The bag never carries over: each city scene rebuilds the Player with an empty Inventory (scene-authored in city_run.tscn) and MovingDay holds only a done flag (game/scripts/city/moving_day.gd), so its 'carries all belongings' promise is a toast today (cross-city carry is T049 scope, but 14 \u003c 17 defeats it anyway). CityRun loads the van at Level.VAN in every city after the first (game/scripts/city/city_run.gd:476), so Steamtle starts at level 1 with 4 scrap available: even the 5-scrap kitchen is out of reach there. Sleepvana's recruit requires an open level 3 field base (game/scripts/quests/sleepvana_stage.gd try_interact checks van.is_field_base_open()), so the quest's encore and concert wake event cannot be reached in live play. The suite stays green because test_sleepvana.gd:295 force-loads MobileCafe.Level.FIELD_CAFE, bypassing the economy.\n\nReview repair: Van level resets to level 1 on every city arrival, so cross-city scrap can never fund the level 3 field cafe\nNew evidence for T101: city_run.gd hard-loads MobileCafe.Level.VAN for every city after the first, so kitchen or field cafe levels bought in an earlier city are lost on arrival. Combined with per-city scrap totals (San Coffesco 6, Steamtle 4, Pourtland 4, each below the 17 total and even below the 12 field cafe cost), no accumulation path exists at all. Acceptance: the T101 fix must either carry the van level across the moving-day boundary or make each city's loot fund its upgrades alone, pinned by an integration test that reaches an open level 3 field base in Steamtle through gameplay loot only, with the van level surviving the San Coffesco to Steamtle move.\nEvidence: game/scripts/city/city_run.gd:474-476: 'van_state = MobileCafe.new(_van.balance); if city_index \u003e 1: van_state.load_state(MobileCafe.Level.VAN)'. game/resources/balance/mobile_cafe.tres: kitchen_scrap_cost 5, field_cafe_scrap_cost 12. Scavenge blocks (kind 4) per city resource: san_coffesco 3, steamtle 2, pourtland 2, times KIT_SCRAP_AMOUNT 2 (city_block_view.gd:46). game/resources/city/*.tres kind counts verified by grep.",
+      "tags": [
+        "looper:finding:van-level3-scrap-economy-unreachable"
+      ]
+    },
+    {
+      "id": "T102",
+      "title": "Circular preload between tutorial_director.gd and city_run.gd can silently build a city with no cafe safe zone, no spawn marker, and no pole zones",
+      "priority": 3,
+      "status": "todo",
+      "details": "Latent resource-cycle defect: when tutorial_director.gd compiles before city_run.gd, city_block_view.gd's SLEEP_ZONE_SCENE preload resolves to an empty PackedScene and the city builds broken with zero test failures. Acceptance: break the cycle (drop the CityRun/CityMap type hints in tutorial_director.gd to plain Node plus duck calls, or lazy-load the TUTORIAL_SCENE preload in city_run.gd), and add a smoke assert that a built city run contains its cafe safe zone, CafeSpawn marker, and three pole zones, so no compile order can ship a broken world.\nEvidence: Cycle: game/scripts/tutorial/tutorial_director.gd holds typed _run/CityRun references while game/scripts/city/city_run.gd:13 preloads tutorial_director.tscn. Reproduction under Xvfb (DISPLAY=:77, godot --path game --resolution 1280x720 --script): a SceneTree harness whose compile-time TutorialDirector type hint loads the tutorial graph before the menu, then menu -\u003e Play, boots SanCoffescoIntro with 4x 'ERROR: Failed to instantiate scene state of \"\", node count is 0' at city_block_view.gd:177 and :204 (the cafe SAFE zone and the three SLEEP pole zones), followed by SCRIPT ERROR name-on-Nil and 'global_position on null instance'. Verified consequences: Zones/CafeSafeZone missing (harness inspection safe=false), so no meter shelter, no free-refill zone, no CafeSpawn, no pole drain, and the tutorial stalls at the drink step. Deterministic: 12/12 runs with the hint failed; 19/19 runs without it (menu-\u003eplay-\u003einspect variants, plus direct intro boot) built a clean world, which is why make check, the workers' direct-boot Xvfb harnesses, and the real desktop flow never see it. Nothing guarantees this compile order stays benign on Android (the target platform, T052) or after future autoloads (T040).",
+      "tags": [
+        "looper:finding:tutorial-city-preload-cycle"
+      ]
+    },
+    {
+      "id": "T103",
+      "title": "Street Karens in Pourtland contradict the section 16 rule that the Karen appears only in the Pourtland outro",
+      "priority": 3,
+      "status": "todo",
+      "details": "GAME_DESIGN section 16 prose says 'The Karen appears only in the Pourtland outro', but the section 16 roster table lists 'first Karen' as a Pourtland city type, and the implementation follows the table: the Pourtland roster cycles the Karen into the street crowd, roughly every third sleepwalker. Confirm with Niko which reading ships in V1, in the same pattern as T073 and T094. If outro only: remove the Karen from the Pourtland roster, update test_pourtland's expected Karen count, and keep the separate outro Karen. If the table reading stands, record the accepted deviation on T048 or T030 so the prose conflict is settled before the T055 playthrough.\nEvidence: GAME_DESIGN.md section 16: roster table row 'Pourtland | The Neighbor, The Tinfoil Man, first Karen' versus the prose line 'The Karen appears only in the Pourtland outro.' game/resources/city/pourtland.tres roster = [neighbor, tinfoil_man, karen]. game/scripts/city/city_run.gd _spawn_crowd cycles the full roster for every non-cafe crowd marker. game/tests/integration/test_pourtland.gd test_the_crowd_spawns_the_roster_at_full_density pins a nonzero EXPECTED_KARENS (24 later spawns split evenly over three types).",
+      "tags": [
+        "looper:finding:pourtland-street-karen-outro-only-rule"
       ]
     }
   ]

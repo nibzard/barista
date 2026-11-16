@@ -496,11 +496,21 @@ func _dash_gait(delta: float, steer_direction: Vector2) -> Vector2:
 
 
 func _try_spot_player() -> void:
-	if _is_player_in_area(sense_area):
+	# A cinematic holds the player out of play while the input stays locked,
+	# like the opening video of the first ten minutes. The crowd does not
+	# notice a player who cannot react: no spot, no chase, and no first
+	# meeting starts behind the lock.
+	for body: Node2D in sense_area.get_overlapping_bodies():
+		if body is not Player:
+			continue
+		if (body as Player).is_input_locked():
+			return
+		player = body
 		state = State.CHASE
 		if not _met_announced:
 			_met_announced = true
 			first_met.emit(enemy_type.type_id)
+		return
 
 
 func _is_player_in_area(area: Area2D) -> bool:

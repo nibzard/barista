@@ -15,6 +15,10 @@ const POURTLAND := preload("res://resources/city/pourtland.tres")
 
 const KIT_LOOT_AMOUNT := 3
 const KIT_SCRAP_AMOUNT := 2
+# A Neighbor senses the player within 110 px. The cafe crowd lane keeps
+# every spawn past twice that reach, so no chase starts on the wake-up
+# frames of any city, section 19 steps 2 and 3.
+const CAFE_CROWD_SENSE_CLEAR_DISTANCE := 220.0
 
 
 func _cities() -> Array[CityDefinition]:
@@ -71,6 +75,18 @@ func test_map_holds_the_density_budget() -> void:
 			var markers := view.crowd_spawn_markers()
 			assert_int(markers.size()).is_equal(city.blocks[i].sleepwalker_count)
 			assert_int(markers.size()).is_between(BALANCE.density_min, BALANCE.density_max)
+
+
+func test_the_cafe_crowd_lane_stands_off_the_player_start() -> void:
+	for city: CityDefinition in _cities():
+		var map := _build_city(city)
+		var spawn := map.cafe_spawn()
+		for marker: Marker2D in map.block_view(0).crowd_spawn_markers():
+			(
+				assert_float(marker.global_position.distance_to(spawn.global_position))
+				. override_failure_message(city.city_id)
+				. is_greater_equal(CAFE_CROWD_SENSE_CLEAR_DISTANCE)
+			)
 
 
 func test_map_places_the_three_speaker_poles() -> void:

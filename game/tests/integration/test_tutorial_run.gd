@@ -64,6 +64,31 @@ func test_the_intro_starts_with_the_video_on_a_black_screen() -> void:
 	assert_bool(_city.quest_markers().has_objective_marker()).is_false()
 
 
+func test_the_video_plays_over_a_blind_crowd() -> void:
+	# The cafe-block crowd stands close enough to sense the player, and its
+	# wander direction is random per run. A Neighbor pressed onto the
+	# input-locked player during the 20 second video still sees nothing: no
+	# chase, no SleepyDex entry, no hug, and no drain, so the video cannot
+	# end in a wake-up loss.
+	assert_int(_tutorial.flow.current_step()).is_equal(TutorialFlow.Step.VIDEO)
+	assert_bool(_city.player.is_input_locked()).is_true()
+	# The plain Neighbors of the cafe block are the crowd of the finding:
+	# they stand next to the player start. Later blocks cycle Tourists, whose
+	# photo cadence changes state on its own, without any player.
+	var cafe_crowd_size := _city.city_map().block_view(0).crowd_spawn_markers().size()
+	for i: int in range(cafe_crowd_size):
+		_city.crowd_enemy(i).global_position = _city.player.global_position
+	var meter_at_start := _city.player.sleep_meter.value
+	for i: int in range(60):
+		await get_tree().physics_frame
+
+	for i: int in range(cafe_crowd_size):
+		assert_int(_city.crowd_enemy(i).state).is_equal(Sleepwalker.State.WANDER)
+	assert_bool(_city.sleepy_dex().is_found("neighbor")).is_false()
+	assert_bool(_city.player.is_grabbed()).is_false()
+	assert_float(_city.player.sleep_meter.value).is_equal(meter_at_start)
+
+
 func test_any_press_skips_the_video() -> void:
 	var key := InputEventKey.new()
 	key.physical_keycode = KEY_W
@@ -126,6 +151,37 @@ func test_a_neighbor_walks_past_and_the_door_opens_on_leaving() -> void:
 		frames += 1
 
 	assert_int(_tutorial.flow.current_step()).is_equal(TutorialFlow.Step.THROW)
+
+
+func test_the_window_neighbor_meeting_feeds_the_sleepy_dex() -> void:
+	# The window neighbor is a real Neighbor of the crowd, section 19 step 4,
+	# so his one first meeting feeds the SleepyDex, section 9. A crowd
+	# Neighbor by the cafe start can meet the player first on a lucky wander,
+	# so the wiring pin carries the acceptance: the tutorial binds this
+	# walker's signal to the city dex.
+	await _skip_to(TutorialFlow.Step.DOOR)
+	var walker := _tutorial.window_neighbor()
+	assert_object(walker).is_not_null()
+	var dex := _city.sleepy_dex()
+
+	var wired := false
+	for connection: Dictionary in walker.first_met.get_connections():
+		var callable: Callable = connection["callable"]
+		if callable.get_object() == dex and callable.get_method() == &"meet":
+			wired = true
+	assert_bool(wired).is_true()
+
+	# The meeting opens the phone entry: this walker or a crowd Neighbor
+	# met the player by now, and the entry reads found either way.
+	walker.global_position = _city.player.global_position + Vector2(60.0, 0.0)
+	var frames := 0
+	while not dex.is_found("neighbor") and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().physics_frame
+		frames += 1
+
+	assert_bool(dex.is_found("neighbor")).is_true()
+	_city.hud.open_dex()
+	assert_str(_city.hud.dex_app.row_status(0)).is_equal("Status: found")
 
 
 func test_the_first_throw_wakes_him_and_he_shuffles_away() -> void:

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ClusterBombBalance" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/balance/cluster_bomb_balance.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/items/beans/house.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+max_charges = 3
+bean_item = ExtResource("2")
+craft_bean_cost = 4

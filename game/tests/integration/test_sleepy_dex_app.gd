@@ -22,6 +22,12 @@ var _city: CityRun
 func before_test() -> void:
 	_city = CITY_SCENE.instantiate() as CityRun
 	add_child(auto_free(_city))
+	# Park the crowd far west before the first physics step. The nearest
+	# cafe-block Neighbor stands only a few pixels outside its sense radius
+	# from the player start, and a lucky wander direction would open its dex
+	# entry before any test runs.
+	for i: int in range(_city.crowd_count()):
+		_city.crowd_enemy(i).global_position = Vector2(-500.0 - 200.0 * float(i), 360.0)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
@@ -83,6 +89,51 @@ func test_meeting_a_type_in_the_world_opens_its_entry() -> void:
 	)
 	assert_str(app.counter_text()).is_equal("%d/6 FOUND" % dex.found_count())
 	assert_bool(dex.is_found("moonwalker")).is_false()
+
+
+func test_many_instances_of_one_type_open_one_entry() -> void:
+	# Section 9 opens an entry per type, not per instance. Every crowd
+	# Neighbor senses the player in the same frames, and the dex opens the
+	# Neighbor entry exactly once.
+	var dex := _city.sleepy_dex()
+	# Count through an array: a lambda captures locals by value, so an int
+	# counter would never leave the lambda.
+	var openings: Array[String] = []
+	dex.entry_opened.connect(
+		func(type_id: String) -> void:
+			if type_id == "neighbor":
+				openings.append(type_id)
+	)
+
+	# Ring every crowd Neighbor around the player, so all of them sit inside
+	# the sense radius and sense the player on the same physics frame.
+	var neighbors: Array[Sleepwalker] = []
+	for i: int in range(_city.crowd_count()):
+		var enemy := _city.crowd_enemy(i)
+		if enemy.enemy_type.type_id == "neighbor":
+			neighbors.append(enemy)
+	assert_int(neighbors.size()).is_greater_equal(4)
+	var center := _city.player.global_position
+	for i: int in neighbors.size():
+		var angle := TAU * float(i) / float(neighbors.size())
+		neighbors[i].global_position = center + Vector2.RIGHT.rotated(angle) * 60.0
+
+	var frames := 0
+	while not dex.is_found("neighbor") and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().physics_frame
+		frames += 1
+	assert_bool(dex.is_found("neighbor")).is_true()
+	# Let every gathered Neighbor take a sensing pass: all of them fire
+	# first_met, and every meeting after the first stays silent.
+	frames = 0
+	while frames < 30:
+		await get_tree().physics_frame
+		frames += 1
+	assert_int(openings.size()).is_equal(1)
+	assert_bool(dex.is_found("tourist")).is_false()
+
+	_city.hud.open_dex()
+	assert_str(_city.hud.dex_app.row_status(0)).is_equal("Status: found")
 
 
 func test_the_completed_dex_gives_the_mirror_keychain_and_one_line() -> void:

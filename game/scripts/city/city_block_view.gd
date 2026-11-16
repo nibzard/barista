@@ -23,6 +23,11 @@ const LABEL_TEXT_SIZE := 17
 const LABEL_GAP := 8.0
 const CROWD_MARKER_SPACING := 90.0
 const CROWD_MARKER_LANE_Y := 0.5
+# The cafe crowd wanders the south street, past the window, section 19 step 4.
+# The lane stands far off the player start: a Neighbor senses 110 px around
+# itself, and a chase into the cafe on the wake-up frames would break the
+# script. The mid-block lane keeps the plain kit look on every other block.
+const CAFE_CROWD_MARKER_LANE_Y := 0.9
 # The player start stands off the crowd lane, inside the cafe safe zone.
 const CAFE_SPAWN_FRACTION := Vector2(0.35, 0.35)
 # The van stands by the cafe, outside the safe zone: the survivors hand it over
@@ -241,7 +246,10 @@ func _compose() -> void:
 func _crowd_spawn_position(i: int) -> Vector2:
 	var spread := CROWD_MARKER_SPACING * float(block.sleepwalker_count - 1)
 	var x := size.x * 0.5 - spread * 0.5 + CROWD_MARKER_SPACING * float(i)
-	return Vector2(x, size.y * CROWD_MARKER_LANE_Y)
+	var lane_y := CROWD_MARKER_LANE_Y
+	if block.kind == CityBlock.Kind.CAFE:
+		lane_y = CAFE_CROWD_MARKER_LANE_Y
+	return Vector2(x, size.y * lane_y)
 
 
 func _van_spot_position() -> Vector2:
