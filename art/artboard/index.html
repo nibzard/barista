@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<!-- ABOUTME: Visual artboard for Apocalypse Barista: palette, materials, style frame, cast, cities, and interface kit. -->
+<!-- ABOUTME: Self-contained HTML and SVG. Open it in a browser. ART_DIRECTION.md gives the rules behind every panel. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Apocalypse Barista — Artboard</title>
+<style>
+  :root {
+    --cream: #F3E6C8;
+    --espresso: #3B2418;
+    --brick: #A8432F;
+    --butter: #F2C866;
+    --teal: #5E9A94;
+    --moss: #6F7F45;
+    --rain: #6C87A6;
+    --lavender: #A99BC4;
+    --mug-red: #D6202A;
+    --mug-black: #151112;
+    --board: #2E302B;
+    --chalk-font: "Chalkboard SE", "Marker Felt", "Comic Neue", cursive;
+    --body-font: "Avenir Next", "Nunito", "Trebuchet MS", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    color: var(--espresso);
+    font-family: var(--body-font);
+    background-color: var(--cream);
+    /* Paper grain: espresso-colored noise with low alpha, tiled over the cream paper. */
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='320' height='320'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.23 0 0 0 0 0.14 0 0 0 0 0.09 0 0 0 0.22 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  main { width: 1440px; margin: 0 auto; padding: 48px 56px 96px; }
+  header { display: grid; grid-template-columns: 1fr 520px; gap: 40px; align-items: end; margin-bottom: 40px; }
+  h1 {
+    font-family: var(--chalk-font);
+    font-size: 76px; line-height: 0.95; margin: 0;
+    color: var(--brick);
+    letter-spacing: 1px;
+    text-shadow: 3px 3px 0 rgba(242, 200, 102, 0.8);
+    transform: rotate(-1.5deg);
+  }
+  h1 small { display: block; font-size: 26px; color: var(--espresso); text-shadow: none; margin-top: 12px; }
+  h2 {
+    font-family: var(--chalk-font);
+    font-size: 34px; margin: 64px 0 6px;
+    display: inline-block;
+    border-bottom: 4px solid var(--butter);
+    transform: rotate(-0.6deg);
+  }
+  .lede { margin: 6px 0 20px; max-width: 900px; font-size: 17px; line-height: 1.5; }
+  .rules {
+    background: var(--board); color: #F4F0E6; padding: 24px 28px; border-radius: 6px;
+    border: 10px solid #6B4A30; box-shadow: 0 6px 0 rgba(59, 36, 24, 0.25);
+    font-family: var(--chalk-font); font-size: 21px; line-height: 1.55;
+  }
+  .rules b { color: var(--butter); font-weight: normal; }
+  .panel { background: rgba(255, 250, 238, 0.55); border: 2px solid rgba(59, 36, 24, 0.35); border-radius: 4px; padding: 18px; }
+  .grid { display: grid; gap: 22px; }
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .caption { font-size: 14px; line-height: 1.45; margin-top: 10px; }
+  .caption b { font-family: var(--chalk-font); font-size: 18px; font-weight: normal; display: block; }
+  .swatch { height: 120px; border-radius: 3px; position: relative; overflow: hidden; }
+  .swatch::after {
+    content: ""; position: absolute; inset: 0;
+    background-image: inherit;
+  }
+  .hex { font-family: ui-monospace, Menlo, monospace; font-size: 13px; opacity: 0.8; }
+  .dodont li { margin: 4px 0; }
+  .do { color: var(--moss); font-family: var(--chalk-font); font-size: 22px; }
+  .dont { color: var(--brick); font-family: var(--chalk-font); font-size: 22px; }
+  svg { display: block; width: 100%; height: auto; }
+  .tag {
+    display: inline-block; font-family: var(--chalk-font); font-size: 15px; padding: 2px 10px;
+    border: 2px solid var(--espresso); border-radius: 14px; margin-right: 6px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Shared filters, patterns, and character symbols. Every panel below reuses them. -->
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <!-- Hand-drawn wobble plus uneven pigment: lines bend a little and flat colors show paper grain. -->
+    <filter id="hand" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="warp"/>
+      <feDisplacementMap in="SourceGraphic" in2="warp" scale="3.2" xChannelSelector="R" yChannelSelector="G" result="wobbled"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.95" numOctaves="3" seed="2" result="grain"/>
+      <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -1.0 0 0 0 1.38" result="pigment"/>
+      <feComposite in="wobbled" in2="pigment" operator="in"/>
+    </filter>
+    <!-- Soft pastel: a wide smudge for light pools, sky, and haze. -->
+    <filter id="pastel" x="-30%" y="-30%" width="160%" height="160%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.02" numOctaves="3" seed="11" result="warp"/>
+      <feDisplacementMap in="SourceGraphic" in2="warp" scale="22" xChannelSelector="R" yChannelSelector="G" result="smudge"/>
+      <feGaussianBlur in="smudge" stdDeviation="4" result="soft"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.7" numOctaves="2" seed="5" result="grain"/>
+      <feColorMatrix in="grain" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -1.2 0 0 0 1.3" result="tooth"/>
+      <feComposite in="soft" in2="tooth" operator="in"/>
+    </filter>
+    <!-- White chalk: broken strokes with gaps where the board shows through. -->
+    <filter id="chalk" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="2" seed="9" result="dust"/>
+      <feColorMatrix in="dust" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  -2.4 0 0 0 1.9" result="gaps"/>
+      <feComposite in="SourceGraphic" in2="gaps" operator="in" result="broken"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.05" seed="4" result="warp"/>
+      <feDisplacementMap in="broken" in2="warp" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <!-- Sleep: the colors drain toward pale lavender and the drawing goes back to a sketch. -->
+    <filter id="sleepy" color-interpolation-filters="sRGB">
+      <feColorMatrix type="saturate" values="0.12"/>
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="0.52" intercept="0.42"/>
+        <feFuncG type="linear" slope="0.50" intercept="0.38"/>
+        <feFuncB type="linear" slope="0.48" intercept="0.48"/>
+      </feComponentTransfer>
+    </filter>
+    <!-- Silhouette test: every shape becomes solid espresso. -->
+    <filter id="silhouette">
+      <feFlood flood-color="#3B2418"/>
+      <feComposite in2="SourceAlpha" operator="in"/>
+    </filter>
+    <!-- Colored pencil hatching for shadows, always at 45 degrees from top-right. -->
+    <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="7" stroke="#3B2418" stroke-width="1.4" stroke-opacity="0.35"/>
+    </pattern>
+    <pattern id="hatch-blue" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <line x1="0" y1="0" x2="0" y2="6" stroke="#6C87A6" stroke-width="1.6" stroke-opacity="0.55"/>
+    </pattern>
+    <pattern id="awning" width="28" height="10" patternUnits="userSpaceOnUse">
+      <rect width="14" height="10" fill="#5E9A94"/>
+      <rect x="14" width="14" height="10" fill="#F3E6C8"/>
+    </pattern>
+    <radialGradient id="glow">
+      <stop offset="0" stop-color="#F2C866" stop-opacity="0.95"/>
+      <stop offset="0.55" stop-color="#F2C866" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#F2C866" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="haze">
+      <stop offset="0" stop-color="#A99BC4" stop-opacity="0.75"/>
+      <stop offset="0.7" stop-color="#A99BC4" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#A99BC4" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="morning" x1="0" x2="1">
+      <stop offset="0" stop-color="#8F86A8"/>
+      <stop offset="0.35" stop-color="#C9A9B8"/>
+      <stop offset="0.65" stop-color="#F2C866"/>
+      <stop offset="1" stop-color="#F7E7BE"/>
+    </linearGradient>
+
+    <!-- ===== Characters. One symbol each, 3.5 heads tall, facing right. Feet stand at y=165. ===== -->
+    <symbol id="c-barista" viewBox="0 -40 120 210">
+      <g stroke="#3B2418" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M44 140 v18 M64 140 v18" stroke-width="10"/>
+        <path d="M34 156 h18 v9 h-22 z M56 156 h18 l4 9 h-22 z" fill="#3B2418"/>
+        <path d="M34 80 Q28 112 34 142 L76 142 Q82 112 74 80 Z" fill="#F3E6C8"/>
+        <path d="M38 92 L72 92 L76 146 L34 146 Z" fill="#A8432F"/>
+        <path d="M36 92 L44 80 M72 92 L64 80" stroke-width="3"/>
+        <rect x="40" y="108" width="12" height="9" rx="2" fill="#7A3020"/>
+        <rect x="58" y="108" width="12" height="9" rx="2" fill="#7A3020"/>
+        <circle cx="44" cy="93" r="3.2" fill="#F2C866"/>
+        <circle cx="68" cy="93" r="3.2" fill="#F2C866"/>
+        <path d="M72 88 Q92 72 98 50" stroke-width="11"/>
+        <path d="M72 88 Q92 72 98 50" stroke="#F3E6C8" stroke-width="6"/>
+        <circle cx="99" cy="46" r="7" fill="#D9A47E"/>
+        <path d="M92 24 L108 24 L105 44 L95 44 Z" fill="#F3E6C8"/>
+        <path d="M93 31 L107 31 L106 38 L94 38 Z" fill="#A8432F" stroke-width="1.6"/>
+        <circle cx="55" cy="46" r="27" fill="#D9A47E"/>
+        <path d="M30 38 Q26 6 50 0 Q58 -22 74 -14 Q66 -4 78 4 Q88 14 82 30 Q70 20 56 22 Q40 24 30 38 Z" fill="#3B2418"/>
+        <path d="M48 62 Q58 82 80 58 Q82 48 76 44 Q66 58 50 54 Z" fill="#5A3A26"/>
+        <circle cx="50" cy="26" r="7" fill="#F3E6C8" stroke="#C9A24A" stroke-width="3.2"/>
+        <circle cx="66" cy="26" r="7" fill="#F3E6C8" stroke="#C9A24A" stroke-width="3.2"/>
+        <path d="M43 26 L36 30 M73 26 L82 24" stroke="#5A3A26" stroke-width="3"/>
+        <circle cx="64" cy="42" r="2.6" fill="#3B2418" stroke="none"/>
+        <circle cx="76" cy="42" r="2.6" fill="#3B2418" stroke="none"/>
+        <path d="M60 36 l8 -2 M72 34 l8 1" stroke-width="2.4"/>
+      </g>
+      <g fill="none" stroke="#FFFFFF" stroke-width="2.4" stroke-linecap="round" filter="url(#chalk)">
+        <path d="M96 20 q-6 -8 0 -14 q6 -6 0 -14"/>
+        <path d="M104 18 q6 -7 0 -13 q-5 -6 1 -12"/>
+      </g>
+    </symbol>
+
+    <symbol id="c-neighbor" viewBox="0 -40 120 210">
+      <g stroke="#3B2418" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M44 140 v18 M64 140 v18" stroke-width="9"/>
+        <ellipse cx="46" cy="162" rx="10" ry="5" fill="#E8DDF0"/>
+        <ellipse cx="66" cy="162" rx="6" ry="4" fill="#E9C3A0"/>
+        <path d="M34 78 Q28 116 32 146 L78 146 Q82 112 74 78 Z" fill="#A99BC4"/>
+        <path d="M54 80 L56 146" stroke-width="2"/>
+        <path d="M33 112 Q55 118 78 110" stroke-width="3.5" stroke="#7E6FA0"/>
+        <path d="M66 90 L110 86" stroke-width="13"/>
+        <path d="M66 90 L110 86" stroke="#A99BC4" stroke-width="8.5"/>
+        <path d="M66 104 L106 104" stroke-width="13"/>
+        <path d="M66 104 L106 104" stroke="#A99BC4" stroke-width="8.5"/>
+        <circle cx="113" cy="86" r="6.5" fill="#E9C3A0"/>
+        <circle cx="109" cy="104" r="6.5" fill="#E9C3A0"/>
+        <circle cx="55" cy="46" r="27" fill="#E9C3A0"/>
+        <path d="M28 40 Q40 2 82 16 Q98 10 104 30" fill="#D8CDE8"/>
+        <circle cx="104" cy="32" r="6" fill="#F3E6C8"/>
+        <path d="M62 44 q4 3 8 0 M74 44 q4 3 8 0" fill="none"/>
+        <path d="M70 56 q5 3 9 -1" fill="none"/>
+      </g>
+      <path d="M78 58 q3 8 1 16" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" filter="url(#chalk)"/>
+      <circle cx="79" cy="77" r="2.2" fill="#FFFFFF"/>
+    </symbol>
+
+    <symbol id="c-tourist" viewBox="0 -40 120 210">
+      <g stroke="#3B2418" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M44 138 v20 M64 138 v20" stroke-width="9" stroke="#E9C3A0"/>
+        <path d="M44 138 v20 M64 138 v20" stroke-width="2" fill="none"/>
+        <path d="M36 158 h16 v7 h-18 z M58 158 h16 v7 h-18 z" fill="#F3E6C8"/>
+        <path d="M36 118 L76 118 L78 140 L34 140 Z" fill="#F2C866"/>
+        <path d="M34 78 Q28 100 34 122 L76 122 Q82 100 74 78 Z" fill="#5E9A94"/>
+        <circle cx="44" cy="92" r="3" fill="#F2C866" stroke="none"/>
+        <circle cx="62" cy="100" r="3" fill="#F2C866" stroke="none"/>
+        <circle cx="48" cy="110" r="3" fill="#F2C866" stroke="none"/>
+        <rect x="30" y="114" width="26" height="12" rx="5" fill="#A8432F"/>
+        <path d="M66 90 L108 86 M66 104 L106 104" stroke-width="12"/>
+        <path d="M66 90 L108 86 M66 104 L106 104" stroke="#E9C3A0" stroke-width="7.5"/>
+        <rect x="62" y="80" width="26" height="18" rx="3" fill="#3B2418"/>
+        <circle cx="80" cy="89" r="5.5" fill="#6C87A6" stroke="#F3E6C8" stroke-width="2"/>
+        <circle cx="55" cy="46" r="27" fill="#E9C3A0"/>
+        <ellipse cx="55" cy="24" rx="44" ry="9" fill="#F3E6C8"/>
+        <path d="M34 24 Q36 2 56 2 Q76 2 78 24 Z" fill="#F3E6C8"/>
+        <path d="M34 20 Q55 26 78 20" stroke="#A8432F" stroke-width="4"/>
+        <path d="M62 44 q4 3 8 0 M74 44 q4 3 8 0 M70 56 q5 3 9 -1" fill="none"/>
+      </g>
+      <path d="M78 58 q2 7 0 13" fill="none" stroke="#FFFFFF" stroke-width="2.6" stroke-linecap="round" filter="url(#chalk)"/>
+    </symbol>
+
+    <symbol id="c-techbro" viewBox="0 -40 120 210">
+      <g stroke="#3B2418" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M44 140 v18 M64 140 v18" stroke-width="10" stroke="#3B4A5C"/>
+        <path d="M36 157 h16 v8 h-18 z M58 157 h16 v8 h-18 z" fill="#FFFFFF"/>
+        <path d="M34 78 Q28 112 34 144 L76 144 Q82 112 74 78 Z" fill="#5E9A94"/>
+        <path d="M34 78 Q28 112 34 144 L50 144 L50 80 Z M74 78 Q82 112 76 144 L62 144 L62 80 Z" fill="#8E8A86"/>
+        <path d="M66 92 L108 88 M66 104 L106 104" stroke-width="12"/>
+        <path d="M66 92 L108 88 M66 104 L106 104" stroke="#5E9A94" stroke-width="7.5"/>
+        <circle cx="111" cy="88" r="6" fill="#E9C3A0"/>
+        <circle cx="109" cy="104" r="6" fill="#E9C3A0"/>
+        <circle cx="55" cy="46" r="27" fill="#E9C3A0"/>
+        <path d="M30 40 Q32 16 56 16 Q80 16 82 32 Q66 24 44 30 Z" fill="#8A5A36"/>
+        <circle cx="40" cy="50" r="3.5" fill="#FFFFFF"/>
+        <path d="M62 44 q4 3 8 0 M74 44 q4 3 8 0" fill="none"/>
+        <path d="M70 56 q4 -3 9 0" fill="none"/>
+        <g transform="translate(30 -30)">
+          <rect x="10" y="6" width="26" height="8" rx="3" fill="#3B2418"/>
+          <path d="M0 4 h14 M32 4 h14" stroke-width="2"/>
+          <circle cx="23" cy="16" r="3" fill="#A8432F" stroke="none"/>
+        </g>
+      </g>
+      <text x="56" y="128" font-family="Avenir Next, sans-serif" font-size="9" text-anchor="middle" fill="#F3E6C8">PIVOT</text>
+    </symbol>
+
+    <symbol id="c-gamer" viewBox="0 -40 120 210">
+      <g stroke="#3B2418" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" transform="rotate(10 55 165)">
+        <path d="M44 140 v18 M64 140 v18" stroke-width="10" stroke="#3B4A5C"/>
+        <path d="M36 157 h16 v8 h-18 z M58 157 h16 v8 h-18 z" fill="#A8432F"/>
+        <path d="M30 76 Q24 112 32 146 L78 146 Q84 110 74 76 Z" fill="#A99BC4"/>
+        <path d="M44 120 h24" stroke-width="2"/>
+        <path d="M66 96 L104 104" stroke-width="12"/>
+        <path d="M66 96 L104 104" stroke="#A99BC4" stroke-width="7.5"/>
+        <rect x="100" y="94" width="10" height="16" rx="2" fill="#5E9A94"/>
+        <circle cx="55" cy="48" r="27" fill="#C9C9D6"/>
+        <path d="M26 54 Q20 14 55 12 Q90 14 84 54 Q80 30 55 28 Q30 30 26 54 Z" fill="#A99BC4"/>
+        <path d="M30 42 Q55 0 82 42" fill="none" stroke-width="5"/>
+        <rect x="76" y="38" width="10" height="16" rx="4" fill="#3B2418"/>
+        <path d="M86 52 L94 60" stroke-width="2"/>
+        <path d="M60 46 q4 3 8 0 M70 46 q3 3 6 0 M64 58 h8" fill="none"/>
+      </g>
+    </symbol>
+
+    <symbol id="c-tinfoil" viewBox="0 -40 120 210">
+      <g stroke="#3B2418" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M44 140 v18 M64 140 v18" stroke-width="9" stroke="#6F7F45"/>
+        <path d="M36 157 h16 v8 h-18 z M58 157 h16 v8 h-18 z" fill="#3B2418"/>
+        <path d="M34 78 Q28 112 34 144 L76 144 Q82 112 74 78 Z" fill="#6F7F45"/>
+        <path d="M36 96 h38 M35 116 h40" stroke="#A8432F" stroke-width="3"/>
+        <path d="M66 92 L108 88 M66 104 L106 104" stroke-width="12"/>
+        <path d="M66 92 L108 88 M66 104 L106 104" stroke="#6F7F45" stroke-width="7.5"/>
+        <circle cx="111" cy="88" r="6" fill="#E9C3A0"/>
+        <circle cx="109" cy="104" r="6" fill="#E9C3A0"/>
+        <circle cx="55" cy="48" r="27" fill="#E9C3A0"/>
+        <path d="M24 34 L52 -38 L86 32 Q55 40 24 34 Z" fill="#DADBE0"/>
+        <path d="M36 20 L50 -20 M60 6 L54 -26 M70 22 L60 -10" stroke="#FFFFFF" stroke-width="2.6"/>
+        <path d="M62 46 q4 3 8 0 M74 46 q4 3 8 0 M70 58 q5 3 9 -1" fill="none"/>
+      </g>
+    </symbol>
+
+    <symbol id="c-karen" viewBox="0 -40 120 210">
+      <g stroke="#3B2418" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round">
+        <path d="M42 146 v14 M68 146 v14" stroke-width="10" stroke="#E9C3A0"/>
+        <path d="M30 158 h18 v7 h-20 z M60 158 h18 v7 h-20 z" fill="#3B2418"/>
+        <ellipse cx="55" cy="112" rx="44" ry="40" fill="#A8432F"/>
+        <path d="M55 74 L55 150" stroke-width="2"/>
+        <circle cx="56" cy="96" r="2.4" fill="#F2C866"/>
+        <circle cx="56" cy="114" r="2.4" fill="#F2C866"/>
+        <circle cx="56" cy="132" r="2.4" fill="#F2C866"/>
+        <path d="M86 98 L114 92 M86 114 L112 112" stroke-width="13"/>
+        <path d="M86 98 L114 92 M86 114 L112 112" stroke="#A8432F" stroke-width="8.5"/>
+        <circle cx="117" cy="92" r="6.5" fill="#E9C3A0"/>
+        <circle cx="115" cy="112" r="6.5" fill="#E9C3A0"/>
+        <circle cx="58" cy="46" r="27" fill="#E9C3A0"/>
+        <path d="M28 54 Q22 8 60 10 Q96 8 92 26 L70 22 Q60 34 30 56 Z" fill="#E4C27A"/>
+        <path d="M60 10 Q58 -6 72 -8 Q86 -2 84 16" fill="#E4C27A"/>
+        <rect x="60" y="36" width="12" height="9" rx="3" fill="#F2C866"/>
+        <rect x="76" y="36" width="12" height="9" rx="3" fill="#F2C866"/>
+        <path d="M72 40 h4" stroke-width="2"/>
+        <path d="M70 58 q5 -2 10 1" fill="none"/>
+      </g>
+    </symbol>
+
+    <symbol id="c-moonwalker" viewBox="0 -40 120 210">
+      <g stroke="#3B2418" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" transform="rotate(-16 40 165)">
+        <path d="M44 132 v24 M64 132 v24" stroke-width="9" stroke="#3B2418"/>
+        <path d="M40 150 h8 v6 h-8 z M60 150 h8 v6 h-8 z" fill="#FFFFFF"/>
+        <path d="M34 162 h20 v4 h-22 z M56 162 h20 l2 4 h-22 z" fill="#3B2418"/>
+        <path d="M36 80 Q30 106 36 134 L74 134 Q80 106 72 80 Z" fill="#B0302A"/>
+        <path d="M44 84 L54 100 L64 84" fill="none" stroke="#F2C866" stroke-width="2.5"/>
+        <path d="M68 88 L98 64" stroke-width="11"/>
+        <path d="M68 88 L98 64" stroke="#B0302A" stroke-width="6.5"/>
+        <circle cx="101" cy="61" r="7" fill="#FFFFFF"/>
+        <circle cx="54" cy="50" r="25" fill="#E9C3A0"/>
+        <ellipse cx="52" cy="28" rx="34" ry="7" fill="#3B2418"/>
+        <path d="M34 28 Q34 4 54 4 Q72 4 72 28 Z" fill="#3B2418"/>
+        <path d="M60 48 q4 3 8 0 M70 48 q3 3 6 0 M64 60 q4 2 8 0" fill="none"/>
+      </g>
+      <path d="M100 52 l2 -6 l2 6 l6 2 l-6 2 l-2 6 l-2 -6 l-6 -2 z" fill="#FFFFFF" stroke="#F2C866" stroke-width="1"/>
+    </symbol>
+  </defs>
+</svg>
+
+<main>
+
+<header>
+  <h1>Apocalypse Barista<small>Artboard · the world asleep, and the cup that wakes it</small></h1>
+  <div class="rules">
+    1. <b>The world is pastel.</b> The actors are pencil. <b>The coffee is light.</b><br>
+    2. Handmade means <b>hope</b>. Manufactured means <b>sleep</b>.<br>
+    3. Funny before scary. <b>Readable before beautiful.</b>
+  </div>
+</header>
+
+<!-- ============================ STYLE FRAME ============================ -->
+<h2>Style frame · San Coffesco, Market Street</h2>
+<p class="lede">The big idea in one picture. Left: the street sleeps. It is a pencil sketch under lavender haze. Right: the barista throws coffee, and color returns. The edge between the two halves is the wake front. The same front moves out from every woken sleepwalker and from every switched-off tower.</p>
+
+<div class="panel" style="padding:0; overflow:hidden">
+<svg viewBox="0 0 1200 620">
+  <defs>
+    <g id="street">
+      <!-- Ground: upper sidewalk, street, lower sidewalk. -->
+      <rect x="0" y="0" width="1200" height="620" fill="#F3E6C8"/>
+      <g filter="url(#hand)">
+        <rect x="0" y="200" width="1200" height="92" fill="#EADBB8"/>
+        <path d="M0 246 H1200 M80 200 V292 M200 200 V292 M320 200 V292 M440 200 V292 M560 200 V292 M680 200 V292 M800 200 V292 M920 200 V292 M1040 200 V292 M1160 200 V292" stroke="#3B2418" stroke-opacity="0.18" stroke-width="1.5"/>
+        <rect x="0" y="292" width="1200" height="180" fill="#9C8F96"/>
+        <rect x="0" y="292" width="1200" height="180" fill="url(#hatch)" opacity="0.5"/>
+        <path d="M0 292 H1200" stroke="#3B2418" stroke-width="4"/>
+        <path d="M0 472 H1200" stroke="#3B2418" stroke-width="4"/>
+        <path d="M0 362 H1200 M0 402 H1200" stroke="#5A3A26" stroke-width="4"/>
+        <path d="M0 382 H1200" stroke="#5A3A26" stroke-width="2" stroke-dasharray="6 14"/>
+        <g fill="#F3E6C8" opacity="0.9">
+          <rect x="606" y="300" width="14" height="164"/><rect x="632" y="300" width="14" height="164"/>
+          <rect x="658" y="300" width="14" height="164"/><rect x="684" y="300" width="14" height="164"/>
+        </g>
+        <rect x="0" y="472" width="1200" height="148" fill="#EADBB8"/>
+        <path d="M0 540 H1200" stroke="#3B2418" stroke-opacity="0.18" stroke-width="1.5"/>
+      </g>
+
+      <!-- Building fronts, three-quarter view. -->
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="3" stroke-linejoin="round">
+        <!-- Painted lady house. -->
+        <path d="M350 50 L455 6 L560 50 Z" fill="#5A3A26"/>
+        <rect x="350" y="50" width="210" height="152" fill="#5E9A94"/>
+        <path d="M350 50 h210 M350 74 h210" stroke="#F3E6C8" stroke-width="5"/>
+        <path d="M380 88 h56 v60 h-56 z M474 88 h56 v60 h-56 z" fill="#F3E6C8"/>
+        <path d="M384 92 h48 v52 h-48 z M478 92 h48 v52 h-48 z" fill="#C9D6D4"/>
+        <path d="M408 92 v52 M502 92 v52" stroke-width="2"/>
+        <rect x="430" y="160" width="50" height="42" fill="#A8432F"/>
+        <path d="M380 150 h56 M474 150 h56" stroke="#F3E6C8" stroke-width="5"/>
+        <path d="M390 152 q8 -10 16 0 q8 -10 16 0" fill="#6F7F45" stroke-width="2"/>
+        <!-- Startup office. -->
+        <rect x="580" y="22" width="240" height="28" fill="#8E8A86"/>
+        <rect x="580" y="50" width="240" height="152" fill="#E2DCCF"/>
+        <rect x="596" y="64" width="208" height="70" fill="#B9C9CE"/>
+        <path d="M648 64 v70 M700 64 v70 M752 64 v70" stroke-width="2"/>
+        <path d="M600 128 l12 -20 l10 14" fill="none" stroke-width="2"/>
+        <rect x="600" y="142" width="200" height="26" fill="#5E9A94"/>
+        <rect x="676" y="170" width="48" height="32" fill="#8E8A86"/>
+      </g>
+      <text x="700" y="161" text-anchor="middle" font-family="Avenir Next, sans-serif" font-weight="700" font-size="15" fill="#F3E6C8" letter-spacing="2">SLEEP IS A BUG</text>
+
+      <!-- Mug Roasters billboard: flat, perfect, no hand filter. Perfection is the villain. -->
+      <g>
+        <rect x="900" y="150" width="10" height="56" fill="#151112"/>
+        <rect x="1100" y="150" width="10" height="56" fill="#151112"/>
+        <rect x="846" y="14" width="318" height="140" fill="#D6202A"/>
+        <rect x="846" y="14" width="318" height="140" fill="none" stroke="#151112" stroke-width="6"/>
+        <rect x="868" y="36" width="70" height="80" rx="10" fill="#FFFFFF"/>
+        <path d="M938 54 q26 0 26 22 q0 22 -26 22" fill="none" stroke="#FFFFFF" stroke-width="10"/>
+        <circle cx="890" cy="64" r="5" fill="#151112"/>
+        <circle cx="916" cy="64" r="5" fill="#151112"/>
+        <path d="M880 82 Q903 108 926 82 Z" fill="#151112"/>
+        <text x="1062" y="72" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-weight="800" font-size="26" fill="#FFFFFF">JOIN THE</text>
+        <text x="1062" y="104" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-weight="800" font-size="34" fill="#151112">GRIND</text>
+        <text x="1062" y="134" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" fill="#FFFFFF" letter-spacing="3">MUG ROASTERS CO.</text>
+      </g>
+
+      <!-- Props on the lower sidewalk. -->
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="3" stroke-linejoin="round">
+        <rect x="60" y="500" width="120" height="16" rx="4" fill="#A8432F"/>
+        <path d="M70 516 v20 M170 516 v20" stroke-width="5"/>
+        <rect x="70" y="486" width="100" height="10" rx="3" fill="#A8432F"/>
+        <path d="M420 530 l-8 40 h40 l-8 -40 z" fill="#C97A52"/>
+        <path d="M432 530 q-10 -24 -24 -30 M432 530 q4 -26 16 -32" fill="none" stroke="#8C7A55" stroke-width="3"/>
+        <rect x="760" y="494" width="44" height="58" rx="4" fill="#6C87A6"/>
+        <rect x="768" y="502" width="28" height="18" fill="#F3E6C8"/>
+      </g>
+
+      <!-- Robotaxi with a dog asleep on the roof. -->
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="3" stroke-linejoin="round">
+        <rect x="100" y="306" width="190" height="72" rx="26" fill="#F3E6C8"/>
+        <rect x="140" y="316" width="110" height="52" rx="12" fill="#B9C9CE"/>
+        <rect x="178" y="296" width="34" height="12" rx="5" fill="#5E9A94"/>
+        <circle cx="132" cy="380" r="13" fill="#3B2418"/><circle cx="258" cy="380" r="13" fill="#3B2418"/>
+        <ellipse cx="196" cy="334" rx="30" ry="14" fill="#C9935E"/>
+        <circle cx="222" cy="328" r="11" fill="#C9935E"/>
+        <path d="M216 322 q-4 -10 2 -12" fill="#8A5A36" stroke-width="2"/>
+        <path d="M222 330 q3 2 6 0" fill="none" stroke-width="2"/>
+      </g>
+      <text x="236" y="316" font-family="Chalkboard SE, cursive" font-size="16" fill="#3B2418">z</text>
+      <text x="246" y="304" font-family="Chalkboard SE, cursive" font-size="20" fill="#3B2418">z</text>
+
+      <!-- Long morning shadows fall to the bottom-left. -->
+      <g fill="url(#hatch-blue)">
+        <ellipse cx="500" cy="428" rx="46" ry="12"/>
+        <ellipse cx="770" cy="438" rx="40" ry="11"/>
+        <ellipse cx="910" cy="438" rx="40" ry="11"/>
+        <ellipse cx="1050" cy="440" rx="40" ry="11"/>
+        <ellipse cx="290" cy="560" rx="36" ry="10"/>
+      </g>
+
+      <!-- Speaker pole with its sleep zone. -->
+      <circle cx="1110" cy="520" r="150" fill="url(#haze)" filter="url(#pastel)"/>
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="3">
+        <path d="M1110 400 V600" stroke-width="8"/>
+        <path d="M1080 410 l30 14 l30 -14 l-6 22 h-48 z" fill="#8E8A86"/>
+        <path d="M1150 452 q22 -6 30 10" fill="none" stroke-width="5"/>
+        <path d="M1180 460 q6 20 -4 26" fill="none" stroke-width="5"/>
+        <circle cx="1172" cy="492" r="10" fill="#F2C866" opacity="0.5"/>
+      </g>
+      <text x="830" y="606" font-family="Chalkboard SE, cursive" font-size="14" fill="#5A3A26" opacity="0.75">"...and furthermore, my fellow Americanos..."</text>
+
+      <!-- Characters. -->
+      <use href="#c-neighbor" x="250" y="440" width="96" height="168"/>
+      <path d="M346 520 q20 -6 34 10" fill="none" stroke="#3B2418" stroke-width="3"/>
+      <use href="#c-neighbor" x="716" y="252" width="104" height="182"/>
+      <use href="#c-tourist" x="858" y="252" width="104" height="182"/>
+      <use href="#c-techbro" x="998" y="254" width="104" height="182"/>
+    </g>
+
+    <g id="cafe">
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="3" stroke-linejoin="round">
+        <!-- The cafe: the sanctuary. -->
+        <rect x="30" y="16" width="300" height="34" fill="#5A3A26"/>
+        <rect x="30" y="50" width="300" height="152" fill="#A8432F"/>
+        <path d="M30 70 h300 M30 90 h300 M30 110 h300" stroke="#7A3020" stroke-width="1.5"/>
+        <rect x="70" y="58" width="220" height="34" rx="3" fill="#2E302B"/>
+        <path d="M22 124 L338 124 L330 150 L30 150 Z" fill="url(#awning)"/>
+        <path d="M30 150 q13 9 26 0 q13 9 26 0 q13 9 26 0 q13 9 26 0 q13 9 26 0 q13 9 26 0 q13 9 26 0 q13 9 26 0 q13 9 26 0 q13 9 26 0 q13 9 26 0 q13 9 22 0" fill="#5E9A94"/>
+        <rect x="46" y="158" width="160" height="42" fill="#F2C866"/>
+        <path d="M60 200 v-26 h18 v-8 h22 v34" fill="#5A3A26" stroke-width="2"/>
+        <rect x="226" y="154" width="54" height="48" fill="#5A3A26"/>
+        <circle cx="270" cy="180" r="3" fill="#F2C866"/>
+        <rect x="120" y="164" width="16" height="10" fill="#F3E6C8" stroke-width="1.5"/>
+        <rect x="146" y="166" width="22" height="16" fill="#6F7F45" stroke-width="1.5"/>
+      </g>
+      <text x="180" y="83" text-anchor="middle" font-family="Chalkboard SE, Marker Felt, cursive" font-size="22" fill="#FFFFFF" filter="url(#chalk)">THE LAST DROP · café</text>
+    </g>
+    <clipPath id="sleep-half"><path d="M0 0 H640 Q600 120 690 210 Q760 300 700 420 Q660 520 720 620 H0 Z"/></clipPath>
+    <clipPath id="awake-half"><path d="M640 0 Q600 120 690 210 Q760 300 700 420 Q660 520 720 620 H1200 V0 Z"/></clipPath>
+  </defs>
+
+  <!-- Sleeping half: same street, drained to a sketch under lavender haze. -->
+  <g clip-path="url(#sleep-half)">
+    <use href="#street" filter="url(#sleepy)"/>
+    <rect width="1200" height="620" fill="#A99BC4" opacity="0.22"/>
+    <circle cx="300" cy="420" r="260" fill="url(#haze)" filter="url(#pastel)" opacity="0.6"/>
+  </g>
+
+  <!-- Awake half: full color, warm morning light, survivors drew over the billboard. -->
+  <g clip-path="url(#awake-half)">
+    <use href="#street"/>
+    <ellipse cx="660" cy="250" rx="420" ry="200" fill="url(#glow)" opacity="0.28" filter="url(#pastel)"/>
+    <g fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" filter="url(#chalk)">
+      <path d="M884 92 q8 -8 18 0 q10 -8 18 0"/>
+    </g>
+    <text x="864" y="148" font-family="Chalkboard SE, Marker Felt, cursive" font-size="22" fill="#FFFFFF" filter="url(#chalk)" transform="rotate(-6 864 148)">WAKE UP!</text>
+  </g>
+
+  <!-- The cafe and the barista are always colored, also on the sleeping side. -->
+  <use href="#cafe"/>
+  <use href="#c-barista" x="440" y="232" width="116" height="203"/>
+  <ellipse cx="180" cy="236" rx="190" ry="70" fill="url(#glow)" opacity="0.7" filter="url(#pastel)"/>
+
+  <!-- The thrown cup: a warm arc, a trail, and a splash of color on the hit. -->
+  <path d="M542 262 Q670 190 790 384" fill="none" stroke="#F2C866" stroke-width="10" stroke-linecap="round" opacity="0.55" filter="url(#pastel)"/>
+  <path d="M542 262 Q670 190 790 384" fill="none" stroke="#F2C866" stroke-width="3" stroke-dasharray="2 10" stroke-linecap="round"/>
+  <g transform="translate(786 388) scale(0.5)" filter="url(#hand)">
+    <path d="M0 0 q-14 -18 6 -26 q8 -22 26 -6 q22 -8 22 14 q18 12 -2 24 q-4 20 -24 12 q-22 10 -24 -10 q-18 -2 -4 -8 z" fill="#F2C866" stroke="#8A5A36" stroke-width="4"/>
+    <circle cx="44" cy="-18" r="5" fill="#8A5A36"/><circle cx="-10" cy="-28" r="4" fill="#8A5A36"/><circle cx="52" cy="20" r="4" fill="#8A5A36"/>
+  </g>
+  <g fill="#FFFFFF" filter="url(#chalk)">
+    <path d="M740 320 l3 -9 l3 9 l9 3 l-9 3 l-3 9 l-3 -9 l-9 -3 z"/>
+    <path d="M810 316 l2 -7 l2 7 l7 2 l-7 2 l-2 7 l-2 -7 l-7 -2 z"/>
+  </g>
+
+  <!-- Wake front: a chalk seam where the color comes back. -->
+  <path d="M640 0 Q600 120 690 210 Q760 300 700 420 Q660 520 720 620" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-dasharray="1 16" stroke-linecap="round" filter="url(#chalk)"/>
+
+  <!-- Paper over everything. -->
+  <rect width="1200" height="620" fill="#F3E6C8" opacity="0.08" filter="url(#pastel)"/>
+</svg>
+</div>
+<div class="grid g3" style="margin-top:12px">
+  <div class="caption"><b>Sleep side</b>Saturation at 12 percent. Values pushed up toward cream and lavender. Lines stay. The world looks like an unfinished sketch, never like a horror scene.</div>
+  <div class="caption"><b>Awake side</b>Full palette, warm buttery light, survivors' chalk graffiti on corporate signs. The café and the barista keep full color on the sleep side too: they never sleep.</div>
+  <div class="caption"><b>Read order</b>1. Barista (warmest, darkest contour). 2. Cup arc (light). 3. Sleepwalkers (lavender, arms out). 4. Haze edge. 5. Everything else.</div>
+</div>
+
+<!-- ============================ PALETTE ============================ -->
+<h2>Palette</h2>
+<p class="lede">Eight world colors, plus their lighter and darker steps. The corporate pair stays outside the world, on purpose.</p>
+<div class="grid" style="grid-template-columns: repeat(10, 1fr); gap:14px">
+  <div><div class="swatch" style="background:#F3E6C8; border:2px solid #3B241833"></div><div class="caption"><b>Warm cream</b><span class="hex">#F3E6C8</span><br>paper, light</div></div>
+  <div><div class="swatch" style="background:#3B2418"></div><div class="caption"><b>Espresso</b><span class="hex">#3B2418</span><br>lines, darkest value</div></div>
+  <div><div class="swatch" style="background:#A8432F"></div><div class="caption"><b>Brick red</b><span class="hex">#A8432F</span><br>cafés, the barista</div></div>
+  <div><div class="swatch" style="background:#F2C866"></div><div class="caption"><b>Butter</b><span class="hex">#F2C866</span><br>light, coffee glow</div></div>
+  <div><div class="swatch" style="background:#5E9A94"></div><div class="caption"><b>Faded teal</b><span class="hex">#5E9A94</span><br>San Coffesco</div></div>
+  <div><div class="swatch" style="background:#6C87A6"></div><div class="caption"><b>Rainy blue</b><span class="hex">#6C87A6</span><br>Steamtle, shade</div></div>
+  <div><div class="swatch" style="background:#6F7F45"></div><div class="caption"><b>Moss</b><span class="hex">#6F7F45</span><br>Pourtland, plants</div></div>
+  <div><div class="swatch" style="background:#A99BC4"></div><div class="caption"><b>Lavender</b><span class="hex">#A99BC4</span><br>sleep, pajamas</div></div>
+  <div><div class="swatch" style="background:#D6202A"></div><div class="caption"><b>Mug red</b><span class="hex">#D6202A</span><br>corporate only</div></div>
+  <div><div class="swatch" style="background:#151112"></div><div class="caption"><b>Mug black</b><span class="hex">#151112</span><br>corporate only</div></div>
+</div>
+<div class="panel" style="margin-top:18px; padding:10px 18px">
+  <svg viewBox="0 0 1300 90">
+    <rect x="0" y="10" width="1300" height="50" fill="url(#morning)" filter="url(#pastel)"/>
+    <g font-family="Chalkboard SE, cursive" font-size="17" fill="#3B2418">
+      <text x="10" y="84">Sleep zone: dusk inside the morning</text>
+      <text x="520" y="84">Tower off: sunrise floods the city</text>
+      <text x="1030" y="84">Full morning: awake city</text>
+    </g>
+  </svg>
+</div>
+
+<!-- ============================ MATERIALS ============================ -->
+<h2>Materials</h2>
+<p class="lede">Four dry materials on one cream paper. Texture lives on big surfaces. At character size, the silhouette wins.</p>
+<div class="grid g4">
+  <div class="panel">
+    <svg viewBox="0 0 300 180">
+      <g filter="url(#hand)" fill="none" stroke="#3B2418" stroke-linecap="round">
+        <path d="M20 150 Q70 30 140 90 T280 40" stroke-width="3"/>
+        <path d="M24 156 Q74 40 142 98" stroke-width="1.2" opacity="0.5"/>
+        <rect x="40" y="20" width="90" height="70" stroke-width="2.5"/>
+        <rect x="40" y="20" width="90" height="70" fill="url(#hatch)" stroke="none"/>
+        <circle cx="210" cy="120" r="34" stroke-width="2.5" stroke-dasharray="180 14"/>
+      </g>
+    </svg>
+    <div class="caption"><b>Graphite</b>Contours and the sketch layer of sleeping areas. Leave small gaps in lines where light hits.</div>
+  </div>
+  <div class="panel">
+    <svg viewBox="0 0 300 180">
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="2.5">
+        <circle cx="90" cy="90" r="60" fill="#A8432F"/>
+        <path d="M90 30 A60 60 0 0 1 150 90 L90 90 Z" fill="url(#hatch)" stroke="none"/>
+        <rect x="170" y="40" width="100" height="100" rx="12" fill="#5E9A94"/>
+        <rect x="170" y="40" width="100" height="100" rx="12" fill="url(#hatch-blue)"/>
+      </g>
+    </svg>
+    <div class="caption"><b>Colored pencil</b>Form and color of characters and props. Shadows are hatched at 45 degrees, never a smooth gradient.</div>
+  </div>
+  <div class="panel">
+    <svg viewBox="0 0 300 180">
+      <ellipse cx="110" cy="90" rx="90" ry="60" fill="#F2C866" filter="url(#pastel)" opacity="0.9"/>
+      <ellipse cx="200" cy="100" rx="80" ry="55" fill="#A99BC4" filter="url(#pastel)" opacity="0.8"/>
+      <ellipse cx="80" cy="140" rx="60" ry="24" fill="#6C87A6" filter="url(#pastel)" opacity="0.6"/>
+    </svg>
+    <div class="caption"><b>Soft pastel</b>Light pools, sky, haze, and big ground areas. Soft edges and smudges, with the paper tooth visible.</div>
+  </div>
+  <div class="panel" style="background:#2E302B">
+    <svg viewBox="0 0 300 180">
+      <g fill="none" stroke="#FFFFFF" stroke-width="4" stroke-linecap="round" filter="url(#chalk)">
+        <path d="M60 140 q-14 -26 0 -44 q14 -20 0 -44"/>
+        <path d="M86 140 q14 -24 0 -42 q-12 -18 2 -40"/>
+        <path d="M150 60 l6 -18 l6 18 l18 6 l-18 6 l-6 18 l-6 -18 l-18 -6 z" stroke-width="3"/>
+      </g>
+      <text x="200" y="110" font-family="Chalkboard SE, cursive" font-size="40" fill="#FFFFFF" filter="url(#chalk)">Brew</text>
+      <text x="196" y="150" font-family="Chalkboard SE, cursive" font-size="24" fill="#F2C866" filter="url(#chalk)">it strong</text>
+    </svg>
+    <div class="caption" style="color:#F4F0E6"><b>White chalk</b>Steam, sparkle, highlights, and all interface text. It links the street to the café chalkboard.</div>
+  </div>
+</div>
+
+<!-- ============================ CAST ============================ -->
+<h2>Cast · silhouette test and color</h2>
+<p class="lede">Top row: every character as a solid shape. If you cannot name it from the shape at phone size, the design is not done. Bottom row: the color version. Sleepwalkers face right with arms out for the hug.</p>
+<div class="panel">
+  <svg viewBox="0 0 1300 500">
+    <g filter="url(#silhouette)">
+      <use href="#c-barista" x="10" y="0" width="130" height="228"/>
+      <use href="#c-neighbor" x="170" y="0" width="130" height="228"/>
+      <use href="#c-tourist" x="330" y="0" width="130" height="228"/>
+      <use href="#c-techbro" x="490" y="0" width="130" height="228"/>
+      <use href="#c-gamer" x="650" y="0" width="130" height="228"/>
+      <use href="#c-tinfoil" x="810" y="0" width="130" height="228"/>
+      <use href="#c-karen" x="970" y="0" width="130" height="228"/>
+      <use href="#c-moonwalker" x="1140" y="0" width="130" height="228"/>
+    </g>
+    <g filter="url(#hand)">
+      <use href="#c-barista" x="10" y="250" width="130" height="228"/>
+      <use href="#c-neighbor" x="170" y="250" width="130" height="228"/>
+      <use href="#c-tourist" x="330" y="250" width="130" height="228"/>
+      <use href="#c-techbro" x="490" y="250" width="130" height="228"/>
+      <use href="#c-gamer" x="650" y="250" width="130" height="228"/>
+      <use href="#c-tinfoil" x="810" y="250" width="130" height="228"/>
+      <use href="#c-karen" x="970" y="250" width="130" height="228"/>
+      <use href="#c-moonwalker" x="1140" y="250" width="130" height="228"/>
+    </g>
+    <g font-family="Chalkboard SE, cursive" font-size="17" fill="#3B2418" text-anchor="middle">
+      <text x="75" y="494">The Barista</text>
+      <text x="235" y="494">The Neighbor</text>
+      <text x="395" y="494">The Tourist</text>
+      <text x="555" y="494">The Tech Bro</text>
+      <text x="715" y="494">The Gamer</text>
+      <text x="875" y="494">The Tinfoil Man</text>
+      <text x="1035" y="494">The Karen</text>
+      <text x="1205" y="494">??? (smooth)</text>
+    </g>
+  </svg>
+</div>
+<div class="grid g4" style="margin-top:12px">
+  <div class="caption"><b>Shape hooks</b>Each type owns one big shape: tall hair and goggles, nightcap, wide hat, drone, hood, foil cone, round body, backward lean.</div>
+  <div class="caption"><b>Hands</b>Hands are big and round, drawn to hold a cup. Sleepwalker hands always reach for the hug.</div>
+  <div class="caption"><b>Drool</b>One white chalk arc plus a shine dot. Comic, never gross.</div>
+  <div class="caption"><b>Rig</b>Cut-out parts on a Skeleton2D. Hair, beard, goggles, hat, and apron are separate parts for the character creator.</div>
+</div>
+
+<!-- ============================ BARISTA CREATOR ============================ -->
+<h2>Barista options · one rig, many heroes</h2>
+<p class="lede">Section 5 options as swappable parts. The head is the largest shape, so hair, beard, and hat carry the identity from the top-down camera.</p>
+<div class="panel">
+  <svg viewBox="0 0 1300 300">
+    <g font-family="Chalkboard SE, cursive" font-size="16" fill="#3B2418" text-anchor="middle">
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="2.6" stroke-linejoin="round">
+        <!-- Five beard lengths on one head. -->
+        <g transform="translate(40 30)">
+          <circle cx="60" cy="70" r="44" fill="#D9A47E"/><path d="M22 52 Q30 14 64 18 Q98 20 102 54 Q80 34 22 52 Z" fill="#3B2418"/>
+        </g>
+        <g transform="translate(200 30)">
+          <circle cx="60" cy="70" r="44" fill="#E9C3A0"/><path d="M22 52 Q30 14 64 18 Q98 20 102 54 Q80 34 22 52 Z" fill="#8A5A36"/>
+          <path d="M34 92 Q60 116 90 90" fill="none" stroke="#8A5A36" stroke-width="6" stroke-dasharray="2 4"/>
+        </g>
+        <g transform="translate(360 30)">
+          <circle cx="60" cy="70" r="44" fill="#B97E58"/><path d="M18 60 Q10 6 60 10 Q112 8 104 60 Q96 30 70 30 Q100 12 18 60 Z" fill="#2B1810"/>
+          <path d="M30 86 Q60 130 92 86 Q80 100 60 98 Q42 100 30 86 Z" fill="#2B1810"/>
+        </g>
+        <g transform="translate(520 30)">
+          <circle cx="60" cy="70" r="44" fill="#E9C3A0"/><path d="M22 52 Q30 14 64 18 Q98 20 102 54 Q80 34 22 52 Z" fill="#A8432F"/>
+          <path d="M22 76 Q30 150 60 156 Q92 150 98 76 Q80 98 60 96 Q40 98 22 76 Z" fill="#A8432F"/>
+          <path d="M40 120 l6 10 M60 130 v12 M78 120 l-6 10" stroke-width="2"/>
+        </g>
+        <g transform="translate(680 30)">
+          <circle cx="60" cy="70" r="44" fill="#8A5A36"/><path d="M20 50 Q26 10 60 14 Q94 10 100 50 Z" fill="#DADBE0"/>
+          <path d="M24 80 Q20 190 60 200 Q100 190 96 80 Q80 100 60 98 Q40 100 24 80 Z" fill="#F3E6C8"/>
+          <path d="M60 200 l-6 14 l12 -4" fill="#F3E6C8"/>
+        </g>
+        <!-- Head gear. -->
+        <g transform="translate(860 30)">
+          <circle cx="60" cy="70" r="44" fill="#D9A47E"/><path d="M22 52 Q30 14 64 18 Q98 20 102 54 Q80 34 22 52 Z" fill="#3B2418"/>
+          <circle cx="44" cy="40" r="13" fill="#F3E6C8" stroke="#C9A24A" stroke-width="5"/><circle cx="76" cy="40" r="13" fill="#F3E6C8" stroke="#C9A24A" stroke-width="5"/>
+        </g>
+        <g transform="translate(1020 30)">
+          <circle cx="60" cy="70" r="44" fill="#E9C3A0"/>
+          <ellipse cx="60" cy="34" rx="58" ry="10" fill="#3B2418"/><rect x="28" y="-14" width="64" height="48" fill="#3B2418"/>
+          <rect x="28" y="20" width="64" height="8" fill="#C9A24A"/>
+          <circle cx="80" cy="24" r="5" fill="#F2C866"/>
+        </g>
+        <g transform="translate(1160 30)">
+          <circle cx="60" cy="70" r="44" fill="#B97E58"/>
+          <path d="M14 76 Q10 10 60 12 Q110 10 106 76 Q100 40 60 36 Q20 40 14 76 Z" fill="#6F7F45"/>
+          <circle cx="24" cy="92" r="14" fill="#6F7F45"/><circle cx="98" cy="92" r="14" fill="#6F7F45"/>
+        </g>
+      </g>
+      <text x="100" y="288">clean</text><text x="260" y="288">stubble</text><text x="420" y="288">hipster</text>
+      <text x="580" y="288">lumberjack</text><text x="740" y="288">wizard</text>
+      <text x="920" y="288">brass goggles</text><text x="1080" y="288">steam top hat</text><text x="1220" y="288">big buns</text>
+    </g>
+  </svg>
+</div>
+
+<!-- ============================ CITIES ============================ -->
+<h2>Cities · one block kit, three moods</h2>
+<p class="lede">The same block kit with a new accent, new weather, and a few signature props. Each tile shows the awake mood.</p>
+<div class="grid g3">
+  <div class="panel" style="padding:0; overflow:hidden">
+    <svg viewBox="0 0 420 300">
+      <rect width="420" height="300" fill="#DCEBE6"/>
+      <ellipse cx="320" cy="60" rx="200" ry="70" fill="#F2C866" opacity="0.55" filter="url(#pastel)"/>
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="2.5" stroke-linejoin="round">
+        <path d="M0 300 L0 170 L420 90 L420 300 Z" fill="#EADBB8"/>
+        <path d="M0 240 L420 150 M0 262 L420 172" stroke="#5A3A26" stroke-width="3"/>
+        <path d="M30 172 L30 110 L70 90 L110 110 L110 156 Z" fill="#5E9A94"/>
+        <path d="M110 156 L110 100 L150 80 L190 100 L190 140 Z" fill="#F2C866"/>
+        <path d="M190 140 L190 90 L230 70 L270 90 L270 124 Z" fill="#C98FA0"/>
+        <rect x="200" y="176" width="110" height="48" rx="8" fill="#A8432F" transform="rotate(-12 255 200)"/>
+        <rect x="214" y="182" width="80" height="20" fill="#F3E6C8" transform="rotate(-12 255 200)"/>
+        <path d="M250 158 L246 140" stroke-width="2"/>
+      </g>
+      <rect y="0" width="420" height="60" fill="#FFFFFF" opacity="0.35" filter="url(#pastel)"/>
+      <text x="16" y="34" font-family="Chalkboard SE, cursive" font-size="26" fill="#3B2418">San Coffesco</text>
+    </svg>
+    <div class="caption" style="padding:0 16px 16px"><b>Sunny · teal · tech</b>Clear morning, sea fog at the block edges. Steep hatched streets, cable car, painted ladies, robotaxis, startup banners.</div>
+  </div>
+  <div class="panel" style="padding:0; overflow:hidden">
+    <svg viewBox="0 0 420 300">
+      <rect width="420" height="300" fill="#C7D2DE"/>
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="2.5" stroke-linejoin="round">
+        <path d="M330 120 L338 20 L346 120 Z M318 30 h40 l-6 10 h-28 z" fill="#8E8A86"/>
+        <rect x="0" y="150" width="420" height="150" fill="#8F9AA8"/>
+        <rect x="20" y="86" width="150" height="80" fill="#A8432F"/>
+        <path d="M14 86 h162 l-10 -20 h-142 z" fill="#5A3A26"/>
+        <rect x="34" y="104" width="122" height="20" fill="#2E302B"/>
+        <rect x="34" y="132" width="50" height="34" fill="#F2C866"/>
+        <rect x="200" y="110" width="120" height="56" fill="#6C87A6"/>
+        <path d="M206 126 l20 -8 l18 8 l-18 8 z M250 140 l20 -8 l18 8 l-18 8 z" fill="#C9D6D4"/>
+      </g>
+      <ellipse cx="80" cy="220" rx="70" ry="16" fill="#F2C866" opacity="0.7" filter="url(#pastel)"/>
+      <ellipse cx="290" cy="250" rx="60" ry="12" fill="#6C87A6" opacity="0.7" filter="url(#pastel)"/>
+      <g stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" filter="url(#chalk)" opacity="0.9">
+        <path d="M30 20 l-6 18 M90 10 l-6 18 M150 30 l-6 18 M210 14 l-6 18 M270 26 l-6 18 M60 60 l-6 18 M120 70 l-6 18 M240 64 l-6 18 M380 50 l-6 18 M300 200 l-6 18 M180 220 l-6 18 M360 240 l-6 18"/>
+      </g>
+      <text x="16" y="34" font-family="Chalkboard SE, cursive" font-size="26" fill="#3B2418">Steamtle</text>
+      <text x="40" y="118" font-family="Chalkboard SE, cursive" font-size="12" fill="#FFFFFF" filter="url(#chalk)">PUBLIC MARKET · FISH</text>
+    </svg>
+    <div class="caption" style="padding:0 16px 16px"><b>Rainy · blue · cozy</b>Drizzle as chalk strokes. Puddles reflect warm café light. Wet stone, moss in the joints, fish stalls, flannel, a needle tower far away.</div>
+  </div>
+  <div class="panel" style="padding:0; overflow:hidden">
+    <svg viewBox="0 0 420 300">
+      <rect width="420" height="300" fill="#DCD8C2"/>
+      <ellipse cx="120" cy="40" rx="140" ry="50" fill="#F2C866" opacity="0.5" filter="url(#pastel)"/>
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="2.5" stroke-linejoin="round">
+        <rect x="0" y="160" width="420" height="140" fill="#B98A6A"/>
+        <path d="M0 200 H420 M0 240 H420 M60 160 V200 M140 160 V200 M100 200 V240 M200 200 V240 M300 200 V240 M240 160 V200 M340 160 V200" stroke-width="1.5" opacity="0.6"/>
+        <path d="M80 300 q20 -40 60 -60 q30 -10 50 10" fill="none" stroke="#5A3A26" stroke-width="5"/>
+        <rect x="30" y="80" width="140" height="84" rx="10" fill="#6F7F45"/>
+        <rect x="46" y="96" width="70" height="30" fill="#F3E6C8"/>
+        <circle cx="60" cy="168" r="10" fill="#3B2418"/><circle cx="140" cy="168" r="10" fill="#3B2418"/>
+        <rect x="210" y="60" width="180" height="104" fill="#A8432F"/>
+        <rect x="226" y="76" width="148" height="30" fill="#F3E6C8"/>
+        <circle cx="330" cy="140" r="18" fill="#C98FA0"/><circle cx="330" cy="140" r="7" fill="#DCD8C2"/>
+      </g>
+      <g fill="#C97A52" filter="url(#hand)">
+        <path d="M60 250 q8 -10 16 0 q-8 8 -16 0 z"/><path d="M260 220 q8 -10 16 0 q-8 8 -16 0 z"/><path d="M360 270 q8 -10 16 0 q-8 8 -16 0 z"/>
+      </g>
+      <text x="16" y="34" font-family="Chalkboard SE, cursive" font-size="26" fill="#3B2418">Pourtland</text>
+      <text x="234" y="96" font-family="Chalkboard SE, cursive" font-size="13" fill="#3B2418">HARDWARE · AISLE 7</text>
+      <text x="48" y="116" font-family="Chalkboard SE, cursive" font-size="12" fill="#3B2418">FOOD CART</text>
+    </svg>
+    <div class="caption" style="padding:0 16px 16px"><b>Earthy · moss · odd</b>Overcast with sun breaks, falling leaves. Brick, roots through the sidewalk, food carts, bikes, the hardware store of Aisle 7.</div>
+  </div>
+</div>
+
+<!-- ============================ INTERFACE ============================ -->
+<h2>Interface kit · chalk, kraft, and coffee rings</h2>
+<p class="lede">The interface is a part of the café. Icons replace words where possible. Mug red is never used here.</p>
+<div class="grid g2">
+  <div class="panel" style="background:#2E302B; border:10px solid #6B4A30">
+    <svg viewBox="0 0 600 380">
+      <text x="300" y="70" text-anchor="middle" font-family="Chalkboard SE, Marker Felt, cursive" font-size="50" fill="#FFFFFF" filter="url(#chalk)">Apocalypse Barista</text>
+      <path d="M150 90 q150 14 300 0" fill="none" stroke="#F2C866" stroke-width="3" filter="url(#chalk)"/>
+      <g font-family="Chalkboard SE, cursive" font-size="30" fill="#FFFFFF" filter="url(#chalk)">
+        <text x="200" y="160">☕  Open the café</text>
+        <text x="200" y="215" opacity="0.85">✎  New barista</text>
+        <text x="200" y="270" opacity="0.85">⚙  Settings</text>
+      </g>
+      <path d="M180 166 q-14 -10 -4 -24" fill="none" stroke="#F2C866" stroke-width="3" filter="url(#chalk)"/>
+      <text x="300" y="350" text-anchor="middle" font-family="Chalkboard SE, cursive" font-size="16" fill="#FFFFFF" opacity="0.6" filter="url(#chalk)">today's special: one nation, extra hot</text>
+    </svg>
+    <div class="caption" style="color:#F4F0E6"><b>Main menu</b>A chalkboard with a wood frame. It replaces the overlapped title and buttons in the current menu.</div>
+  </div>
+  <div class="panel">
+    <svg viewBox="0 0 600 400">
+      <!-- Mug meter, three states. -->
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="3" stroke-linejoin="round">
+        <g transform="translate(30 40)">
+          <path d="M10 20 h80 l-6 90 h-68 z" fill="#F3E6C8"/><path d="M14 30 h72 l-5 80 h-62 z" fill="#5A3A26"/>
+          <path d="M90 40 q30 0 30 26 q0 26 -34 26" fill="none" stroke-width="7"/>
+        </g>
+        <g transform="translate(200 40)">
+          <path d="M10 20 h80 l-6 90 h-68 z" fill="#F3E6C8"/><path d="M12 64 h76 l-4 46 h-68 z" fill="#5A3A26"/>
+          <path d="M90 40 q30 0 30 26 q0 26 -34 26" fill="none" stroke-width="7"/>
+        </g>
+        <g transform="translate(370 40)">
+          <path d="M10 20 h80 l-6 90 h-68 z" fill="#D8D4E4"/><path d="M15 96 h70 l-1 14 h-68 z" fill="#5A3A26"/>
+          <path d="M90 40 q30 0 30 26 q0 26 -34 26" fill="none" stroke-width="7"/>
+        </g>
+      </g>
+      <g fill="none" stroke="#3B2418" stroke-width="2.6" stroke-linecap="round" opacity="0.7">
+        <path d="M60 50 q-8 -12 0 -22 q8 -10 0 -20 M80 50 q8 -12 0 -22 q-8 -10 0 -20"/>
+        <path d="M240 50 q-6 -10 0 -18"/>
+      </g>
+      <text x="476" y="70" font-family="Chalkboard SE, cursive" font-size="24" fill="#7E6FA0">z z</text>
+      <g font-family="Chalkboard SE, cursive" font-size="15" fill="#3B2418" text-anchor="middle">
+        <text x="90" y="176">awake · hot</text><text x="260" y="176">half · warm</text><text x="430" y="176">low · cold, lavender</text>
+      </g>
+      <!-- Alarm clock wake-ups. -->
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="2.5">
+        <g transform="translate(30 210)"><circle cx="22" cy="26" r="18" fill="#F2C866"/><circle cx="8" cy="8" r="7" fill="#A8432F"/><circle cx="36" cy="8" r="7" fill="#A8432F"/><path d="M22 26 v-10 M22 26 h8" stroke-width="2"/></g>
+        <g transform="translate(80 210)"><circle cx="22" cy="26" r="18" fill="#F2C866"/><circle cx="8" cy="8" r="7" fill="#A8432F"/><circle cx="36" cy="8" r="7" fill="#A8432F"/><path d="M22 26 v-10 M22 26 h8" stroke-width="2"/></g>
+        <g transform="translate(130 210)"><circle cx="22" cy="26" r="18" fill="#F2C866"/><circle cx="8" cy="8" r="7" fill="#A8432F"/><circle cx="36" cy="8" r="7" fill="#A8432F"/><path d="M22 26 v-10 M22 26 h8" stroke-width="2"/></g>
+        <g transform="translate(180 210)"><circle cx="22" cy="26" r="18" fill="#F2C866"/><circle cx="8" cy="8" r="7" fill="#A8432F"/><circle cx="36" cy="8" r="7" fill="#A8432F"/><path d="M22 26 v-10 M22 26 h8" stroke-width="2"/></g>
+        <g transform="translate(236 222) rotate(70 22 26)" opacity="0.55"><circle cx="22" cy="26" r="18" fill="#D8D4E4"/><circle cx="8" cy="8" r="7" fill="#A99BC4"/><circle cx="36" cy="8" r="7" fill="#A99BC4"/></g>
+      </g>
+      <text x="30" y="282" font-family="Chalkboard SE, cursive" font-size="15" fill="#3B2418">wake-ups: alarm clocks</text>
+      <!-- Cups in hand. -->
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="2">
+        <g transform="translate(330 214)">
+          <path d="M0 0 h18 l-3 28 h-12 z" fill="#F3E6C8"/><path d="M1 10 h16 l-1 8 h-14 z" fill="#A8432F"/>
+          <path d="M24 0 h18 l-3 28 h-12 z" fill="#F3E6C8"/><path d="M25 10 h16 l-1 8 h-14 z" fill="#A8432F"/>
+          <path d="M48 0 h18 l-3 28 h-12 z" fill="#F3E6C8"/><path d="M49 10 h16 l-1 8 h-14 z" fill="#A8432F"/>
+          <path d="M72 0 h18 l-3 28 h-12 z" fill="#F3E6C8"/><path d="M73 10 h16 l-1 8 h-14 z" fill="#A8432F"/>
+          <path d="M96 0 h18 l-3 28 h-12 z" fill="none" stroke-dasharray="3 3"/>
+          <path d="M120 0 h18 l-3 28 h-12 z" fill="none" stroke-dasharray="3 3"/>
+        </g>
+      </g>
+      <text x="330" y="282" font-family="Chalkboard SE, cursive" font-size="15" fill="#3B2418">cups in hand</text>
+      <!-- Coaster touch buttons. -->
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="3">
+        <circle cx="70" cy="336" r="32" fill="#C9935E"/><circle cx="70" cy="336" r="24" fill="none" stroke="#8A5A36" stroke-dasharray="4 4" stroke-width="2"/>
+        <circle cx="160" cy="336" r="32" fill="#C9935E"/><circle cx="250" cy="336" r="32" fill="#C9935E"/><circle cx="340" cy="336" r="40" fill="#A8432F"/>
+      </g>
+      <g fill="none" stroke="#FFFFFF" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" filter="url(#chalk)">
+        <path d="M60 326 h20 l-3 22 h-14 z M84 334 q8 0 6 8"/>
+        <path d="M148 344 a12 12 0 1 1 20 -4 M168 340 l2 -8 l-8 2"/>
+        <path d="M240 346 v-16 l10 -6 l10 6 v16 M250 324 v-8"/>
+        <path d="M328 352 l4 -24 h16 l4 24 z M332 318 q8 -12 0 -20 M348 318 q-6 -10 2 -18"/>
+      </g>
+      <g font-family="Chalkboard SE, cursive" font-size="13" fill="#3B2418" text-anchor="middle">
+        <text x="70" y="392">drink</text><text x="160" y="392">dodge</text><text x="250" y="392">use</text><text x="340" y="392">throw</text>
+      </g>
+      <text x="420" y="330" font-family="Chalkboard SE, cursive" font-size="15" fill="#3B2418">touch buttons are coasters</text>
+      <text x="420" y="350" font-family="Chalkboard SE, cursive" font-size="15" fill="#3B2418">throw is the biggest one</text>
+    </svg>
+    <div class="caption"><b>HUD pieces</b>The awake meter is a mug, wake-ups are alarm clocks, cups in hand are paper cups. All hand-drawn, all in the world palette.</div>
+  </div>
+</div>
+
+<div class="grid g2" style="margin-top:22px">
+  <div class="panel">
+    <svg viewBox="0 0 600 360">
+      <g filter="url(#hand)" stroke="#3B2418" stroke-width="3" stroke-linejoin="round">
+        <rect x="100" y="10" width="400" height="340" rx="34" fill="#3B2418"/>
+        <rect x="116" y="40" width="368" height="290" rx="8" fill="#E8D7B0"/>
+        <path d="M116 74 H484" stroke-width="1.5"/>
+      </g>
+      <text x="300" y="64" text-anchor="middle" font-family="Avenir Next, sans-serif" font-weight="700" font-size="16" fill="#3B2418">SleepyDex · No. 001</text>
+      <use href="#c-neighbor" x="130" y="80" width="110" height="190"/>
+      <g font-family="Chalkboard SE, cursive" fill="#3B2418">
+        <text x="260" y="110" font-size="22">The Neighbor</text>
+        <text x="260" y="134" font-size="15">Habitat: everywhere</text>
+        <text x="260" y="152" font-size="15">Behavior: slow walk,</text>
+        <text x="260" y="168" font-size="15">a sincere hug</text>
+        <text x="260" y="186" font-size="15">Status: found ✓</text>
+      </g>
+      <g filter="url(#hand)" transform="rotate(3 330 270)">
+        <rect x="270" y="210" width="190" height="102" fill="#FFFDF5" stroke="#3B2418" stroke-width="2"/>
+        <path d="M270 312 l10 6 l10 -6 l10 6 l10 -6 l10 6 l10 -6 l10 6 l10 -6 l10 6 l10 -6 l10 6 l10 -6 l10 6 l10 -6 l10 6 l10 -6 l10 6 l10 -6" fill="#FFFDF5" stroke="#3B2418" stroke-width="2"/>
+      </g>
+      <g font-family="ui-monospace, Menlo, monospace" font-size="12" fill="#3B2418" transform="rotate(3 330 270)">
+        <text x="282" y="232">ORDER · CURE</text>
+        <text x="282" y="254">1x CUP OF COFFEE</text>
+        <text x="282" y="274">any bean, any roast</text>
+        <text x="282" y="294">tier: weak or better</text>
+      </g>
+      <circle cx="170" cy="296" r="26" fill="none" stroke="#8A5A36" stroke-width="5" opacity="0.35" filter="url(#pastel)"/>
+    </svg>
+    <div class="caption"><b>SleepyDex</b>The only phone screen. Entries are field-guide pages with a sketch, notes, and the cure as a café order ticket. A coffee ring is allowed.</div>
+  </div>
+
+  <!-- ============================ MUG ROASTERS ============================ -->
+  <div class="panel">
+    <svg viewBox="0 0 600 360">
+      <g transform="translate(20 20)">
+        <rect width="260" height="320" fill="#D6202A"/>
+        <rect x="70" y="40" width="120" height="130" rx="16" fill="#FFFFFF"/>
+        <path d="M190 70 q44 0 44 36 q0 36 -44 36" fill="none" stroke="#FFFFFF" stroke-width="16"/>
+        <circle cx="108" cy="92" r="8" fill="#151112"/><circle cx="152" cy="92" r="8" fill="#151112"/>
+        <path d="M92 118 Q130 166 168 118 Z" fill="#151112"/>
+        <text x="130" y="226" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-weight="800" font-size="32" fill="#FFFFFF">JOIN THE</text>
+        <text x="130" y="270" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-weight="800" font-size="44" fill="#151112">GRIND</text>
+        <text x="130" y="302" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-size="11" letter-spacing="3" fill="#FFFFFF">MUG ROASTERS CO.</text>
+      </g>
+      <g transform="translate(320 20)">
+        <rect width="260" height="320" fill="#F3E6C8"/>
+        <g opacity="0.55">
+          <rect width="260" height="320" fill="#D6202A"/>
+          <rect x="70" y="40" width="120" height="130" rx="16" fill="#FFFFFF"/>
+          <path d="M190 70 q44 0 44 36 q0 36 -44 36" fill="none" stroke="#FFFFFF" stroke-width="16"/>
+          <circle cx="108" cy="92" r="8" fill="#151112"/><circle cx="152" cy="92" r="8" fill="#151112"/>
+          <path d="M92 118 Q130 166 168 118 Z" fill="#151112"/>
+          <text x="130" y="226" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-weight="800" font-size="32" fill="#FFFFFF">JOIN THE</text>
+          <text x="130" y="270" text-anchor="middle" font-family="Helvetica Neue, Arial, sans-serif" font-weight="800" font-size="44" fill="#151112">GRIND</text>
+        </g>
+        <path d="M200 0 L260 0 L260 90 Q236 60 214 54 Q226 30 200 0 Z" fill="#F3E6C8" stroke="#3B2418" stroke-width="2" filter="url(#hand)"/>
+        <g fill="none" stroke="#FFFFFF" stroke-width="5" stroke-linecap="round" filter="url(#chalk)">
+          <path d="M96 140 q16 -12 34 0 q18 -12 34 0"/>
+          <path d="M70 250 L196 232"/>
+        </g>
+        <text x="22" y="312" font-family="Chalkboard SE, Marker Felt, cursive" font-size="28" fill="#3B2418" transform="rotate(-4 22 312)">BREW IT STRONG</text>
+      </g>
+    </svg>
+    <div class="caption"><b>Mug Roasters Co.</b>Left: as printed. Flat, perfect, no grain, always the same smile. Right: after a city wakes. Sun-faded, peeled, and survivors' chalk on top.</div>
+  </div>
+</div>
+
+<!-- ============================ DO / DON'T ============================ -->
+<h2>Do and don't</h2>
+<div class="grid g2">
+  <div class="panel">
+    <div class="do">Do</div>
+    <ul class="dodont">
+      <li>Hatch shadows at 45 degrees, from top-right.</li>
+      <li>Leave small gaps in contour lines where the light hits.</li>
+      <li>Let the paper grain show in every flat color.</li>
+      <li>Give every street one small silly story.</li>
+      <li>Make coffee the brightest, warmest thing on the screen.</li>
+      <li>Test every character as a silhouette at one centimeter.</li>
+      <li>Test every screen in grayscale.</li>
+    </ul>
+  </div>
+  <div class="panel">
+    <div class="dont">Don't</div>
+    <ul class="dodont">
+      <li>No pure black, except on Mug Roasters Co. things.</li>
+      <li>No smooth digital gradients or glossy highlights on world art.</li>
+      <li>No horror darkness, blood, or rot. Sleep is lavender, not black.</li>
+      <li>No dense hatching on small sprites. It turns to mud on a phone.</li>
+      <li>No line boil on backgrounds. It makes the screen tiring.</li>
+      <li>No real names or real likeness for parody characters.</li>
+    </ul>
+  </div>
+</div>
+
+</main>
+</body>
+</html>

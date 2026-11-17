@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="CityLook" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/art/city_look.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+city_id = "pourtland"
+display_name = "Pourtland"
+accent = Color(0.435, 0.498, 0.271, 1)
+morning_light = Color(1, 0.96, 0.88, 1)
+dusk_light = Color(0.80, 0.76, 0.86, 1)
+weather = 2
+weather_color = Color(0.79, 0.48, 0.32, 0.9)
