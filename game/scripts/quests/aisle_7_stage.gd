@@ -17,7 +17,10 @@ const SITE_STORE := "The Hardware Store"
 const FOAM_WATCH_SCENE := preload("res://scenes/minigames/foam_watch.tscn")
 const HUSBAND_SCENE := preload("res://scenes/quests/aisle_7_husband.tscn")
 const WIFE_SCENE := preload("res://scenes/quests/aisle_7_wife.tscn")
-const MASTER_NPC_SCENE := preload("res://scenes/masters/master_npc.tscn")
+# The master scene stays a path, never a preload: the city run preloads the
+# same scene, and a compile-time const binds an empty scene whenever another
+# load of it is already running (T102).
+const MASTER_NPC_SCENE_PATH := "res://scenes/masters/master_npc.tscn"
 
 const GREET_LINE := "Please. My husband sleeps in aisle 7, between the screws and the sandpaper."
 const PHOTO_LINE := "He drank only Turkish coffee, all his life. Brew him one cup, in front of him."
@@ -294,7 +297,7 @@ func _spawn_master() -> void:
 	# the same master path as its cafe masters.
 	if not _run.master_lessons.register_master(master):
 		return
-	var npc := MASTER_NPC_SCENE.instantiate() as MasterNpc
+	var npc := (load(MASTER_NPC_SCENE_PATH) as PackedScene).instantiate() as MasterNpc
 	npc.name = "Master" + master.master_id.capitalize()
 	add_child(npc)
 	npc.global_position = _store_position + MASTER_OFFSET

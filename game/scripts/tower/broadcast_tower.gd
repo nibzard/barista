@@ -9,7 +9,10 @@ signal birdsong
 
 enum Phase { BROADCASTING, FUSED, SILENCE, BIRDSONG }
 
-const FUSE_ITEM := preload("res://resources/items/materials/fuse.tres")
+# The fuse item stays a path, never a preload: the city kit preloads the same
+# resource, and a compile-time const binds an empty resource whenever another
+# load of it is already running (T102).
+const FUSE_ITEM_PATH := "res://resources/items/materials/fuse.tres"
 
 # Placeholder tower colors until the art pass brings the real landmark.
 const MAST_COLOR := Color(0.25, 0.2, 0.18, 1)
@@ -45,19 +48,25 @@ func _physics_process(delta: float) -> void:
 			birdsong.emit()
 
 
+func _fuse_item() -> ItemType:
+	# Loaded at use time: the city kit preloads the same resource, and the
+	# compile-time const can bind an empty resource mid-load (T102).
+	return load(FUSE_ITEM_PATH) as ItemType
+
+
 func can_insert_fuse(player: Player) -> bool:
 	if phase != Phase.BROADCASTING or player == null:
 		return false
 	if player.is_asleep():
 		return false
-	return player.inventory.count(FUSE_ITEM.item_id) >= balance.fuses_needed
+	return player.inventory.count(_fuse_item().item_id) >= balance.fuses_needed
 
 
 func insert_fuse(player: Player) -> bool:
 	# One fuse opens one broadcast tower; the fuse leaves the bag for good.
 	if not can_insert_fuse(player):
 		return false
-	if not player.inventory.remove(FUSE_ITEM.item_id, balance.fuses_needed):
+	if not player.inventory.remove(_fuse_item().item_id, balance.fuses_needed):
 		return false
 	_set_phase(Phase.FUSED)
 	fuse_inserted.emit()

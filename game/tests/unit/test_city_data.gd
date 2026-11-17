@@ -3,6 +3,7 @@
 extends GdUnitTestSuite
 
 const BALANCE := preload("res://resources/balance/city.tres")
+const VAN_BALANCE := preload("res://resources/balance/mobile_cafe.tres")
 
 const SAN_COFFESCO := preload("res://resources/city/san_coffesco.tres")
 const STEAMTLE := preload("res://resources/city/steamtle.tres")
@@ -116,6 +117,26 @@ func test_city_block_counts_pin_the_planned_sizes() -> void:
 	for city: CityDefinition in _cities():
 		var expected: int = EXPECTED_BLOCK_COUNTS[city.city_id]
 		assert_int(city.blocks.size()).is_equal(expected)
+
+
+func test_every_citys_scavenge_loot_funds_the_van_levels_alone() -> void:
+	# T101, sections 10 and 15: one city's scavenge crates pay for both van
+	# upgrade steps on their own, so the field cafe never depends on scrap
+	# the bag left in the city west.
+	var both_costs: int = VAN_BALANCE.kitchen_scrap_cost + VAN_BALANCE.field_cafe_scrap_cost
+	for city: CityDefinition in _cities():
+		var crates := CityRules.count_kind(city, CityBlock.Kind.SCAVENGE)
+		var scrap := crates * BALANCE.scavenge_scrap_parts
+		(
+			assert_int(scrap)
+			. override_failure_message(
+				(
+					"%s: %d scrap from %d crates for %d in upgrade costs"
+					% [city.city_id, scrap, crates, both_costs]
+				)
+			)
+			. is_greater_equal(both_costs)
+		)
 
 
 func test_every_city_hosts_exactly_one_brewing_master() -> void:

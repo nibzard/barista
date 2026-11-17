@@ -6,15 +6,18 @@ const CITY_SCENE := preload("res://scenes/city/san_coffesco.tscn")
 
 const MAX_FRAMES_TO_WAIT := 120
 
-# The six common V1 rows in catalog order, with the cup that wakes each type.
+# The six common V1 rows in catalog order, with the cup that wakes each
+# type. Section 15: each cure names the roasts with enough wake power.
 const EXPECTED_ROWS: Array[String] = [
 	"The Neighbor|Wakes from: any cup.",
-	"The Tourist|Wakes from: Frappuccino",
-	"The Tech Bro|Wakes from: Bulletproof",
-	"The Gamer|Wakes from: Triple Shot",
-	"The Tinfoil Man|Wakes from: Turkish Coffee",
-	"The Karen|Wakes from: Super Tall American",
+	"The Tourist|Wakes from: Frappuccino (light or medium roast)",
+	"The Tech Bro|Wakes from: Bulletproof (light or medium roast)",
+	"The Gamer|Wakes from: Triple Shot (light roast)",
+	"The Tinfoil Man|Wakes from: Turkish Coffee (medium roast)",
+	"The Karen|Wakes from: Super Tall American (medium roast)",
 ]
+# The phone states the section 15 roast fact under the cure rows.
+const ROAST_FACT := "light roast keeps more caffeine"
 
 var _city: CityRun
 
@@ -62,6 +65,8 @@ func test_the_app_lists_every_common_type_with_picture_and_cure() -> void:
 	# The rare type stays absent from the phone: no row, no name, no hint.
 	for i: int in range(app.row_count()):
 		assert_str(app.row_name(i)).is_not_equal("The Moonwalker")
+	# The game states the roast fact, section 15, on the open phone.
+	assert_str(app.fact_text()).contains(ROAST_FACT)
 
 
 func test_meeting_a_type_in_the_world_opens_its_entry() -> void:

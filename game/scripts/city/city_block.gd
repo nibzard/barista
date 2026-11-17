@@ -11,3 +11,6 @@ enum Kind { CAFE, TOWER, BOSS_ARENA, QUEST, SCAVENGE, QUEST_SITE }
 # The named place on the block when the landmark has one, like the greenhouse
 # of the Sleepvana quest. Empty on plain kit blocks.
 @export var site_name := ""
+# Section 15: the one-time finds of the block, authored scavenge loot like the
+# thermos belt and the cafe appliances. Empty on plain kit blocks.
+@export var finds: Array[ScavengeDrop] = []

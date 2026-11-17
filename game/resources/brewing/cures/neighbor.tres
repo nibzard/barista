@@ -8,3 +8,4 @@ cure_recipe_id = ""
 display_name = "The Neighbor"
 is_basic = true
 sleeper_type_id = "neighbor"
+wake_resistance = 0.0

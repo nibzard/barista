@@ -9,3 +9,4 @@ grind_target = 0.65
 grind_tolerance = 0.1
 method_id = "filter"
 minigame_group = 1
+score_ceiling = 100.0

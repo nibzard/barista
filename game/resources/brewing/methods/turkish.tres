@@ -9,3 +9,4 @@ grind_target = 0.05
 grind_tolerance = 0.05
 method_id = "turkish"
 minigame_group = 3
+score_ceiling = 100.0

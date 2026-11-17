@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="FieldBaseQuestBalance" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/balance/field_base_quest_balance.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/items/beans/house.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/items/materials/scrap_part.tres" id="3"]
+
+[resource]
+script = ExtResource("1")
+min_gathered_survivors = 1
+beans_goal = 3
+reward_scrap_parts = 1
+bean_item = ExtResource("2")
+reward_item = ExtResource("3")

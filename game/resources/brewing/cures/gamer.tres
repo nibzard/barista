@@ -8,3 +8,4 @@ cure_recipe_id = "triple_shot"
 display_name = "The Gamer"
 is_basic = false
 sleeper_type_id = "gamer"
+wake_resistance = 1.0

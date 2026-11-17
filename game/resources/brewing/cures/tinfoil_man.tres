@@ -8,3 +8,4 @@ cure_recipe_id = "turkish_cup"
 display_name = "The Tinfoil Man"
 is_basic = false
 sleeper_type_id = "tinfoil_man"
+wake_resistance = 0.8

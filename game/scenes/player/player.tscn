@@ -11,6 +11,7 @@
 [ext_resource type="Resource" path="res://resources/brewing/brewing_balance.tres" id="6"]
 [ext_resource type="PackedScene" path="res://scenes/components/bean_slick.tscn" id="10"]
 [ext_resource type="Resource" path="res://resources/balance/cluster_bomb.tres" id="11"]
+[ext_resource type="PackedScene" path="res://scenes/components/coffee_plant.tscn" id="12"]
 
 [sub_resource type="RectangleShape2D" id="Body"]
 size = Vector2(28, 40)
@@ -29,6 +30,7 @@ wake_ups_balance = ExtResource("7")
 brewing_library = ExtResource("5")
 brewing_balance = ExtResource("6")
 bean_slick_scene = ExtResource("10")
+coffee_plant_scene = ExtResource("12")
 
 [node name="Visual" type="Polygon2D" parent="."]
 color = Color(0.2, 0.35, 0.7, 1)

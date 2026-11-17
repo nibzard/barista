@@ -9,3 +9,4 @@ grind_target = 0.55
 grind_tolerance = 0.08
 method_id = "v60"
 minigame_group = 1
+score_ceiling = 100.0

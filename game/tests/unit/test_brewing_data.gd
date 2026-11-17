@@ -39,12 +39,14 @@ func test_library_holds_the_full_dataset() -> void:
 	assert_int(LIBRARY.methods.size()).is_equal(8)
 	assert_int(LIBRARY.beans.size()).is_equal(4)
 	assert_int(LIBRARY.roasts.size()).is_equal(3)
-	assert_int(LIBRARY.extras.size()).is_equal(6)
-	assert_int(LIBRARY.recipes.size()).is_equal(15)
-	assert_int(LIBRARY.cures.size()).is_equal(8)
+	# Nine extras, nineteen recipes, and twelve cures: the V1 table plus the
+	# V2 cure rows of section 6, pinned by test_v2_cure_data.gd.
+	assert_int(LIBRARY.extras.size()).is_equal(9)
+	assert_int(LIBRARY.recipes.size()).is_equal(19)
+	assert_int(LIBRARY.cures.size()).is_equal(12)
 
 
-func test_methods_pin_minigame_groups_and_grind_zones() -> void:
+func test_methods_pin_groups_grind_zones_and_score_ceilings() -> void:
 	for method_id: String in METHOD_GROUPS:
 		var method := LIBRARY.find_method(method_id)
 		assert_object(method).is_not_null()
@@ -57,6 +59,15 @@ func test_methods_pin_minigame_groups_and_grind_zones() -> void:
 	for method: BrewingMethod in LIBRARY.methods:
 		assert_float(method.grind_target).is_greater_equal(turkish.grind_target)
 		assert_float(cold_brew.grind_target).is_greater_equal(method.grind_target)
+		# Section 8: cold brew is low ceiling, zero stress, so its cup cannot
+		# reach the perfect tier. The seven minigame methods keep the full
+		# 0 to 100 scale.
+		if method.method_id == "cold_brew":
+			assert_float(method.score_ceiling).is_equal(85.0)
+			assert_float(method.score_ceiling).is_greater_equal(BALANCE.good_tier_min_score)
+			assert_float(method.score_ceiling).is_less(BALANCE.perfect_tier_min_score)
+		else:
+			assert_float(method.score_ceiling).is_equal(100.0)
 
 
 func test_beans_pin_quality_tiers() -> void:
@@ -233,10 +244,13 @@ func test_cures_pin_recipes() -> void:
 		var cure := LIBRARY.find_cure(sleeper_type_id)
 		assert_object(cure).is_not_null()
 		assert_str(cure.cure_recipe_id).is_equal(CURE_RECIPES[sleeper_type_id])
+	# Section 6: the basic type and the Withdrawer wake from any cup.
+	# Every other cure, V1 and V2, names one recipe.
 	assert_bool(LIBRARY.find_cure("neighbor").is_basic).is_true()
+	assert_bool(LIBRARY.find_cure("withdrawer").is_basic).is_true()
 	for cure: SleepwalkerCure in LIBRARY.cures:
-		if cure.sleeper_type_id != "neighbor":
-			assert_bool(cure.is_basic).is_false()
+		var wakes_from_any_cup := ["neighbor", "withdrawer"].has(cure.sleeper_type_id)
+		assert_bool(cure.is_basic).is_equal(wakes_from_any_cup)
 
 
 func test_every_cure_recipe_id_resolves() -> void:

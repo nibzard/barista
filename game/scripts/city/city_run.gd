@@ -10,11 +10,18 @@ const CITY_MAP_SCENE := preload("res://scenes/city/city_map.tscn")
 const BRIDGE_GATE_SCENE := preload("res://scenes/city/bridge_gate.tscn")
 const VAN_SCENE := preload("res://scenes/van/mobile_cafe.tscn")
 const MASTER_NPC_SCENE := preload("res://scenes/masters/master_npc.tscn")
-const TUTORIAL_SCENE := preload("res://scenes/tutorial/tutorial_director.tscn")
+# The tutorial scene stays a path, never a preload: the director script holds
+# CityRun type hints, so a preload made this parse depend on the tutorial
+# graph. When the director compiled first, that load rode a resource cycle
+# and the city kit resolved its sleep zone scene empty (T102).
+const TUTORIAL_SCENE_PATH := "res://scenes/tutorial/tutorial_director.tscn"
+const MORGEN_REPLAY_SCENE := preload("res://scenes/tutorial/morgen_replay.tscn")
 const OUTRO_SCENE := preload("res://scenes/ending/outro_director.tscn")
 const ADDRESS_AUDIO_SCENE := preload("res://scenes/audio/address_audio_director.tscn")
 const DEX_CATALOG := preload("res://resources/dex/sleepy_dex.tres")
 const MAIN_ROUTE := preload("res://resources/quests/main_route.tres")
+const FIELD_BASE_QUEST_BALANCE := preload("res://resources/balance/field_base_quest.tres")
+const FIELD_BASE_QUEST_DEFINITION := preload("res://resources/quests/side/field_kitchen_stock.tres")
 
 const WALL_THICKNESS := 40.0
 # The bridge deck east of the tower block; the paywall gate stands on it.
@@ -63,6 +70,10 @@ var quest_log := QuestLog.new()
 # The signature quest of the city rides the run like the quest log,
 # section 13: the Sleepvana stage of Steamtle. Null when the city has none.
 var signature_quest: SignatureQuest = null
+# Section 10, van level 3: the survivors that gather at the field base give
+# small side quests. The giver rides the run beside the van and answers the
+# interact key at the open base.
+var field_base_quests: FieldBaseQuestGiver = null
 # The school of the city master rides the run, section 8: the lessons train
 # the player skills and grant the master recipes.
 var master_lessons: MasterLessons = null
@@ -83,6 +94,9 @@ var _van: MobileCafeVan = null
 var _crowd: Node2D = null
 var _markers: QuestMarkers = null
 var _tutorial: TutorialDirector = null
+# The replay of the Dr. Morgen video on the cafe television, section 22. It
+# spawns on the first press at the set and plays every city's cafe.
+var _television_replay: MorgenReplayPlayer = null
 # The version ending of section 16 rides the last city of the route. It waits
 # dormant until the city completes.
 var _outro: OutroDirector = null
@@ -96,6 +110,7 @@ var _end_screen_shown := false
 @onready var overlay: ColorRect = $UI/Overlay
 @onready var status_label: Label = $UI/StatusLabel
 @onready var restart_button: Button = $UI/RestartButton
+@onready var continue_button: Button = $UI/ContinueButton
 
 
 func _ready() -> void:
@@ -103,6 +118,8 @@ func _ready() -> void:
 	status_label.visible = false
 	restart_button.visible = false
 	restart_button.pressed.connect(_on_restart_pressed)
+	continue_button.visible = false
+	continue_button.pressed.connect(_on_continue_pressed)
 	touch_controls.player = player
 	player.died.connect(_on_player_died)
 	player.woke_in_cafe.connect(_on_player_woke_in_cafe)
@@ -140,6 +157,7 @@ func build() -> void:
 	_buildaddress_audio(tower)
 	_spawn_crowd()
 	_build_quest_markers()
+	_build_field_base_quests()
 	_apply_saved_tower_state()
 	_build_outro()
 	if run_tutorial and city_index == 1:
@@ -161,6 +179,19 @@ func _build_quest_markers() -> void:
 	_markers.name = "QuestMarkers"
 	add_child(_markers)
 	_markers.bind(quest_log, _map)
+
+
+func _build_field_base_quests() -> void:
+	# Section 10, van level 3: awakened survivors gather at the field base and
+	# give small side quests. The giver stands above the tables and answers at
+	# the van. It registers after the quest log setup, so the round joins the
+	# log beside the signature quests of the route.
+	field_base_quests = FieldBaseQuestGiver.new()
+	field_base_quests.name = "FieldBaseQuestGiver"
+	field_base_quests.balance = FIELD_BASE_QUEST_BALANCE
+	field_base_quests.definition = FIELD_BASE_QUEST_DEFINITION
+	add_child(field_base_quests)
+	field_base_quests.setup(self)
 
 
 func _buildaddress_audio(tower: BroadcastTower) -> void:
@@ -197,7 +228,7 @@ func _build_tutorial() -> void:
 	# Section 19: the first ten minutes play inside this run. The director
 	# rides the run as the "Tutorial" child; it hides the quest markers until
 	# the survivor names the tower.
-	_tutorial = TUTORIAL_SCENE.instantiate() as TutorialDirector
+	_tutorial = (load(TUTORIAL_SCENE_PATH) as PackedScene).instantiate() as TutorialDirector
 	_tutorial.name = "Tutorial"
 	add_child(_tutorial)
 	_tutorial.setup(self)
@@ -229,6 +260,10 @@ func _update_touch_context() -> void:
 		TouchControls.ButtonKind.VAN, van_state != null and van_state.is_field_cafe()
 	)
 	touch_controls.set_button_available(TouchControls.ButtonKind.BREW, brewing_allowed_here())
+	# The seedling button shows only while the bag holds one, section 6.
+	touch_controls.set_button_available(
+		TouchControls.ButtonKind.PLANT, player.inventory.has_item(Player.COFFEE_SEEDLING_ID)
+	)
 	touch_controls.set_overlay_open(_end_screen_shown or hud.dex_app.is_open())
 
 
@@ -294,6 +329,36 @@ func interact_with_van() -> MobileCafeVan.Interaction:
 	if outcome == MobileCafeVan.Interaction.NEED_SCRAP:
 		hud.show_toast(VAN_NEED_SCRAP_TEXT % van_state.next_upgrade_cost())
 	return outcome
+
+
+func _interact_with_television() -> bool:
+	# Section 22: the Dr. Morgen video replays on the cafe television. One
+	# press at the set plays it again; any press inside skips it. A locked
+	# player stands in a cinematic, so the set stays quiet for him.
+	var television := _cafe_television()
+	if television == null or not television.is_player_at_television():
+		return false
+	if player.is_input_locked():
+		return false
+	_morgen_replay().begin(player)
+	return true
+
+
+func _cafe_television() -> CafeTelevision:
+	if _map == null:
+		return null
+	var cafe_block := _map.find_block_of_kind(CityBlock.Kind.CAFE)
+	if cafe_block == null:
+		return null
+	return cafe_block.television()
+
+
+func _morgen_replay() -> MorgenReplayPlayer:
+	if _television_replay == null:
+		_television_replay = MORGEN_REPLAY_SCENE.instantiate() as MorgenReplayPlayer
+		_television_replay.name = "MorgenReplay"
+		add_child(_television_replay)
+	return _television_replay
 
 
 func call_van() -> bool:
@@ -479,7 +544,11 @@ func _build_van() -> void:
 	add_child(_van)
 	van_state = MobileCafe.new(_van.balance)
 	if city_index > 1:
-		van_state.load_state(MobileCafe.Level.VAN)
+		# Section 10, moving day: the van comes along on the move east with
+		# every level the west city paid for. The parked level rides the
+		# scene change; an arrival without one, like a fresh run that never
+		# traveled, starts at the plain van.
+		van_state.load_state(VanHandoff.take_arriving_level(MobileCafe.Level.VAN))
 	_van.global_position = cafe_block.van_spot().global_position
 	_van.bind_state(van_state)
 	_van.bind_dex(dex)
@@ -706,8 +775,20 @@ func _on_east_road_taken() -> void:
 	# The scene travels east only when the city scene names the destination.
 	# The last city of the version keeps the road closed with no destination.
 	quest_log.travel_east()
+	# Section 10, moving day: the van carries its own level east across the
+	# scene change. The park happens here, before the deferred travel, so the
+	# next city reads it in _build_van.
+	if van_state != null:
+		VanHandoff.park(van_state.save_state())
 	if east_city_scene != null:
-		get_tree().change_scene_to_packed(east_city_scene)
+		# The trigger fires inside the physics step, and the scene change
+		# frees collision nodes. The engine rejects that removal mid-callback,
+		# so the travel waits for idle time.
+		_travel_east.call_deferred()
+
+
+func _travel_east() -> void:
+	get_tree().change_scene_to_packed(east_city_scene)
 
 
 func _show_end_screen(message: String, show_restart: bool) -> void:
@@ -716,6 +797,16 @@ func _show_end_screen(message: String, show_restart: bool) -> void:
 	status_label.visible = true
 	status_label.text = message
 	restart_button.visible = show_restart
+	continue_button.visible = not show_restart
+
+
+func _on_continue_pressed() -> void:
+	# The completion beat ends: the player takes the screen back, the touch
+	# controls return, and the walk east can start.
+	_end_screen_shown = false
+	overlay.visible = false
+	status_label.visible = false
+	continue_button.visible = false
 
 
 func _on_restart_pressed() -> void:
@@ -730,10 +821,13 @@ func _unhandled_input(event: InputEvent) -> void:
 		# consumes the press: its lift action shares the E key with interact.
 		if signature_quest != null and signature_quest.holds_interact():
 			return
-		# The master at hand answers first; then the signature quest, like the
-		# Sleepvana crowd at the van; the van takes the key otherwise.
-		if not interact_with_masters():
+		# The master at hand answers first; then the cafe television with the
+		# section 22 replay; then the signature quest, like the Sleepvana
+		# crowd at the van; then the small ask of the gathered field base
+		# survivors, section 10; the van takes the key otherwise.
+		if not interact_with_masters() and not _interact_with_television():
 			if signature_quest == null or not signature_quest.try_interact():
-				interact_with_van()
+				if field_base_quests == null or not field_base_quests.try_interact(player):
+					interact_with_van()
 	elif event.is_action_pressed(&"call_van"):
 		call_van()

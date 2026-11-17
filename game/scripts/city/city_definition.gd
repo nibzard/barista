@@ -6,6 +6,10 @@ extends Resource
 @export var city_id: String
 @export var display_name: String
 @export var accent_color := Color.WHITE
+# Section 15 beans table: the region bean the scavenge buildings of the city
+# yield. Golden Coast arabica in Steamtle, Moss Hollow organic in Pourtland.
+# Null in San Coffesco: house beans are the common bean of every city.
+@export var region_bean: ItemType
 # Section 10: each new city has a cafe one tier bigger and better than the old
 # one. City 1 on the route holds tier 1.
 @export var cafe_tier: int = 1

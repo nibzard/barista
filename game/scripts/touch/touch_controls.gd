@@ -4,7 +4,7 @@
 class_name TouchControls
 extends CanvasLayer
 
-enum ButtonKind { THROW, DODGE, DRINK, USE, TOOL, SWAP, REFILL, VAN, BREW }
+enum ButtonKind { THROW, DODGE, DRINK, USE, TOOL, SWAP, REFILL, VAN, BREW, PLANT }
 
 # The mouse event a touch emulates carries device -1. The raw touch already
 # reached this layer, so the copy is skipped.
@@ -13,13 +13,15 @@ const EMULATED_MOUSE_DEVICE := -1
 const MOUSE_POINTER := -10
 # The context buttons wait for the run to open them; the rest are always on.
 # TOOL and SWAP wait with them: the belt starts empty until the player finds
-# the first support tool, section 11.
+# the first support tool, section 11. PLANT waits until the bag holds a
+# coffee seedling, section 6.
 const CONTEXT_KINDS: Array[ButtonKind] = [
 	ButtonKind.TOOL,
 	ButtonKind.SWAP,
 	ButtonKind.REFILL,
 	ButtonKind.VAN,
 	ButtonKind.BREW,
+	ButtonKind.PLANT,
 ]
 
 @export var balance: TouchControlsBalance
@@ -41,6 +43,7 @@ var _held_by_pointer: Dictionary = {}
 	ButtonKind.REFILL: $Board/Buttons/Refill,
 	ButtonKind.VAN: $Board/Buttons/Van,
 	ButtonKind.BREW: $Board/Buttons/Brew,
+	ButtonKind.PLANT: $Board/Buttons/Plant,
 }
 
 
@@ -75,6 +78,9 @@ func _ready() -> void:
 	van_button.tapped.connect(func() -> void: _fire_action(&"call_van"))
 	var brew_button := _buttons[ButtonKind.BREW] as TouchButton
 	brew_button.tapped.connect(func() -> void: _fire_action(&"start_brew"))
+	# The seedling drops under the player, so the tap needs no aim, section 6.
+	var plant_button := _buttons[ButtonKind.PLANT] as TouchButton
+	plant_button.tapped.connect(func() -> void: player.try_action(&"plant_coffee", Vector2.ZERO))
 	# The context buttons wait closed for the run to open them. The state and
 	# the visibility start in step, so the first open call really opens.
 	for kind: ButtonKind in CONTEXT_KINDS:

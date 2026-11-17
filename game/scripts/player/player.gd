@@ -10,6 +10,7 @@ const STANDARD_BEAN_ID := "house"
 const STANDARD_ROAST_ID := "medium"
 const STANDARD_METHOD_ID := "filter"
 const THERMOS_BELT_ID := "thermos_belt"
+const COFFEE_SEEDLING_ID := "coffee_seedling"
 # A dazzled player glows dazed yellow until the stun wears off.
 const STUN_MODULATE := Color(1.0, 0.92, 0.45, 1.0)
 
@@ -24,12 +25,14 @@ const STUN_MODULATE := Color(1.0, 0.92, 0.45, 1.0)
 @export var brewing_balance: BrewingBalance
 @export var cup_scene: PackedScene
 @export var bean_slick_scene: PackedScene
+@export var coffee_plant_scene: PackedScene
 
 var _asleep := false
 var _input_locked := false
 var _grabber: Sleepwalker = null
 var _mash_presses := 0
 var _dodge_time_left := 0.0
+var _dodge_cooldown_time_left := 0.0
 var _grace_time_left := 0.0
 var _stun_time_left := 0.0
 var _dodge_direction := Vector2.RIGHT
@@ -84,6 +87,8 @@ func _physics_process(delta: float) -> void:
 func _tick_combat_timers(delta: float) -> void:
 	if _dodge_time_left > 0.0:
 		_dodge_time_left = maxf(0.0, _dodge_time_left - delta)
+	if _dodge_cooldown_time_left > 0.0:
+		_dodge_cooldown_time_left = maxf(0.0, _dodge_cooldown_time_left - delta)
 	if _grace_time_left > 0.0:
 		_grace_time_left = maxf(0.0, _grace_time_left - delta)
 	if _stun_time_left > 0.0:
@@ -138,13 +143,21 @@ func is_input_locked() -> bool:
 func begin_dodge(direction: Vector2) -> bool:
 	# The dodge roll: a short burst of speed with invulnerability for the
 	# whole roll. A grabbed or dazzled player cannot roll; mashing is the
-	# only way out of a grab.
-	if _asleep or _grabber != null or is_stunned() or is_dodging():
+	# only way out of a grab. The cooldown after each roll stops chain
+	# rolls from making the player permanently untouchable.
+	if (
+		_asleep
+		or _grabber != null
+		or is_stunned()
+		or is_dodging()
+		or _dodge_cooldown_time_left > 0.0
+	):
 		return false
 	_dodge_direction = (
 		direction.normalized() if direction != Vector2.ZERO else _last_move_direction
 	)
 	_dodge_time_left = balance.dodge_duration_seconds
+	_dodge_cooldown_time_left = balance.dodge_cooldown_seconds
 	return true
 
 
@@ -302,6 +315,21 @@ func _drop_bean_slick() -> void:
 	slick.global_position = global_position
 
 
+func _plant_coffee_seedling() -> bool:
+	# Section 6: sleepwalkers eat everything they find, also coffee plants.
+	# The seedling becomes a coffee plant under the player's feet, and every
+	# sleeper that smells it stops hunting and eats. Planting spends one
+	# seedling from the bag and no coffee supply.
+	if _asleep or _input_locked or _grabber != null or is_stunned():
+		return false
+	if not inventory.remove(COFFEE_SEEDLING_ID, 1):
+		return false
+	var plant := coffee_plant_scene.instantiate() as CoffeePlant
+	get_parent().add_child(plant)
+	plant.global_position = global_position
+	return true
+
+
 func _sleepwalkers_in_cone(
 	direction: Vector2, reach: float, half_angle_degrees: float
 ) -> Array[Sleepwalker]:
@@ -389,6 +417,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		)
 	elif event.is_action_pressed(&"use_tool"):
 		try_action(&"use_tool", get_global_mouse_position() - global_position)
+	elif event.is_action_pressed(&"plant_coffee"):
+		try_action(&"plant_coffee")
 	elif event.is_action_pressed(&"cycle_tool"):
 		try_action(&"cycle_tool")
 
@@ -418,6 +448,8 @@ func try_action(action: StringName, aim_direction: Vector2 = Vector2.ZERO) -> bo
 			result = begin_dodge(aim_direction)
 		&"use_tool":
 			result = use_tool(aim_direction)
+		&"plant_coffee":
+			result = _plant_coffee_seedling()
 		&"cycle_tool":
 			result = _cycle_tool()
 	return result
@@ -442,9 +474,10 @@ func throw_cup(direction: Vector2) -> CoffeeCup:
 	var landing := AimCone.landing_point(
 		start,
 		aim,
-		_sleepwalker_positions(),
+		_reachable_sleepwalker_candidates(start),
 		cup_balance.aim_cone_half_angle_degrees,
-		cup_balance.throw_range
+		cup_balance.throw_range,
+		cup_balance.flight_time_seconds
 	)
 	var cup := cup_scene.instantiate() as CoffeeCup
 	cup.direction = aim
@@ -455,13 +488,20 @@ func throw_cup(direction: Vector2) -> CoffeeCup:
 	return cup
 
 
-func _sleepwalker_positions() -> Array[Vector2]:
-	var positions: Array[Vector2] = []
+func _reachable_sleepwalker_candidates(start: Vector2) -> Array[AimCandidate]:
+	# The cone snaps only to sleepers a thrown cup can truly reach. Walls
+	# hide the rest: a snap through a wall would break on the wall, so the
+	# aim skips the sleeper behind it. Each candidate carries its velocity,
+	# so the landing point leads a mover to its impact-time position.
+	var candidates: Array[AimCandidate] = []
 	for node: Node in get_tree().get_nodes_in_group(&"sleepwalkers"):
 		var sleepwalker := node as Sleepwalker
-		if sleepwalker != null and not sleepwalker.is_awake():
-			positions.append(sleepwalker.global_position)
-	return positions
+		if sleepwalker == null or sleepwalker.is_awake():
+			continue
+		if not LineOfSight.is_clear(start, sleepwalker.global_position, get_world_2d()):
+			continue
+		candidates.append(AimCandidate.new(sleepwalker.global_position, sleepwalker.velocity))
+	return candidates
 
 
 func _standard_cup() -> BrewedCup:

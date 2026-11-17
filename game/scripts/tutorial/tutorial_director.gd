@@ -4,8 +4,12 @@
 class_name TutorialDirector
 extends CanvasLayer
 
-const SLEEP_ZONE_SCENE := preload("res://scenes/components/sleep_zone.tscn")
-const NEIGHBOR_SCENE := preload("res://scenes/enemies/neighbor.tscn")
+# Scene consts of city scenes stay paths here, never preloads: the director
+# compiles before the city scripts in some launch orders, and a compile-time
+# preload opens a resource load whose cycle can hand every later scene in the
+# city graph an empty or missing resource (T102).
+const SLEEP_ZONE_SCENE_PATH := "res://scenes/components/sleep_zone.tscn"
+const NEIGHBOR_SCENE_PATH := "res://scenes/enemies/neighbor.tscn"
 const GRIND_DIAL_SCENE := preload("res://scenes/minigames/grind_dial.tscn")
 
 # The survivor line of section 19 step 7, word for word.
@@ -167,6 +171,7 @@ func _on_step_changed(from_step: TutorialFlow.Step, to_step: TutorialFlow.Step) 
 func _leave_step(from_step: TutorialFlow.Step) -> void:
 	match from_step:
 		TutorialFlow.Step.VIDEO:
+			video_view.stop()
 			video_view.visible = false
 			_run.player.set_input_locked(false)
 			# The player watched the address rehearsal and wakes groggy,
@@ -184,7 +189,8 @@ func _enter_step(to_step: TutorialFlow.Step) -> void:
 	match to_step:
 		TutorialFlow.Step.VIDEO:
 			_video_time = 0.0
-			video_view.reset()
+			video_view.setup(balance.video_seconds)
+			video_view.start()
 			video_view.visible = true
 			_run.player.set_input_locked(true)
 		TutorialFlow.Step.MOVE:
@@ -352,7 +358,7 @@ func _spawn_window_neighbor() -> void:
 	var cafe_block := _cafe_block()
 	if cafe_block == null:
 		return
-	_window_neighbor = NEIGHBOR_SCENE.instantiate() as Sleepwalker
+	_window_neighbor = (load(NEIGHBOR_SCENE_PATH) as PackedScene).instantiate() as Sleepwalker
 	_window_neighbor.name = "WindowNeighbor"
 	_actors.add_child(_window_neighbor)
 	_window_neighbor.global_position = (
@@ -365,7 +371,7 @@ func _spawn_pole() -> void:
 	# A speaker pole drones at the door the player just used, section 19 step 6:
 	# the zone spawns around the player, so the drain starts at once. The pole
 	# is real: it keeps droning until the tower of the city dies.
-	_pole = SLEEP_ZONE_SCENE.instantiate() as SleepZone
+	_pole = (load(SLEEP_ZONE_SCENE_PATH) as PackedScene).instantiate() as SleepZone
 	_pole.name = "TutorialSpeakerPole"
 	_pole.kind = SleepZone.Kind.SLEEP
 	var shape_node := _pole.get_node(^"CollisionShape2D") as CollisionShape2D

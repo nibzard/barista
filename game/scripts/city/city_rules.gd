@@ -35,6 +35,7 @@ static func validate(city: CityDefinition, balance: CityBalance) -> Array[String
 		return violations
 	violations.append_array(_landmark_violations(city))
 	violations.append_array(_site_violations(city))
+	violations.append_array(_find_violations(city))
 	violations.append_array(_tier_violations(city, balance))
 	violations.append_array(_density_violations(city, balance))
 	violations.append_array(_pole_violations(city, balance))
@@ -115,6 +116,21 @@ static func _site_violations(city: CityDefinition) -> Array[String]:
 		if seen.has(block.site_name):
 			violations.append("The site name %s marks two blocks." % block.site_name)
 		seen[block.site_name] = true
+	return violations
+
+
+static func _find_violations(city: CityDefinition) -> Array[String]:
+	# Authored finds, section 15: every find row needs its item and a positive
+	# amount, because the scavenge point silently drops a broken row.
+	var violations: Array[String] = []
+	for i: int in range(city.blocks.size()):
+		for find: ScavengeDrop in city.blocks[i].finds:
+			if find.item == null:
+				violations.append("Block %d authors a find with no item." % i)
+			elif find.amount <= 0:
+				violations.append(
+					"Block %d authors a find of %s with no amount." % [i, find.item.item_id]
+				)
 	return violations
 
 

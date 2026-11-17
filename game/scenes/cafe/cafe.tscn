@@ -11,6 +11,7 @@
 [ext_resource type="Resource" path="res://resources/items/beans/house.tres" id="9"]
 [ext_resource type="PackedScene" path="res://scenes/hud/hud.tscn" id="10"]
 [ext_resource type="PackedScene" path="res://scenes/tower/broadcast_tower.tscn" id="11"]
+[ext_resource type="Resource" path="res://resources/items/materials/coffee_seedling.tres" id="12"]
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(1280, 40)
@@ -27,6 +28,11 @@ amount = 1
 script = ExtResource("7")
 item = ExtResource("9")
 amount = 3
+
+[sub_resource type="Resource" id="ShelfSeedlings"]
+script = ExtResource("7")
+item = ExtResource("12")
+amount = 2
 
 [sub_resource type="RectangleShape2D" id="WallHorizontal"]
 size = Vector2(1280, 40)
@@ -90,7 +96,7 @@ cup_scene = ExtResource("4")
 
 [node name="StorageShelf" parent="Scavenge" instance=ExtResource("6")]
 position = Vector2(1120, 580)
-drops = [SubResource("ShelfFuse"), SubResource("ShelfBeans")]
+drops = [SubResource("ShelfFuse"), SubResource("ShelfBeans"), SubResource("ShelfSeedlings")]
 
 [node name="Sleepwalkers" type="Node2D" parent="."]
 

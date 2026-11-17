@@ -32,6 +32,13 @@ func find_roast(roast_id: String) -> RoastProfile:
 	return null
 
 
+func find_roast_by_kind(roast_kind: RoastProfile.Kind) -> RoastProfile:
+	for roast: RoastProfile in roasts:
+		if roast.kind == roast_kind:
+			return roast
+	return null
+
+
 func find_extra(extra_id: String) -> RecipeExtra:
 	for extra: RecipeExtra in extras:
 		if extra.extra_id == extra_id:

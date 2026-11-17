@@ -5,6 +5,7 @@ extends GdUnitTestSuite
 const SCENE_PATHS := [
 	"res://scenes/main/menu.tscn",
 	"res://scenes/cafe/cafe.tscn",
+	"res://scenes/cafe/cafe_television.tscn",
 	"res://scenes/player/player.tscn",
 	"res://scenes/enemies/neighbor.tscn",
 	"res://scenes/enemies/tourist.tscn",
@@ -19,7 +20,9 @@ const SCENE_PATHS := [
 	"res://scenes/bosses/fish_throwers.tscn",
 	"res://scenes/components/sleep_zone.tscn",
 	"res://scenes/components/scavenge_point.tscn",
+	"res://scenes/components/building_shell.tscn",
 	"res://scenes/components/bean_slick.tscn",
+	"res://scenes/components/coffee_plant.tscn",
 	"res://scenes/city/city_block.tscn",
 	"res://scenes/city/city_map.tscn",
 	"res://scenes/city/bridge_gate.tscn",
@@ -41,6 +44,8 @@ const SCENE_PATHS := [
 	"res://scenes/touch/touch_controls.tscn",
 	"res://scenes/dex/sleepy_dex_app.tscn",
 	"res://scenes/tutorial/tutorial_director.tscn",
+	"res://scenes/tutorial/tutorial_video_view.tscn",
+	"res://scenes/tutorial/morgen_replay.tscn",
 	"res://scenes/ending/outro_director.tscn",
 	"res://scenes/ending/outro_karen.tscn",
 	"res://scenes/minigames/grind_dial.tscn",
@@ -67,6 +72,7 @@ const INPUT_ACTIONS: Array[StringName] = [
 	&"start_brew",
 	&"use_tool",
 	&"cycle_tool",
+	&"plant_coffee",
 ]
 
 

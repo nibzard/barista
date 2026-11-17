@@ -27,6 +27,7 @@ func build() -> void:
 		view.block = definition.blocks[i]
 		view.accent_color = definition.accent_color
 		view.balance = balance
+		view.region_bean = definition.region_bean
 		view.cafe_tier = definition.cafe_tier
 		view.landmark_label = _landmark_label_for(definition.blocks[i].kind)
 		view.site_label = definition.blocks[i].site_name

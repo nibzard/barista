@@ -5,6 +5,7 @@ extends Resource
 
 @export var move_speed: float
 @export var drink_slow_walk_factor: float
+@export var dodge_cooldown_seconds: float
 @export var dodge_duration_seconds: float
 @export var dodge_speed: float
 @export var hug_mash_presses_to_break: int

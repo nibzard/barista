@@ -12,6 +12,17 @@ func before_test() -> void:
 	_rules = AddressAudio.new(ADDRESS_BALANCE)
 
 
+func test_morgen_voice_track_is_a_quiet_speech_placeholder() -> void:
+	# The opening video speaks through one cached wave, section 22: a plain
+	# non-looping track that runs the video length under the subtitles.
+	var stream := PlaceholderTones.morgen_voice_track(2.0)
+	assert_object(stream).is_not_null()
+	assert_int(stream.loop_mode).is_equal(AudioStreamWAV.LOOP_DISABLED)
+	# The wave rides one RIFF header of 44 bytes before the PCM data.
+	assert_int(stream.data.size()).is_equal(44 + int(2.0 * PlaceholderTones.SAMPLE_RATE) * 2)
+	assert_object(PlaceholderTones.morgen_voice_track(2.0)).is_same(stream)
+
+
 func test_the_tres_pins_the_spec_numbers() -> void:
 	assert_float(ADDRESS_BALANCE.loop_seconds).is_equal(5.0)
 	assert_float(ADDRESS_BALANCE.tolerance_minutes).is_equal(30.0)

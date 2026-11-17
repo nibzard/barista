@@ -18,6 +18,16 @@ const ANTAGONIST_HZ := 98.0
 const ANTAGONIST_SECOND_HZ := 116.5
 # The diegetic records ride one shared length.
 const DIEGETIC_SECONDS := 6.0
+# Dr. Morgen on the opening video, section 22: low, slow, tired. One word
+# pattern stands in for the speech until T054 records the real voice.
+const MORGEN_VOICE_HZ := 185.0
+const MORGEN_VIBRATO_HZ := 4.2
+const MORGEN_WORD_SECONDS := 0.26
+const MORGEN_PAUSE_SECONDS := 0.09
+const MORGEN_VOICE_LEVEL := 0.16
+
+# The video track is the same every time it plays, so the wave is built once.
+static var _morgen_voice_cache: Dictionary = {}
 
 
 static func address_loop(loop_seconds: float) -> AudioStreamWAV:
@@ -28,6 +38,16 @@ static func address_loop(loop_seconds: float) -> AudioStreamWAV:
 
 static func birdsong() -> AudioStreamWAV:
 	return _wave(_birdsong_samples())
+
+
+static func morgen_voice_track(seconds: float) -> AudioStreamWAV:
+	# The placeholder voice of the opening video: one quiet, tired speech
+	# pattern that runs the full video length under the subtitles.
+	if _morgen_voice_cache.has(seconds):
+		return _morgen_voice_cache[seconds]
+	var stream := _wave(_morgen_voice_samples(seconds))
+	_morgen_voice_cache[seconds] = stream
+	return stream
 
 
 static func antagonist_loop() -> AudioStreamWAV:
@@ -63,6 +83,26 @@ static func _voice_samples(seconds: float) -> PackedFloat32Array:
 		voice += sin(TAU * ADDRESS_HZ * 2.0 * t) * 0.35
 		voice += sin(TAU * ADDRESS_HZ * 3.0 * t) * 0.18
 		samples[i] = voice * 0.22
+	return samples
+
+
+static func _morgen_voice_samples(seconds: float) -> PackedFloat32Array:
+	# A word pattern with soft edges: voiced bursts with short pauses, like
+	# tired speech, quieter and lower than the address it argues with.
+	var count := int(seconds * SAMPLE_RATE)
+	var samples := PackedFloat32Array()
+	samples.resize(count)
+	var word_cycle := MORGEN_WORD_SECONDS + MORGEN_PAUSE_SECONDS
+	for i: int in count:
+		var t := float(i) / SAMPLE_RATE
+		var word_t := fmod(t, word_cycle)
+		if word_t >= MORGEN_WORD_SECONDS:
+			continue
+		var voice := sin(TAU * MORGEN_VOICE_HZ * t + sin(TAU * MORGEN_VIBRATO_HZ * t) * 5.0)
+		voice += sin(TAU * MORGEN_VOICE_HZ * 2.0 * t) * 0.3
+		var attack := minf(word_t / 0.04, 1.0)
+		var release := minf((MORGEN_WORD_SECONDS - word_t) / 0.04, 1.0)
+		samples[i] = voice * MORGEN_VOICE_LEVEL * minf(attack, release)
 	return samples
 
 

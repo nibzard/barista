@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SleepwalkerCure" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/brewing/sleepwalker_cure.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+cure_recipe_id = "double_espresso"
+display_name = "The Night Nurse"
+is_basic = false
+second_cup_window_seconds = 0.0
+sleeper_type_id = "night_nurse"
+wake_resistance = 0.8

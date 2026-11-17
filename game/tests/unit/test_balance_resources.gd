@@ -46,6 +46,9 @@ func test_player_balance_values() -> void:
 	assert_float(PLAYER_BALANCE.move_speed).is_equal(220.0)
 	assert_float(PLAYER_BALANCE.drink_slow_walk_factor).is_equal(0.5)
 	assert_float(PLAYER_BALANCE.dodge_duration_seconds).is_equal(0.4)
+	# The roll cooldown: 0.8 s from the roll start halves the chain-roll
+	# invulnerability uptime, the T071 playtest outcome.
+	assert_float(PLAYER_BALANCE.dodge_cooldown_seconds).is_equal(0.8)
 	assert_float(PLAYER_BALANCE.dodge_speed).is_equal(440.0)
 	assert_int(PLAYER_BALANCE.hug_mash_presses_to_break).is_equal(5)
 	assert_float(PLAYER_BALANCE.hug_break_grace_seconds).is_equal(0.5)
@@ -155,6 +158,11 @@ func test_city_balance_values() -> void:
 	assert_int(CITY_BALANCE.density_max).is_equal(4)
 	assert_int(CITY_BALANCE.speaker_pole_count).is_equal(3)
 	assert_float(CITY_BALANCE.blocks_per_screen).is_equal(1.5)
+	# Section 15: one scavenge crate of the shared kit holds this stock. The
+	# scrap funds the van upgrades, so it moves with the mobile cafe costs.
+	assert_int(CITY_BALANCE.scavenge_house_beans).is_equal(3)
+	assert_int(CITY_BALANCE.scavenge_scrap_parts).is_equal(9)
+	assert_int(CITY_BALANCE.scavenge_scrap_parts).is_greater(0)
 	# Section 10: the cafe safe zone grows with the city on the route.
 	assert_int(CITY_BALANCE.cafe_zone_radius_per_tier.size()).is_equal(3)
 	assert_float(CITY_BALANCE.cafe_zone_radius_per_tier[0]).is_equal(180.0)

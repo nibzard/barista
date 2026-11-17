@@ -15,7 +15,10 @@ const SLEEPING_COLOR := Color(0.42, 0.38, 0.72)
 const AWAKE_COLOR := Color(0.45, 0.85, 0.5)
 const LULLABY_ZONE_NAME := "LullabyZone"
 
-const SLEEP_ZONE_SCENE := preload("res://scenes/components/sleep_zone.tscn")
+# The sleep zone scene stays a path, never a preload: several scripts share
+# this scene, and a compile-time const binds an empty scene whenever another
+# load of it is already running (T102).
+const SLEEP_ZONE_SCENE_PATH := "res://scenes/components/sleep_zone.tscn"
 
 @export var balance: SleepJamBalance
 @export var brewing_balance: BrewingBalance
@@ -89,7 +92,7 @@ func _tint_members(tint: Color) -> void:
 func _build_lullaby() -> void:
 	# The song is the arena-wide aura of the fight: it drains every player
 	# inside its reach at the boring-attack rate, section 14.
-	_lullaby = SLEEP_ZONE_SCENE.instantiate() as SleepZone
+	_lullaby = (load(SLEEP_ZONE_SCENE_PATH) as PackedScene).instantiate() as SleepZone
 	_lullaby.name = LULLABY_ZONE_NAME
 	_lullaby.kind = SleepZone.Kind.BORING
 	var shape_node := _lullaby.get_node(^"CollisionShape2D") as CollisionShape2D

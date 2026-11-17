@@ -13,6 +13,14 @@
 [ext_resource type="PackedScene" path="res://scenes/bosses/sleep_jam_band.tscn" id="11"]
 [ext_resource type="Resource" path="res://resources/masters/raoast.tres" id="12"]
 [ext_resource type="PackedScene" path="res://scenes/quests/aisle_7_stage.tscn" id="13"]
+[ext_resource type="Script" path="res://scripts/items/scavenge_drop.gd" id="14"]
+[ext_resource type="Resource" path="res://resources/items/appliances/turkish_pot.tres" id="15"]
+[ext_resource type="Resource" path="res://resources/items/beans/moss_hollow_organic.tres" id="16"]
+
+[sub_resource type="Resource" id="FindTurkishPot"]
+script = ExtResource("14")
+item = ExtResource("15")
+amount = 1
 
 [sub_resource type="Resource" id="Block0"]
 script = ExtResource("2")
@@ -23,6 +31,7 @@ sleepwalker_count = 3
 script = ExtResource("2")
 kind = 4
 sleepwalker_count = 3
+finds = [SubResource("FindTurkishPot")]
 
 [sub_resource type="Resource" id="Block2"]
 script = ExtResource("2")
@@ -86,6 +95,7 @@ boss_name = "The Sleep Jam"
 boss_scene = ExtResource("11")
 quest_name = "The Aisle 7"
 quest_scene = ExtResource("13")
+region_bean = ExtResource("16")
 blocks = [SubResource("Block0"), SubResource("Block1"), SubResource("Block2"), SubResource("Block3"), SubResource("Block4"), SubResource("Block5"), SubResource("Block6"), SubResource("Block7")]
 roster = [SubResource("RosterNeighbor"), SubResource("RosterTinfoilMan"), SubResource("RosterKaren")]
 side_quests = [ExtResource("10")]

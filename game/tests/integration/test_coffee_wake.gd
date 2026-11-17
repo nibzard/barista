@@ -84,9 +84,18 @@ func test_standard_cup_does_not_wake_the_tourist() -> void:
 
 func test_frappuccino_with_whipped_cream_wakes_the_tourist() -> void:
 	var tourist := _frozen_tourist()
-	var frappuccino := _brew("house", "dark", "filter", "whipped_cream", 85.0)
+	var frappuccino := _brew("house", "medium", "filter", "whipped_cream", 85.0)
 	assert_bool(tourist.try_wake(frappuccino)).is_true()
 	assert_int(tourist.state).is_equal(Sleepwalker.State.AWAKE)
+
+
+func test_dark_roast_frappuccino_does_not_wake_the_tourist() -> void:
+	# The live roast rule, section 15: the recipe matches, but the dark
+	# roast carries too little wake power for a special sleeper.
+	var tourist := _frozen_tourist()
+	var dark_frappuccino := _brew("house", "dark", "filter", "whipped_cream", 85.0)
+	assert_bool(tourist.try_wake(dark_frappuccino)).is_false()
+	assert_int(tourist.state).is_not_equal(Sleepwalker.State.AWAKE)
 
 
 func test_thrown_frappuccino_cup_wakes_the_tourist() -> void:
@@ -94,7 +103,7 @@ func test_thrown_frappuccino_cup_wakes_the_tourist() -> void:
 	var cup: CoffeeCup = CUP_SCENE.instantiate()
 	cup.position = Vector2(100, 200)
 	cup.direction = Vector2.RIGHT
-	cup.brewed = _brew("house", "dark", "filter", "whipped_cream", 85.0)
+	cup.brewed = _brew("house", "medium", "filter", "whipped_cream", 85.0)
 	add_child(auto_free(cup))
 
 	var frames := 0

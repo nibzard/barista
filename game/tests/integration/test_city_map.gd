@@ -13,8 +13,6 @@ const SAN_COFFESCO := preload("res://resources/city/san_coffesco.tres")
 const STEAMTLE := preload("res://resources/city/steamtle.tres")
 const POURTLAND := preload("res://resources/city/pourtland.tres")
 
-const KIT_LOOT_AMOUNT := 3
-const KIT_SCRAP_AMOUNT := 2
 # A Neighbor senses the player within 110 px. The cafe crowd lane keeps
 # every spawn past twice that reach, so no chase starts on the wake-up
 # frames of any city, section 19 steps 2 and 3.
@@ -29,10 +27,10 @@ func _cafe_zone_radius(city: CityDefinition) -> float:
 	return CityRules.cafe_zone_radius(BALANCE, city.cafe_tier)
 
 
-func _build_city(city: CityDefinition) -> CityMap:
+func _build_city(city: CityDefinition, kit_balance: CityBalance = BALANCE) -> CityMap:
 	var map := CITY_MAP_SCENE.instantiate() as CityMap
 	map.definition = city
-	map.balance = BALANCE
+	map.balance = kit_balance
 	add_child(auto_free(map))
 	return map
 
@@ -133,11 +131,23 @@ func test_scavenge_blocks_carry_a_stocked_loot_point() -> void:
 			var loot := view.scavenge_point()
 			if view.kind() == CityBlock.Kind.SCAVENGE:
 				assert_object(loot).is_not_null()
-				assert_int(loot.remaining_amount(HOUSE_BEANS)).is_equal(KIT_LOOT_AMOUNT)
+				assert_int(loot.remaining_amount(HOUSE_BEANS)).is_equal(
+					BALANCE.scavenge_house_beans
+				)
 				# Section 15: scrap parts pay for the van upgrades.
-				assert_int(loot.remaining_amount(SCRAP_PART)).is_equal(KIT_SCRAP_AMOUNT)
+				assert_int(loot.remaining_amount(SCRAP_PART)).is_equal(BALANCE.scavenge_scrap_parts)
 			else:
 				assert_object(loot).is_null()
+	# The crate stock reads city.tres, not a script literal: a tweaked copy of
+	# the balance moves the stock with it.
+	var kit_balance := BALANCE.duplicate() as CityBalance
+	kit_balance.scavenge_house_beans += 4
+	kit_balance.scavenge_scrap_parts += 5
+	var tuned_map := _build_city(SAN_COFFESCO, kit_balance)
+	var tuned_loot := tuned_map.find_block_of_kind(CityBlock.Kind.SCAVENGE).scavenge_point()
+	assert_object(tuned_loot).is_not_null()
+	assert_int(tuned_loot.remaining_amount(HOUSE_BEANS)).is_equal(kit_balance.scavenge_house_beans)
+	assert_int(tuned_loot.remaining_amount(SCRAP_PART)).is_equal(kit_balance.scavenge_scrap_parts)
 
 
 func test_the_cafe_block_carries_a_van_spot_outside_the_safe_zone() -> void:
@@ -178,15 +188,19 @@ func test_the_cafe_block_carries_a_master_spot_inside_the_safe_zone() -> void:
 		)
 
 
-func test_the_tower_block_holds_one_fuse_at_its_foot() -> void:
-	# Section 19 step 9: the player scavenges one fuse at the tower, inserts
-	# it, and switches the tower off. The kit stocks that fuse.
+func test_the_tower_block_stocks_the_fuses_the_switch_needs() -> void:
+	# Section 19 step 9: the player scavenges the fuse at the tower, inserts
+	# it, and switches the tower off. The kit stocks exactly the fuses the
+	# tower balance demands, so a tuning change to fuses_needed in
+	# broadcast_tower.tres cannot leave the tower unopenable.
 	for city: CityDefinition in _cities():
 		var map := _build_city(city)
 		var tower_block := map.find_block_of_kind(CityBlock.Kind.TOWER)
 		var fuse_point := tower_block.tower_fuse_point()
 		assert_object(fuse_point).is_not_null()
-		assert_int(fuse_point.remaining_amount(FUSE_ITEM)).is_equal(1)
+		assert_int(fuse_point.remaining_amount(FUSE_ITEM)).is_equal(
+			map.broadcast_tower().balance.fuses_needed
+		)
 		assert_int(fuse_point.remaining_amount(HOUSE_BEANS)).is_equal(0)
 
 

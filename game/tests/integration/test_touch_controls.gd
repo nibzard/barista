@@ -4,8 +4,12 @@ extends GdUnitTestSuite
 
 const CITY_SCENE := preload("res://scenes/city/san_coffesco.tscn")
 const INTRO_SCENE := preload("res://scenes/city/san_coffesco_intro.tscn")
+const CITY_RUN_SCENE := preload("res://scenes/city/city_run.tscn")
+const CITY_DEFINITION := preload("res://resources/city/san_coffesco.tres")
+const CITY_BALANCE := preload("res://resources/balance/city.tres")
 const TOUCH_BALANCE := preload("res://resources/balance/touch_controls.tres")
 const SCRAP_PART := preload("res://resources/items/materials/scrap_part.tres")
+const FUSE_ITEM := preload("res://resources/items/materials/fuse.tres")
 
 const MAX_FRAMES_TO_WAIT := 600
 const RIDE_FRAMES_TO_WAIT := 1600
@@ -80,6 +84,7 @@ func test_the_throw_button_throws_where_the_stick_aims() -> void:
 	_wake_the_crowd_except_first()
 	var target := _city.crowd_enemy(0)
 	target.set_physics_process(false)
+	target.velocity = Vector2.ZERO
 	target.global_position = _city.player.global_position + Vector2(150.0, 0.0)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
@@ -270,6 +275,65 @@ func test_the_dex_opens_from_a_touch_on_the_phone_button() -> void:
 	assert_bool(_city.touch_controls.visible).is_false()
 
 
+func test_the_completion_screen_hands_the_controls_back() -> void:
+	# T093: the city-complete beat used to own the screen forever. No dismiss
+	# path existed, so the touch layer stood down for good and a touch-only
+	# player froze behind the victory screen. The continue tap ends the beat,
+	# the controls return, and the walk east rides them to the travel trigger.
+	_city.free()
+	_city = null
+	var run := CITY_RUN_SCENE.instantiate() as CityRun
+	run.definition = CITY_DEFINITION
+	run.balance = CITY_BALANCE
+	_ride_run = run
+	add_child(auto_free(run))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	_wake_the_crowd_on(run)
+
+	# Drive the city to completion: fuse, switch, cure.
+	run.player.pickup_item(FUSE_ITEM, 1)
+	var tower := run.city_map().broadcast_tower()
+	tower.insert_fuse(run.player)
+	tower.switch_off()
+	run.notify_boss_cured()
+
+	# The completion screen owns the screen and the play controls stood down.
+	assert_bool(run.overlay.visible).is_true()
+	assert_bool(run.status_label.visible).is_true()
+	assert_bool(run.restart_button.visible).is_false()
+	assert_bool(run.continue_button.visible).is_true()
+	await _until_visible(run, false)
+	assert_bool(run.touch_controls.visible).is_false()
+
+	# A touch on the continue button dismisses the screen.
+	await _tap_the_continue_button(run)
+	var frames := 0
+	while run.overlay.visible and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().process_frame
+		frames += 1
+	assert_bool(run.overlay.visible).is_false()
+	assert_bool(run.status_label.visible).is_false()
+	assert_bool(run.continue_button.visible).is_false()
+
+	# The touch layer returns and the stick carries the walk east.
+	await _until_visible(run, true)
+	assert_bool(run.touch_controls.visible).is_true()
+	var arrivals: Array[int] = []
+	run.east_road_taken.connect(func() -> void: arrivals.append(1))
+	run.unlock_state.unlock()
+	run.player.global_position = run.road_east().global_position - Vector2(100.0, 0.0)
+	await get_tree().physics_frame
+	_hold_stick_on(run, Vector2.RIGHT)
+	frames = 0
+	while arrivals.is_empty() and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().physics_frame
+		frames += 1
+	_release_stick_on(run)
+	assert_int(frames).is_less(MAX_FRAMES_TO_WAIT)
+	assert_int(arrivals.size()).is_equal(1)
+
+
 func test_the_intro_rides_on_touch_alone() -> void:
 	# The first ten minutes with no keyboard at all: every input verb is a
 	# simulated touch on the on-screen controls, section 19.
@@ -315,6 +379,7 @@ func test_the_intro_rides_on_touch_alone() -> void:
 	_park_the_crowd_west(run)
 	var walker := director.window_neighbor()
 	walker.set_physics_process(false)
+	walker.velocity = Vector2.ZERO
 	walker.global_position = run.player.global_position + Vector2(150.0, 0.0)
 	_hold_stick_on(run, Vector2.RIGHT)
 	_tap_on(run, TouchControls.ButtonKind.THROW)
@@ -421,6 +486,20 @@ func _until_visible(run: CityRun, want: bool) -> void:
 	while run.touch_controls.visible != want and frames < MAX_FRAMES_TO_WAIT:
 		await get_tree().process_frame
 		frames += 1
+
+
+func _tap_the_continue_button(run: CityRun) -> void:
+	# The continue button answers a plain touch, like every on-screen control.
+	var center := run.continue_button.get_global_rect().get_center()
+	get_tree().root.push_input(_touch(true, center), true)
+	await get_tree().process_frame
+	get_tree().root.push_input(_touch(false, center), true)
+
+
+func _wake_the_crowd_on(run: CityRun) -> void:
+	# Awakened sleepwalkers never hug, so the completion ride stays steady.
+	for i: int in range(run.crowd_count()):
+		run.crowd_enemy(i).wake_up()
 
 
 func _hold_stick(direction: Vector2) -> void:

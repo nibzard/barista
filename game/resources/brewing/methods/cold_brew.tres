@@ -9,3 +9,4 @@ grind_target = 0.95
 grind_tolerance = 0.05
 method_id = "cold_brew"
 minigame_group = 0
+score_ceiling = 85.0

@@ -8,7 +8,10 @@ signal field_base_packed
 
 enum Interaction { NOT_AT_VAN, NEED_SCRAP, UPGRADED, OPENED_FIELD_BASE, PACKED_FIELD_BASE }
 
-const SLEEP_ZONE_SCENE := preload("res://scenes/components/sleep_zone.tscn")
+# The sleep zone scene stays a path, never a preload: several scripts share
+# this scene, and a compile-time const binds an empty scene whenever another
+# load of it is already running (T102).
+const SLEEP_ZONE_SCENE_PATH := "res://scenes/components/sleep_zone.tscn"
 
 # Placeholder van colors until the art pass brings the real vehicle.
 const BODY_COLOR := Color(0.85, 0.72, 0.45, 1)
@@ -127,7 +130,7 @@ func open_field_base(park_position: Vector2) -> bool:
 	_release_gathered()
 	global_position = park_position
 	if _field_base == null:
-		_field_base = SLEEP_ZONE_SCENE.instantiate() as SleepZone
+		_field_base = (load(SLEEP_ZONE_SCENE_PATH) as PackedScene).instantiate() as SleepZone
 		_field_base.name = "FieldBaseZone"
 		_field_base.kind = SleepZone.Kind.SAFE
 		var shape_node := _field_base.get_node(^"CollisionShape2D") as CollisionShape2D

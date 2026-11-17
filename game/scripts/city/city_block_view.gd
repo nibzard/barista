@@ -3,8 +3,13 @@
 class_name CityBlockView
 extends Node2D
 
-const SLEEP_ZONE_SCENE := preload("res://scenes/components/sleep_zone.tscn")
+# The sleep zone scene stays a path, never a preload: several scripts share
+# this scene, and a compile-time const binds an empty scene whenever another
+# load of it is already running (T102).
+const SLEEP_ZONE_SCENE_PATH := "res://scenes/components/sleep_zone.tscn"
 const SCAVENGE_POINT_SCENE := preload("res://scenes/components/scavenge_point.tscn")
+const BUILDING_SHELL_SCENE := preload("res://scenes/components/building_shell.tscn")
+const CAFE_TELEVISION_SCENE := preload("res://scenes/cafe/cafe_television.tscn")
 const BROADCAST_TOWER_SCENE := preload("res://scenes/tower/broadcast_tower.tscn")
 const HOUSE_BEANS := preload("res://resources/items/beans/house.tres")
 const FUSE_ITEM := preload("res://resources/items/materials/fuse.tres")
@@ -38,12 +43,20 @@ const VAN_SPOT_CLEARANCE := 60.0
 # The brewing master of the city teaches at the cafe, inside the safe zone,
 # section 8: the awake coffee experts gather where the coffee is real.
 const MASTER_SPOT_FRACTION := Vector2(0.4, 0.66)
+# The cafe television hangs inside the safe zone, off the master spot and the
+# player start, so the section 22 replay never snags another cafe lesson.
+const TELEVISION_FRACTION := Vector2(0.6, 0.4)
 # A named site stands north of the crowd lane, off the pole zone center.
 const QUEST_SITE_FRACTION := Vector2(0.5, 0.32)
+# Section 17: the scavenge building stands on the crate row, north of the
+# crowd lane. The crate waits inside its walls.
 const LOOT_POINT_OFFSET := Vector2(0, -170)
-const KIT_LOOT_AMOUNT := 3
-# Section 15: scrap parts pay for the van upgrades.
-const KIT_SCRAP_AMOUNT := 2
+# Section 15: the unique find of a block waits at its own loot spot. Inside a
+# scavenge building, the spot stands south of the crate, still behind the
+# walls.
+const INTERIOR_FIND_OFFSET := Vector2(0, 80)
+# The open-street spot for a find on a block without a building.
+const FIND_POINT_OFFSET := Vector2(0, 170)
 # Section 19 step 9: one fuse waits at the foot of the tower.
 const TOWER_FUSE_OFFSET := Vector2(140, 0)
 
@@ -60,6 +73,10 @@ const KIND_COLORS := {
 @export var block: CityBlock
 @export var accent_color := Color.WHITE
 @export var balance: CityBalance
+# Section 15 beans table: the region bean of the city. The scavenge crates of
+# a region city yield it on top of the house beans. Null when the city holds
+# none, like San Coffesco.
+@export var region_bean: ItemType
 # Section 10: the cafe tier of the city sizes the cafe marker and safe zone.
 @export var cafe_tier: int = 1
 # The city fills this in: the boss name on the arena, the quest name on the
@@ -91,6 +108,12 @@ func kind() -> CityBlock.Kind:
 	return block.kind
 
 
+func _sleep_zone_scene() -> PackedScene:
+	# Loaded at use time: every script is compiled by then, so no compile
+	# order can hand the kit an empty scene.
+	return load(SLEEP_ZONE_SCENE_PATH) as PackedScene
+
+
 func crowd_spawn_markers() -> Array[Marker2D]:
 	var markers: Array[Marker2D] = []
 	if not _built:
@@ -120,6 +143,21 @@ func scavenge_point() -> ScavengePoint:
 	return get_node_or_null(^"Scavenge/LootPoint") as ScavengePoint
 
 
+func building() -> BuildingShell:
+	# The enterable scavenge building of the block, section 17. Null on every
+	# landmark block: the cafe building is T063, the locked side room T074.
+	if not _built:
+		return null
+	return get_node_or_null(^"Building") as BuildingShell
+
+
+func find_point() -> ScavengePoint:
+	# The unique find of the block, section 15, when the city authors one.
+	if not _built:
+		return null
+	return get_node_or_null(^"Scavenge/FindPoint") as ScavengePoint
+
+
 func tower_fuse_point() -> ScavengePoint:
 	if not _built:
 		return null
@@ -143,6 +181,14 @@ func master_spot() -> Marker2D:
 	if not _built:
 		return null
 	return get_node_or_null(^"MasterSpot") as Marker2D
+
+
+func television() -> CafeTelevision:
+	# The cafe television of section 22: the Dr. Morgen video replays here
+	# after the opening.
+	if not _built:
+		return null
+	return get_node_or_null(^"CafeTelevision") as CafeTelevision
 
 
 func quest_site_marker() -> Marker2D:
@@ -179,7 +225,7 @@ func _compose() -> void:
 		marker.position = _crowd_spawn_position(i)
 		crowd.add_child(marker)
 	if block.kind == CityBlock.Kind.CAFE:
-		var cafe_safe_zone := SLEEP_ZONE_SCENE.instantiate() as SleepZone
+		var cafe_safe_zone := _sleep_zone_scene().instantiate() as SleepZone
 		cafe_safe_zone.name = "CafeSafeZone"
 		cafe_safe_zone.kind = SleepZone.Kind.SAFE
 		cafe_safe_zone.position = size * 0.5
@@ -200,13 +246,17 @@ func _compose() -> void:
 		master_spot.name = "MasterSpot"
 		master_spot.position = size * MASTER_SPOT_FRACTION
 		add_child(master_spot)
+		var television := CAFE_TELEVISION_SCENE.instantiate() as CafeTelevision
+		television.name = "CafeTelevision"
+		television.position = size * TELEVISION_FRACTION
+		add_child(television)
 	if not block.site_name.is_empty():
 		var site := Marker2D.new()
 		site.name = "QuestSite"
 		site.position = size * QUEST_SITE_FRACTION
 		add_child(site)
 	if block.has_speaker_pole:
-		var pole := SLEEP_ZONE_SCENE.instantiate() as SleepZone
+		var pole := _sleep_zone_scene().instantiate() as SleepZone
 		pole.name = "SpeakerPoleZone"
 		pole.position = size * 0.5
 		zones.add_child(pole)
@@ -223,10 +273,20 @@ func _compose() -> void:
 		fuse_point.position = size * 0.5 + TOWER_FUSE_OFFSET
 		var fuse_drop := ScavengeDrop.new()
 		fuse_drop.item = FUSE_ITEM
-		fuse_drop.amount = 1
+		# The stock reads the same balance the switch consumes, so a tuning
+		# change to fuses_needed in broadcast_tower.tres moves the stock with
+		# it and the tower stays openable.
+		fuse_drop.amount = tower.balance.fuses_needed
 		fuse_point.drops = [fuse_drop]
 		scavenge.add_child(fuse_point)
 	if block.kind == CityBlock.Kind.SCAVENGE:
+		# Section 17: the rest of the city is scavenge buildings, and section
+		# 4: the player enters houses. The shell wraps the crate row: the loot
+		# waits behind its walls, and the south door is the way in.
+		var building := BUILDING_SHELL_SCENE.instantiate() as BuildingShell
+		building.name = "Building"
+		building.position = size * 0.5 + LOOT_POINT_OFFSET
+		add_child(building)
 		var scavenge := Node2D.new()
 		scavenge.name = "Scavenge"
 		add_child(scavenge)
@@ -235,12 +295,46 @@ func _compose() -> void:
 		loot.position = size * 0.5 + LOOT_POINT_OFFSET
 		var drop := ScavengeDrop.new()
 		drop.item = HOUSE_BEANS
-		drop.amount = KIT_LOOT_AMOUNT
+		drop.amount = balance.scavenge_house_beans
+		# Section 15: scrap parts pay for the van upgrades. One city's scavenge
+		# loot funds both upgrade steps on its own, section 10, so the field
+		# cafe never depends on scrap the bag left in the city west.
 		var scrap_drop := ScavengeDrop.new()
 		scrap_drop.item = SCRAP_PART_ITEM
-		scrap_drop.amount = KIT_SCRAP_AMOUNT
-		loot.drops = [drop, scrap_drop]
+		scrap_drop.amount = balance.scavenge_scrap_parts
+		var drops: Array[ScavengeDrop] = [drop, scrap_drop]
+		if region_bean != null:
+			# Section 15 beans table: the good bean of the region, Golden
+			# Coast arabica in Steamtle and Moss Hollow organic in Pourtland,
+			# yields in the same crates as the common house beans.
+			var region_drop := ScavengeDrop.new()
+			region_drop.item = region_bean
+			region_drop.amount = balance.scavenge_region_beans
+			drops.append(region_drop)
+		loot.drops = drops
 		scavenge.add_child(loot)
+	if not block.finds.is_empty():
+		# Section 15: the unique finds of the block, like the thermos belt and
+		# the cafe appliances, wait at their own loot spot.
+		var find_parent := get_node_or_null(^"Scavenge") as Node2D
+		if find_parent == null:
+			find_parent = Node2D.new()
+			find_parent.name = "Scavenge"
+			add_child(find_parent)
+		var find_point := SCAVENGE_POINT_SCENE.instantiate() as ScavengePoint
+		find_point.name = "FindPoint"
+		find_point.position = _find_point_position()
+		find_point.drops = block.finds
+		find_parent.add_child(find_point)
+
+
+func _find_point_position() -> Vector2:
+	# Section 15: the unique find waits at its own loot spot. On a scavenge
+	# block the spot stands inside the building, south of the crate; on an
+	# open block it keeps the street spot.
+	if building() != null:
+		return size * 0.5 + LOOT_POINT_OFFSET + INTERIOR_FIND_OFFSET
+	return size * 0.5 + FIND_POINT_OFFSET
 
 
 func _crowd_spawn_position(i: int) -> Vector2:

@@ -9,3 +9,4 @@ grind_target = 0.82
 grind_tolerance = 0.08
 method_id = "french_press"
 minigame_group = 2
+score_ceiling = 100.0

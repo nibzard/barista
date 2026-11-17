@@ -9,3 +9,4 @@ grind_target = 0.18
 grind_tolerance = 0.06
 method_id = "espresso"
 minigame_group = 2
+score_ceiling = 100.0

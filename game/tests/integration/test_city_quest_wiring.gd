@@ -32,7 +32,10 @@ func test_the_run_carries_the_quest_chain_and_its_marker() -> void:
 	# layer already points at the tower, section 19 step 7.
 	assert_object(_city.quest_log).is_not_null()
 	assert_str(_city.quest_log.main_quest.current_city()).is_equal("san_coffesco")
-	assert_int(_city.quest_log.quest_count()).is_equal(3)
+	# The three signature quests of the route plus the field base round that
+	# the gathered survivors give, section 10.
+	assert_int(_city.quest_log.quest_count()).is_equal(4)
+	assert_bool(_city.quest_log.quest("field_kitchen_stock").is_offered()).is_true()
 	var markers := _city.quest_markers()
 	assert_object(markers).is_not_null()
 	assert_bool(markers.has_objective_marker()).is_true()

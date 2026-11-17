@@ -106,10 +106,14 @@ func test_the_refill_stays_a_cafe_privilege() -> void:
 	assert_int(player.coffee_supply.cups).is_equal(0)
 
 
-func test_one_fuse_waits_at_the_foot_of_the_tower() -> void:
+func test_the_tower_foot_stocks_the_fuses_the_switch_needs() -> void:
+	# The kit stocks the fuses from the tower balance, so the crate at the
+	# foot always covers the switch, whatever fuses_needed is tuned to.
 	var tower_block := _city.city_map().find_block_of_kind(CityBlock.Kind.TOWER)
 	assert_object(tower_block.tower_fuse_point()).is_not_null()
-	assert_int(tower_block.tower_fuse_point().remaining_amount(FUSE_ITEM)).is_equal(1)
+	assert_int(tower_block.tower_fuse_point().remaining_amount(FUSE_ITEM)).is_equal(
+		_tower().balance.fuses_needed
+	)
 
 
 func test_the_tower_switch_beat_runs_without_completing_the_city() -> void:

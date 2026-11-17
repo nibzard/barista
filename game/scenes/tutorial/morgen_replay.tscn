@@ -1,0 +1,13 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/tutorial/morgen_replay_player.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/balance/tutorial.tres" id="2"]
+[ext_resource type="PackedScene" path="res://scenes/tutorial/tutorial_video_view.tscn" id="3"]
+
+[node name="MorgenReplay" type="CanvasLayer"]
+layer = 11
+script = ExtResource("1")
+balance = ExtResource("2")
+
+[node name="VideoView" parent="." instance=ExtResource("3")]
+visible = false

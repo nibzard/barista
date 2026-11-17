@@ -7,6 +7,7 @@ const STATUS_FOUND := "Status: found"
 const STATUS_NOT_FOUND := "Status: not found"
 const ANY_CUP_CURE := "Wakes from: any cup."
 const CURE_TEXT := "Wakes from: %s"
+const CURE_ROAST_TEXT := "Wakes from: %s (%s)"
 const COUNTER_TEXT := "%d/%d FOUND"
 const KEYCHAIN_TEXT := "TROLL DOLL KEYCHAIN\n%s"
 # Placeholder look until the art pass, in the chalk style of the HUD.
@@ -25,6 +26,7 @@ var _row_style: StyleBoxFlat = _build_row_style()
 
 @onready var counter_label: Label = $Phone/Margin/Rows/Header/CounterLabel
 @onready var list: VBoxContainer = $Phone/Margin/Rows/ListScroll/List
+@onready var fact_label: Label = $Phone/Margin/Rows/Footer/FactLabel
 @onready var keychain_label: Label = $Phone/Margin/Rows/Footer/KeychainLabel
 @onready var close_button: Button = $Phone/Margin/Rows/Footer/CloseButton
 
@@ -96,6 +98,10 @@ func keychain_text() -> String:
 	return keychain_label.text
 
 
+func fact_text() -> String:
+	return fact_label.text
+
+
 func is_keychain_visible() -> bool:
 	return keychain_label.visible
 
@@ -154,15 +160,32 @@ func _make_label(text: String, font_size: int, color: Color) -> Label:
 
 func _cure_text(entry: SleepyDexEntry) -> String:
 	# Section 9: every entry names the coffee that wakes the type. The basic
-	# type wakes from any cup; every special type names its recipe.
+	# type wakes from any cup; every special type names its recipe and the
+	# roasts with enough wake power for it, section 15.
 	if entry.enemy_type == null or entry.enemy_type.cure == null:
 		return ANY_CUP_CURE
 	var cure := entry.enemy_type.cure
 	if cure.is_basic or cure.cure_recipe_id.is_empty():
 		return ANY_CUP_CURE
-	if library != null and library.find_recipe(cure.cure_recipe_id) != null:
-		return CURE_TEXT % library.find_recipe(cure.cure_recipe_id).display_name
-	return CURE_TEXT % cure.cure_recipe_id
+	if library == null:
+		return CURE_TEXT % cure.cure_recipe_id
+	var recipe := library.find_recipe(cure.cure_recipe_id)
+	if recipe == null:
+		return CURE_TEXT % cure.cure_recipe_id
+	return CURE_ROAST_TEXT % [recipe.display_name, _roast_qualifier(cure, recipe)]
+
+
+func _roast_qualifier(cure: SleepwalkerCure, recipe: Recipe) -> String:
+	# A pinned roast names itself. A free roast lists every roast with
+	# enough wake power to wake this sleeper.
+	if recipe.roast_match == Recipe.Match.EXACT:
+		var pinned := library.find_roast_by_kind(recipe.roast)
+		if pinned != null:
+			return "%s roast" % pinned.roast_id
+	var ids := CureMatcher.roast_ids_with_enough_power(cure, library)
+	if ids.is_empty():
+		return "any roast"
+	return "%s roast" % " or ".join(PackedStringArray(ids))
 
 
 func _row_label_text(index: int, text_index: int) -> String:

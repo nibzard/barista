@@ -131,3 +131,14 @@ offset_bottom = 378.0
 script = ExtResource("3")
 label = "BREW"
 radius = 42.0
+
+[node name="Plant" type="Control" parent="Board/Buttons"]
+visible = false
+layout_mode = 1
+offset_left = 600.0
+offset_top = 470.0
+offset_right = 684.0
+offset_bottom = 554.0
+script = ExtResource("3")
+label = "PLANT"
+radius = 42.0

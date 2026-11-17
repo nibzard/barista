@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ForageBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/balance/forage_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+foraging_enabled = true
+smell_radius = 140.0
+forage_speed = 55.0
+eat_range = 24.0
+eat_duration_seconds = 2.5

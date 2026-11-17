@@ -3,6 +3,7 @@
 extends GdUnitTestSuite
 
 const STEAMTLE_SCENE := preload("res://scenes/city/steamtle.tscn")
+const SAN_COFFESCO_SCENE := preload("res://scenes/city/san_coffesco.tscn")
 const SAN_COFFESCO_DEFINITION := preload("res://resources/city/san_coffesco.tres")
 const CITY_BALANCE := preload("res://resources/balance/city.tres")
 const FUSE_ITEM := preload("res://resources/items/materials/fuse.tres")
@@ -23,6 +24,10 @@ const EXPECTED_GAMERS := 8
 const QUEST_SITE_NAMES := ["Greenhouse", "The Garage", "The Sofa"]
 
 var _city: CityRun
+# The travel test owns whole scenes under the root; they leave the physics
+# space when the case ends, one way or the other.
+var _travel_leftovers: Array[Node] = []
+var _travel_error_spy: PhysicsCallbackErrorSpy = null
 
 
 func before_test() -> void:
@@ -35,6 +40,16 @@ func before_test() -> void:
 func after_test() -> void:
 	# A failed assert can stop a test mid-walk; never leak the pressed key.
 	Input.action_release(&"move_right")
+	if _travel_error_spy != null:
+		OS.remove_logger(_travel_error_spy)
+		_travel_error_spy = null
+	var tree := get_tree()
+	if tree.current_scene != null and _travel_leftovers.has(tree.current_scene):
+		tree.current_scene = null
+	for node: Node in _travel_leftovers:
+		if is_instance_valid(node):
+			node.free()
+	_travel_leftovers.clear()
 
 
 func test_the_city_loads_with_the_full_landmark_set() -> void:
@@ -193,3 +208,81 @@ func _wake_the_crowd() -> void:
 	# Awakened sleepwalkers never hug or stun, so the flow tests stay steady.
 	for i: int in range(_city.crowd_count()):
 		_city.crowd_enemy(i).wake_up()
+
+
+func test_the_wired_road_east_travels_outside_the_physics_step() -> void:
+	# T088: the road-east trigger fires inside the physics step, so the scene
+	# change on the wired east path must wait for idle time. The direct change
+	# logged an engine error on every live travel east. The run here sits in
+	# the tree as the real current scene, so the change frees its collision
+	# nodes exactly like a live playthrough.
+	var tree := get_tree()
+	var run := SAN_COFFESCO_SCENE.instantiate() as CityRun
+	tree.root.add_child(run)
+	tree.current_scene = run
+	_travel_leftovers.append(run)
+	_travel_error_spy = PhysicsCallbackErrorSpy.new()
+	OS.add_logger(_travel_error_spy)
+	_complete_the_city(run)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_bool(run.road_east_active()).is_true()
+
+	run.player.global_position = run.road_east().global_position
+	var frames := 0
+	while (tree.current_scene == null or tree.current_scene == run) and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().physics_frame
+		await get_tree().process_frame
+		frames += 1
+	var physics_errors := _travel_error_spy.physics_callback_errors()
+	OS.remove_logger(_travel_error_spy)
+	_travel_error_spy = null
+
+	assert_int(frames).is_less(MAX_FRAMES_TO_WAIT)
+	var arrived := tree.current_scene as CityRun
+	assert_object(arrived).is_not_null()
+	assert_str(arrived.definition.city_id).is_equal("steamtle")
+	assert_str(physics_errors).is_equal("")
+
+	# The arrived city leaves the tree, so the next case starts clean.
+	tree.current_scene = null
+	arrived.free()
+	await get_tree().physics_frame
+
+
+func _complete_the_city(run: CityRun) -> void:
+	# The wired travel needs a completed city behind it: fuse, switch, cure.
+	run.player.pickup_item(FUSE_ITEM, 1)
+	var tower := run.city_map().broadcast_tower()
+	tower.insert_fuse(run.player)
+	tower.switch_off()
+	run.notify_boss_cured()
+
+
+class PhysicsCallbackErrorSpy:
+	# An OS logger that records the engine error of a collision removal
+	# inside a physics callback. The engine routes every engine-level error
+	# through its loggers, so the test reads the same text the live log
+	# prints.
+	extends Logger
+
+	var _physics_callback_errors: Array[String] = []
+
+	func _log_error(
+		_function: String,
+		_source_file: String,
+		_source_line: int,
+		message: String,
+		_rationale: String,
+		_editor_notify: bool,
+		_error_type: int,
+		_script_backtraces: Array[ScriptBacktrace]
+	) -> void:
+		if message.contains("during a physics callback"):
+			_physics_callback_errors.append(message)
+
+	func _log_message(_message: String, _error: bool) -> void:
+		pass
+
+	func physics_callback_errors() -> String:
+		return ", ".join(_physics_callback_errors)

@@ -163,10 +163,12 @@ func test_cup_flies_a_one_second_arc() -> void:
 	for index: int in _cafe.sleepwalkers.get_child_count():
 		_cafe.get_sleepwalker(index).wake_up()
 
-	var cup := _cafe.player.throw_cup(Vector2.LEFT) as CoffeeCup
+	# Throw east across the open room: walls stop the cup now, so a
+	# full-range flight needs a lane clear of them.
+	var cup := _cafe.player.throw_cup(Vector2.RIGHT) as CoffeeCup
 	assert_object(cup).is_not_null()
-	# No target stands left of the player: the cup lands at full throw range.
-	assert_vector(cup.landing).is_equal(Vector2(-278, 350))
+	# No target stands right of the player: the cup lands at full throw range.
+	assert_vector(cup.landing).is_equal(Vector2(722, 350))
 
 	var frames := 0
 	var peak_height := 0.0
@@ -187,12 +189,17 @@ func test_cup_flies_a_one_second_arc() -> void:
 	# The parabola peaks near the balanced arc height, half-way through.
 	assert_float(peak_height).is_between(35.0, 45.0)
 	assert_int(peak_frame).is_between(26, 34)
-	assert_float(ground_x_at_peak).is_between(-60.0, 5.0)
+	assert_float(ground_x_at_peak).is_between(439.0, 505.0)
 
 
 func test_throw_snaps_to_a_sleepwalker_inside_the_aim_cone() -> void:
 	var target := _cafe.get_sleepwalker(0)
 	_wake_others(target)
+	var frozen := target.balance.duplicate() as SleepwalkerBalance
+	frozen.walk_speed = 0.0
+	frozen.chase_speed = 0.0
+	target.balance = frozen
+	await get_tree().physics_frame
 	target.global_position = Vector2(700, 220)
 
 	# The target sits 15 degrees above the throw axis; a 30 degree half-cone snaps it.
@@ -202,6 +209,82 @@ func test_throw_snaps_to_a_sleepwalker_inside_the_aim_cone() -> void:
 	assert_object(cup).is_not_null()
 	assert_vector(cup.landing).is_equal(target.global_position)
 	cup.queue_free()
+
+
+func test_a_thrown_cup_leads_and_wakes_a_walking_sleepwalker() -> void:
+	# The T071 playtest finding: a mover drifted past a landing locked to
+	# its throw-time position, so an aimed throw at a plainly visible
+	# wanderer missed. The assist now leads the walker by its velocity over
+	# the flight time, and the throw connects.
+	var target := _cafe.get_sleepwalker(0)
+	_wake_others(target)
+	var steady := target.balance.duplicate() as SleepwalkerBalance
+	steady.walk_speed = 40.0
+	steady.chase_speed = 40.0
+	steady.idle_chance = 0.0
+	steady.wander_change_min_seconds = 30.0
+	steady.wander_change_max_seconds = 60.0
+	target.balance = steady
+	await get_tree().physics_frame
+	target.global_position = Vector2(560, 350)
+
+	var frames := 0
+	while target.velocity == Vector2.ZERO and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().physics_frame
+		frames += 1
+	assert_vector(target.velocity).is_not_equal(Vector2.ZERO)
+
+	var flight := _cafe.player.cup_balance.flight_time_seconds
+	var aim := target.global_position - _cafe.player.global_position
+	var cup := _cafe.player.throw_cup(aim) as CoffeeCup
+	assert_object(cup).is_not_null()
+	assert_vector(cup.landing).is_equal_approx(
+		target.global_position + target.velocity * flight, Vector2(0.1, 0.1)
+	)
+
+	frames = 0
+	while not target.is_awake() and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().physics_frame
+		frames += 1
+	assert_bool(target.is_awake()).is_true()
+
+
+func test_dodge_roll_has_a_cooldown_before_the_next_roll() -> void:
+	# The T071 playtest outcome: chain rolls made the player near
+	# permanently untouchable, so each roll now buys a short cooldown.
+	var player := _cafe.player
+	assert_bool(player.begin_dodge(Vector2.RIGHT)).is_true()
+	var frames := 0
+	while player.is_dodging():
+		await get_tree().physics_frame
+		frames += 1
+
+	assert_bool(player.begin_dodge(Vector2.RIGHT)).is_false()
+
+	# The cooldown outlasts the roll by its margin: 0.8 s cycle less the
+	# 0.4 s roll leaves about 24 frames of locked dodge after the roll.
+	frames = 0
+	while not player.begin_dodge(Vector2.RIGHT) and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().physics_frame
+		frames += 1
+	assert_int(frames).is_between(18, 30)
+	assert_bool(player.is_dodging()).is_true()
+
+
+func test_dodge_spam_keeps_a_gap_between_rolls() -> void:
+	# One roll press every physics frame still cannot chain rolls: the
+	# invulnerability uptime stays near the roll share of the cycle.
+	var player := _cafe.player
+	var invulnerable_frames := 0
+	const TOTAL_FRAMES := 240
+	for index: int in range(TOTAL_FRAMES):
+		player.begin_dodge(Vector2.RIGHT)
+		await get_tree().physics_frame
+		if player.is_invulnerable():
+			invulnerable_frames += 1
+	# 0.4 s of roll inside a 0.8 s cycle: about half of the frames, never
+	# the near-total uptime chain rolls had before the cooldown.
+	assert_int(invulnerable_frames).is_between(90, 150)
 
 
 func _prepare_hugger() -> Sleepwalker:

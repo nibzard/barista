@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/enemies/sleepwalker.gd" id="1"]
 [ext_resource type="Resource" path="res://resources/balance/sleepwalker.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/balance/forage.tres" id="forage"]
 [ext_resource type="Resource" path="res://resources/enemies/gamer.tres" id="3"]
 [ext_resource type="Resource" path="res://resources/brewing/brewing_library.tres" id="4"]
 [ext_resource type="Resource" path="res://resources/brewing/brewing_balance.tres" id="5"]
@@ -24,6 +25,7 @@ balance = ExtResource("2")
 enemy_type = ExtResource("3")
 library = ExtResource("4")
 brewing_balance = ExtResource("5")
+forage_balance = ExtResource("forage")
 gamer_balance = ExtResource("6")
 
 [node name="Visual" type="Polygon2D" parent="."]

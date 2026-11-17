@@ -9,7 +9,7 @@ signal flashed
 signal pitched
 signal spoke(line: String)
 
-enum State { WANDER, CHASE, HUG, AWAKE, PHOTO }
+enum State { WANDER, CHASE, HUG, AWAKE, PHOTO, FORAGE, EATING }
 enum DashPhase { REST, WINDUP, BURST }
 
 const SLEEPWALKER_GROUP := &"sleepwalkers"
@@ -33,6 +33,9 @@ const SLIP_ROTATION := PI * 0.5
 @export var tech_bro_balance: TechBroBalance
 @export var gamer_balance: GamerBalance
 @export var karen_balance: KarenBalance
+# Section 6: the foraging rule. The walker takes the bait only while the
+# balance says so, so the V1 scope call is one field in forage.tres.
+@export var forage_balance: ForageBalance
 
 var state := State.WANDER
 var player: Player = null
@@ -59,6 +62,8 @@ var _slide_velocity := Vector2.ZERO
 var _down_time_left := 0.0
 var _brain_freeze_time_left := 0.0
 var _brain_freeze_speed_factor := 1.0
+var _food_target: ForageFood = null
+var _eat_time_left := 0.0
 
 @onready var sense_area: Area2D = $SenseArea
 @onready var hug_area: Area2D = $HugArea
@@ -99,6 +104,10 @@ func _physics_process(delta: float) -> void:
 				_process_engage(delta)
 			State.PHOTO:
 				_process_photo(delta)
+			State.FORAGE:
+				_process_forage(delta)
+			State.EATING:
+				_process_eating(delta)
 		velocity *= _speed_factor()
 	move_and_slide()
 
@@ -110,6 +119,8 @@ func wake_up() -> void:
 		player.clear_grab(self)
 	state = State.AWAKE
 	velocity = Vector2.ZERO
+	_food_target = null
+	_eat_time_left = 0.0
 	_stagger_time_left = 0.0
 	_slide_time_left = 0.0
 	_slide_velocity = Vector2.ZERO
@@ -207,10 +218,6 @@ func stagger(duration: float) -> void:
 	_update_control_look()
 
 
-func stagger_time_left() -> float:
-	return _stagger_time_left
-
-
 func is_staggered() -> bool:
 	return _stagger_time_left > 0.0
 
@@ -256,6 +263,23 @@ func brain_freeze_time_left() -> float:
 
 func is_brain_frozen() -> bool:
 	return _brain_freeze_time_left > 0.0
+
+
+func notice_food(food: ForageFood) -> bool:
+	# Section 6: sleepwalkers eat everything they find, also coffee plants.
+	# Only a wandering sleeper takes the bait: the dream of the warm hug wins
+	# once a chase runs, an awake survivor forages no more, and a body under
+	# tool control has no say until the tool lets go. The food offers again
+	# every physics frame, so a refusal now costs nothing.
+	if forage_balance == null or not forage_balance.foraging_enabled:
+		return false
+	if state != State.WANDER or is_under_tool_control():
+		return false
+	if _food_target != null:
+		return false
+	_food_target = food
+	state = State.FORAGE
+	return true
 
 
 func is_under_tool_control() -> bool:
@@ -409,6 +433,50 @@ func _resume_after_photo() -> void:
 	# He checks the shot, then goes back to what he did before.
 	visual.modulate = Color.WHITE
 	state = _state_after_photo
+
+
+func _process_forage(_delta: float) -> void:
+	# The walker smells food and heads for it, section 6. The food can die on
+	# the way, eaten by somebody else: the walker goes back to wandering.
+	if not _food_target_valid():
+		_abandon_food()
+		return
+	var offset := _food_target.global_position - global_position
+	if offset.length() <= forage_balance.eat_range:
+		state = State.EATING
+		velocity = Vector2.ZERO
+		_eat_time_left = forage_balance.eat_duration_seconds
+		return
+	velocity = offset.normalized() * forage_balance.forage_speed
+
+
+func _process_eating(delta: float) -> void:
+	# The meal stands the walker still for its whole length. Raw caffeine
+	# wakes nobody, so the walker sleeps on after the last bite, and only the
+	# distraction remains, exactly as the transcript intends.
+	velocity = Vector2.ZERO
+	if not _food_target_valid():
+		_abandon_food()
+		return
+	_eat_time_left = maxf(0.0, _eat_time_left - delta)
+	if _eat_time_left > 0.0:
+		return
+	var food := _food_target
+	_food_target = null
+	food.consume()
+	state = State.WANDER
+
+
+func _abandon_food() -> void:
+	_food_target = null
+	_eat_time_left = 0.0
+	state = State.WANDER
+
+
+func _food_target_valid() -> bool:
+	return (
+		_food_target != null and is_instance_valid(_food_target) and not _food_target.is_consumed()
+	)
 
 
 func _engage_simple_hug() -> void:

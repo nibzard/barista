@@ -13,6 +13,14 @@
 [ext_resource type="Resource" path="res://resources/masters/hedrip.tres" id="11"]
 [ext_resource type="PackedScene" path="res://scenes/bosses/fish_throwers.tscn" id="12"]
 [ext_resource type="PackedScene" path="res://scenes/quests/sleepvana_stage.tscn" id="13"]
+[ext_resource type="Script" path="res://scripts/items/scavenge_drop.gd" id="14"]
+[ext_resource type="Resource" path="res://resources/items/gear/thermos_belt.tres" id="15"]
+[ext_resource type="Resource" path="res://resources/items/beans/golden_coast_arabica.tres" id="16"]
+
+[sub_resource type="Resource" id="FindThermosBelt"]
+script = ExtResource("14")
+item = ExtResource("15")
+amount = 1
 
 [sub_resource type="Resource" id="Block0"]
 script = ExtResource("2")
@@ -29,6 +37,7 @@ site_name = "Greenhouse"
 script = ExtResource("2")
 kind = 4
 sleepwalker_count = 3
+finds = [SubResource("FindThermosBelt")]
 
 [sub_resource type="Resource" id="Block3"]
 script = ExtResource("2")
@@ -86,6 +95,7 @@ boss_name = "The Fish Throwers"
 boss_scene = ExtResource("12")
 quest_scene = ExtResource("13")
 quest_name = "Sleepvana"
+region_bean = ExtResource("16")
 blocks = [SubResource("Block0"), SubResource("Block1"), SubResource("Block2"), SubResource("Block3"), SubResource("Block4"), SubResource("Block5"), SubResource("Block6"), SubResource("Block7")]
 roster = [SubResource("RosterNeighbor"), SubResource("RosterTourist"), SubResource("RosterGamer")]
 side_quests = [ExtResource("10")]

@@ -22,6 +22,10 @@ const IMPACT_X := 400.0
 const LANDING_X := 600.0
 const INSIDE_GAP := 90.0
 const OUTSIDE_GAP := 160.0
+# The medium roast scales the perfect radius to 80 px: 70 px stays inside
+# the smaller splash, 90 px stays outside it.
+const SCALED_INSIDE_GAP := 70.0
+const SCALED_OUTSIDE_GAP := 90.0
 
 # GdUnit reuses one suite instance for every test case, so the flag resets
 # on each throw, not in the declaration.
@@ -73,6 +77,29 @@ func test_good_cup_has_no_splash_outside_the_direct_hit() -> void:
 	assert_int(near.state).is_not_equal(Sleepwalker.State.AWAKE)
 
 
+func test_medium_roast_perfect_splash_is_smaller() -> void:
+	# The roast scales the splash, section 15: a medium roast perfect cup
+	# reaches only the scaled radius, so the sleeper at the full-radius gap
+	# stays asleep.
+	var medium_radius := 0.8 * BREWING_BALANCE.perfect_wake_radius
+	assert_float(SCALED_INSIDE_GAP).is_less_equal(medium_radius)
+	assert_float(SCALED_OUTSIDE_GAP).is_greater(medium_radius)
+	var hit := _frozen_sleeper_at(NEIGHBOR_SCENE, Vector2(IMPACT_X, SPLASH_LANE_Y))
+	var scaled_near := _frozen_sleeper_at(
+		NEIGHBOR_SCENE, Vector2(IMPACT_X, SPLASH_LANE_Y + SCALED_INSIDE_GAP)
+	)
+	var scaled_far := _frozen_sleeper_at(
+		NEIGHBOR_SCENE, Vector2(IMPACT_X, SPLASH_LANE_Y + SCALED_OUTSIDE_GAP)
+	)
+	_throw_cup_with_score(PERFECT_SCORE, "medium")
+	await _await_awake(scaled_near)
+	await _await_cup_settled()
+
+	assert_int(hit.state).is_equal(Sleepwalker.State.AWAKE)
+	assert_int(scaled_near.state).is_equal(Sleepwalker.State.AWAKE)
+	assert_int(scaled_far.state).is_not_equal(Sleepwalker.State.AWAKE)
+
+
 func test_perfect_splash_spares_the_tinfoil_hat_inside_the_radius() -> void:
 	var hit := _frozen_sleeper_at(NEIGHBOR_SCENE, Vector2(IMPACT_X, SPLASH_LANE_Y))
 	var hat := _frozen_sleeper_at(TINFOIL_MAN_SCENE, Vector2(IMPACT_X, SPLASH_LANE_Y + INSIDE_GAP))
@@ -115,11 +142,11 @@ func _frozen_sleeper_at(scene: PackedScene, at: Vector2) -> Sleepwalker:
 	return sleeper
 
 
-func _throw_cup_with_score(score: float) -> CoffeeCup:
+func _throw_cup_with_score(score: float, roast_id: String = "light") -> CoffeeCup:
 	var cup: CoffeeCup = CUP_SCENE.instantiate()
 	cup.position = Vector2(100.0, SPLASH_LANE_Y)
 	cup.direction = Vector2.RIGHT
-	cup.brewed = _brew(score)
+	cup.brewed = _brew(score, roast_id)
 	_cup_in_flight = true
 	cup.tree_exited.connect(_on_cup_left_tree)
 	add_child(auto_free(cup))
@@ -132,10 +159,12 @@ func _on_cup_left_tree() -> void:
 	_cup_in_flight = false
 
 
-func _brew(score: float) -> BrewedCup:
+func _brew(score: float, roast_id: String = "light") -> BrewedCup:
+	# The light roast carries the full wake power, so the radius asserts read
+	# the plain balance values.
 	return BrewedCup.new(
 		LIBRARY.find_bean("house"),
-		LIBRARY.find_roast("medium"),
+		LIBRARY.find_roast(roast_id),
 		LIBRARY.find_method("filter"),
 		"",
 		score

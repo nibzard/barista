@@ -91,13 +91,15 @@ func test_good_cup_wakes_only_types_that_need_the_drink() -> void:
 
 
 func test_good_cup_wakes_each_special_type() -> void:
-	var bulletproof := _brew("house", "dark", "espresso", "butter", 88.0)
+	# Every row brews a roast with enough wake power for the sleeper; the
+	# dark-roast refusals live in test_wake_power.gd.
+	var bulletproof := _brew("house", "medium", "espresso", "butter", 88.0)
 	assert_bool(_wakes(bulletproof, "tech_bro")).is_true()
 	var triple_shot := _brew("house", "light", "aeropress", "three_shots", 88.0)
 	assert_bool(_wakes(triple_shot, "gamer")).is_true()
 	var turkish := _brew("house", "medium", "turkish", "", 88.0)
 	assert_bool(_wakes(turkish, "tinfoil_man")).is_true()
-	var frappuccino := _brew("house", "dark", "filter", "whipped_cream", 88.0)
+	var frappuccino := _brew("house", "medium", "filter", "whipped_cream", 88.0)
 	assert_bool(_wakes(frappuccino, "tourist")).is_true()
 	var ristretto := _brew("geisha_vault", "light", "espresso", "short_pull", 88.0)
 	assert_bool(_wakes(ristretto, "moonwalker")).is_true()
@@ -112,9 +114,11 @@ func test_perfect_cup_wakes_every_type() -> void:
 
 
 func test_perfect_cup_has_wake_radius_others_do_not() -> void:
-	var perfect := _brew("house", "medium", "filter", "", 99.0)
-	var good := _brew("house", "medium", "filter", "", 85.0)
-	var weak := _brew("house", "medium", "filter", "", 42.0)
+	# A light roast carries the full radius; the weaker roasts scale it down
+	# in test_wake_power.gd.
+	var perfect := _brew("house", "light", "filter", "", 99.0)
+	var good := _brew("house", "light", "filter", "", 85.0)
+	var weak := _brew("house", "light", "filter", "", 42.0)
 	assert_float(CureMatcher.wake_radius(perfect, BALANCE)).is_equal(BALANCE.perfect_wake_radius)
 	assert_float(CureMatcher.wake_radius(good, BALANCE)).is_equal(0.0)
 	assert_float(CureMatcher.wake_radius(weak, BALANCE)).is_equal(0.0)

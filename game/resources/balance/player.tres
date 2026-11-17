@@ -4,6 +4,7 @@
 
 [resource]
 script = ExtResource("1")
+dodge_cooldown_seconds = 0.8
 dodge_duration_seconds = 0.4
 dodge_speed = 440.0
 drink_slow_walk_factor = 0.5

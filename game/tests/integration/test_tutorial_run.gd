@@ -57,6 +57,8 @@ func test_the_intro_starts_with_the_video_on_a_black_screen() -> void:
 	assert_str(_tutorial.video_view.current_line()).is_equal(
 		"If you see this, you drink real coffee. Good. Listen."
 	)
+	# The produced video opens on its wide shot of the night lab, section 22.
+	assert_int(_tutorial.video_view.shot()).is_equal(MorgenVideo.Shot.WIDE)
 	assert_bool(_city.player.is_input_locked()).is_true()
 	assert_bool(_tutorial.prompt_label.visible).is_false()
 	# The tower marker waits for the survivor, section 19 step 7.
@@ -196,7 +198,10 @@ func test_the_first_throw_wakes_him_and_he_shuffles_away() -> void:
 	var walker := _tutorial.window_neighbor()
 	assert_object(walker).is_not_null()
 	# Stand him still in front of the player so the thrown cup cannot miss.
+	# A frozen body keeps its last velocity, and the aim assist would lead
+	# that stale velocity, so zero it with the movement.
 	walker.set_physics_process(false)
+	walker.velocity = Vector2.ZERO
 	walker.global_position = _city.player.global_position + Vector2(150.0, 0.0)
 	var cup := _city.player.throw_cup(Vector2.RIGHT)
 	assert_object(cup).is_not_null()
@@ -427,6 +432,7 @@ func _throw_at_the_window_neighbor() -> void:
 	_park_the_crowd_west()
 	var walker := _tutorial.window_neighbor()
 	walker.set_physics_process(false)
+	walker.velocity = Vector2.ZERO
 	walker.global_position = _city.player.global_position + Vector2(150.0, 0.0)
 	_city.player.throw_cup(Vector2.RIGHT)
 

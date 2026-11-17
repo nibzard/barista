@@ -485,11 +485,35 @@
       "id": "T015",
       "title": "Cold brew works with no minigame",
       "priority": 3,
-      "status": "todo",
+      "status": "done",
       "details": "The player starts it and comes back later; low ceiling, zero stress. Acceptance: timer-based completion unit-tested including the quality ceiling; make check green.",
       "depends_on": [
         "T010"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/cold_brew.tres",
+        "game/resources/brewing/methods/aeropress.tres",
+        "game/resources/brewing/methods/cold_brew.tres",
+        "game/resources/brewing/methods/espresso.tres",
+        "game/resources/brewing/methods/filter.tres",
+        "game/resources/brewing/methods/french_press.tres",
+        "game/resources/brewing/methods/moka_pot.tres",
+        "game/resources/brewing/methods/turkish.tres",
+        "game/resources/brewing/methods/v60.tres",
+        "game/scripts/balance/cold_brew_balance.gd",
+        "game/scripts/balance/cold_brew_balance.gd.uid",
+        "game/scripts/brewing/brewing_method.gd",
+        "game/scripts/brewing/cold_brew.gd",
+        "game/scripts/brewing/cold_brew.gd.uid",
+        "game/scripts/brewing/cold_brew_result.gd",
+        "game/scripts/brewing/cold_brew_result.gd.uid",
+        "game/tests/unit/test_brewing_data.gd",
+        "game/tests/unit/test_cold_brew.gd",
+        "game/tests/unit/test_cold_brew.gd.uid"
+      ],
+      "updated_at": "2026-11-16T19:46:56Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T016",
@@ -865,19 +889,22 @@
         "T026"
       ],
       "blockers": [
-        "Deferred: T027 starts implementation"
+        "Deferred: T027 starts implementation",
+        "Deferred: T027 starts implementation; the looper:deferred tag comes off"
       ],
       "block_reason": {
         "class": "deferred",
         "code": "deferred_condition",
         "retry": "after-change",
-        "source": "import"
+        "source": "controller"
       },
       "tags": [
         "looper:deferred",
-        "looper:finding:t026-boss-cure-hook"
+        "looper:finding:sam-oatman-designer-dripper-cure-wiring",
+        "looper:finding:t026-boss-cure-hook",
+        "looper:finding:v1-route-locked-past-san-coffesco"
       ],
-      "unblock_when": "T027 starts implementation; remove looper:deferred and set todo when this condition is met."
+      "unblock_when": "T027 starts implementation; the looper:deferred tag comes off; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T028",
@@ -1355,6 +1382,7 @@
       "blockers": [
         "Deferred: Next backlog update after T085 is integrated",
         "Deferred: Resume when T040 unblocks and starts implementation; store the outro step beside quest and tower state.",
+        "Deferred: T040 auto-save work resumes",
         "Deferred: T040 starts implementation",
         "Deferred: T040 starts implementation (its unblock_when: remove looper:deferred and set todo)"
       ],
@@ -1368,12 +1396,13 @@
         "looper:deferred",
         "looper:finding:moving-day-van-level-carryover",
         "looper:finding:outro-save-state",
+        "looper:finding:save-persist-bag-items",
         "looper:finding:sleepydex-save-persistence",
         "looper:finding:t040-blocked-status-flip",
         "looper:finding:t040-persist-tutorial-state",
         "looper:finding:t040-remaining-section18-save-fields"
       ],
-      "unblock_when": "Next backlog update after T085 is integrated; remove looper:deferred and set todo when this condition is met."
+      "unblock_when": "T040 auto-save work resumes; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T041",
@@ -1444,14 +1473,40 @@
       "id": "T043",
       "title": "Dr. Morgen opening video produced per the section 22 script",
       "priority": 3,
-      "status": "todo",
+      "status": "done",
       "details": "Phone-camera framing in a lab at night, 2D animated stills with small motions, voice and subtitles, about 20 s, script verbatim ending on 'Brew it strong'; skippable; replays later on the cafe television. Placeholder art and a silent track are acceptable now and never block development (T054 replaces them). Acceptance: subtitle timing and skip/replay logic tested; make check green.\n\nReview repair: Produce the real Dr. Morgen opening video\nThe tutorial ships placeholder stills (TutorialVideoView draws the night lab, beaker, leaning phone, tired Morgen, and the five section 22 subtitle beats). T043 replaces them with the produced 2D-animated video, still 20 s and skippable through the same TutorialFlow.end_video path.\nEvidence: game/scripts/tutorial/tutorial_video_view.gd carries the SCRIPT_LINES of section 22 and placeholder draw code; make check pins the video length at 20 s in game/resources/balance/tutorial.tres.",
       "depends_on": [
         "T042"
       ],
+      "files": [
+        "LOG.md",
+        "game/scenes/cafe/cafe_television.tscn",
+        "game/scenes/tutorial/morgen_replay.tscn",
+        "game/scenes/tutorial/tutorial_director.tscn",
+        "game/scenes/tutorial/tutorial_video_view.tscn",
+        "game/scripts/audio/placeholder_tones.gd",
+        "game/scripts/cafe/cafe_television.gd",
+        "game/scripts/cafe/cafe_television.gd.uid",
+        "game/scripts/city/city_block_view.gd",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/tutorial/morgen_replay_player.gd",
+        "game/scripts/tutorial/morgen_replay_player.gd.uid",
+        "game/scripts/tutorial/morgen_video.gd",
+        "game/scripts/tutorial/morgen_video.gd.uid",
+        "game/scripts/tutorial/tutorial_director.gd",
+        "game/scripts/tutorial/tutorial_video_view.gd",
+        "game/tests/integration/test_cafe_television.gd",
+        "game/tests/integration/test_cafe_television.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/integration/test_tutorial_run.gd",
+        "game/tests/unit/test_address_audio.gd",
+        "game/tests/unit/test_morgen_video.gd",
+        "game/tests/unit/test_morgen_video.gd.uid"
+      ],
       "tags": [
         "looper:finding:t043-opening-video-produced"
-      ]
+      ],
+      "updated_at": "2026-11-16T20:43:46Z"
     },
     {
       "id": "T044",
@@ -1505,19 +1560,21 @@
         "T024"
       ],
       "blockers": [
-        "Deferred: T045 art direction pass starts"
+        "Deferred: T045 art direction pass starts",
+        "Deferred: T045 loses its looper:deferred tag and the art direction pass starts"
       ],
       "block_reason": {
         "class": "deferred",
         "code": "deferred_condition",
         "retry": "after-change",
-        "source": "import"
+        "source": "controller"
       },
       "tags": [
         "looper:deferred",
+        "looper:finding:building-shell-art-pass",
         "looper:finding:sleepydex-portrait-art"
       ],
-      "unblock_when": "T045 art direction pass starts; remove looper:deferred and set todo when this condition is met."
+      "unblock_when": "T045 loses its looper:deferred tag and the art direction pass starts; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T046",
@@ -1621,16 +1678,18 @@
         "T030"
       ],
       "blockers": [
-        "Deferred: T049 starts implementation"
+        "Deferred: T049 starts implementation",
+        "Deferred: T049 starts implementation; remove looper:deferred and set todo when this condition is met."
       ],
       "block_reason": {
         "class": "deferred",
         "code": "deferred_condition",
         "retry": "after-change",
-        "source": "import"
+        "source": "controller"
       },
       "tags": [
         "looper:deferred",
+        "looper:finding:moving-day-bag-carry",
         "looper:finding:t026-bridge-paywall-stub"
       ],
       "unblock_when": "T049 starts implementation; remove looper:deferred and set todo when this condition is met."
@@ -1691,11 +1750,38 @@
       "id": "T052",
       "title": "EXTERNAL PREREQ: Android toolchain ready for on-device builds",
       "priority": 3,
-      "status": "todo",
+      "status": "blocked",
       "details": "Not implementable game code: install a JDK and the Android SDK, download the Godot 4.7.2 export templates, and configure the Android export preset with Niko's approval (LOG.md records Java as absent and Android deferred; CLAUDE.md says do not add build targets speculatively and the agent never touches signing credentials). Needed before on-device verification of the touch-first build; until then desktop stays the development platform. Acceptance: the game runs on an Android device with touch controls.",
       "depends_on": [
         "T047"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "android-export-verify.log",
+        "android-toolchain-report.md",
+        "apocalypse-barista-debug.apk"
+      ],
+      "blockers": [
+        "Deferred: An Android device with USB debugging is connected to the dev box",
+        "Deferred: Niko reviews the toolchain report in the task artifact directory and grants approval to add the Android export preset",
+        "Deferred: T052 unblocks: an Android device with USB debugging is attached and the export preset is approved; then run the tutorial-first probe against the device boot.",
+        "Niko has not approved adding the Android export preset to the repo; CLAUDE.md forbids speculative build targets and the task gates game/export_presets.cfg plus the ETC2/ASTC project setting on that approval.",
+        "No Android device with USB debugging is attached to the dev box, so the on-device acceptance run (game runs on Android with touch controls) cannot execute."
+      ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "controller"
+      },
+      "tags": [
+        "looper:deferred",
+        "looper:finding:android-export-preset-approval",
+        "looper:finding:android-on-device-verification",
+        "looper:finding:t102-android-compile-order-verify"
+      ],
+      "updated_at": "2026-11-16T21:00:46Z",
+      "unblock_when": "T052 unblocks: an Android device with USB debugging is attached and the export preset is approved; then run the tutorial-first probe against the device boot.; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T053",
@@ -1725,14 +1811,14 @@
         "class": "deferred",
         "code": "deferred_condition",
         "retry": "after-change",
-        "source": "import"
+        "source": "controller"
       },
       "tags": [
         "looper:deferred",
         "looper:finding:sleepvana-song-diegetic-audio",
         "looper:finding:t054-real-audio-assets"
       ],
-      "unblock_when": "T054 delivers the real audio and voice assets; remove looper:deferred and set todo when this condition is met."
+      "unblock_when": "T054 real audio production begins, before version 1 ship; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T055",
@@ -1803,21 +1889,49 @@
       "id": "T058",
       "title": "Add V2+ city cure data when those sleepwalker types ship",
       "priority": 3,
-      "status": "todo",
+      "status": "done",
       "details": "Section 6 defines cures for later-city types: double espresso (Night Nurse), protein cold brew (Crossfitter), 12-dollar single-origin V60 (Executive), second cup within one minute (Withdrawer), plus boss cures (designer dripper cup, all-eight-methods cup, competition cup). The V1 recipe table in section 15 intentionally omits them; add Recipe/SleepwalkerCure .tres rows when those types are scheduled.\nEvidence: GAME_DESIGN.md section 6 enemy cure list vs section 15 'Recipes (version 1)' table.",
       "depends_on": [
         "T036"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/resources/brewing/brewing_library.tres",
+        "game/resources/brewing/cures/crossfitter.tres",
+        "game/resources/brewing/cures/executive.tres",
+        "game/resources/brewing/cures/night_nurse.tres",
+        "game/resources/brewing/cures/withdrawer.tres",
+        "game/resources/brewing/extras/all_eight_methods.tres",
+        "game/resources/brewing/extras/double_shot.tres",
+        "game/resources/brewing/extras/protein_powder.tres",
+        "game/resources/brewing/recipes/competition_cup.tres",
+        "game/resources/brewing/recipes/designer_dripper_cup.tres",
+        "game/resources/brewing/recipes/double_espresso.tres",
+        "game/resources/brewing/recipes/protein_cold_brew.tres",
+        "game/scripts/brewing/sleepwalker_cure.gd",
+        "game/tests/unit/test_brewing_data.gd",
+        "game/tests/unit/test_v2_cure_data.gd",
+        "game/tests/unit/test_v2_cure_data.gd.uid"
+      ],
+      "updated_at": "2026-11-16T21:37:13Z"
     },
     {
       "id": "T059",
       "title": "Add a score ceiling to BrewingMethod for cold brew",
       "priority": 3,
-      "status": "todo",
+      "status": "done",
       "details": "Cold brew is 'low ceiling, zero stress' per section 8. BrewingMethod has no score-ceiling field yet; T015 should add it as .tres data (and pick the ceiling value with Niko) so cold brew cannot reach the perfect tier while staying stress-free.\nEvidence: game/scripts/brewing/brewing_method.gd has grind_target/grind_tolerance/minigame_group only; GAME_DESIGN.md section 8 cold brew entry.",
       "depends_on": [
         "T015"
-      ]
+      ],
+      "files": [
+        "LOG.md"
+      ],
+      "tags": [
+        "looper:finding:cold-brew-score-ceiling-field"
+      ],
+      "updated_at": "2026-11-16T21:56:57Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T060",
@@ -1850,11 +1964,24 @@
       "id": "T061",
       "title": "Thrown cups ignore walls and static obstacles (collision detects sleepwalkers only)",
       "priority": 3,
-      "status": "todo",
+      "status": "done",
       "details": "Cup projectiles must collide with environment geometry so coffee cannot wake sleepwalkers through walls; fold the environment-collision rule into the cup-flight rework (arc, aim cone) and the T024 block-kit buildings. Acceptance: a cup thrown at a sleepwalker behind a wall stops or breaks on the wall, covered by an integration test; make check green.\nEvidence: game/scenes/projectiles/coffee_cup.tscn sets collision_mask = 4 and game/scenes/enemies/sleepwalker.tscn sets collision_layer = 4, so the cup Area2D detects sleepwalkers only; coffee_cup.gd:_on_body_entered wakes and frees only on Sleepwalker, while cafe.tscn walls are StaticBody2D on default layer 1. Latent today because the cafe is one room with all three sleepwalkers inside; it becomes player-visible once cities with rooms and scavenge buildings exist (T024/T026). No backlog task text mentions projectile-environment collision (T008 covers flight time, arc, and aim cone only).",
       "depends_on": [
         "T008"
-      ]
+      ],
+      "files": [
+        "LOG.md",
+        "game/scenes/projectiles/coffee_cup.tscn",
+        "game/scripts/combat/line_of_sight.gd",
+        "game/scripts/combat/line_of_sight.gd.uid",
+        "game/scripts/player/player.gd",
+        "game/scripts/projectiles/coffee_cup.gd",
+        "game/tests/integration/test_combat_feel.gd",
+        "game/tests/integration/test_cup_environment_block.gd",
+        "game/tests/integration/test_cup_environment_block.gd.uid"
+      ],
+      "updated_at": "2026-11-16T23:11:16Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T062",
@@ -1896,14 +2023,21 @@
       "id": "T064",
       "title": "Reuse SleepZone for boring-attack auras in boss fights",
       "priority": 3,
-      "status": "todo",
+      "status": "done",
       "details": "The Sleep Jam lullaby and Sam Oatman's slides drain at the 5/s boring-attack tier (section 14). The SleepZone component currently escalates only the 1.5/s sleep-zone tier; a third Kind (or an exported DrainTier) would let boss auras reuse the same area-driven meter bridge.\nEvidence: game/scripts/components/sleep_zone.gd escalates SleepMeter.DrainTier.SLEEP_ZONE only; GAME_DESIGN.md section 6 bosses (Sleep Jam lullaby, boring slides) map to the boring-attack rate.\n\nReview repair: The SleepZone boring-attack bridge T064 describes landed with T031; only the Oatman-side adoption remains\nT064 asked for SleepZone reuse for boss boring-attack auras. SleepZone now has Kind.BORING (escalates SleepMeter.DrainTier.BORING_ATTACK, ignores broadcast silence, deactivatable) and the Sleep Jam uses it live; the Sam Oatman slide aura can adopt the same kind when T027 starts.\nEvidence: game/scripts/components/sleep_zone.gd _physics_process escalates BORING_ATTACK; game/scripts/bosses/sleep_jam_band.gd _build_lullaby() composes a Kind.BORING zone; game/tests/integration/test_sleep_jam.gd pins the 5/s drain, the tower-independence, and the quiet-after-wake.",
       "depends_on": [
         "T031"
       ],
+      "files": [
+        "LOG.md",
+        "game/tests/integration/test_sleep_zone_boring.gd",
+        "game/tests/integration/test_sleep_zone_boring.gd.uid"
+      ],
       "tags": [
         "looper:finding:sleep-zone-boring-aura"
-      ]
+      ],
+      "updated_at": "2026-11-16T23:28:58Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T065",
@@ -1940,6 +2074,7 @@
       ],
       "blockers": [
         "Deferred: T066 is unblocked (its dependency T015 has landed) and real minigame BrewedCup payloads reach Player.throw_cup",
+        "Deferred: T066 is unblocked and starts replacing the fixed standard-cup payload with minigame-built BrewedCup payloads",
         "Deferred: T066 lands the real brewed-cup payloads and the brew picker UI takes shape",
         "Deferred: T066 loses its deferred tag and starts implementation",
         "Deferred: T066 loses its looper:deferred tag and starts implementation",
@@ -1950,7 +2085,7 @@
         "class": "deferred",
         "code": "deferred_condition",
         "retry": "after-change",
-        "source": "import"
+        "source": "controller"
       },
       "tags": [
         "looper:deferred",
@@ -1960,11 +2095,12 @@
         "looper:finding:brewed-cup-payloads",
         "looper:finding:brewed-cup-payloads-live-throw",
         "looper:finding:masters-recipe-knowledge-brew-flow",
+        "looper:finding:minigame-score-ceiling-clamp",
         "looper:finding:t066-brewed-cup-payload",
         "looper:finding:touch-brew-button-live-flow",
         "looper:finding:wire-pour-into-brew-flow"
       ],
-      "unblock_when": "T066 loses its deferred tag and starts implementation; remove looper:deferred and set todo when this condition is met."
+      "unblock_when": "T066 is unblocked and starts replacing the fixed standard-cup payload with minigame-built BrewedCup payloads; remove looper:deferred and set todo when this condition is met."
     },
     {
       "id": "T067",
@@ -2029,14 +2165,31 @@
       "id": "T071",
       "title": "Playtest-tune the combat feel values once touch controls exist",
       "priority": 3,
-      "status": "todo",
-      "details": "Working numbers shipped per design (roll 0.4 s / 440 speed, cone half-angle 30 deg, arc peak 40 px, 5 mash presses, 0.5 s grace, hug radius 18). GAME_DESIGN section 14 says the prototype decides final values, so a human playtest of make run should confirm the feel, especially mash difficulty under hug drain and whether the dodge needs a cooldown.\nEvidence: game/resources/balance/player.tres and coffee_cup.tres hold the tunables; no GUI playtest possible in this headless worktree (headless boot smoke only).\n\nReview repair: Thrown cups cannot lead moving targets: the aim assist locks the landing to the target position one second before impact\nPlaytest evidence for the T071 combat-feel session: decide whether the aim assist should lead a moving target, shorten the flight, or widen the cup tolerance, so a throw at a plainly visible wandering sleeper connects at a normal rate. No code change is requested from this review; attach this evidence to the T071 playtest.\nEvidence: Live Xvfb run inside San Coffesco: player.throw_cup aimed at a neighbor 90 px away; the cup landing equaled the target position at throw time (landing=(331.6,340.5), target_pos=(331.6,340.5)), but after 3 s the aimed neighbor was still asleep and a different sleeper woke instead. AimCone.landing_point (game/scripts/combat/aim_cone.gd:7-29) snaps to the candidate position; coffee_cup.gd flies a fixed flight_time_seconds=1.0 (game/resources/balance/coffee_cup.tres); sleepwalkers move at walk_speed 40 or chase_speed 70 px/s (game/resources/balance/sleepwalker.tres), so movers drift past the cup tolerance during the flight, and the assisted landing point gives the player no way to compensate by aiming ahead.",
+      "status": "done",
+      "details": "Working numbers shipped per design (roll 0.4 s / 440 speed, cone half-angle 30 deg, arc peak 40 px, 5 mash presses, 0.5 s grace, hug radius 18). GAME_DESIGN section 14 says the prototype decides final values, so a human playtest of make run should confirm the feel, especially mash difficulty under hug drain and whether the dodge needs a cooldown.\nEvidence: game/resources/balance/player.tres and coffee_cup.tres hold the tunables; no GUI playtest possible in this headless worktree (headless boot smoke only).\n\nReview repair: Thrown cups cannot lead moving targets: the aim assist locks the landing to the target position one second before impact\nPlaytest evidence for the T071 combat-feel session: decide whether the aim assist should lead a moving target, shorten the flight, or widen the cup tolerance, so a throw at a plainly visible wandering sleeper connects at a normal rate. No code change is requested from this review; attach this evidence to the T071 playtest.\nEvidence: Live Xvfb run inside San Coffesco: player.throw_cup aimed at a neighbor 90 px away; the cup landing equaled the target position at throw time (landing=(331.6,340.5), target_pos=(331.6,340.5)), but after 3 s the aimed neighbor was still asleep and a different sleeper woke instead. AimCone.landing_point (game/scripts/combat/aim_cone.gd:7-29) snaps to the candidate position; coffee_cup.gd flies a fixed flight_time_seconds=1.0 (game/resources/balance/coffee_cup.tres); sleepwalkers move at walk_speed 40 or chase_speed 70 px/s (game/resources/balance/sleepwalker.tres), so movers drift past the cup tolerance during the flight, and the assisted landing point gives the player no way to compensate by aiming ahead.\n\nReview repair: Fresh live evidence for the T071 playtest: the tutorial's step-5 first throw misses a moving window Neighbor\nThe combat-feel playtest of T071 should also judge the tutorial's first-throw beat: the aim assist locks the cup landing to the target's position at throw time, so a wandering sleeper drifts out of the cup tolerance during the fixed 1.0 s flight. In live runs the very first aimed throw missed; the lesson only advanced on retries. Decide at the playtest whether the assist leads the target, the flight shortens, or the tolerance widens.\nEvidence: Two full Xvfb tutorial runs this review: run one missed the window Neighbor three times in a row with the mouse warped onto the walker each attempt; run two missed on attempt 0 and connected on attempt 1. game/scripts/combat/aim_cone.gd snaps the landing to the candidate position; coffee_cup.tres flight_time_seconds=1.0; sleepwalker.tres walk/chase speeds move the target during the flight. Matches the recorded T071 finding cup-aim-lead-moving-targets and shows it also touches the scripted first-throw lesson.",
       "depends_on": [
         "T047"
       ],
+      "files": [
+        "LOG.md",
+        "game/resources/balance/player.tres",
+        "game/scripts/balance/player_balance.gd",
+        "game/scripts/combat/aim_candidate.gd",
+        "game/scripts/combat/aim_candidate.gd.uid",
+        "game/scripts/combat/aim_cone.gd",
+        "game/scripts/player/player.gd",
+        "game/tests/integration/test_combat_feel.gd",
+        "game/tests/integration/test_touch_controls.gd",
+        "game/tests/integration/test_tutorial_run.gd",
+        "game/tests/unit/test_aim_cone.gd",
+        "game/tests/unit/test_balance_resources.gd"
+      ],
       "tags": [
-        "looper:finding:cup-aim-lead-moving-targets"
-      ]
+        "looper:finding:cup-aim-lead-moving-targets",
+        "looper:finding:human-combat-feel-playtest"
+      ],
+      "updated_at": "2026-11-17T00:25:47Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T072",
@@ -2054,8 +2207,40 @@
       "id": "T073",
       "title": "Sleepwalker foraging rule (they eat everything they find, including coffee plants) has no owning task",
       "priority": 3,
-      "status": "todo",
-      "details": "GAME_DESIGN.md section 6 lists 'They eat everything they find, also coffee plants' as a sleepwalker rule, and brainstorm.md (raw transcript) confirms it is real design intent ('oni isto jedu sve... i kavu... mozes ti posaditi pantazu, a ti je pojede'). No backlog task (T001-T072) mentions foraging, eating, or coffee plants; T006 covers collecting beans, not enemies consuming them. Decide with Niko whether this ships in V1; if yes, it needs an owner (enemy behavior plus a plantable/edible coffee-plant item).\nEvidence: GAME_DESIGN.md section 6 sleepwalker rules bullet list; brainstorm.md transcript; grep of backlog.json for eat/plant/forage returns no task."
+      "status": "done",
+      "details": "GAME_DESIGN.md section 6 lists 'They eat everything they find, also coffee plants' as a sleepwalker rule, and brainstorm.md (raw transcript) confirms it is real design intent ('oni isto jedu sve... i kavu... mozes ti posaditi pantazu, a ti je pojede'). No backlog task (T001-T072) mentions foraging, eating, or coffee plants; T006 covers collecting beans, not enemies consuming them. Decide with Niko whether this ships in V1; if yes, it needs an owner (enemy behavior plus a plantable/edible coffee-plant item).\nEvidence: GAME_DESIGN.md section 6 sleepwalker rules bullet list; brainstorm.md transcript; grep of backlog.json for eat/plant/forage returns no task.",
+      "files": [
+        "LOG.md",
+        "game/project.godot",
+        "game/resources/balance/forage.tres",
+        "game/resources/items/materials/coffee_seedling.tres",
+        "game/scenes/cafe/cafe.tscn",
+        "game/scenes/components/coffee_plant.tscn",
+        "game/scenes/enemies/gamer.tscn",
+        "game/scenes/enemies/karen.tscn",
+        "game/scenes/enemies/neighbor.tscn",
+        "game/scenes/enemies/tech_bro.tscn",
+        "game/scenes/enemies/tinfoil_man.tscn",
+        "game/scenes/enemies/tourist.tscn",
+        "game/scenes/player/player.tscn",
+        "game/scenes/touch/touch_controls.tscn",
+        "game/scripts/balance/forage_balance.gd",
+        "game/scripts/balance/forage_balance.gd.uid",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/components/coffee_plant.gd",
+        "game/scripts/components/coffee_plant.gd.uid",
+        "game/scripts/components/forage_food.gd",
+        "game/scripts/components/forage_food.gd.uid",
+        "game/scripts/enemies/sleepwalker.gd",
+        "game/scripts/player/player.gd",
+        "game/scripts/touch/touch_controls.gd",
+        "game/tests/integration/test_forage.gd",
+        "game/tests/integration/test_forage.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd",
+        "game/tests/unit/test_forage_balance.gd",
+        "game/tests/unit/test_forage_balance.gd.uid"
+      ],
+      "updated_at": "2026-11-17T01:10:41Z"
     },
     {
       "id": "T074",
@@ -2221,22 +2406,30 @@
       "id": "T083",
       "title": "Touch button for the tower interact action",
       "priority": 3,
-      "status": "todo",
-      "details": "The tower insert/switch flow is driven by the new `interact` input action, which currently binds only the E key (a development convenience). Touch-first play needs an on-screen USE button near the tower; it belongs with the deferred touch-controls task.\nEvidence: game/project.godot interact action has only InputEventKey 69; CLAUDE.md: 'Touch-first design: gameplay must work without a keyboard.'\n\nReview repair: Flip T083 done: the tower interact touch button shipped as the shared USE control of T047\nT047 shipped the on-screen USE button, which fires the shared interact action through one synthesized InputEventAction: the tower fuse insert and switch-off, the van upgrade and field-base toggle, masters, and signature quests all answer it. test_the_use_button_runs_the_tower_beat drives fuse pickup to birdsong with simulated touches, and test_the_use_button_upgrades_the_van covers the van side. T083 asked for exactly this tower touch button, so the backlog update should set T083 done and attach this evidence.\nEvidence: game/scripts/touch/touch_controls.gd _ready wires the USE button to _fire_action(\u0026\"interact\"); game/tests/integration/test_touch_controls.gd test_the_use_button_runs_the_tower_beat and test_the_use_button_upgrades_the_van pass with simulated InputEventScreenTouch events; make check 797/797.\n\nReview repair: T083 (touch button for tower interact) is stale: the shared USE button covers the tower beat\nFlip T083 to done at the next backlog update. Acceptance was an on-screen touch path for the tower insert and switch actions.\nEvidence: T047 shipped the USE button synthesizing the interact action; test_touch_controls.gd includes the USE tower beat from fuse pickup to birdsong. T083's in-task review repair note already records the outcome as met.",
+      "status": "done",
+      "details": "The tower insert/switch flow is driven by the new `interact` input action, which currently binds only the E key (a development convenience). Touch-first play needs an on-screen USE button near the tower; it belongs with the deferred touch-controls task.\nEvidence: game/project.godot interact action has only InputEventKey 69; CLAUDE.md: 'Touch-first design: gameplay must work without a keyboard.'\n\nReview repair: Flip T083 done: the tower interact touch button shipped as the shared USE control of T047\nT047 shipped the on-screen USE button, which fires the shared interact action through one synthesized InputEventAction: the tower fuse insert and switch-off, the van upgrade and field-base toggle, masters, and signature quests all answer it. test_the_use_button_runs_the_tower_beat drives fuse pickup to birdsong with simulated touches, and test_the_use_button_upgrades_the_van covers the van side. T083 asked for exactly this tower touch button, so the backlog update should set T083 done and attach this evidence.\nEvidence: game/scripts/touch/touch_controls.gd _ready wires the USE button to _fire_action(\u0026\"interact\"); game/tests/integration/test_touch_controls.gd test_the_use_button_runs_the_tower_beat and test_the_use_button_upgrades_the_van pass with simulated InputEventScreenTouch events; make check 797/797.\n\nReview repair: T083 (touch button for tower interact) is stale: the shared USE button covers the tower beat\nFlip T083 to done at the next backlog update. Acceptance was an on-screen touch path for the tower insert and switch actions.\nEvidence: T047 shipped the USE button synthesizing the interact action; test_touch_controls.gd includes the USE tower beat from fuse pickup to birdsong. T083's in-task review repair note already records the outcome as met.\n\nReview repair: T083 outcome is met at this head: the tower interact action has a touch button; status still todo\nAcceptance: touch-first play can drive the tower fuse insert and switch-off without a keyboard. The shared USE button fires the interact action through one synthesized InputEventAction, and an integration test drives the full tower beat with simulated touches. Flip T083 to done at the next backlog update.\nEvidence: game/scripts/touch/touch_controls.gd:63 wires the USE button to _fire_action(\u0026\"interact\"); game/tests/integration/test_touch_controls.gd:217 test_the_use_button_runs_the_tower_beat. Live playthrough this review switched the tower off through parsed interact InputEventAction presses, the same pipeline the button drives. make check 951/951.\n\nReview repair: T083 outcome is met (the shared USE touch button drives the tower interact); flip to done is pending\nAcceptance: touch-first play can drive the tower fuse insert and switch-off without a keyboard. The USE button fires the shared interact action through one synthesized InputEventAction, an integration test drives the full tower beat with simulated touches, and this review's live runs drove the identical action pipeline.\nEvidence: game/scripts/touch/touch_controls.gd wires the USE button to _fire_action(\u0026\"interact\"); game/tests/integration/test_touch_controls.gd test_the_use_button_runs_the_tower_beat passes in this review's make check run (1014/1014). Live tutorial and Pourtland runs this review switched towers off through parsed interact InputEventAction presses, the same event the button synthesizes (tower switched_off=true in both runs).",
+      "files": [
+        "LOG.md"
+      ],
       "tags": [
         "looper:finding:touch-tower-use-button",
         "looper:finding:tower-touch-button-flip-done"
-      ]
+      ],
+      "updated_at": "2026-11-17T01:32:32Z"
     },
     {
       "id": "T084",
       "title": "Real audio for the switch beat (address cut, silence, birdsong)",
       "priority": 3,
-      "status": "todo",
-      "details": "The beat is modeled by the tower phases (SILENCE/BIRDSONG) and is visually confirmed, but no audio assets exist yet; the address loop, the mid-word cut, one second of silence, and morning birdsong need the sound pass per GAME_DESIGN section 21.\nEvidence: No audio files in game/; broadcast_tower.gd phase machine comments mark the audio states for the sound pass.\n\nReview repair: T084 (real audio for the switch beat) is now a duplicate of T054: T044 shipped the placeholder beat audio\nClose T084 or fold its wording into T054 to avoid duplicate audio work. The beat itself (address cut mid-word, one second of silence, birdsong) already plays in live city runs with T044's generated tones; per CLAUDE.md placeholders never block, and the real recordings stay owned by T054.\nEvidence: T084's evidence 'No audio files in game/' predates T044. game/scripts/audio/address_audio_director.gd stops every pole the same frame on switched_off, holds the tower's one-second silence, and plays PlaceholderTones.birdsong() on the birdsong signal in live city runs; test_address_audio_director.gd covers the tower cut and the birdsong player. T054 already owns 'President Puck's address voice-over' and the real sound pass.",
+      "status": "done",
+      "details": "The beat is modeled by the tower phases (SILENCE/BIRDSONG) and is visually confirmed, but no audio assets exist yet; the address loop, the mid-word cut, one second of silence, and morning birdsong need the sound pass per GAME_DESIGN section 21.\nEvidence: No audio files in game/; broadcast_tower.gd phase machine comments mark the audio states for the sound pass.\n\nReview repair: T084 (real audio for the switch beat) is now a duplicate of T054: T044 shipped the placeholder beat audio\nClose T084 or fold its wording into T054 to avoid duplicate audio work. The beat itself (address cut mid-word, one second of silence, birdsong) already plays in live city runs with T044's generated tones; per CLAUDE.md placeholders never block, and the real recordings stay owned by T054.\nEvidence: T084's evidence 'No audio files in game/' predates T044. game/scripts/audio/address_audio_director.gd stops every pole the same frame on switched_off, holds the tower's one-second silence, and plays PlaceholderTones.birdsong() on the birdsong signal in live city runs; test_address_audio_director.gd covers the tower cut and the birdsong player. T054 already owns 'President Puck's address voice-over' and the real sound pass.\n\nReview repair: T084 now duplicates T054: the placeholder switch-beat audio ships, only the real recordings remain\nThe switch beat (address cut mid-word, one second of silence, birdsong) plays in live city runs with generated placeholder tones since T044. The real address voice-over and birdsong recordings are already owned by T054. Close T084 or fold its wording into T054 so no separate audio task stays queued.\nEvidence: game/scripts/audio/address_audio_director.gd:72-73 connects tower.switched_off and tower.birdsong; the director stops every pole on switch-off, holds the silence, and plays the birdsong player. game/scripts/audio/placeholder_tones.gd builds the section 21 sounds as WAV data. T084's own review repair records the same conclusion.\n\nReview repair: T084 now duplicates T054: placeholder switch-beat audio shipped with T044, only real recordings remain\nT084 asks for real audio for the switch beat. The beat itself (address cut mid-word, one second of silence, birdsong) already plays in live city runs with T044's generated placeholder tones, and T054 already owns the real address voice-over and sound pass. Close T084 or fold its wording into T054 so no duplicate audio task stays queued.\nEvidence: game/scripts/audio/address_audio_director.gd stops every pole on switched_off, holds the tower's silence, and plays the birdsong player in live runs; game/scripts/audio/placeholder_tones.gd builds the section 21 sounds; this review's live runs heard the beat through the dummy audio driver with zero engine errors. T084's own two repair notes already record the same conclusion.",
+      "files": [
+        "LOG.md"
+      ],
       "tags": [
         "looper:finding:switch-beat-audio-fold-into-t054"
-      ]
+      ],
+      "updated_at": "2026-11-17T02:11:19Z"
     },
     {
       "id": "T085",
@@ -2266,12 +2459,24 @@
       "id": "T086",
       "title": "City block kit hardcodes gameplay loot data in script instead of .tres resources",
       "priority": 3,
-      "status": "todo",
-      "details": "CLAUDE.md requires balance values to live in .tres resources, not hardcoded numbers. The shared block kit hardcodes the scavenge loot (3 house beans per scavenge block) and the tower fuse stock (1) as literals in city_block_view.gd. The fuse stock is a desync risk: broadcast_tower.tres drives fuses_needed, but the kit stock does not read it, so a balance change to fuses_needed leaves the tower unopenable. Move both values into .tres data (extend city.tres or the tower balance) and pin them in test_balance_resources.gd.\nEvidence: game/scripts/city/city_block_view.gd:24 'KIT_LOOT_AMOUNT := 3' used at line 165 (drop.amount = KIT_LOOT_AMOUNT) and line 153 (fuse_drop.amount = 1); game/resources/balance/broadcast_tower.tres fuses_needed = 1 is not consulted for the stock; game/tests/integration/test_city_map.gd:15 mirrors the hardcoded KIT_LOOT_AMOUNT := 3. No backlog task covers kit loot data (T002 covered only the pre-city constants).\n\nReview repair: T086's scope misses the kit scrap-amount literal that T034 added to city_block_view.gd\nFold the scavenge scrap amount into T086's move-to-.tres work alongside the bean loot and the tower fuse stock, so the whole kit economy lives in data and a balance change to the van upgrade costs cannot silently make the van unupgradable (San Coffesco yields 6 scrap; the kitchen plus field cafe together cost 17). Pin the value in test_balance_resources.gd and stop mirroring the literal inside test_city_map.gd.\nEvidence: game/scripts/city/city_block_view.gd:30 'const KIT_SCRAP_AMOUNT := 2', consumed when composing scavenge blocks; game/tests/integration/test_city_map.gd:17 mirrors 'const KIT_SCRAP_AMOUNT := 2' instead of pinning a resource. The costs it funds live in game/resources/balance/mobile_cafe.tres (kitchen_scrap_cost 5, field_cafe_scrap_cost 12). T034's LOG row states the kit drops 2 scrap per point to fund the kitchen; T086's evidence, written before T034, names only KIT_LOOT_AMOUNT and the fuse stock.",
+      "status": "done",
+      "details": "CLAUDE.md requires balance values to live in .tres resources, not hardcoded numbers. The shared block kit hardcodes the scavenge loot (3 house beans per scavenge block) and the tower fuse stock (1) as literals in city_block_view.gd. The fuse stock is a desync risk: broadcast_tower.tres drives fuses_needed, but the kit stock does not read it, so a balance change to fuses_needed leaves the tower unopenable. Move both values into .tres data (extend city.tres or the tower balance) and pin them in test_balance_resources.gd.\nEvidence: game/scripts/city/city_block_view.gd:24 'KIT_LOOT_AMOUNT := 3' used at line 165 (drop.amount = KIT_LOOT_AMOUNT) and line 153 (fuse_drop.amount = 1); game/resources/balance/broadcast_tower.tres fuses_needed = 1 is not consulted for the stock; game/tests/integration/test_city_map.gd:15 mirrors the hardcoded KIT_LOOT_AMOUNT := 3. No backlog task covers kit loot data (T002 covered only the pre-city constants).\n\nReview repair: T086's scope misses the kit scrap-amount literal that T034 added to city_block_view.gd\nFold the scavenge scrap amount into T086's move-to-.tres work alongside the bean loot and the tower fuse stock, so the whole kit economy lives in data and a balance change to the van upgrade costs cannot silently make the van unupgradable (San Coffesco yields 6 scrap; the kitchen plus field cafe together cost 17). Pin the value in test_balance_resources.gd and stop mirroring the literal inside test_city_map.gd.\nEvidence: game/scripts/city/city_block_view.gd:30 'const KIT_SCRAP_AMOUNT := 2', consumed when composing scavenge blocks; game/tests/integration/test_city_map.gd:17 mirrors 'const KIT_SCRAP_AMOUNT := 2' instead of pinning a resource. The costs it funds live in game/resources/balance/mobile_cafe.tres (kitchen_scrap_cost 5, field_cafe_scrap_cost 12). T034's LOG row states the kit drops 2 scrap per point to fund the kitchen; T086's evidence, written before T034, names only KIT_LOOT_AMOUNT and the fuse stock.\n\nReview repair: T086 evidence update: the kit scrap literal is now 9 and a new economy pin reads it\nT101 raised the kit scrap literal from 2 to 9 (game/scripts/city/city_block_view.gd KIT_SCRAP_AMOUNT) and updated the mirror in test_city_map.gd to 9. A new invariant, test_city_data.gd test_every_citys_scavenge_loot_funds_the_van_levels_alone, multiplies each city's scavenge block count by CityBlockView.KIT_SCRAP_AMOUNT against the mobile_cafe.tres costs. T086's move of the kit loot values into .tres must move this pin and the test_city_map mirror together, or the economy invariant breaks the suite.\nEvidence: game/scripts/city/city_block_view.gd:48 KIT_SCRAP_AMOUNT := 9; game/tests/integration/test_city_map.gd:17 mirror KIT_SCRAP_AMOUNT := 9; game/tests/unit/test_city_data.gd test_every_citys_scavenge_loot_funds_the_van_levels_alone reads CityBlockView.KIT_SCRAP_AMOUNT and VAN_BALANCE kitchen_scrap_cost 5 plus field_cafe_scrap_cost 12.",
+      "files": [
+        "LOG.md",
+        "game/resources/balance/city.tres",
+        "game/scripts/city/city_balance.gd",
+        "game/scripts/city/city_block_view.gd",
+        "game/tests/integration/test_city_map.gd",
+        "game/tests/integration/test_city_run.gd",
+        "game/tests/integration/test_van_economy.gd",
+        "game/tests/unit/test_balance_resources.gd",
+        "game/tests/unit/test_city_data.gd"
+      ],
       "tags": [
         "looper:finding:city-kit-loot-data-in-tres",
         "looper:finding:city-kit-scrap-data"
-      ]
+      ],
+      "updated_at": "2026-11-17T02:46:36Z"
     },
     {
       "id": "T087",
@@ -2302,29 +2507,51 @@
       "id": "T088",
       "title": "Traveling east changes the scene inside a physics callback and errors on every live use",
       "priority": 2,
-      "status": "doing",
+      "status": "done",
       "details": "The road-east travel must not free collision nodes during the physics step. Acceptance: walking onto the road-east trigger after city completion changes the scene with no engine ERROR in the log (defer the scene change), and a regression test drives the wired east_city_scene path, not only a run built without an east scene.\nEvidence: Live Xvfb run of the menu-to-Steamtle workflow printed: ERROR 'Removing a CollisionObject node during a physics callback is not allowed and will cause undesired behavior. Remove with call_deferred() instead.' with backtrace _on_east_road_taken (game/scripts/city/city_run.gd:380) \u003c- _on_road_east_entered (game/scripts/city/city_run.gd:373). The Area2D body_entered handler emits east_road_taken, whose handler calls get_tree().change_scene_to_packed(east_city_scene) synchronously. The test suite never exercises this path: test_city_run.gd _build_raw_run() builds a run 'without an east scene ... so no scene change fires during the test'. Travel still completed and Steamtle loaded, but the error fires on every real travel east and violates the pristine-output quality rule. No backlog task mentions change_scene, physics callbacks, or deferral (grep over to-do.json: 0 hits).\n\nReview repair: East-travel scene change inside a physics callback now runs on two live legs\nNo new defect, but the buggy path doubled its live reach this task: Steamtle now wires east_city_scene to pourtland.tscn, so completing Steamtle and stepping past the open gate runs the same change_scene_to_packed on the second leg of the route.\nEvidence: game/scenes/city/steamtle.tscn sets east_city_scene = pourtland.tscn; game/scripts/city/city_run.gd _on_road_east_entered emits east_road_taken from the RoadEast body_entered physics signal and _on_east_road_taken calls get_tree().change_scene_to_packed() directly.",
+      "files": [
+        "LOG.md",
+        "game/scripts/city/city_run.gd",
+        "game/tests/integration/test_steamtle.gd"
+      ],
       "tags": [
         "looper:finding:east-road-scene-change-in-physics-callback",
         "looper:finding:east-travel-scene-change-in-physics-callback"
-      ]
+      ],
+      "updated_at": "2026-11-16T16:58:58Z"
     },
     {
       "id": "T089",
       "title": "Section 15 obtainables have no world placement: region beans, thermos belt, blender, and Turkish pot are unobtainable",
       "priority": 3,
-      "status": "todo",
+      "status": "done",
       "details": "Every version 1 obtainable must have a placement owner. Acceptance: the Steamtle scavenge content yields Golden Coast arabica, the Pourtland content yields Moss Hollow organic (section 15 beans table), and the thermos belt (+3 carry), the blender, and the Turkish pot are scavengable somewhere, each with a test pinning the placement. Keep this distinct from T074 (Geisha Vault locked rooms), T050 (the glove), T027 (the designer dripper), T082 (the brew gate that consumes them), and T086 (loot amounts in .tres).\nEvidence: The only gameplay loot sources at HEAD are game/scripts/city/city_block_view.gd:208-222 (SCAVENGE blocks drop HOUSE_BEANS amount 3 and SCRAP_PART amount 2 only) and the tower fuse stock; no scene authors other drops (grep 'drops' over game/scenes: only the empty export). golden_coast_arabica and moss_hollow_organic appear only in tests, never in city data; GAME_DESIGN.md section 15 places them in the Steamtle and Pourtland regions. player.gd:192 equips the thermos belt on pickup, but no drop source exists, so the +3 carry limit is unreachable in play. T082 gates Frappuccino and Turkish brews on owning the blender and Turkish pot ('The player scavenges them') but places neither, so both cures stay dead ends even after the brew flow lands. Grep over the backlog finds placement owners only for the glove (T050), the dripper (T027), and Geisha Vault (T074).",
+      "files": [
+        "LOG.md",
+        "game/resources/balance/city.tres",
+        "game/resources/city/pourtland.tres",
+        "game/resources/city/san_coffesco.tres",
+        "game/resources/city/steamtle.tres",
+        "game/scripts/city/city_balance.gd",
+        "game/scripts/city/city_block.gd",
+        "game/scripts/city/city_block_view.gd",
+        "game/scripts/city/city_definition.gd",
+        "game/scripts/city/city_map.gd",
+        "game/scripts/city/city_rules.gd",
+        "game/tests/integration/test_scavenge_placement.gd",
+        "game/tests/integration/test_scavenge_placement.gd.uid"
+      ],
       "tags": [
         "looper:finding:city-scavenge-item-placement"
-      ]
+      ],
+      "updated_at": "2026-11-17T03:41:31Z"
     },
     {
       "id": "T090",
       "title": "City player sprite renders under the city map floor",
       "priority": 4,
       "status": "todo",
-      "details": "In CityRun the Player is scene-authored at tree index 0 while build() adds the CityMap later (index 4), so the opaque block floor draws over the player sprite in every city run. Pre-existing since T026 and invisible to tests; found during the T036 Xvfb visual check (zero player-blue pixels in the frame while the probe confirmed player position, camera clamp, and visibility flags). Fix by reordering the player above the world children in CityRun.build(), with a screenshot verification.\nEvidence: Xvfb probe printed player_index=0, map_index=4, player_visible=true; full-frame scan for the player color (51, 89, 178) found 0 pixels in game runs, while the same scan sees the player in the cafe scene.",
+      "details": "In CityRun the Player is scene-authored at tree index 0 while build() adds the CityMap later (index 4), so the opaque block floor draws over the player sprite in every city run. Pre-existing since T026 and invisible to tests; found during the T036 Xvfb visual check (zero player-blue pixels in the frame while the probe confirmed player position, camera clamp, and visibility flags). Fix by reordering the player above the world children in CityRun.build(), with a screenshot verification.\nEvidence: Xvfb probe printed player_index=0, map_index=4, player_visible=true; full-frame scan for the player color (51, 89, 178) found 0 pixels in game runs, while the same scan sees the player in the cafe scene.\n\nReview repair: Player sprite invisible in every city run, re-verified live at this head\nAcceptance: the player character renders above the city map so touch-first players see their own position. CityRun.build() adds the CityMap after the scene-authored Player, so the opaque block floor draws over the player sprite in all three cities.\nEvidence: Live Xvfb run of san_coffesco.tscn at dfc7b36: player parked on open street at (853.3, 300), is_visible_in_tree()=true, tree indices player=0 and map=5; viewport capture 1280x720 sampled every 2 px found 0 pixels of the player color (0.2, 0.35, 0.7) while the same frame holds 650k floor pixels, so the world renders but the player does not. Matches the T090 report; fix is reordering the player above the world children in CityRun.build() with a screenshot verification.",
       "tags": [
         "looper:finding:city-player-hidden-under-map-floor"
       ]
@@ -2333,11 +2560,31 @@
       "id": "T091",
       "title": "Field-base survivors give no small side quests; the level 3 van promise has no owner",
       "priority": 3,
-      "status": "todo",
+      "status": "done",
       "details": "GAME_DESIGN section 10, van level 3: awakened survivors gather at the field base and give small side quests. The gather behavior ships (MobileCafeVan._invite_nearby_awakened), but nothing in live play offers or accepts any side quest: QuestLog.accept() has no caller outside tests, and no task owns survivor quest content at the field base. T034 is done with a narrower acceptance (upgrade levels, carry limit, brew-anywhere), and T035 covers only the Sleepvana quest. Acceptance: gathered survivors at a level 3 field base offer at least one small side quest, with a test that drives offer and accept.\nEvidence: grep over game/scripts: quest_log.accept() is called only inside game/scripts/quests/quest_log.gd:63; no van or survivor code references side quests; game/tests/integration/test_city_quest_wiring.gd drives quest beats programmatically (insert_fuse, switch_off) and never an accept flow. Live run: van gift and field-base beats work, quests stay offered with no interaction.",
+      "files": [
+        "LOG.md",
+        "game/resources/balance/field_base_quest.tres",
+        "game/resources/quests/side/field_kitchen_stock.tres",
+        "game/scripts/balance/field_base_quest_balance.gd",
+        "game/scripts/balance/field_base_quest_balance.gd.uid",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/quests/field_base_quest_giver.gd",
+        "game/scripts/quests/field_base_quest_giver.gd.uid",
+        "game/scripts/quests/field_base_quests.gd",
+        "game/scripts/quests/field_base_quests.gd.uid",
+        "game/scripts/quests/side_quest_definition.gd",
+        "game/tests/integration/test_city_quest_wiring.gd",
+        "game/tests/integration/test_field_base_quests.gd",
+        "game/tests/integration/test_field_base_quests.gd.uid",
+        "game/tests/unit/test_field_base_quests.gd",
+        "game/tests/unit/test_field_base_quests.gd.uid"
+      ],
       "tags": [
         "looper:finding:field-base-survivor-side-quests"
-      ]
+      ],
+      "updated_at": "2026-11-17T04:39:41Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T092",
@@ -2367,31 +2614,79 @@
       "id": "T093",
       "title": "City completion screen never dismisses and permanently stands down the touch controls",
       "priority": 2,
-      "status": "todo",
-      "details": "Acceptance: after the city-complete beat, the game returns control to the player. The completion screen needs a dismiss path (a continue button or a timed fade) and the touch layer must come back, so the player can walk to the road-east trigger and keep playing, including post-city side quests. An integration test drives a city to completion and asserts the overlay clears and the touch controls return; make check green.\nEvidence: game/scripts/city/city_run.gd:601-605 _on_city_completed calls _show_end_screen(..., false); city_run.gd:624-629 sets _end_screen_shown and shows the overlay, and grep shows no writer that ever clears them (only _ready initializes and _show_end_screen sets). city_run.gd:184 feeds _end_screen_shown into touch_controls.set_overlay_open, and game/scripts/touch/touch_controls.gd:66-84 _process hides the whole layer while _overlay_open is true. Executable probe (headless SceneTree script on pourtland.tscn): before completion touch layer visible=true; after progress.mark_tower_off() plus progress.mark_boss_cured(): overlay=true, restart button visible=false, touch layer visible=false; 5 seconds later still false while the player is awake and unlocked. A touch-only player, the target platform per CLAUDE.md, is stuck after the victory beat; a desktop player keeps a permanent 55 percent dim overlay. Distinct from T069 (death overlay reload) and T088 (physics-callback error on the same travel path). Latent in live play only because no city can complete today (T027 boss missing, T049 gate locked), but it fires on every completion once those land.",
+      "status": "done",
+      "details": "Acceptance: after the city-complete beat, the game returns control to the player. The completion screen needs a dismiss path (a continue button or a timed fade) and the touch layer must come back, so the player can walk to the road-east trigger and keep playing, including post-city side quests. An integration test drives a city to completion and asserts the overlay clears and the touch controls return; make check green.\nEvidence: game/scripts/city/city_run.gd:601-605 _on_city_completed calls _show_end_screen(..., false); city_run.gd:624-629 sets _end_screen_shown and shows the overlay, and grep shows no writer that ever clears them (only _ready initializes and _show_end_screen sets). city_run.gd:184 feeds _end_screen_shown into touch_controls.set_overlay_open, and game/scripts/touch/touch_controls.gd:66-84 _process hides the whole layer while _overlay_open is true. Executable probe (headless SceneTree script on pourtland.tscn): before completion touch layer visible=true; after progress.mark_tower_off() plus progress.mark_boss_cured(): overlay=true, restart button visible=false, touch layer visible=false; 5 seconds later still false while the player is awake and unlocked. A touch-only player, the target platform per CLAUDE.md, is stuck after the victory beat; a desktop player keeps a permanent 55 percent dim overlay. Distinct from T069 (death overlay reload) and T088 (physics-callback error on the same travel path). Latent in live play only because no city can complete today (T027 boss missing, T049 gate locked), but it fires on every completion once those land.\n\nReview repair: Completion-screen touch stand-down force-releases held move actions during the east walk\nThe live Xvfb walk for T088 re-confirmed the reach of T093 on the east road itself: after city completion, CityRun._update_touch_context opens the end-screen overlay, TouchControls._process hides the layer, and TouchStickView.force_release() releases every move action. A held action from Input.action_press dies, and a real held key sends no repeat event, so the press dies too. A touch-first player cannot hold the walk from the city to the road-east trigger; they must re-press the whole way. T088 fixed only the scene-change deferral, so the stand-down stays open under T093.\nEvidence: Live Xvfb run on 2026-11-16 during this task: at walk frames t+1..t+3 the player moved east with Input pressed=true and touch controls visible; at t+4 the controls flipped to visible=false, the action read pressed=false, and the walk froze. With a per-frame re-press the same walk crossed the deck in 59 physics frames and traveled to Steamtle. Code: game/scripts/touch/touch_controls.gd:84-99 (hide plus stick force_release and button lift), game/scripts/touch/touch_stick_view.gd _set_action (releases any move action at strength zero).",
+      "files": [
+        "LOG.md",
+        "game/scenes/city/city_run.tscn",
+        "game/scripts/city/city_run.gd",
+        "game/tests/integration/test_touch_controls.gd"
+      ],
       "tags": [
         "looper:finding:city-complete-screen-dismiss-touch-lock"
-      ]
+      ],
+      "updated_at": "2026-11-16T17:37:54Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T094",
       "title": "Enterable houses and scavenge buildings have no owner; the city kit ships open-air blocks",
       "priority": 3,
-      "status": "todo",
+      "status": "done",
       "details": "Acceptance: decide with Niko whether V1 ships building interiors. Either a block-kit task adds building shells with enterable doors, scavenge loot inside them, and walls that respect the cup collision of T061, or the flat open-air scavenge block is recorded as an accepted V1 deviation. Keep the work distinct from T063 (the cafe building), T074 (one locked Geisha Vault side room per city), and T045 (the art pass).\nEvidence: GAME_DESIGN.md:123 'The player walks through the world and enters houses.' and GAME_DESIGN.md:561 the landmark set includes 'scavenge buildings for the rest'. game/scripts/city/city_block_view.gd:164-238 composes only zones, crowd markers, the tower, and one open-air loot crate; game/scripts/city/city_map.gd:19-35 lays the blocks in one open row; the only solid geometry in a city is the boundary wall (game/scripts/city/city_run.gd:309-341). A grep over the backlog finds no task that owns building interiors: T063 covers only the cafe building and T074 only the Geisha Vault side room; T045 is an art pass over existing shapes.",
+      "files": [
+        "LOG.md",
+        "game/scenes/components/building_shell.tscn",
+        "game/scripts/city/city_block_view.gd",
+        "game/scripts/components/building_shell.gd",
+        "game/scripts/components/building_shell.gd.uid",
+        "game/tests/integration/test_building_shell.gd",
+        "game/tests/integration/test_building_shell.gd.uid",
+        "game/tests/integration/test_scene_smoke.gd"
+      ],
       "tags": [
         "looper:finding:city-buildings-enterable-interiors"
-      ]
+      ],
+      "updated_at": "2026-11-17T05:37:36Z"
     },
     {
       "id": "T095",
       "title": "Roast-level wake power is specified and loaded as data but has no gameplay effect",
       "priority": 3,
-      "status": "todo",
+      "status": "done",
       "details": "Acceptance: wire RoastProfile.wake_power_factor into a live rule, for example it scales the cup tier thresholds or gates which sleeper strengths one cup can wake, or record a deliberate decision to drop the rule. Have the game tell the player the section 15 fact that light roast keeps more caffeine, for example in the SleepyDex cure rows or the brew flow. Pin the live rule with a test, not only the data values.\nEvidence: GAME_DESIGN.md:498-506: the roast table says 'Light | Most caffeine. Best wake power.' and 'Dark | Rich taste. Lower wake power.', and 'Light roast keeps more caffeine. The game states this as a fact.' game/scripts/brewing/roast_profile.gd:15 declares wake_power_factor and the roast resources set light 1.0, medium 0.8, dark 0.6, but a grep over game/scripts shows zero gameplay consumers; only game/tests/unit/test_brewing_data.gd:73-77 pins the numbers. CureMatcher (game/scripts/brewing/cure_matcher.gd) decides wakes from tier and recipe match only, so a dark-roast cup wakes exactly as well as a light-roast cup of the same recipe. No backlog task mentions wake power (T010 shipped the data only; T066 covers payloads).",
+      "files": [
+        "LOG.md",
+        "game/resources/brewing/cures/crossfitter.tres",
+        "game/resources/brewing/cures/executive.tres",
+        "game/resources/brewing/cures/gamer.tres",
+        "game/resources/brewing/cures/karen.tres",
+        "game/resources/brewing/cures/moonwalker.tres",
+        "game/resources/brewing/cures/neighbor.tres",
+        "game/resources/brewing/cures/night_nurse.tres",
+        "game/resources/brewing/cures/tech_bro.tres",
+        "game/resources/brewing/cures/tinfoil_man.tres",
+        "game/resources/brewing/cures/tourist.tres",
+        "game/resources/brewing/cures/trucker.tres",
+        "game/resources/brewing/cures/withdrawer.tres",
+        "game/scenes/dex/sleepy_dex_app.tscn",
+        "game/scripts/brewing/brewing_library.gd",
+        "game/scripts/brewing/cure_matcher.gd",
+        "game/scripts/brewing/sleepwalker_cure.gd",
+        "game/scripts/dex/sleepy_dex_app.gd",
+        "game/tests/integration/test_coffee_wake.gd",
+        "game/tests/integration/test_cup_environment_block.gd",
+        "game/tests/integration/test_perfect_cup_splash.gd",
+        "game/tests/integration/test_sleepy_dex_app.gd",
+        "game/tests/unit/test_cure_matching.gd",
+        "game/tests/unit/test_v2_cure_data.gd",
+        "game/tests/unit/test_wake_power.gd",
+        "game/tests/unit/test_wake_power.gd.uid"
+      ],
       "tags": [
         "looper:finding:roast-wake-power-no-effect"
-      ]
+      ],
+      "updated_at": "2026-11-17T06:48:58Z"
     },
     {
       "id": "T096",
@@ -2498,21 +2793,51 @@
       "id": "T101",
       "title": "Van level 3 is unreachable in live play: total scrap (14) is below the 17 needed, and the bag resets every city, locking the Sleepvana crowd step and the field cafe forever",
       "priority": 2,
-      "status": "todo",
+      "status": "done",
       "details": "Section 10 van level 3 (field cafe) and the Sleepvana crowd recruit are unreachable through normal play. Acceptance: either lower/raise the scrap sources so a player who scavenges Steamtle can fund kitchen (5) plus field cafe (12), or place extra scrap rewards, or carry the bag across cities; then pin with an integration test that reaches an open field base in Steamtle using only gameplay loot (no load_state), and confirm the Sleepvana recruit step runs.\nEvidence: game/resources/balance/mobile_cafe.tres: kitchen_scrap_cost 5, field_cafe_scrap_cost 12 (17 total; levels step in order). game/scripts/city/city_block_view.gd:41 KIT_SCRAP_AMOUNT := 2 is the only scrap source in the game (grep over scripts found no other grant). Scavenge blocks (kind 4) per city definition: san_coffesco 3 (6 scrap), steamtle 2 (4), pourtland 2 (4) = 14 across all three cities, below 17 even with perfect carry-over. The bag never carries over: each city scene rebuilds the Player with an empty Inventory (scene-authored in city_run.tscn) and MovingDay holds only a done flag (game/scripts/city/moving_day.gd), so its 'carries all belongings' promise is a toast today (cross-city carry is T049 scope, but 14 \u003c 17 defeats it anyway). CityRun loads the van at Level.VAN in every city after the first (game/scripts/city/city_run.gd:476), so Steamtle starts at level 1 with 4 scrap available: even the 5-scrap kitchen is out of reach there. Sleepvana's recruit requires an open level 3 field base (game/scripts/quests/sleepvana_stage.gd try_interact checks van.is_field_base_open()), so the quest's encore and concert wake event cannot be reached in live play. The suite stays green because test_sleepvana.gd:295 force-loads MobileCafe.Level.FIELD_CAFE, bypassing the economy.\n\nReview repair: Van level resets to level 1 on every city arrival, so cross-city scrap can never fund the level 3 field cafe\nNew evidence for T101: city_run.gd hard-loads MobileCafe.Level.VAN for every city after the first, so kitchen or field cafe levels bought in an earlier city are lost on arrival. Combined with per-city scrap totals (San Coffesco 6, Steamtle 4, Pourtland 4, each below the 17 total and even below the 12 field cafe cost), no accumulation path exists at all. Acceptance: the T101 fix must either carry the van level across the moving-day boundary or make each city's loot fund its upgrades alone, pinned by an integration test that reaches an open level 3 field base in Steamtle through gameplay loot only, with the van level surviving the San Coffesco to Steamtle move.\nEvidence: game/scripts/city/city_run.gd:474-476: 'van_state = MobileCafe.new(_van.balance); if city_index \u003e 1: van_state.load_state(MobileCafe.Level.VAN)'. game/resources/balance/mobile_cafe.tres: kitchen_scrap_cost 5, field_cafe_scrap_cost 12. Scavenge blocks (kind 4) per city resource: san_coffesco 3, steamtle 2, pourtland 2, times KIT_SCRAP_AMOUNT 2 (city_block_view.gd:46). game/resources/city/*.tres kind counts verified by grep.",
+      "files": [
+        "LOG.md",
+        "game/scripts/city/city_block_view.gd",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/city/van_handoff.gd",
+        "game/scripts/city/van_handoff.gd.uid",
+        "game/tests/integration/test_city_map.gd",
+        "game/tests/integration/test_van_economy.gd",
+        "game/tests/integration/test_van_economy.gd.uid",
+        "game/tests/unit/test_city_data.gd",
+        "game/tests/unit/test_van_handoff.gd",
+        "game/tests/unit/test_van_handoff.gd.uid"
+      ],
       "tags": [
         "looper:finding:van-level3-scrap-economy-unreachable"
-      ]
+      ],
+      "updated_at": "2026-11-16T19:22:08Z",
+      "unblock_when": "\"\""
     },
     {
       "id": "T102",
       "title": "Circular preload between tutorial_director.gd and city_run.gd can silently build a city with no cafe safe zone, no spawn marker, and no pole zones",
       "priority": 3,
-      "status": "todo",
+      "status": "done",
       "details": "Latent resource-cycle defect: when tutorial_director.gd compiles before city_run.gd, city_block_view.gd's SLEEP_ZONE_SCENE preload resolves to an empty PackedScene and the city builds broken with zero test failures. Acceptance: break the cycle (drop the CityRun/CityMap type hints in tutorial_director.gd to plain Node plus duck calls, or lazy-load the TUTORIAL_SCENE preload in city_run.gd), and add a smoke assert that a built city run contains its cafe safe zone, CafeSpawn marker, and three pole zones, so no compile order can ship a broken world.\nEvidence: Cycle: game/scripts/tutorial/tutorial_director.gd holds typed _run/CityRun references while game/scripts/city/city_run.gd:13 preloads tutorial_director.tscn. Reproduction under Xvfb (DISPLAY=:77, godot --path game --resolution 1280x720 --script): a SceneTree harness whose compile-time TutorialDirector type hint loads the tutorial graph before the menu, then menu -\u003e Play, boots SanCoffescoIntro with 4x 'ERROR: Failed to instantiate scene state of \"\", node count is 0' at city_block_view.gd:177 and :204 (the cafe SAFE zone and the three SLEEP pole zones), followed by SCRIPT ERROR name-on-Nil and 'global_position on null instance'. Verified consequences: Zones/CafeSafeZone missing (harness inspection safe=false), so no meter shelter, no free-refill zone, no CafeSpawn, no pole drain, and the tutorial stalls at the drink step. Deterministic: 12/12 runs with the hint failed; 19/19 runs without it (menu-\u003eplay-\u003einspect variants, plus direct intro boot) built a clean world, which is why make check, the workers' direct-boot Xvfb harnesses, and the real desktop flow never see it. Nothing guarantees this compile order stays benign on Android (the target platform, T052) or after future autoloads (T040).",
+      "files": [
+        "LOG.md",
+        "game/scripts/bosses/sleep_jam_band.gd",
+        "game/scripts/city/city_block_view.gd",
+        "game/scripts/city/city_run.gd",
+        "game/scripts/quests/aisle_7_stage.gd",
+        "game/scripts/tower/broadcast_tower.gd",
+        "game/scripts/tutorial/tutorial_director.gd",
+        "game/scripts/van/mobile_cafe_van.gd",
+        "game/tests/integration/test_city_world_integrity.gd",
+        "game/tests/integration/test_city_world_integrity.gd.uid",
+        "game/tests/unit/test_shared_preload_guard.gd",
+        "game/tests/unit/test_shared_preload_guard.gd.uid"
+      ],
       "tags": [
         "looper:finding:tutorial-city-preload-cycle"
-      ]
+      ],
+      "updated_at": "2026-11-17T08:15:08Z"
     },
     {
       "id": "T103",
@@ -2522,6 +2847,187 @@
       "details": "GAME_DESIGN section 16 prose says 'The Karen appears only in the Pourtland outro', but the section 16 roster table lists 'first Karen' as a Pourtland city type, and the implementation follows the table: the Pourtland roster cycles the Karen into the street crowd, roughly every third sleepwalker. Confirm with Niko which reading ships in V1, in the same pattern as T073 and T094. If outro only: remove the Karen from the Pourtland roster, update test_pourtland's expected Karen count, and keep the separate outro Karen. If the table reading stands, record the accepted deviation on T048 or T030 so the prose conflict is settled before the T055 playthrough.\nEvidence: GAME_DESIGN.md section 16: roster table row 'Pourtland | The Neighbor, The Tinfoil Man, first Karen' versus the prose line 'The Karen appears only in the Pourtland outro.' game/resources/city/pourtland.tres roster = [neighbor, tinfoil_man, karen]. game/scripts/city/city_run.gd _spawn_crowd cycles the full roster for every non-cafe crowd marker. game/tests/integration/test_pourtland.gd test_the_crowd_spawns_the_roster_at_full_density pins a nonzero EXPECTED_KARENS (24 later spawns split evenly over three types).",
       "tags": [
         "looper:finding:pourtland-street-karen-outro-only-rule"
+      ]
+    },
+    {
+      "id": "T104",
+      "title": "Night Nurse, Crossfitter, and Executive await EnemyType rows, behaviors, and dex entries",
+      "priority": 3,
+      "status": "blocked",
+      "details": "The three cure rows are data-only. When a V2 round schedules those types, ship their EnemyType .tres (type_id night_nurse, crossfitter, executive; cure = the new rows), new SpecialBehavior enum values, engage branches, scenes, and SleepyDex catalog entries, following the T067 per-type pattern.\nEvidence: game/resources/enemies/ holds only the seven V1 types plus moonwalker; game/resources/dex/sleepy_dex.tres lists no V2 entry; game/scripts/enemies/enemy_type.gd:6-13 enum has six values.",
+      "blockers": [
+        "Deferred: The V2 round schedules the Night Nurse, Crossfitter, or Executive type"
+      ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "controller"
+      },
+      "tags": [
+        "looper:deferred",
+        "looper:finding:v2-types-await-enemy-rows"
+      ],
+      "unblock_when": "The V2 round schedules the Night Nurse, Crossfitter, or Executive type; remove looper:deferred and set todo when this condition is met."
+    },
+    {
+      "id": "T105",
+      "title": "Withdrawer relapse behavior must consume second_cup_window_seconds",
+      "priority": 3,
+      "status": "blocked",
+      "details": "No behavior reads SleepwalkerCure.second_cup_window_seconds yet. The Withdrawer relapse rule (he sleeps again unless a second cup lands inside the 60 s window) ships with the enemy behavior; CureMatcher.can_wake has no timer path today, which is correct until then.\nEvidence: game/scripts/brewing/sleepwalker_cure.gd new field; game/resources/brewing/cures/withdrawer.tres pins 60.0; game/scripts/brewing/cure_matcher.gd has no window logic.",
+      "blockers": [
+        "Deferred: The V2 round schedules the Withdrawer type"
+      ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "controller"
+      },
+      "tags": [
+        "looper:deferred",
+        "looper:finding:withdrawer-second-cup-behavior"
+      ],
+      "unblock_when": "The V2 round schedules the Withdrawer type; remove looper:deferred and set todo when this condition is met."
+    },
+    {
+      "id": "T106",
+      "title": "Champion master and CEO boss must consume competition_cup",
+      "priority": 3,
+      "status": "blocked",
+      "details": "A future Champion master .tres should grant competition_cup through lesson_recipes (the Offmug and Hedrip pattern in game/resources/masters/), and the New Roast City CEO boss should export competition_cup as its cure Recipe through BossCure.accepted. Section 8 line 294 pins the teaching link; section 6 line 225 pins the CEO cure.\nEvidence: GAME_DESIGN.md:294 'The Champion ... teaches the \"competition cup\". This cup is the cure for the CEO boss'; game/resources/brewing/recipes/competition_cup.tres exists unreferenced; game/resources/masters/offmug.tres lesson_recipes is the grant pattern.",
+      "blockers": [
+        "Deferred: The V2 round schedules the Champion master or the New Roast City CEO boss"
+      ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "controller"
+      },
+      "tags": [
+        "looper:deferred",
+        "looper:finding:champion-teaches-competition-cup"
+      ],
+      "unblock_when": "The V2 round schedules the Champion master or the New Roast City CEO boss; remove looper:deferred and set todo when this condition is met."
+    },
+    {
+      "id": "T107",
+      "title": "Niko confirms or retunes the 85.0 cold brew score ceiling",
+      "priority": 3,
+      "status": "blocked",
+      "details": "T059 says the ceiling value should be picked with Niko. T015 shipped 85.0 (equal to brewing_balance.tres standard_cup_score, inside the good band 80 to 94.99) with no recorded Niko sign-off. Niko should confirm the value or name a new one; it is the single score_ceiling number in game/resources/brewing/methods/cold_brew.tres, and test_brewing_data.gd plus test_cold_brew.gd pin it, so a retune touches those two pins as well.\nEvidence: T059 details: '(and pick the ceiling value with Niko)'; T015 LOG.md row: 'its 85.0 value is one number Niko can retune without code changes'; cold_brew.tres line 12 score_ceiling = 85.0; no Niko confirmation found in backlog.json or session memory.",
+      "blockers": [
+        "An operator must complete this prerequisite; coding workers cannot execute it."
+      ],
+      "block_reason": {
+        "class": "operator",
+        "code": "operator_prerequisite",
+        "retry": "after-change",
+        "source": "controller"
+      },
+      "tags": [
+        "looper:finding:cold-brew-score-ceiling-value",
+        "looper:operator"
+      ],
+      "unblock_when": "Record evidence that the operator completed the action, then mark this task done. To delegate different work, explicitly change its contract and remove looper:operator."
+    },
+    {
+      "id": "T108",
+      "title": "Niko decides whether foraging ships enabled in V1",
+      "priority": 3,
+      "status": "blocked",
+      "details": "Niko decides whether the sleepwalker foraging rule stays enabled for V1. The rule now ships on by default with a one-field switch: foraging_enabled in game/resources/balance/forage.tres. Flipping it to false stands the whole behavior down (no code change, the tests pin the off path). If kept, route placement of seedlings follows. Exact prerequisite: Niko's scope call on GAME_DESIGN section 6 'They eat everything they find, also coffee plants'; resume condition: the call is made and recorded, then forage.tres keeps or drops the switch.\nEvidence: GAME_DESIGN.md section 6 sleepwalker bullet list; brainstorm.md line 2 transcript ('oni isto jedu sve... i kavu... mozes ti posaditi pantazu, a ti je pojede'); grep of backlog.json for eat/plant/forage returns no owning task; game/resources/balance/forage.tres foraging_enabled = true",
+      "blockers": [
+        "An operator must complete this prerequisite; coding workers cannot execute it."
+      ],
+      "block_reason": {
+        "class": "operator",
+        "code": "operator_prerequisite",
+        "retry": "after-change",
+        "source": "controller"
+      },
+      "tags": [
+        "looper:finding:niko-v1-foraging-scope",
+        "looper:operator"
+      ],
+      "unblock_when": "Record evidence that the operator completed the action, then mark this task done. To delegate different work, explicitly change its contract and remove looper:operator."
+    },
+    {
+      "id": "T109",
+      "title": "Place coffee seedlings along the three-city route",
+      "priority": 3,
+      "status": "blocked",
+      "details": "Give coffee seedlings world placement along the three-city route: city block scavenge loot or shop/economy drops, as .tres data per the T086 rule. Today the only live-play source is the cafe development room storage shelf (2 seedlings), so a city run starts with no seedlings. Enemy-side behavior, item, input, and touch button are done and tested.\nEvidence: game/scenes/cafe/cafe.tscn ShelfSeedlings is the only seedling drop; T086 keeps city block loot data out of scripts; game/tests/integration/test_forage.gd covers the behavior end to end",
+      "blockers": [
+        "Deferred: Niko keeps the foraging rule enabled for V1 (forage.tres foraging_enabled stays true)"
+      ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "controller"
+      },
+      "tags": [
+        "looper:deferred",
+        "looper:finding:forage-seedling-route-placement"
+      ],
+      "unblock_when": "Niko keeps the foraging rule enabled for V1 (forage.tres foraging_enabled stays true); remove looper:deferred and set todo when this condition is met."
+    },
+    {
+      "id": "T110",
+      "title": "Sleepwalker chase sense ignores building walls now that solid houses exist",
+      "priority": 4,
+      "status": "blocked",
+      "details": "The sleepwalker player-sense is an Area2D with no line-of-sight gate (only the cup aim cone and splash use LineOfSight), so a chaser outside can sense the player inside a house and press the outer wall; move_and_slide lets it slide into the door gap. Thrown coffee already respects the walls. Optional polish: gate the chase on LineOfSight or nudge pathing toward doors.\nEvidence: game/scripts/combat/line_of_sight.gd exists but player.gd:501 is its only gameplay caller (aim cone); sleepwalker sensing predates T061 and reads its sensor areas directly; buildings from T094 are the first solid geometry inside blocks.",
+      "blockers": [
+        "Deferred: Enemy AI polish round; concrete trigger: a playtest reports chasers stuck on house walls"
+      ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "controller"
+      },
+      "tags": [
+        "looper:deferred",
+        "looper:finding:sleepwalker-sense-ignores-building-walls"
+      ],
+      "unblock_when": "Enemy AI polish round; concrete trigger: a playtest reports chasers stuck on house walls; remove looper:deferred and set todo when this condition is met."
+    },
+    {
+      "id": "T111",
+      "title": "Surface roast wake power in the brew flow when real payloads land",
+      "priority": 3,
+      "status": "blocked",
+      "details": "When T066 replaces the fixed standard-cup payload with real brewed cups and the player picks a roast during brewing, show the wake power at the point of choice, for example a hint line built from CureMatcher.roast_ids_with_enough_power or the roast factor, so the section 15 fact also teaches inside the brew flow. T095 shipped the SleepyDex fact line and the cure-row roast qualifiers; the brew-side surface needs the roast picker that only T066 introduces.\nEvidence: T095 acceptance named the brew flow as an allowed surface for the fact; game/scripts/player/player.gd _standard_cup() still fixes the medium roast until T066 lands; CureMatcher.roast_ids_with_enough_power (game/scripts/brewing/cure_matcher.gd) is ready for reuse.",
+      "depends_on": [
+        "T066"
+      ],
+      "blockers": [
+        "Deferred: T066 lands real brewed-cup payloads and a roast-picking brew flow"
+      ],
+      "block_reason": {
+        "class": "deferred",
+        "code": "deferred_condition",
+        "retry": "after-change",
+        "source": "controller"
+      },
+      "tags": [
+        "looper:deferred",
+        "looper:finding:brew-flow-roast-power-hint"
+      ],
+      "unblock_when": "T066 lands real brewed-cup payloads and a roast-picking brew flow; remove looper:deferred and set todo when this condition is met."
+    },
+    {
+      "id": "T112",
+      "title": "Untangle the 45-resource gameplay script cycle behind T102",
+      "priority": 4,
+      "status": "todo",
+      "details": "The gameplay scripts still form one 45-resource cyclic component (city kit, player, coffee_cup, SleepJamBand, BandMember, SleepvanaStage, SignatureQuest, CityRun, tutorial director, van, HUD, touch, and their scenes). GDScript tolerates these typed cycles and the shared-preload guard now blocks the known poison class, so this is debt, not a defect: script-to-script type cycles stay legal. A tidy-up could cut presentation-level edges (for example coffee_cup.gd's `body is SleepJamBand` / `body is BandMember` checks, which drag the boss and quest graphs into every cup compile). The guard scan could also widen to flag scenes and .tres resources referenced by both a script const preload and a .tscn/.tres (today: fuse.tres, house.tres, scavenge_point.tscn, broadcast_tower.tscn shared between city_block_view.gd and cafe.tscn), a class with no observed failure.\nEvidence: SCC analysis output in session scratch (t102-repro): one component of 45 nodes; collision tables show sleep_zone.tscn with 5 requesters and master_npc.tscn with 2 script requesters before the fix, none after.",
+      "tags": [
+        "looper:finding:gameplay-script-dependency-cycle"
       ]
     }
   ]

@@ -51,6 +51,10 @@ use_tool={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"physical_keycode":70)]
 }
+plant_coffee={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":80)]
+}
 cycle_tool={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"physical_keycode":67)]

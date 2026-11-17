@@ -11,6 +11,13 @@
 [ext_resource type="PackedScene" path="res://scenes/enemies/tech_bro.tscn" id="9"]
 [ext_resource type="Resource" path="res://resources/quests/side/robotaxi_depot.tres" id="10"]
 [ext_resource type="Resource" path="res://resources/masters/offmug.tres" id="11"]
+[ext_resource type="Script" path="res://scripts/items/scavenge_drop.gd" id="12"]
+[ext_resource type="Resource" path="res://resources/items/appliances/blender.tres" id="13"]
+
+[sub_resource type="Resource" id="FindBlender"]
+script = ExtResource("12")
+item = ExtResource("13")
+amount = 1
 
 [sub_resource type="Resource" id="Block0"]
 script = ExtResource("2")
@@ -21,6 +28,7 @@ sleepwalker_count = 3
 script = ExtResource("2")
 kind = 4
 sleepwalker_count = 3
+finds = [SubResource("FindBlender")]
 
 [sub_resource type="Resource" id="Block2"]
 script = ExtResource("2")
