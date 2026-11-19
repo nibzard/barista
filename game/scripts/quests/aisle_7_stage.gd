@@ -35,6 +35,9 @@ const MASTER_TOAST := "THE SLEEPER BECOMES THE TEACHER. THE TURKISH MASTER IS OP
 const WEAK_CUP_TOAST := "A WEAK TURKISH CUP. THE HUSBAND SLEEPS ON. BREW AGAIN."
 const BOILED_OVER_TOAST := "THE POT BOILED OVER. GREED COSTS THE CUP. BREW AGAIN."
 const COLD_CUP_TOAST := "A COLD POT. NO FOAM. THE HUSBAND SLEEPS ON. BREW AGAIN."
+# Section 15: the Turkish pot is a cafe appliance. The player scavenges it
+# before the quest brew, and the toast names the find.
+const NEED_POT_TOAST := "HE DRANK ONLY TURKISH COFFEE, ALL HIS LIFE. FIND THE TURKISH POT."
 
 const HUSBAND_LABEL := "THE HUSBAND"
 const HUSBAND_HINT := "HE DRANK ONLY TURKISH COFFEE, ALL HIS LIFE."
@@ -65,7 +68,9 @@ const OVERLAY_LAYER := 10
 
 var quest: Aisle7Quest = null
 
-var _run: CityRun = null
+# The run arrives as a plain Node: naming the run class here would tie the
+# stage's compile back into the city script (T112).
+var _run: Node = null
 var _husband: Aisle7Husband = null
 var _wife: Aisle7Wife = null
 var _overlay_layer: CanvasLayer = null
@@ -83,7 +88,7 @@ func _ready() -> void:
 	add_child(_overlay_layer)
 
 
-func setup(run: CityRun) -> void:
+func setup(run: Node) -> void:
 	# The stage builds the store scene and wires every quest beat to the world:
 	# the toasts, the walk, the hug, and the master unlock.
 	_run = run
@@ -145,7 +150,7 @@ func _build_store() -> void:
 	# Aisle 7 of the hardware store, section 13: the husband sleeps at the site
 	# anchor between the screw shelf and the sandpaper rack, and his wife waits
 	# in the aisle mouth.
-	var store := _run.city_map().find_quest_site(SITE_STORE)
+	var store: CityBlockView = _run.city_map().find_quest_site(SITE_STORE)
 	if store == null or store.quest_site_marker() == null:
 		return
 	_store_position = store.quest_site_marker().global_position
@@ -209,7 +214,9 @@ func _try_take_photo() -> bool:
 
 func _try_brew() -> bool:
 	# The player stands at the husband and brews one Turkish cup in front of
-	# him: the Foam Watch opens, and its result becomes the served cup.
+	# him: the Foam Watch opens, and its result becomes the served cup. The
+	# recipe's cafe appliance rides in the bag first, section 15: the brew
+	# needs the scavenged Turkish pot.
 	if _foam_view != null:
 		return true
 	if _husband == null:
@@ -218,6 +225,9 @@ func _try_brew() -> bool:
 		_run.player.global_position.distance_to(_husband.global_position)
 		> balance.brew_stand_radius
 	):
+		return false
+	if not BrewFlow.appliance_owned(turkish_cure, _run.player.inventory):
+		_run.hud.show_toast(NEED_POT_TOAST)
 		return false
 	_open_foam_watch()
 	return true
@@ -254,7 +264,7 @@ func _on_foam_finished(watch_result: FoamResult) -> void:
 func _served_cup(score: float) -> BrewedCup:
 	# The Foam Watch result becomes the served cup: the Turkish method, the
 	# medium roast the recipe pins, the common bean, and the foam score.
-	var library := _run.player.brewing_library
+	var library: BrewingLibrary = _run.player.brewing_library
 	return BrewedCup.new(
 		library.find_bean(QUEST_BEAN_ID),
 		library.find_roast(QUEST_ROAST_ID),

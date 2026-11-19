@@ -10,6 +10,7 @@ enum SpecialBehavior {
 	DASH_CHARGE,
 	TINFOIL_HAT,
 	KAREN_SURPRISE,
+	MOONWALK,
 }
 
 @export var type_id: String

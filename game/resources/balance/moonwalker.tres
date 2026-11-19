@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="MoonwalkerBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/enemies/moonwalker_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+day_cycle_seconds = 150.0
+dawn_length_seconds = 20.0
+slide_speed = 340.0
+slide_duration_seconds = 0.3
+telegraph_seconds = 0.35
+rest_seconds = 0.7
+graze_meter_cost = 10.0
+graze_cooldown_seconds = 1.2
+appear_distance = 260.0
+finale_beat_seconds = 0.7
+dance_beat_count = 8
+dance_first_beat_delay_seconds = 1.2
+dance_beat_interval_seconds = 0.75
+dance_perfect_window_seconds = 0.09
+dance_good_window_seconds = 0.2
+dance_win_hits = 6

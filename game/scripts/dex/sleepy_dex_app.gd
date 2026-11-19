@@ -142,9 +142,7 @@ func _add_row(entry: SleepyDexEntry) -> void:
 	var texts := VBoxContainer.new()
 	texts.add_theme_constant_override(&"separation", 2)
 	texts.add_child(_make_label(entry.display_name(), NAME_FONT_SIZE, CHALK_COLOR))
-	texts.add_child(
-		_make_label(STATUS_FOUND if found else STATUS_NOT_FOUND, ROW_FONT_SIZE, CHALK_COLOR)
-	)
+	texts.add_child(_make_label(_status_text(entry, found), ROW_FONT_SIZE, CHALK_COLOR))
 	texts.add_child(_make_label(_cure_text(entry), ROW_FONT_SIZE, CHALK_COLOR))
 	row.add_child(texts)
 	list.add_child(panel)
@@ -156,6 +154,15 @@ func _make_label(text: String, font_size: int, color: Color) -> Label:
 	label.add_theme_font_size_override(&"font_size", font_size)
 	label.add_theme_color_override(&"font_color", color)
 	return label
+
+
+func _status_text(entry: SleepyDexEntry, found: bool) -> String:
+	# Section 24: the hidden Moonwalker entry reads "Status: smooth" once it
+	# appears. Every other row keeps the plain found or not-found line.
+	var own_line := entry.status_line(found)
+	if not own_line.is_empty():
+		return own_line
+	return STATUS_FOUND if found else STATUS_NOT_FOUND
 
 
 func _cure_text(entry: SleepyDexEntry) -> String:

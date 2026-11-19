@@ -18,9 +18,10 @@ var _scenes: Array[Node] = []
 
 
 func before_test() -> void:
-	# A parked van level from an earlier suite must never leak into a case
-	# that builds its own city.
+	# A parked van level or traveler from an earlier suite must never leak
+	# into a case that builds its own city.
 	VanHandoff.reset()
+	MoveHandoff.reset()
 
 
 func after_test() -> void:
@@ -34,8 +35,10 @@ func after_test() -> void:
 			node.free()
 	_scenes.clear()
 	# A case that stops between the park and the arrival must not leave its
-	# van level parked for the next suite that builds a later city.
+	# van level or traveler parked for the next suite that builds a later
+	# city.
 	VanHandoff.reset()
+	MoveHandoff.reset()
 
 
 func test_san_coffesco_loot_alone_funds_both_van_levels() -> void:
@@ -88,6 +91,8 @@ func test_steamtle_loot_funds_the_field_cafe_after_the_move_east() -> void:
 	await _scavenge_the_city(west)
 	await _upgrade_the_van_at(west)
 	assert_int(west.van_state.level()).is_equal(MobileCafe.Level.KITCHEN)
+	# The scrap San Coffesco did not spend rides east in the van, section 10.
+	var carried_scrap := west.player.inventory.count(SCRAP_PART.item_id)
 
 	# The move east: the completed city hands the player to Steamtle.
 	_complete_the_city(west)
@@ -108,18 +113,20 @@ func test_steamtle_loot_funds_the_field_cafe_after_the_move_east() -> void:
 
 	# The van level survived the move east: the kitchen came along, section 10.
 	assert_int(east.van_state.level()).is_equal(MobileCafe.Level.KITCHEN)
-	# The bag starts empty in the new city, so Steamtle's loot funds the rest.
-	assert_int(east.player.inventory.count(SCRAP_PART.item_id)).is_equal(0)
+	# The moving day carried the bag east too: the scrap the west city did not
+	# spend rides in the van, section 10.
+	assert_int(east.player.inventory.count(SCRAP_PART.item_id)).is_equal(carried_scrap)
 	_wake_the_crowd(east)
 	await _scavenge_the_city(east)
 	assert_int(east.player.inventory.count(SCRAP_PART.item_id)).is_equal(
-		_scavenge_block_count(east) * east.balance.scavenge_scrap_parts
+		carried_scrap + _scavenge_block_count(east) * east.balance.scavenge_scrap_parts
 	)
 	await _upgrade_the_van_at(east)
 	assert_int(east.van_state.level()).is_equal(MobileCafe.Level.FIELD_CAFE)
 	assert_int(east.player.inventory.count(SCRAP_PART.item_id)).is_equal(
 		(
-			_scavenge_block_count(east) * east.balance.scavenge_scrap_parts
+			carried_scrap
+			+ _scavenge_block_count(east) * east.balance.scavenge_scrap_parts
 			- east.van().balance.field_cafe_scrap_cost
 		)
 	)

@@ -80,6 +80,9 @@ func test_weapon_costs_come_from_balance() -> void:
 	assert_int(_supply.weapon_cups_per_use(CoffeeSupply.Weapon.TRAVEL_MUG)).is_equal(0)
 	assert_int(_supply.weapon_cups_per_use(CoffeeSupply.Weapon.THERMOS)).is_equal(3)
 	assert_int(_supply.weapon_cups_per_use(CoffeeSupply.Weapon.MOKA_LAUNCHER)).is_equal(4)
+	# Working values for the two weapons section 14 leaves open.
+	assert_int(_supply.weapon_cups_per_use(CoffeeSupply.Weapon.FRENCH_PRESS)).is_equal(2)
+	assert_int(_supply.weapon_cups_per_use(CoffeeSupply.Weapon.AUTO_DRIP_TURRET)).is_equal(4)
 	assert_float(_supply.weapon_cups_per_second(CoffeeSupply.Weapon.MINIGUN)).is_equal(6.0)
 	for weapon: CoffeeSupply.Weapon in CoffeeSupply.Weapon.values():
 		if weapon != CoffeeSupply.Weapon.MINIGUN:

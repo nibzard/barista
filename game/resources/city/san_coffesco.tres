@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CityDefinition" load_steps=22 format=3]
+[gd_resource type="Resource" script_class="CityDefinition" load_steps=39 format=3]
 
 [ext_resource type="Script" path="res://scripts/city/city_definition.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/city/city_block.gd" id="2"]
@@ -13,10 +13,50 @@
 [ext_resource type="Resource" path="res://resources/masters/offmug.tres" id="11"]
 [ext_resource type="Script" path="res://scripts/items/scavenge_drop.gd" id="12"]
 [ext_resource type="Resource" path="res://resources/items/appliances/blender.tres" id="13"]
+[ext_resource type="PackedScene" path="res://scenes/bosses/sam_oatman.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://scenes/quests/robotaxi_depot_stage.tscn" id="15"]
+[ext_resource type="Script" path="res://scripts/city/side_room_loot.gd" id="20"]
+[ext_resource type="Resource" path="res://resources/items/materials/vault_key.tres" id="21"]
+[ext_resource type="Resource" path="res://resources/items/beans/geisha_vault.tres" id="22"]
+[ext_resource type="Resource" path="res://resources/items/gear/sequined_glove.tres" id="23"]
+[ext_resource type="Resource" path="res://resources/quests/mystery/park_busker.tres" id="24"]
+
+[ext_resource type="Resource" path="res://resources/items/gear/travel_mug.tres" id="16"]
+[ext_resource type="Resource" path="res://resources/items/gear/thermos.tres" id="17"]
 
 [sub_resource type="Resource" id="FindBlender"]
 script = ExtResource("12")
 item = ExtResource("13")
+amount = 1
+
+[sub_resource type="Resource" id="CrateVaultKey"]
+script = ExtResource("12")
+item = ExtResource("21")
+amount = 1
+
+[sub_resource type="Resource" id="RoomGeishaBeans"]
+script = ExtResource("12")
+item = ExtResource("22")
+amount = 3
+
+[sub_resource type="Resource" id="SideRoomGeisha"]
+script = ExtResource("20")
+key = ExtResource("21")
+drops = [SubResource("RoomGeishaBeans")]
+
+[sub_resource type="Resource" id="FindTravelMug"]
+script = ExtResource("12")
+item = ExtResource("16")
+amount = 1
+
+[sub_resource type="Resource" id="FindThermos"]
+script = ExtResource("12")
+item = ExtResource("17")
+amount = 1
+
+[sub_resource type="Resource" id="FindSequinedGlove"]
+script = ExtResource("12")
+item = ExtResource("23")
 amount = 1
 
 [sub_resource type="Resource" id="Block0"]
@@ -30,6 +70,13 @@ kind = 4
 sleepwalker_count = 3
 finds = [SubResource("FindBlender")]
 
+[sub_resource type="Resource" id="BlockPark"]
+script = ExtResource("2")
+kind = 5
+sleepwalker_count = 3
+site_name = "The Fog Park"
+finds = [SubResource("FindSequinedGlove")]
+
 [sub_resource type="Resource" id="Block2"]
 script = ExtResource("2")
 kind = 3
@@ -40,12 +87,15 @@ script = ExtResource("2")
 kind = 4
 sleepwalker_count = 3
 has_speaker_pole = true
+finds = [SubResource("FindTravelMug")]
 
 [sub_resource type="Resource" id="Block4"]
 script = ExtResource("2")
 kind = 4
 sleepwalker_count = 4
 has_speaker_pole = true
+finds = [SubResource("FindThermos")]
+locked_side_room = SubResource("SideRoomGeisha")
 
 [sub_resource type="Resource" id="Block5"]
 script = ExtResource("2")
@@ -80,8 +130,12 @@ display_name = "San Coffesco"
 accent_color = Color(0.1, 0.65, 0.65, 1)
 cafe_tier = 1
 boss_name = "Sam Oatman"
+boss_scene = ExtResource("14")
 quest_name = "The Robotaxi Depot"
-blocks = [SubResource("Block0"), SubResource("Block1"), SubResource("Block2"), SubResource("Block3"), SubResource("Block4"), SubResource("Block5"), SubResource("Block6")]
+quest_scene = ExtResource("15")
+blocks = [SubResource("Block0"), SubResource("Block1"), SubResource("BlockPark"), SubResource("Block2"), SubResource("Block3"), SubResource("Block4"), SubResource("Block5"), SubResource("Block6")]
+crate_extras = [SubResource("CrateVaultKey")]
 roster = [SubResource("RosterNeighbor"), SubResource("RosterTourist"), SubResource("RosterTechBro")]
 side_quests = [ExtResource("10")]
 masters = [ExtResource("11")]
+mystery_hints = [ExtResource("24")]

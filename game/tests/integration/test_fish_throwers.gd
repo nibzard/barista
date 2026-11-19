@@ -295,6 +295,42 @@ func test_the_market_cure_completes_the_city_after_the_tower() -> void:
 	assert_bool(_city.road_east_active()).is_true()
 
 
+func test_a_saved_cure_lands_silent_on_a_reloaded_market() -> void:
+	# Section 18: the cure of the market rides the run slot as one plain
+	# flag. A reloaded market never replays the sleeping show: the crew
+	# stands awake, and no cheer, celebration fish, or signal fires, even
+	# with a customer standing in the reach.
+	var sleeping := _boss.save_state()
+	assert_bool(bool(sleeping.get("cured", true))).is_false()
+
+	assert_bool(_boss.head().try_wake(_market_cure())).is_true()
+	var reloaded := (
+		(load("res://scenes/bosses/fish_throwers.tscn") as PackedScene).instantiate()
+		as FishThrowers
+	)
+	add_child(auto_free(reloaded))
+	var lines: Array[String] = []
+	var wakes := [0]
+	reloaded.spoke.connect(func(line: String) -> void: lines.append(line))
+	reloaded.crew_woke.connect(func() -> void: wakes[0] += 1)
+	reloaded.load_state(_boss.save_state())
+	await get_tree().physics_frame
+
+	assert_bool(reloaded.is_cured()).is_true()
+	for member: FishSeller in reloaded.members():
+		assert_bool(member.is_awake()).is_true()
+		var visual := member.get_node(^"Visual") as Polygon2D
+		assert_bool(visual.color == FishThrowers.AWAKE_COLOR).is_true()
+	assert_int(lines.size()).is_equal(0)
+	assert_int(wakes[0]).is_equal(0)
+
+	# The show stays ended: a player inside the market reach draws no fish.
+	_city.player.global_position = reloaded.head().global_position
+	for _frame: int in range(BEAT_FRAMES * 2):
+		await get_tree().physics_frame
+	assert_int(reloaded.live_fish().size()).is_equal(0)
+
+
 func _wake_the_crowd() -> void:
 	# Awakened sleepwalkers never hug or stun, so the fight tests stay steady.
 	for i: int in range(_city.crowd_count()):

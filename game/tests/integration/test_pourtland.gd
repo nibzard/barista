@@ -11,12 +11,13 @@ const MAX_FRAMES_TO_WAIT := 600
 
 # The deterministic spawn rule, Pourtland densities [3, 3, 3, 3, 3, 4, 4, 4]:
 # the cafe block holds only the basic type, every later block cycles the
-# roster of three, so 24 later spawns split evenly and the cafe adds three
-# neighbors on top.
+# roster of two, so 24 later spawns split evenly and the cafe adds three
+# neighbors on top. Section 16 keeps the Karen off the street: she appears
+# only in the Pourtland outro.
 const EXPECTED_CROWD_TOTAL := 27
-const EXPECTED_NEIGHBORS := 11
-const EXPECTED_TINFOIL_MEN := 8
-const EXPECTED_KARENS := 8
+const EXPECTED_NEIGHBORS := 15
+const EXPECTED_TINFOIL_MEN := 12
+const EXPECTED_KARENS := 0
 
 # The named places of the city: the hardware store of the Aisle 7 quest with
 # the screw wall and the sandpaper rack around it, section 13, plus the
@@ -98,6 +99,7 @@ func test_the_crowd_spawns_the_roster_at_full_density() -> void:
 		counts[enemy.enemy_type.type_id] += 1
 	assert_int(counts["neighbor"]).is_equal(EXPECTED_NEIGHBORS)
 	assert_int(counts["tinfoil_man"]).is_equal(EXPECTED_TINFOIL_MEN)
+	# The outro-only rule of section 16: no Karen ever walks the street crowd.
 	assert_int(counts["karen"]).is_equal(EXPECTED_KARENS)
 	# The cafe block teaches the basic throw: only neighbors stand there.
 	for i: int in range(3):

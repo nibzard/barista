@@ -42,6 +42,7 @@ func test_the_layer_sits_ready_for_play() -> void:
 	assert_object(_city.touch_controls.player).is_same(_city.player)
 	assert_bool(_city.touch_controls.visible).is_true()
 	assert_bool(_city.touch_controls.button(TouchControls.ButtonKind.USE).visible).is_true()
+	assert_bool(_city.touch_controls.button(TouchControls.ButtonKind.SERVE).visible).is_true()
 	# The context buttons wait for the run to open them.
 	assert_bool(_city.touch_controls.button(TouchControls.ButtonKind.REFILL).visible).is_false()
 	assert_bool(_city.touch_controls.button(TouchControls.ButtonKind.VAN).visible).is_false()
@@ -228,8 +229,7 @@ func test_the_use_button_runs_the_tower_beat() -> void:
 	assert_int(_city.player.inventory.count("fuse")).is_equal(1)
 
 	_city.player.global_position = tower.global_position
-	await get_tree().physics_frame
-	await get_tree().physics_frame
+	await _await_player_at_tower(tower)
 
 	_tap(TouchControls.ButtonKind.USE)
 	await get_tree().physics_frame
@@ -461,8 +461,7 @@ func test_the_intro_rides_on_touch_alone() -> void:
 		await get_tree().physics_frame
 		frames += 1
 	run.player.global_position = tower.global_position
-	await get_tree().physics_frame
-	await get_tree().physics_frame
+	await _await_player_at_tower(tower)
 	_tap_on(run, TouchControls.ButtonKind.USE)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
@@ -530,6 +529,10 @@ func _tap_on(run: CityRun, kind: TouchControls.ButtonKind) -> void:
 	var center := button.get_global_rect().get_center()
 	run.touch_controls._input(_touch(true, center, 1))
 	run.touch_controls._input(_touch(false, center, 1))
+	# A tap can queue a synthesized action press; the flush pushes it out at
+	# once, because under load the headless input transport drops buffered
+	# events.
+	Input.flush_buffered_events()
 
 
 func _touch(pressed: bool, position: Vector2, index := 0) -> InputEventScreenTouch:
@@ -586,6 +589,26 @@ func _find_flying_cup() -> CoffeeCup:
 
 func _tower() -> BroadcastTower:
 	return _city.city_map().broadcast_tower()
+
+
+func _await_player_at_tower(tower: BroadcastTower) -> void:
+	# The tap must land only after the tower's own poll has seen the player:
+	# the tower area reports a teleport after a physics flush, and the tower
+	# reads that flush one step later in its physics tick. The wait runs on
+	# the outcome, never on a fixed frame count, plus one extra step for the
+	# tower's poll.
+	var frames := 0
+	while not _tower_holds_player(tower) and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().physics_frame
+		frames += 1
+	await get_tree().physics_frame
+
+
+func _tower_holds_player(tower: BroadcastTower) -> bool:
+	for body: Node2D in tower.get_overlapping_bodies():
+		if body is Player:
+			return true
+	return false
 
 
 func _own_the_van_with_a_walk() -> void:

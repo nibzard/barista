@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="MysteryHint" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/city/mystery_hint.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+site_name = "The Fan Club"
+speaker_name = "THE ELVIS FANS"
+line = "The smooth one? The fan club stays open. No sightings. None."

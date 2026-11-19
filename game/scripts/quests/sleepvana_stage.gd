@@ -40,7 +40,9 @@ const FOLLOW_SPACING := 18.0
 
 var quest: SleepvanaQuest = null
 
-var _run: CityRun = null
+# The run arrives as a plain Node: naming the run class here would tie the
+# stage's compile back into the city script (T112).
+var _run: Node = null
 var _members: Array[BandMember] = []
 var _frontman: BandMember = null
 var _fans: Array[Sleepwalker] = []
@@ -52,7 +54,7 @@ func _ready() -> void:
 	quest = SleepvanaQuest.new(balance)
 
 
-func setup(run: CityRun) -> void:
+func setup(run: Node) -> void:
 	# The stage builds the band at its three sites and wires every quest beat
 	# to the world: toasts, the fan crowd, and the quest log.
 	_run = run
@@ -75,10 +77,10 @@ func try_interact() -> bool:
 		return false
 	if quest.phase() != SleepvanaQuest.Phase.CROWD_STAGE or quest.is_crowd_recruited():
 		return false
-	var van := _run.van()
+	var van: MobileCafeVan = _run.van()
 	if van == null or not van.is_field_base_open() or not van.is_player_at_van():
 		return false
-	var gathered := van.gathered_survivors()
+	var gathered: Array[Sleepwalker] = van.gathered_survivors()
 	if not quest.recruit_crowd(gathered.size()):
 		_run.hud.show_toast(NOT_ENOUGH_FANS_TOAST % balance.crowd_size)
 		return true
@@ -118,7 +120,7 @@ func _build_band() -> void:
 	# The band sleeps at its three named sites, section 13. The garage is the
 	# stage of the last show: the guitarist sleeps there, and the frontman
 	# sleeps beside him behind the crowd rule.
-	var map := _run.city_map()
+	var map: CityMap = _run.city_map()
 	_place_site_member(
 		SITE_GREENHOUSE,
 		order_bassist,
@@ -129,7 +131,7 @@ func _build_band() -> void:
 	_place_site_member(
 		SITE_SOFA, order_drummer, "THE DRUMMER", "Five more minutes... fine. One more show.", 1
 	)
-	var garage := map.find_quest_site(SITE_GARAGE)
+	var garage: CityBlockView = map.find_quest_site(SITE_GARAGE)
 	if garage == null or garage.quest_site_marker() == null:
 		return
 	_garage_position = garage.quest_site_marker().global_position
@@ -145,8 +147,8 @@ func _place_site_member(
 	site_name: String, order: Recipe, role: String, line: String, index: int
 ) -> void:
 	# One of the three sleeping members at his named site.
-	var map := _run.city_map()
-	var view := map.find_quest_site(site_name)
+	var map: CityMap = _run.city_map()
+	var view: CityBlockView = map.find_quest_site(site_name)
 	if view == null or view.quest_site_marker() == null:
 		return
 	var member := _place_member(

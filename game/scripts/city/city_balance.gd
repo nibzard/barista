@@ -18,6 +18,11 @@ extends Resource
 # on top of the house beans. Stays at or under the house bean stock, so the
 # good bean of the region is never the common one.
 @export var scavenge_region_beans: int
+# Section 6, T109: the coffee seedling stock one scavenge crate holds, so the
+# plantable bait of the foraging rule waits along the whole three-city route.
+# Stays at or under the seedling stack limit, so one crate hands its whole
+# stock to an empty bag in one visit.
+@export var scavenge_seedlings: int
 # Section 10: the cafe safe zone grows with the cafe tier of the city. Index 0
 # serves tier 1, and the last entry serves every tier above it.
 @export var cafe_zone_radius_per_tier: Array[float] = [180.0, 240.0, 300.0]

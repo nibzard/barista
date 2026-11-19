@@ -100,8 +100,12 @@ func refresh() -> void:
 	awake_value.text = "%d/%d" % [roundi(meter.value), roundi(meter.balance.max_value)]
 	var supply := player.coffee_supply
 	coffee_value.text = "%d/%d cups in hand" % [supply.cups, supply.carry_limit()]
+	# Section 9, hardcore mode: the run holds no wake-ups at all, so the row
+	# says so instead of counting a life the mode never grants.
 	wake_ups_value.text = (
-		"%d/%d" % [player.wake_ups.remaining, player.wake_ups.balance.max_wake_ups]
+		"none"
+		if player.wake_ups.hardcore
+		else "%d/%d" % [player.wake_ups.remaining, player.wake_ups.balance.max_wake_ups]
 	)
 	bag_label.text = _bag_text()
 

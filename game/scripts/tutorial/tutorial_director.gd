@@ -21,21 +21,21 @@ const BREW_NOT_HERE_TEXT := "BREW AT THE CAFE POT."
 const FILTER_METHOD_ID := "filter"
 # The woken Neighbor shuffles this far away from the cafe, step 5.
 const SHUFFLE_DISTANCE := 600.0
-# The thanks line floats above the woken Neighbor.
-const THANKS_WIDTH := 300.0
-const THANKS_OFFSET := Vector2(-THANKS_WIDTH * 0.5, -96.0)
 
 @export var balance: TutorialBalance
 
 var flow := TutorialFlow.new()
 
-var _run: CityRun = null
+# The run arrives as a plain Node: naming the run class here would tie this
+# director's compile back into the city script (T112).
+var _run: Node = null
 var _actors: Node2D = null
 var _window_neighbor: Sleepwalker = null
 var _survivor: TutorialSurvivor = null
 var _pole: SleepZone = null
-var _thanks_label: Label = null
-var _thanks_time_left := 0.0
+# The shared wake-line view of the window Neighbor, T128: one presentation
+# path for every wake, crowd or scripted.
+var _thanks_presenter: WakeLinePresenter = null
 var _video_time := 0.0
 var _wake_position := Vector2.ZERO
 var _saw_drink := false
@@ -44,6 +44,9 @@ var _was_grabbed := false
 var _tower_off_seen := false
 var _first_wake_done := false
 var _dial: GrindDialView = null
+# The frame the dial closed on: the press that stops the marker shares its
+# key with the live actions, so it must die with the dial.
+var _dial_closed_frame := -1
 var _finale_time := 0.0
 var _map_shown := false
 var _title_shown := false
@@ -57,16 +60,29 @@ var _finale_camera_target := Vector2.ZERO
 @onready var finale_view: TutorialFinaleView = $FinaleView
 
 
-func setup(run: CityRun) -> void:
+func load_saved_state(saved: Dictionary, tower_already_off: bool) -> void:
+	# Section 18: a saved tutorial continues at its saved step. The call sits
+	# before setup, so the setup stages the restored step as if it just began.
+	# A tower that the save already switched off counts as seen: the TOWER
+	# step then walks straight into its saved follow-up instead of waiting
+	# for a signal that already fired.
+	flow.load_state(saved)
+	if tower_already_off:
+		_tower_off_seen = true
+
+
+func setup(run: Node) -> void:
 	# The ride begins: the quest markers stay hidden until the survivor names
-	# the tower, and the video owns the screen, section 19 step 1.
+	# the tower, and the video owns the screen, section 19 step 1. A tutorial
+	# restored past the survivor keeps its markers out.
 	_run = run
 	_actors = Node2D.new()
 	_actors.name = "TutorialActors"
 	run.add_child(_actors)
 	flow.step_changed.connect(_on_step_changed)
-	run.quest_markers().set_suppressed(true)
-	var tower := run.city_map().broadcast_tower()
+	if flow.current_step() <= TutorialFlow.Step.SURVIVOR:
+		run.quest_markers().set_suppressed(true)
+	var tower: BroadcastTower = run.city_map().broadcast_tower()
 	if tower != null:
 		tower.birdsong.connect(_on_tower_birdsong)
 	video_view.visible = false
@@ -93,10 +109,11 @@ func grind_dial_view() -> GrindDialView:
 
 
 func thanks_line() -> String:
-	# The line above the first woken Neighbor, step 5.
-	if _thanks_label == null or not _thanks_label.visible:
+	# The line above the first woken Neighbor, step 5. The shared presenter
+	# owns the view, so the scripted beat reads like every crowd wake.
+	if _thanks_presenter == null or not _thanks_presenter.is_speaking():
 		return ""
-	return _thanks_label.text
+	return _thanks_presenter.spoken_line()
 
 
 func begin_brew() -> void:
@@ -113,6 +130,13 @@ func begin_brew() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _dial != null or Engine.get_process_frames() == _dial_closed_frame:
+		# The dial owns every key while it plays, and the press that stops
+		# the marker dies with it: the stop action shares keys with the live
+		# actions, so the press must not also throw a cup or take a master
+		# lesson. The dial view, a child, saw the press first.
+		get_viewport().set_input_as_handled()
+		return
 	if flow.current_step() == TutorialFlow.Step.VIDEO and _is_press(event):
 		flow.end_video()
 		get_viewport().set_input_as_handled()
@@ -140,7 +164,6 @@ func _is_press(event: InputEvent) -> bool:
 func _physics_process(delta: float) -> void:
 	if _run == null:
 		return
-	_tick_thanks(delta)
 	match flow.current_step():
 		TutorialFlow.Step.VIDEO:
 			_tick_video(delta)
@@ -176,7 +199,7 @@ func _leave_step(from_step: TutorialFlow.Step) -> void:
 			_run.player.set_input_locked(false)
 			# The player watched the address rehearsal and wakes groggy,
 			# section 22: the meter starts low so the first drink visibly fills.
-			var meter := _run.player.sleep_meter
+			var meter: SleepMeter = _run.player.sleep_meter
 			meter.drain(meter.value - balance.wake_meter_value)
 		TutorialFlow.Step.ROAD:
 			_close_dial()
@@ -232,7 +255,7 @@ func _tick_move() -> void:
 
 func _tick_drink() -> void:
 	# The lesson lands when the drink channel closes: the meter filled.
-	var meter := _run.player.sleep_meter
+	var meter: SleepMeter = _run.player.sleep_meter
 	if meter.is_drinking():
 		_saw_drink = true
 	elif _saw_drink:
@@ -271,7 +294,7 @@ func _tick_survivor() -> void:
 
 
 func _tick_road() -> void:
-	var player := _run.player
+	var player: Player = _run.player
 	if player.is_grabbed():
 		_was_grabbed = true
 	elif _was_grabbed:
@@ -300,10 +323,12 @@ func _watch_first_wake() -> void:
 
 
 func _on_first_wake(walker: Sleepwalker) -> void:
+	# He wakes, says thanks through his own presenter, and shuffles away,
+	# section 19 step 5. The spoke signal fired inside wake_up, so the line
+	# already floats above him before the shuffle begins.
 	if flow.current_step() != TutorialFlow.Step.THROW or _first_wake_done:
 		return
 	_first_wake_done = true
-	_show_thanks(walker)
 	var away := (
 		walker.global_position
 		+ (walker.global_position - _cafe_center()).normalized() * SHUFFLE_DISTANCE
@@ -320,41 +345,10 @@ func _any_sleepwalker_awake() -> bool:
 	return false
 
 
-func _show_thanks(walker: Sleepwalker) -> void:
-	# He wakes, says thanks, and shuffles away, section 19 step 5.
-	_thanks_label = Label.new()
-	_thanks_label.position = walker.global_position + THANKS_OFFSET
-	_thanks_label.size = Vector2(THANKS_WIDTH, 64.0)
-	_thanks_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_thanks_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_thanks_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_thanks_label.add_theme_font_size_override("font_size", 20)
-	_thanks_label.add_theme_color_override("font_color", Color(0.96, 0.93, 0.85))
-	_thanks_label.text = walker.enemy_type.wake_line
-	_thanks_label.visible = not _thanks_label.text.is_empty()
-	_actors.add_child(_thanks_label)
-	_thanks_time_left = balance.line_hold_seconds
-
-
-func _tick_thanks(delta: float) -> void:
-	if _thanks_label == null or _thanks_time_left <= 0.0:
-		return
-	_thanks_time_left = maxf(0.0, _thanks_time_left - delta)
-	if _thanks_time_left == 0.0:
-		_hide_thanks()
-
-
-func _hide_thanks() -> void:
-	if _thanks_label == null:
-		return
-	_thanks_label.queue_free()
-	_thanks_label = null
-	_thanks_time_left = 0.0
-
-
 func _spawn_window_neighbor() -> void:
 	# A Neighbor sleepwalks past the window, section 19 step 4. He is a real
-	# Neighbor of the crowd, so his wake feeds the SleepyDex like any other.
+	# Neighbor of the crowd, so his wake feeds the SleepyDex like any other,
+	# and his thanks floats from the same presenter the crowd wiring attaches.
 	var cafe_block := _cafe_block()
 	if cafe_block == null:
 		return
@@ -365,6 +359,7 @@ func _spawn_window_neighbor() -> void:
 		cafe_block.global_position + cafe_block.size * balance.window_neighbor_fraction
 	)
 	_window_neighbor.first_met.connect(_run.sleepy_dex().meet)
+	_thanks_presenter = WakeLinePresenter.attach(_window_neighbor, _window_neighbor.spoke)
 
 
 func _spawn_pole() -> void:
@@ -380,7 +375,7 @@ func _spawn_pole() -> void:
 	shape_node.shape = circle
 	_actors.add_child(_pole)
 	_pole.global_position = _run.player.global_position
-	var tower := _run.city_map().broadcast_tower()
+	var tower: BroadcastTower = _run.city_map().broadcast_tower()
 	if tower != null:
 		tower.switched_off.connect(_on_tower_switched_off)
 
@@ -406,10 +401,24 @@ func _spawn_survivor() -> void:
 
 
 func _on_dial_finished(dial_result: GrindResult) -> void:
-	# The ground cup lands in the hand, the skill trains, and the lesson ends.
-	_run.player.coffee_supply.add_cups(1)
-	_run.player.brewing_skills.record_brew(FILTER_METHOD_ID, dial_result.score)
-	_run.hud.show_toast(BREW_TOAST_TEXT % roundi(dial_result.score))
+	# The ground cup lands in the hand as a real payload, the skill trains,
+	# and the lesson ends. The dial alone brews the cafe standard cup: only
+	# the grind decides how much of it the cup keeps.
+	var player: Player = _run.player
+	var library: BrewingLibrary = player.brewing_library
+	var brew_method := library.find_method(FILTER_METHOD_ID)
+	var cup := BrewedCup.new(
+		library.find_bean(Player.STANDARD_BEAN_ID),
+		library.find_roast(Player.STANDARD_ROAST_ID),
+		brew_method,
+		"",
+		BrewFlow.compose_score(
+			player.brewing_balance.standard_cup_score, dial_result.quality_factor, brew_method
+		)
+	)
+	player.brew_hand.receive(cup, player.coffee_supply.add_cups(1))
+	player.brewing_skills.record_brew(FILTER_METHOD_ID, cup.score)
+	_run.hud.show_toast(BREW_TOAST_TEXT % roundi(cup.score))
 	_close_dial()
 	flow.notify_brewed()
 
@@ -417,17 +426,20 @@ func _on_dial_finished(dial_result: GrindResult) -> void:
 func _close_dial() -> void:
 	if _dial == null:
 		return
+	_dial_closed_frame = Engine.get_process_frames()
 	_dial.queue_free()
 	_dial = null
 	_release_player_lock()
 
 
 func _release_player_lock() -> void:
-	# Only the video and the finale hold a lock past their own end.
+	# Only the video and the finale hold a lock past their own end. The
+	# unlock waits for idle time: the press that ends the brew must finish
+	# its walk through the input chain against a locked player.
 	var step := flow.current_step()
 	if step == TutorialFlow.Step.VIDEO or step == TutorialFlow.Step.FINALE:
 		return
-	_run.player.set_input_locked(false)
+	_run.player.set_input_locked.call_deferred(false)
 
 
 func _begin_finale() -> void:
@@ -440,7 +452,7 @@ func _begin_finale() -> void:
 	_run.cinematic_camera = true
 	_run.player.set_input_locked(true)
 	var viewport_size := get_viewport().get_visible_rect().size
-	var total := _run.city_map().city_size() + Vector2(CityRun.BRIDGE_DECK_WIDTH, 0.0)
+	var total: Vector2 = _run.city_map().city_size() + Vector2(_run.BRIDGE_DECK_WIDTH, 0.0)
 	var fit := (
 		minf(viewport_size.x / total.x, viewport_size.y / total.y) * balance.finale_zoom_margin
 	)

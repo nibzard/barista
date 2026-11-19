@@ -1,0 +1,12 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/quests/robotaxi_depot_stage.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/balance/robotaxi_depot.tres" id="2"]
+[ext_resource type="Resource" path="res://resources/brewing/brewing_balance.tres" id="3"]
+[ext_resource type="Resource" path="res://resources/brewing/recipes/robotaxi_engineer_order.tres" id="4"]
+
+[node name="RobotaxiDepotStage" type="Node2D"]
+script = ExtResource("1")
+balance = ExtResource("2")
+brewing_balance = ExtResource("3")
+order = ExtResource("4")

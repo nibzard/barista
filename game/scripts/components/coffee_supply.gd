@@ -3,7 +3,16 @@
 class_name CoffeeSupply
 extends RefCounted
 
-enum Weapon { SUPPORT_TOOL, CUP_THROW, TRAVEL_MUG, THERMOS, MINIGUN, MOKA_LAUNCHER }
+enum Weapon {
+	SUPPORT_TOOL,
+	CUP_THROW,
+	TRAVEL_MUG,
+	THERMOS,
+	MINIGUN,
+	MOKA_LAUNCHER,
+	FRENCH_PRESS,
+	AUTO_DRIP_TURRET,
+}
 
 var balance: CoffeeSupplyBalance
 var cups: int
@@ -59,6 +68,20 @@ func is_empty() -> bool:
 	return cups <= 0
 
 
+func save_state() -> Dictionary:
+	# The save system stores the brewed cups in hand and the worn belt,
+	# section 18. The carry limit itself derives from the belt and the van
+	# level, so it never rides the document.
+	return {"cups": cups, "thermos_belt": has_thermos_belt}
+
+
+func load_state(saved: Dictionary) -> void:
+	# A loaded supply lands with its limit set first: the caller restores the
+	# van level and the belt before the cups, so the clamp holds.
+	has_thermos_belt = bool(saved.get("thermos_belt", false))
+	cups = clampi(int(saved.get("cups", 0)), 0, carry_limit())
+
+
 func weapon_cups_per_use(weapon: Weapon) -> int:
 	var cost := 0
 	match weapon:
@@ -70,6 +93,10 @@ func weapon_cups_per_use(weapon: Weapon) -> int:
 			cost = balance.thermos_cost
 		Weapon.MOKA_LAUNCHER:
 			cost = balance.moka_launcher_cost
+		Weapon.FRENCH_PRESS:
+			cost = balance.french_press_cost
+		Weapon.AUTO_DRIP_TURRET:
+			cost = balance.auto_drip_turret_cost
 		Weapon.SUPPORT_TOOL:
 			cost = balance.support_tool_cost
 		Weapon.MINIGUN:

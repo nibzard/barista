@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 
 const CITY_MAP_SCENE := preload("res://scenes/city/city_map.tscn")
 const STEAMTLE_SCENE := preload("res://scenes/city/steamtle.tscn")
+const SAN_COFFESCO_SCENE := preload("res://scenes/city/san_coffesco.tscn")
 const BALANCE := preload("res://resources/balance/city.tres")
 
 const SAN_COFFESCO := preload("res://resources/city/san_coffesco.tres")
@@ -13,6 +14,9 @@ const POURTLAND := preload("res://resources/city/pourtland.tres")
 const HOUSE_BEANS := preload("res://resources/items/beans/house.tres")
 const GOLDEN_COAST := preload("res://resources/items/beans/golden_coast_arabica.tres")
 const MOSS_HOLLOW := preload("res://resources/items/beans/moss_hollow_organic.tres")
+const GEISHA_VAULT := preload("res://resources/items/beans/geisha_vault.tres")
+const VAULT_KEY := preload("res://resources/items/materials/vault_key.tres")
+const SEEDLING := preload("res://resources/items/materials/coffee_seedling.tres")
 const BLENDER := preload("res://resources/items/appliances/blender.tres")
 const THERMOS_BELT := preload("res://resources/items/gear/thermos_belt.tres")
 const TURKISH_POT := preload("res://resources/items/appliances/turkish_pot.tres")
@@ -105,21 +109,33 @@ func test_the_turkish_pot_waits_in_a_pourtland_scavenge_building() -> void:
 	_pin_one_unique_find(POURTLAND, TURKISH_POT)
 
 
-func test_every_authored_find_is_one_unique_item_on_a_scavenge_block() -> void:
+func test_every_authored_find_is_one_unique_item_on_a_find_block() -> void:
 	# The drift guard for future placements: every authored find row holds one
-	# copy of one unique item, and it waits in a scavenge building.
+	# copy of one unique item, and it waits in a scavenge building or in the
+	# open on a named site, like the park glove of the Moonwalker mystery,
+	# section 24. A block may stand several finds, like the belt beside the
+	# French Press of Steamtle.
 	for city: CityDefinition in _cities():
 		for block: CityBlock in city.blocks:
 			if block.finds.is_empty():
 				continue
-			assert_int(block.kind).override_failure_message(city.city_id).is_equal(
-				CityBlock.Kind.SCAVENGE
+			var in_building := block.kind == CityBlock.Kind.SCAVENGE
+			var on_named_site: bool = (
+				block.kind == CityBlock.Kind.QUEST_SITE and not block.site_name.is_empty()
 			)
-			assert_int(block.finds.size()).override_failure_message(city.city_id).is_equal(1)
-			var find := block.finds[0]
-			assert_object(find.item).is_not_null()
-			assert_int(find.amount).is_equal(1)
-			assert_int(find.item.max_stack).override_failure_message(find.item.item_id).is_equal(1)
+			(
+				assert_bool(in_building or on_named_site)
+				. override_failure_message(city.city_id)
+				. is_true()
+			)
+			for find: ScavengeDrop in block.finds:
+				assert_object(find.item).is_not_null()
+				assert_int(find.amount).override_failure_message(city.city_id).is_equal(1)
+				(
+					assert_int(find.item.max_stack)
+					. override_failure_message(find.item.item_id)
+					. is_equal(1)
+				)
 
 
 func test_a_find_with_no_item_or_no_amount_reported() -> void:
@@ -175,20 +191,110 @@ func test_the_belt_find_raises_the_carry_limit_in_the_live_city() -> void:
 	assert_int(city.player.coffee_supply.carry_limit()).is_equal(limit_before + 3)
 
 
+func test_every_city_places_one_geisha_vault_side_room() -> void:
+	# T074, section 15 beans table: the Geisha Vault beans, the excellent tier,
+	# wait in one locked side room per city. The Sleep Jam cure of Pourtland
+	# needs them, so every city on the route authors exactly one room.
+	for city: CityDefinition in _cities():
+		var holders: Array[int] = []
+		for i: int in range(city.blocks.size()):
+			if city.blocks[i].locked_side_room != null:
+				holders.append(i)
+		assert_int(holders.size()).override_failure_message(city.city_id).is_equal(1)
+		var loot: SideRoomLoot = city.blocks[holders[0]].locked_side_room
+		assert_int(city.blocks[holders[0]].kind).override_failure_message(city.city_id).is_equal(
+			CityBlock.Kind.SCAVENGE
+		)
+		assert_int(loot.drops.size()).override_failure_message(city.city_id).is_equal(1)
+		assert_object(loot.drops[0].item).override_failure_message(city.city_id).is_equal(
+			GEISHA_VAULT
+		)
+		assert_int(loot.drops[0].amount).override_failure_message(city.city_id).is_greater_equal(1)
+
+
+func test_every_city_crates_stock_coffee_seedlings() -> void:
+	# T109, section 6: the coffee seedlings are the plantable bait of the
+	# foraging rule. Every city on the route restocks them in its scavenge
+	# crates, so a city run starts with bait without the cafe development room.
+	for city: CityDefinition in _cities():
+		var map := _build_city(city)
+		var crates := _scavenge_blocks(map)
+		assert_int(crates.size()).override_failure_message(city.city_id).is_greater(0)
+		for index: int in crates:
+			var loot := map.block_view(index).scavenge_point()
+			(
+				assert_int(loot.remaining_amount(SEEDLING))
+				. override_failure_message("%s block %d" % [city.city_id, index])
+				. is_equal(BALANCE.scavenge_seedlings)
+			)
+
+
+func test_a_city_run_plants_a_seedling_from_the_route_crates() -> void:
+	# The T109 acceptance, live: the run opens on the cafe edge with an empty
+	# bag, the first scavenge crate hands over the route's seedling stock, and
+	# the plant action turns it into bait under the player's feet.
+	var city := SAN_COFFESCO_SCENE.instantiate() as CityRun
+	add_child(auto_free(city))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	# Awakened sleepwalkers never hug, so the pickup wait stays steady.
+	for i: int in range(city.crowd_count()):
+		city.crowd_enemy(i).wake_up()
+
+	assert_int(city.player.inventory.count(Player.COFFEE_SEEDLING_ID)).is_equal(0)
+	var map := city.city_map()
+	var crate: ScavengePoint = null
+	for i: int in range(map.block_count()):
+		if map.block_view(i).kind() == CityBlock.Kind.SCAVENGE:
+			crate = map.block_view(i).scavenge_point()
+			break
+	assert_object(crate).is_not_null()
+	city.player.global_position = crate.global_position
+	var frames := 0
+	while not crate.is_depleted() and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().physics_frame
+		frames += 1
+
+	assert_int(frames).is_less(MAX_FRAMES_TO_WAIT)
+	assert_int(city.player.inventory.count(Player.COFFEE_SEEDLING_ID)).is_equal(
+		BALANCE.scavenge_seedlings
+	)
+	assert_bool(city.player.try_action(&"plant_coffee")).is_true()
+	assert_int(city.player.inventory.count(Player.COFFEE_SEEDLING_ID)).is_equal(
+		BALANCE.scavenge_seedlings - 1
+	)
+	var plants := city.find_children("*", "CoffeePlant", true, false)
+	assert_int(plants.size()).is_greater_equal(1)
+
+
+func test_the_vault_key_stock_opens_every_city_room() -> void:
+	# The lock stays honest: the one crate extra of the city is the vault key,
+	# and the key the room's door consumes is the same item the crates stock.
+	for city: CityDefinition in _cities():
+		assert_int(city.crate_extras.size()).override_failure_message(city.city_id).is_equal(1)
+		var extra := city.crate_extras[0]
+		assert_object(extra.item).override_failure_message(city.city_id).is_equal(VAULT_KEY)
+		assert_int(extra.amount).is_greater_equal(1)
+		for block: CityBlock in city.blocks:
+			if block.locked_side_room != null:
+				assert_object(block.locked_side_room.key).is_equal(VAULT_KEY)
+
+
 func _pin_one_unique_find(city: CityDefinition, item: ItemType) -> void:
-	# The city holds exactly one authored find, in a scavenge building, and the
-	# composed find point stocks the named item.
+	# The named unique find waits in exactly one scavenge building, and the
+	# composed find point stocks it once. A city may stand more finds beside
+	# it, like the cure weapons of section 11 along the route.
 	var map := _build_city(city)
 	var holders: Array[CityBlockView] = []
 	for i: int in range(map.block_count()):
-		if map.block_view(i).find_point() != null:
-			holders.append(map.block_view(i))
+		var view := map.block_view(i)
+		if view.find_point() != null and view.find_point().remaining_amount(item) > 0:
+			holders.append(view)
 	assert_int(holders.size()).override_failure_message(city.city_id).is_equal(1)
 	assert_int(holders[0].kind()).override_failure_message(city.city_id).is_equal(
 		CityBlock.Kind.SCAVENGE
 	)
-	var find_point := holders[0].find_point()
-	assert_int(find_point.remaining_amount(item)).is_equal(1)
+	assert_int(holders[0].find_point().remaining_amount(item)).is_equal(1)
 
 
 func _has_violation(violations: Array[String], part: String) -> bool:

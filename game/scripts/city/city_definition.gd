@@ -10,6 +10,10 @@ extends Resource
 # yield. Golden Coast arabica in Steamtle, Moss Hollow organic in Pourtland.
 # Null in San Coffesco: house beans are the common bean of every city.
 @export var region_bean: ItemType
+# Section 15: the stock every scavenge crate of the city holds on top of the
+# kit beans and scrap, like the vault key that opens the locked side room.
+# Authored per city so the loot stays data, never kit literals (T086).
+@export var crate_extras: Array[ScavengeDrop] = []
 # Section 10: each new city has a cafe one tier bigger and better than the old
 # one. City 1 on the route holds tier 1.
 @export var cafe_tier: int = 1
@@ -31,3 +35,9 @@ extends Resource
 # The brewing masters that live in this city, section 8. Each V1 city hosts
 # exactly one master, who teaches at the city cafe.
 @export var masters: Array[BrewingMaster] = []
+# The clues of the Moonwalker mystery, section 24: one speaker per named
+# site, the busker of San Coffesco and the Elvis fans of Steamtle.
+@export var mystery_hints: Array[MysteryHint] = []
+# Section 24: the city where the mystery ends. Only the haunt city spawns
+# the Moonwalker at dawn, in a silent zone, tower off.
+@export var moonwalker_haunts := false

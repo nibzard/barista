@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/projectiles/thermos_flask.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/balance/cure_weapons.tres" id="2"]
+
+[sub_resource type="RectangleShape2D" id="Flask"]
+size = Vector2(18, 14)
+
+[node name="ThermosFlask" type="Area2D"]
+collision_mask = 5
+script = ExtResource("1")
+balance = ExtResource("2")
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(0.8, 0.3, 0.25, 1)
+polygon = PackedVector2Array(-9, -7, 9, -7, 9, 7, -9, 7)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Flask")

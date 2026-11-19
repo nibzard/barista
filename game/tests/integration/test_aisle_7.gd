@@ -7,6 +7,7 @@ const POURTLAND_SCENE := preload("res://scenes/city/pourtland.tscn")
 const LIBRARY := preload("res://resources/brewing/brewing_library.tres")
 const CUP_SCENE := preload("res://scenes/projectiles/coffee_cup.tscn")
 const TURKISH_HUSBAND := preload("res://resources/masters/turkish_husband.tres")
+const TURKISH_POT_ITEM := preload("res://resources/items/appliances/turkish_pot.tres")
 
 const MAX_FRAMES_TO_WAIT := 600
 
@@ -91,11 +92,25 @@ func test_no_brew_at_the_husband_before_the_photo() -> void:
 	assert_int(_stage.quest.phase()).is_equal(Aisle7Quest.Phase.PHOTO_WAIT)
 
 
+func test_no_turkish_pot_in_the_bag_refuses_the_quest_brew() -> void:
+	# Section 15: the Turkish pot is a cafe appliance the player scavenges.
+	# Without it, the interact at the husband opens no watch and the toast
+	# names the find.
+	await _take_photo()
+	_city.player.global_position = _stage.husband().global_position
+	await _await_frames(4)
+	assert_bool(_stage.try_interact()).is_false()
+	assert_object(_stage.foam_watch_view()).is_null()
+	assert_bool(_city.player.is_input_locked()).is_false()
+	assert_str(_city.hud.toast_message()).is_equal(Aisle7Stage.NEED_POT_TOAST)
+
+
 func test_the_interact_at_the_husband_opens_the_foam_watch() -> void:
 	# One Turkish cup brewed in front of him, section 13: the interact key at
 	# the husband opens The Foam Watch, the Turkish minigame, and the overlay
-	# owns the key while it plays.
+	# owns the key while it plays. The pot rides in the bag, section 15.
 	await _take_photo()
+	_give_turkish_pot()
 	_city.player.global_position = _stage.husband().global_position
 	await _await_frames(4)
 
@@ -283,10 +298,16 @@ func _take_photo() -> void:
 
 func _open_watch_at_husband() -> void:
 	await _take_photo()
+	_give_turkish_pot()
 	_city.player.global_position = _stage.husband().global_position
 	await _await_frames(4)
 	assert_bool(_stage.try_interact()).is_true()
 	assert_object(_stage.foam_watch_view()).is_not_null()
+
+
+func _give_turkish_pot() -> void:
+	# The quest brew needs the scavenged Turkish pot in the bag, section 15.
+	_city.player.inventory.add(TURKISH_POT_ITEM, 1)
 
 
 func _wake_husband() -> void:

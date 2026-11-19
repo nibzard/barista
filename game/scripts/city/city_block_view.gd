@@ -5,15 +5,19 @@ extends Node2D
 
 # The sleep zone scene stays a path, never a preload: several scripts share
 # this scene, and a compile-time const binds an empty scene whenever another
-# load of it is already running (T102).
+# load of it is already running (T102). The scavenge point scene, the tower
+# scene, and the kit items follow the same rule: the cafe scene and the
+# balance resources also load each of them (T112).
 const SLEEP_ZONE_SCENE_PATH := "res://scenes/components/sleep_zone.tscn"
-const SCAVENGE_POINT_SCENE := preload("res://scenes/components/scavenge_point.tscn")
+const SCAVENGE_POINT_SCENE_PATH := "res://scenes/components/scavenge_point.tscn"
+const BROADCAST_TOWER_SCENE_PATH := "res://scenes/tower/broadcast_tower.tscn"
+const HOUSE_BEANS_PATH := "res://resources/items/beans/house.tres"
+const FUSE_ITEM_PATH := "res://resources/items/materials/fuse.tres"
+const SCRAP_PART_ITEM_PATH := "res://resources/items/materials/scrap_part.tres"
+const SEEDLING_ITEM_PATH := "res://resources/items/materials/coffee_seedling.tres"
 const BUILDING_SHELL_SCENE := preload("res://scenes/components/building_shell.tscn")
+const LOCKED_SIDE_ROOM_SCENE := preload("res://scenes/components/locked_side_room.tscn")
 const CAFE_TELEVISION_SCENE := preload("res://scenes/cafe/cafe_television.tscn")
-const BROADCAST_TOWER_SCENE := preload("res://scenes/tower/broadcast_tower.tscn")
-const HOUSE_BEANS := preload("res://resources/items/beans/house.tres")
-const FUSE_ITEM := preload("res://resources/items/materials/fuse.tres")
-const SCRAP_PART_ITEM := preload("res://resources/items/materials/scrap_part.tres")
 
 const FLOOR_COLOR := Color(0.18, 0.14, 0.1, 1)
 const ACCENT_BORDER_WIDTH := 6.0
@@ -51,6 +55,10 @@ const QUEST_SITE_FRACTION := Vector2(0.5, 0.32)
 # Section 17: the scavenge building stands on the crate row, north of the
 # crowd lane. The crate waits inside its walls.
 const LOOT_POINT_OFFSET := Vector2(0, -170)
+# Section 15: the locked side room stands west of the scavenge building, its
+# own small vault on the same crate row.
+const SIDE_ROOM_SIZE := Vector2(170.0, 200.0)
+const SIDE_ROOM_GAP := 14.0
 # Section 15: the unique find of a block waits at its own loot spot. Inside a
 # scavenge building, the spot stands south of the crate, still behind the
 # walls.
@@ -77,6 +85,10 @@ const KIND_COLORS := {
 # a region city yield it on top of the house beans. Null when the city holds
 # none, like San Coffesco.
 @export var region_bean: ItemType
+# Section 15: the stock every scavenge crate of the city holds on top of the
+# kit beans and scrap, like the vault key that opens the locked side room.
+# The city hands this down from its own data.
+@export var crate_extras: Array[ScavengeDrop] = []
 # Section 10: the cafe tier of the city sizes the cafe marker and safe zone.
 @export var cafe_tier: int = 1
 # The city fills this in: the boss name on the arena, the quest name on the
@@ -114,6 +126,24 @@ func _sleep_zone_scene() -> PackedScene:
 	return load(SLEEP_ZONE_SCENE_PATH) as PackedScene
 
 
+func _scavenge_point_scene() -> PackedScene:
+	# Loaded at use time: the cafe scene also stands scavenge points, so no
+	# compile order can hand the kit an empty scene (T112).
+	return load(SCAVENGE_POINT_SCENE_PATH) as PackedScene
+
+
+func _broadcast_tower_scene() -> PackedScene:
+	# Loaded at use time: the cafe scene also stands a tower, so no compile
+	# order can hand the kit an empty scene (T112).
+	return load(BROADCAST_TOWER_SCENE_PATH) as PackedScene
+
+
+func _kit_item(path: String) -> ItemType:
+	# Loaded at use time: the cafe scene and the balance resources also load
+	# these items, so no compile order can hand the kit an empty item (T112).
+	return load(path) as ItemType
+
+
 func crowd_spawn_markers() -> Array[Marker2D]:
 	var markers: Array[Marker2D] = []
 	if not _built:
@@ -145,10 +175,18 @@ func scavenge_point() -> ScavengePoint:
 
 func building() -> BuildingShell:
 	# The enterable scavenge building of the block, section 17. Null on every
-	# landmark block: the cafe building is T063, the locked side room T074.
+	# landmark block: the cafe building is T063.
 	if not _built:
 		return null
 	return get_node_or_null(^"Building") as BuildingShell
+
+
+func locked_side_room() -> LockedSideRoom:
+	# The locked side room of the city, section 15: the Geisha Vault beans
+	# wait behind its door. Null on every block the city authors no room for.
+	if not _built:
+		return null
+	return get_node_or_null(^"SideRoom") as LockedSideRoom
 
 
 func find_point() -> ScavengePoint:
@@ -261,18 +299,18 @@ func _compose() -> void:
 		pole.position = size * 0.5
 		zones.add_child(pole)
 	if block.kind == CityBlock.Kind.TOWER:
-		var tower := BROADCAST_TOWER_SCENE.instantiate() as BroadcastTower
+		var tower := _broadcast_tower_scene().instantiate() as BroadcastTower
 		tower.name = "BroadcastTower"
 		tower.position = size * 0.5
 		add_child(tower)
 		var scavenge := Node2D.new()
 		scavenge.name = "Scavenge"
 		add_child(scavenge)
-		var fuse_point := SCAVENGE_POINT_SCENE.instantiate() as ScavengePoint
+		var fuse_point := _scavenge_point_scene().instantiate() as ScavengePoint
 		fuse_point.name = "TowerFuse"
 		fuse_point.position = size * 0.5 + TOWER_FUSE_OFFSET
 		var fuse_drop := ScavengeDrop.new()
-		fuse_drop.item = FUSE_ITEM
+		fuse_drop.item = _kit_item(FUSE_ITEM_PATH)
 		# The stock reads the same balance the switch consumes, so a tuning
 		# change to fuses_needed in broadcast_tower.tres moves the stock with
 		# it and the tower stays openable.
@@ -290,19 +328,27 @@ func _compose() -> void:
 		var scavenge := Node2D.new()
 		scavenge.name = "Scavenge"
 		add_child(scavenge)
-		var loot := SCAVENGE_POINT_SCENE.instantiate() as ScavengePoint
+		var loot := _scavenge_point_scene().instantiate() as ScavengePoint
 		loot.name = "LootPoint"
 		loot.position = size * 0.5 + LOOT_POINT_OFFSET
 		var drop := ScavengeDrop.new()
-		drop.item = HOUSE_BEANS
+		drop.item = _kit_item(HOUSE_BEANS_PATH)
 		drop.amount = balance.scavenge_house_beans
 		# Section 15: scrap parts pay for the van upgrades. One city's scavenge
 		# loot funds both upgrade steps on its own, section 10, so the field
 		# cafe never depends on scrap the bag left in the city west.
 		var scrap_drop := ScavengeDrop.new()
-		scrap_drop.item = SCRAP_PART_ITEM
+		scrap_drop.item = _kit_item(SCRAP_PART_ITEM_PATH)
 		scrap_drop.amount = balance.scavenge_scrap_parts
 		var drops: Array[ScavengeDrop] = [drop, scrap_drop]
+		if balance.scavenge_seedlings > 0:
+			# Section 6, T109: the crates restock the plantable bait along the
+			# route. The stock reads the balance, never a kit literal (T086),
+			# so a city that stands the bait down keeps plain crates.
+			var seedling_drop := ScavengeDrop.new()
+			seedling_drop.item = _kit_item(SEEDLING_ITEM_PATH)
+			seedling_drop.amount = balance.scavenge_seedlings
+			drops.append(seedling_drop)
 		if region_bean != null:
 			# Section 15 beans table: the good bean of the region, Golden
 			# Coast arabica in Steamtle and Moss Hollow organic in Pourtland,
@@ -311,8 +357,14 @@ func _compose() -> void:
 			region_drop.item = region_bean
 			region_drop.amount = balance.scavenge_region_beans
 			drops.append(region_drop)
+		for extra: ScavengeDrop in crate_extras:
+			# Section 15: the city-wide crate stock, like the vault key that
+			# opens the locked side room, rides every scavenge crate.
+			drops.append(extra)
 		loot.drops = drops
 		scavenge.add_child(loot)
+		if block.locked_side_room != null:
+			_compose_side_room(building, block.locked_side_room)
 	if not block.finds.is_empty():
 		# Section 15: the unique finds of the block, like the thermos belt and
 		# the cafe appliances, wait at their own loot spot.
@@ -321,11 +373,34 @@ func _compose() -> void:
 			find_parent = Node2D.new()
 			find_parent.name = "Scavenge"
 			add_child(find_parent)
-		var find_point := SCAVENGE_POINT_SCENE.instantiate() as ScavengePoint
+		var find_point := _scavenge_point_scene().instantiate() as ScavengePoint
 		find_point.name = "FindPoint"
 		find_point.position = _find_point_position()
 		find_point.drops = block.finds
 		find_parent.add_child(find_point)
+
+
+func _compose_side_room(building: BuildingShell, loot: SideRoomLoot) -> void:
+	# Section 15 beans table: the excellent Geisha Vault beans wait in one
+	# locked side room per city, west of the scavenge building. The door
+	# opens on the authored key, and the finds stand on the vault floor.
+	var room := LOCKED_SIDE_ROOM_SCENE.instantiate() as LockedSideRoom
+	room.name = "SideRoom"
+	room.room_size = SIDE_ROOM_SIZE
+	room.key = loot.key
+	room.position = _side_room_position(building)
+	add_child(room)
+	var room_loot := _scavenge_point_scene().instantiate() as ScavengePoint
+	room_loot.name = "Loot"
+	room_loot.drops = loot.drops
+	room.add_child(room_loot)
+
+
+func _side_room_position(building: BuildingShell) -> Vector2:
+	# The vault stands west of the scavenge building, clear of its walls and
+	# of the crowd lane on the street south of both.
+	var west: float = building.building_size.x * 0.5 + SIDE_ROOM_GAP + SIDE_ROOM_SIZE.x * 0.5
+	return building.position + Vector2(-west, 0.0)
 
 
 func _find_point_position() -> Vector2:

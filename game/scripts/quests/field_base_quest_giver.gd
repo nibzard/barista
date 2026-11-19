@@ -20,7 +20,9 @@ const ASK_LABEL_OFFSET := Vector2(0.0, -64.0)
 
 var quests: FieldBaseQuests = null
 
-var _run: CityRun = null
+# The run arrives as a plain Node: naming the run class here would tie the
+# giver's compile back into the city script (T112).
+var _run: Node = null
 var _ask_label: Label
 
 
@@ -29,7 +31,7 @@ func _ready() -> void:
 	_compose_ask_label()
 
 
-func setup(run: CityRun) -> void:
+func setup(run: Node) -> void:
 	# The giver binds to the run and registers the round into its quest log,
 	# beside the signature quests of the route, section 12.
 	_run = run
@@ -40,8 +42,8 @@ func setup(run: CityRun) -> void:
 func _physics_process(_delta: float) -> void:
 	if _run == null or quests == null:
 		return
-	var van := _run.van()
-	var field_base_open := van != null and van.is_field_base_open()
+	var van: MobileCafeVan = _run.van()
+	var field_base_open: bool = van != null and van.is_field_base_open()
 	var gathered: Array[Sleepwalker] = []
 	if field_base_open:
 		gathered = van.gathered_survivors()
@@ -56,11 +58,11 @@ func try_interact(player: Player) -> bool:
 	# so the van keeps its key otherwise, section 10.
 	if _run == null or quests == null or player == null:
 		return false
-	var van := _run.van()
+	var van: MobileCafeVan = _run.van()
 	if van == null or not van.is_field_base_open() or not van.is_player_at_van():
 		return false
 	if quests.is_asking():
-		var gathered_count := van.gathered_survivors().size()
+		var gathered_count: int = van.gathered_survivors().size()
 		if not quests.try_accept(_run.quest_log, gathered_count, true):
 			return false
 		_run.hud.show_toast(ACCEPT_TOAST % quests.beans_goal())

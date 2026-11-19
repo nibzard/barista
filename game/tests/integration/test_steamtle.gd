@@ -14,10 +14,10 @@ const MAX_FRAMES_TO_WAIT := 600
 # the cafe block holds only the basic type, every later block cycles the
 # roster of three, so 24 later spawns split evenly and the cafe adds three
 # neighbors on top.
-const EXPECTED_CROWD_TOTAL := 27
-const EXPECTED_NEIGHBORS := 11
-const EXPECTED_TOURISTS := 8
-const EXPECTED_GAMERS := 8
+const EXPECTED_CROWD_TOTAL := 30
+const EXPECTED_NEIGHBORS := 12
+const EXPECTED_TOURISTS := 9
+const EXPECTED_GAMERS := 9
 
 # The named places of the city: the three Sleepvana sites, section 13, plus
 # the public market that carries the Fish Throwers arena.
@@ -31,6 +31,9 @@ var _travel_error_spy: PhysicsCallbackErrorSpy = null
 
 
 func before_test() -> void:
+	# A parked traveler from an earlier suite must never leak into the runs
+	# this suite builds.
+	MoveHandoff.reset()
 	_city = STEAMTLE_SCENE.instantiate() as CityRun
 	add_child(auto_free(_city))
 	await get_tree().physics_frame
@@ -50,13 +53,16 @@ func after_test() -> void:
 		if is_instance_valid(node):
 			node.free()
 	_travel_leftovers.clear()
+	# A travel case that stops between its park and the arrival must not
+	# leave its traveler for the next suite that builds a city.
+	MoveHandoff.reset()
 
 
 func test_the_city_loads_with_the_full_landmark_set() -> void:
 	assert_int(_city.city_index).is_equal(2)
 	assert_str(_city.definition.city_id).is_equal("steamtle")
 	var map := _city.city_map()
-	assert_int(map.block_count()).is_equal(8)
+	assert_int(map.block_count()).is_equal(9)
 	var landmarks: Array[CityBlock.Kind] = [
 		CityBlock.Kind.CAFE,
 		CityBlock.Kind.TOWER,

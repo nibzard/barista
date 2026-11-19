@@ -13,7 +13,7 @@ const SAN_COFFESCO_ACCENT := Color(0.1, 0.65, 0.65, 1)
 const STEAMTLE_ACCENT := Color(0.35, 0.5, 0.78, 1)
 const POURTLAND_ACCENT := Color(0.38, 0.6, 0.3, 1)
 
-const EXPECTED_BLOCK_COUNTS := {"san_coffesco": 7, "steamtle": 8, "pourtland": 8}
+const EXPECTED_BLOCK_COUNTS := {"san_coffesco": 8, "steamtle": 9, "pourtland": 8}
 
 
 func _cities() -> Array[CityDefinition]:
@@ -176,16 +176,16 @@ func test_steamtle_roster_pins_the_city_two_types() -> void:
 	assert_array(ids).is_equal(["neighbor", "tourist", "gamer"])
 
 
-func test_pourtland_roster_pins_the_city_three_types() -> void:
-	# Section 16: the Pourtland roster is the Neighbor, the Tinfoil Man, and
-	# the first Karen. The first entry stays the basic type that teaches the
-	# throw.
+func test_pourtland_roster_pins_the_street_types() -> void:
+	# Section 16: the Pourtland street roster is the Neighbor and the Tinfoil
+	# Man. The Karen appears only in the Pourtland outro, so she never joins
+	# the crowd. The first entry stays the basic type that teaches the throw.
 	var ids: Array[String] = []
 	for entry: EnemySpawn in POURTLAND.roster:
 		assert_object(entry.enemy_type).is_not_null()
 		assert_object(entry.scene).is_not_null()
 		ids.append(entry.enemy_type.type_id)
-	assert_array(ids).is_equal(["neighbor", "tinfoil_man", "karen"])
+	assert_array(ids).is_equal(["neighbor", "tinfoil_man"])
 
 
 func test_cafe_tiers_grow_along_the_route() -> void:
@@ -204,15 +204,28 @@ func test_steamtle_pins_the_sleepvana_sites_and_the_market() -> void:
 	var sites: Array[String] = []
 	for block: CityBlock in STEAMTLE.blocks:
 		sites.append(block.site_name)
-	assert_array(sites).is_equal(
-		["", "Greenhouse", "", "The Public Market", "The Garage", "The Sofa", "", ""]
+	(
+		assert_array(sites)
+		. is_equal(
+			[
+				"",
+				"Greenhouse",
+				"The Fan Club",
+				"",
+				"The Public Market",
+				"The Garage",
+				"The Sofa",
+				"",
+				"",
+			]
+		)
 	)
-	assert_str(STEAMTLE.blocks[4].site_name).is_equal("The Garage")
-	assert_int(STEAMTLE.blocks[4].kind).is_equal(CityBlock.Kind.QUEST)
-	assert_str(STEAMTLE.blocks[3].site_name).is_equal("The Public Market")
-	assert_int(STEAMTLE.blocks[3].kind).is_equal(CityBlock.Kind.BOSS_ARENA)
+	assert_str(STEAMTLE.blocks[5].site_name).is_equal("The Garage")
+	assert_int(STEAMTLE.blocks[5].kind).is_equal(CityBlock.Kind.QUEST)
+	assert_str(STEAMTLE.blocks[4].site_name).is_equal("The Public Market")
+	assert_int(STEAMTLE.blocks[4].kind).is_equal(CityBlock.Kind.BOSS_ARENA)
 	assert_int(STEAMTLE.blocks[1].kind).is_equal(CityBlock.Kind.QUEST_SITE)
-	assert_int(STEAMTLE.blocks[5].kind).is_equal(CityBlock.Kind.QUEST_SITE)
+	assert_int(STEAMTLE.blocks[6].kind).is_equal(CityBlock.Kind.QUEST_SITE)
 
 
 func test_pourtland_pins_the_aisle_7_sites_and_the_beanroom() -> void:
@@ -242,29 +255,47 @@ func test_pourtland_pins_the_aisle_7_sites_and_the_beanroom() -> void:
 	assert_int(POURTLAND.blocks[5].kind).is_equal(CityBlock.Kind.QUEST_SITE)
 
 
-func test_two_shipped_cities_name_their_boss_scenes() -> void:
-	# The Sleep Jam fight ships with Pourtland, the Fish Throwers with
-	# Steamtle. The arena landmark of San Coffesco still waits for the Sam
-	# Oatman task, so it names no scene.
-	assert_object(POURTLAND.boss_scene).is_not_null()
-	var band := POURTLAND.boss_scene.instantiate() as SleepJamBand
-	assert_object(band).is_not_null()
-	band.free()
+func test_every_shipped_city_names_its_boss_scene() -> void:
+	# The Sam Oatman keynote ships with San Coffesco, the Fish Throwers with
+	# Steamtle, the Sleep Jam with Pourtland: every version 1 city plays its
+	# boss fight on the arena landmark.
+	assert_object(SAN_COFFESCO.boss_scene).is_not_null()
+	var keynote := SAN_COFFESCO.boss_scene.instantiate() as SamOatman
+	assert_object(keynote).is_not_null()
+	keynote.free()
 	assert_object(STEAMTLE.boss_scene).is_not_null()
 	var market := STEAMTLE.boss_scene.instantiate() as FishThrowers
 	assert_object(market).is_not_null()
 	market.free()
-	assert_object(SAN_COFFESCO.boss_scene).is_null()
+	assert_object(POURTLAND.boss_scene).is_not_null()
+	var band := POURTLAND.boss_scene.instantiate() as SleepJamBand
+	assert_object(band).is_not_null()
+	band.free()
 
 
 func test_steamtle_names_its_signature_quest_scene() -> void:
-	# The Sleepvana stage ships with Steamtle, section 13. The Robotaxi Depot
-	# of San Coffesco still waits for its task.
+	# The Sleepvana stage ships with Steamtle, section 13.
 	assert_object(STEAMTLE.quest_scene).is_not_null()
 	var stage := STEAMTLE.quest_scene.instantiate() as SleepvanaStage
 	assert_object(stage).is_not_null()
 	stage.free()
-	assert_object(SAN_COFFESCO.quest_scene).is_null()
+
+
+func test_san_coffesco_names_its_signature_quest_scene() -> void:
+	# The Robotaxi Depot stage ships with San Coffesco, section 13, and
+	# carries its own data: the quest balance, the brewing balance, and the
+	# code-like order of the routing engineer.
+	assert_object(SAN_COFFESCO.quest_scene).is_not_null()
+	var stage := SAN_COFFESCO.quest_scene.instantiate() as RobotaxiDepotStage
+	assert_object(stage).is_not_null()
+	assert_object(stage.balance).is_equal(preload("res://resources/balance/robotaxi_depot.tres"))
+	assert_object(stage.brewing_balance).is_equal(
+		preload("res://resources/brewing/brewing_balance.tres")
+	)
+	assert_object(stage.order).is_equal(
+		preload("res://resources/brewing/recipes/robotaxi_engineer_order.tres")
+	)
+	stage.free()
 
 
 func test_pourtland_names_its_signature_quest_scene() -> void:

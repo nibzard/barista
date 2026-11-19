@@ -11,6 +11,11 @@ const MASTER_GROUP := &"brewing_masters"
 
 # The spoken line holds for a few seconds, like the HUD toast.
 const LINE_HOLD_SECONDS := 4.0
+# The chalkboard toast of a lesson beat: the count, every new recipe, and the
+# school end when the last lesson lands.
+const LESSON_TOAST_TEXT := "%s, LESSON %d OF %d. +%d SKILL."
+const LESSON_RECIPE_TEXT := " NEW RECIPE: %s."
+const SCHOOL_DONE_TOAST_TEXT := "%s HAS TAUGHT EVERY LESSON."
 # Placeholder master figure until the art pass: a robe in the master color,
 # a head, and one cup in the hand.
 const HEAD_COLOR := Color(0.96, 0.85, 0.72, 1)
@@ -80,6 +85,28 @@ func is_speaking() -> bool:
 
 func last_granted_recipes() -> Array[String]:
 	return _last_granted.duplicate()
+
+
+func announce_text(outcome: Interaction, skill_gain: int, library: BrewingLibrary) -> String:
+	# The toast line of the beat, built on the school numbers: the lesson
+	# count, every granted recipe, and the school end when the last lesson
+	# lands. The caller owns the chalkboard the line lands on.
+	if outcome == Interaction.SCHOOL_DONE:
+		return SCHOOL_DONE_TOAST_TEXT % master.display_name.to_upper()
+	var text := (
+		LESSON_TOAST_TEXT
+		% [
+			master.display_name.to_upper(),
+			_school.lessons_taken(master.master_id),
+			_school.lessons_per_master(),
+			skill_gain,
+		]
+	)
+	for recipe_id: String in _last_granted:
+		text += LESSON_RECIPE_TEXT % library.find_recipe(recipe_id).display_name.to_upper()
+	if _school.is_school_complete(master.master_id):
+		text += " " + SCHOOL_DONE_TOAST_TEXT % master.display_name.to_upper()
+	return text
 
 
 func _speak(line_text: String) -> void:

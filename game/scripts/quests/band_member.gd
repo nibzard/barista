@@ -23,7 +23,10 @@ const FRONTMAN_HINT := "THE FRONTMAN WAKES ONLY TO A FULL CROWD."
 # The frontman ignores his order until the full crowd stands at the garage.
 @export var is_frontman := false
 
-var stage: SleepvanaStage = null
+# The stage arrives as a plain Node: naming the stage class here would tie
+# this member's compile back into the quest staging graph (T112). The one
+# call the frontman makes through it is receive_frontman_cup.
+var stage: Node = null
 # The index of the member's site: 0 greenhouse, 1 sofa, 2 garage.
 var site_index := -1
 
@@ -48,7 +51,7 @@ func _physics_process(delta: float) -> void:
 		line_label.visible = false
 
 
-func bind_stage(quest_stage: SleepvanaStage, index: int) -> void:
+func bind_stage(quest_stage: Node, index: int) -> void:
 	stage = quest_stage
 	site_index = index
 

@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/projectiles/travel_mug.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/balance/cure_weapons.tres" id="2"]
+
+[sub_resource type="RectangleShape2D" id="Mug"]
+size = Vector2(16, 14)
+
+[node name="TravelMug" type="Area2D"]
+collision_mask = 5
+script = ExtResource("1")
+balance = ExtResource("2")
+
+[node name="Visual" type="Polygon2D" parent="."]
+color = Color(0.62, 0.66, 0.7, 1)
+polygon = PackedVector2Array(-8, -7, 8, -7, 8, 7, -8, 7)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Mug")

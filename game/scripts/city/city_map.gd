@@ -28,6 +28,7 @@ func build() -> void:
 		view.accent_color = definition.accent_color
 		view.balance = balance
 		view.region_bean = definition.region_bean
+		view.crate_extras = definition.crate_extras
 		view.cafe_tier = definition.cafe_tier
 		view.landmark_label = _landmark_label_for(definition.blocks[i].kind)
 		view.site_label = definition.blocks[i].site_name
@@ -126,4 +127,14 @@ func find_quest_site(site_name: String) -> CityBlockView:
 	for view: CityBlockView in _block_views:
 		if view.block.site_name == site_name:
 			return view
+	return null
+
+
+func locked_side_room() -> LockedSideRoom:
+	# The one locked side room of the city, section 15, when a block hosts
+	# it. The save system reads the door through this single handle.
+	for view: CityBlockView in _block_views:
+		var room := view.locked_side_room()
+		if room != null:
+			return room
 	return null

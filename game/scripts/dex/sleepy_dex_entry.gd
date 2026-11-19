@@ -7,6 +7,9 @@ enum Rarity { COMMON, RARE }
 
 @export var enemy_type: EnemyType
 @export var rarity: Rarity = Rarity.COMMON
+# The status line the phone shows once the type is found. Empty keeps the
+# plain found line; the rare Moonwalker says he is smooth, section 24.
+@export var found_status := ""
 
 
 func type_id() -> String:
@@ -24,3 +27,12 @@ func portrait_color() -> Color:
 
 func is_rare() -> bool:
 	return rarity == Rarity.RARE
+
+
+func status_line(found: bool) -> String:
+	# The status text of the row. A found type with its own line names it;
+	# every other case returns empty, and the phone falls back to its plain
+	# found or not-found text.
+	if found and not found_status.is_empty():
+		return found_status
+	return ""

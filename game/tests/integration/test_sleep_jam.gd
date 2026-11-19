@@ -170,6 +170,35 @@ func test_a_thrown_geisha_cup_wakes_the_band() -> void:
 	assert_bool(_band.is_awake()).is_true()
 
 
+func test_a_saved_cure_lands_silent_on_a_reloaded_stage() -> void:
+	# Section 18: the cure of the song rides the run slot as one plain flag.
+	# A reloaded stage never replays the endless song: the band stands awake,
+	# the lullaby stays off, and no wake line or signal fires.
+	var sleeping := _band.save_state()
+	assert_bool(bool(sleeping.get("cured", true))).is_false()
+
+	assert_bool(_band.try_wake(_brew("geisha_vault", "medium", "filter", "", 85.0))).is_true()
+	var reloaded := (
+		(load("res://scenes/bosses/sleep_jam_band.tscn") as PackedScene).instantiate()
+		as SleepJamBand
+	)
+	add_child(auto_free(reloaded))
+	var lines: Array[String] = []
+	var wakes := [0]
+	reloaded.spoke.connect(func(line: String) -> void: lines.append(line))
+	reloaded.band_woke.connect(func() -> void: wakes[0] += 1)
+	reloaded.load_state(_band.save_state())
+	await get_tree().physics_frame
+
+	assert_bool(reloaded.is_awake()).is_true()
+	assert_bool(reloaded.is_performing()).is_false()
+	assert_bool(reloaded.lullaby_zone().is_active()).is_false()
+	for member: Polygon2D in reloaded.band_members():
+		assert_bool(member.color == SleepJamBand.AWAKE_COLOR).is_true()
+	assert_int(lines.size()).is_equal(0)
+	assert_int(wakes[0]).is_equal(0)
+
+
 func _wake_the_crowd() -> void:
 	# Awakened sleepwalkers never hug or stun, so the meter tests stay steady.
 	for i: int in range(_city.crowd_count()):

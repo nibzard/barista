@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" path="res://scripts/main/menu.gd" id="1"]
 
+[sub_resource type="ButtonGroup" id="ModeGroup"]
+
 [node name="Menu" type="Control"]
 layout_mode = 3
 anchors_preset = 15
@@ -18,15 +20,15 @@ color = Color(0.09, 0.07, 0.05, 1)
 
 [node name="Title" type="Label" parent="."]
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = 7
 anchor_left = 0.5
-anchor_top = 0.5
+anchor_top = 0.25
 anchor_right = 0.5
-anchor_bottom = 0.5
+anchor_bottom = 0.25
 offset_left = -320.0
-offset_top = -80.0
+offset_top = -30.0
 offset_right = 320.0
-offset_bottom = -20.0
+offset_bottom = 30.0
 theme_override_font_sizes/font_size = 56
 text = "APOCALYPSE BARISTA"
 horizontal_alignment = 1
@@ -41,9 +43,53 @@ anchor_bottom = 1.0
 [node name="VBox" type="VBoxContainer" parent="Center"]
 theme_override_constants/separation = 24
 
+[node name="ModeRow" type="HBoxContainer" parent="Center/VBox"]
+theme_override_constants/separation = 12
+
+[node name="NormalButton" type="Button" parent="Center/VBox/ModeRow"]
+custom_minimum_size = Vector2(114, 50)
+toggle_mode = true
+button_group = SubResource("ModeGroup")
+text = "Normal"
+
+[node name="HardcoreButton" type="Button" parent="Center/VBox/ModeRow"]
+custom_minimum_size = Vector2(114, 50)
+toggle_mode = true
+button_group = SubResource("ModeGroup")
+text = "Hardcore"
+
+[node name="ModeNote" type="Label" parent="Center/VBox"]
+custom_minimum_size = Vector2(520, 0)
+text = "NORMAL: FIVE WAKE-UPS. THE CAFE WAKES YOU."
+horizontal_alignment = 1
+
 [node name="PlayButton" type="Button" parent="Center/VBox"]
 custom_minimum_size = Vector2(240, 60)
 text = "Play"
+
+[node name="NewGameButton" type="Button" parent="Center/VBox"]
+visible = false
+custom_minimum_size = Vector2(240, 60)
+text = "New Game"
+
+[node name="NewGameNote" type="Label" parent="Center/VBox"]
+visible = false
+custom_minimum_size = Vector2(520, 0)
+text = "START A NEW GAME? THIS DELETES THE CURRENT SAVE AND THE BARISTA."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ConfirmRow" type="HBoxContainer" parent="Center/VBox"]
+visible = false
+theme_override_constants/separation = 12
+
+[node name="CancelButton" type="Button" parent="Center/VBox/ConfirmRow"]
+custom_minimum_size = Vector2(184, 60)
+text = "Keep the save"
+
+[node name="ConfirmButton" type="Button" parent="Center/VBox/ConfirmRow"]
+custom_minimum_size = Vector2(184, 60)
+text = "Delete and start"
 
 [node name="QuitButton" type="Button" parent="Center/VBox"]
 custom_minimum_size = Vector2(240, 60)

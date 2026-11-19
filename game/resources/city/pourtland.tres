@@ -1,14 +1,12 @@
-[gd_resource type="Resource" script_class="CityDefinition" load_steps=25 format=3]
+[gd_resource type="Resource" script_class="CityDefinition" load_steps=34 format=3]
 
 [ext_resource type="Script" path="res://scripts/city/city_definition.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/city/city_block.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/city/enemy_spawn.gd" id="3"]
 [ext_resource type="Resource" path="res://resources/enemies/neighbor.tres" id="4"]
 [ext_resource type="Resource" path="res://resources/enemies/tinfoil_man.tres" id="5"]
-[ext_resource type="Resource" path="res://resources/enemies/karen.tres" id="6"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/neighbor.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://scenes/enemies/tinfoil_man.tscn" id="8"]
-[ext_resource type="PackedScene" path="res://scenes/enemies/karen.tscn" id="9"]
 [ext_resource type="Resource" path="res://resources/quests/side/aisle_7.tres" id="10"]
 [ext_resource type="PackedScene" path="res://scenes/bosses/sleep_jam_band.tscn" id="11"]
 [ext_resource type="Resource" path="res://resources/masters/raoast.tres" id="12"]
@@ -16,10 +14,41 @@
 [ext_resource type="Script" path="res://scripts/items/scavenge_drop.gd" id="14"]
 [ext_resource type="Resource" path="res://resources/items/appliances/turkish_pot.tres" id="15"]
 [ext_resource type="Resource" path="res://resources/items/beans/moss_hollow_organic.tres" id="16"]
+[ext_resource type="Script" path="res://scripts/city/side_room_loot.gd" id="20"]
+[ext_resource type="Resource" path="res://resources/items/materials/vault_key.tres" id="21"]
+[ext_resource type="Resource" path="res://resources/items/beans/geisha_vault.tres" id="22"]
+
+[ext_resource type="Resource" path="res://resources/items/gear/coffee_minigun.tres" id="17"]
+[ext_resource type="Resource" path="res://resources/items/gear/auto_drip_turret.tres" id="18"]
 
 [sub_resource type="Resource" id="FindTurkishPot"]
 script = ExtResource("14")
 item = ExtResource("15")
+amount = 1
+
+[sub_resource type="Resource" id="CrateVaultKey"]
+script = ExtResource("14")
+item = ExtResource("21")
+amount = 1
+
+[sub_resource type="Resource" id="RoomGeishaBeans"]
+script = ExtResource("14")
+item = ExtResource("22")
+amount = 3
+
+[sub_resource type="Resource" id="SideRoomGeisha"]
+script = ExtResource("20")
+key = ExtResource("21")
+drops = [SubResource("RoomGeishaBeans")]
+
+[sub_resource type="Resource" id="FindCoffeeMinigun"]
+script = ExtResource("14")
+item = ExtResource("17")
+amount = 1
+
+[sub_resource type="Resource" id="FindAutoDripTurret"]
+script = ExtResource("14")
+item = ExtResource("18")
 amount = 1
 
 [sub_resource type="Resource" id="Block0"]
@@ -31,7 +60,7 @@ sleepwalker_count = 3
 script = ExtResource("2")
 kind = 4
 sleepwalker_count = 3
-finds = [SubResource("FindTurkishPot")]
+finds = [SubResource("FindTurkishPot"), SubResource("FindCoffeeMinigun")]
 
 [sub_resource type="Resource" id="Block2"]
 script = ExtResource("2")
@@ -64,6 +93,8 @@ script = ExtResource("2")
 kind = 4
 sleepwalker_count = 4
 has_speaker_pole = true
+finds = [SubResource("FindAutoDripTurret")]
+locked_side_room = SubResource("SideRoomGeisha")
 
 [sub_resource type="Resource" id="Block7"]
 script = ExtResource("2")
@@ -80,11 +111,6 @@ script = ExtResource("3")
 enemy_type = ExtResource("5")
 scene = ExtResource("8")
 
-[sub_resource type="Resource" id="RosterKaren"]
-script = ExtResource("3")
-enemy_type = ExtResource("6")
-scene = ExtResource("9")
-
 [resource]
 script = ExtResource("1")
 city_id = "pourtland"
@@ -97,6 +123,8 @@ quest_name = "The Aisle 7"
 quest_scene = ExtResource("13")
 region_bean = ExtResource("16")
 blocks = [SubResource("Block0"), SubResource("Block1"), SubResource("Block2"), SubResource("Block3"), SubResource("Block4"), SubResource("Block5"), SubResource("Block6"), SubResource("Block7")]
-roster = [SubResource("RosterNeighbor"), SubResource("RosterTinfoilMan"), SubResource("RosterKaren")]
+crate_extras = [SubResource("CrateVaultKey")]
+roster = [SubResource("RosterNeighbor"), SubResource("RosterTinfoilMan")]
 side_quests = [ExtResource("10")]
 masters = [ExtResource("12")]
+moonwalker_haunts = true

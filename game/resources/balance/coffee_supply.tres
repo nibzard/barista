@@ -14,3 +14,5 @@ travel_mug_cost = 0
 thermos_cost = 3
 moka_launcher_cost = 4
 minigun_cups_per_second = 6.0
+french_press_cost = 2
+auto_drip_turret_cost = 4

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Recipe" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/brewing/recipe.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+recipe_id = "robotaxi_engineer_order"
+display_name = "The Engineer's Order"
+method_match = 1
+method_id = "espresso"
+extra_id = "oat_cortado_31"
+bean_match = 0
+bean_id = ""
+min_bean_quality = 0
+roast_match = 0
+roast = 1
+required_appliance = ""

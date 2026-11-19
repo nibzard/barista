@@ -35,6 +35,19 @@ func bind_unlock_state(state: UnlockState) -> void:
 	state.unlocked.connect(open)
 
 
+func try_purchase(gateway: PurchaseGateway, state: UnlockState) -> bool:
+	# One press at the locked gate starts the one payment of section 4 through
+	# the purchase interface. The stub grants at once; the store flow of T053
+	# answers the same call. Returns false when another handler should take
+	# the key: the gate stands open or nobody stands at it.
+	if _open or gateway == null or state == null:
+		return false
+	if not _player_inside_notice_area():
+		return false
+	gateway.begin_purchase(state)
+	return true
+
+
 func is_open() -> bool:
 	return _open
 

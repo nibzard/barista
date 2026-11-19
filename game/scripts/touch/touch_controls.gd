@@ -4,7 +4,21 @@
 class_name TouchControls
 extends CanvasLayer
 
-enum ButtonKind { THROW, DODGE, DRINK, USE, TOOL, SWAP, REFILL, VAN, BREW, PLANT }
+enum ButtonKind {
+	THROW,
+	DODGE,
+	DRINK,
+	SERVE,
+	USE,
+	TOOL,
+	SWAP,
+	REFILL,
+	VAN,
+	BREW,
+	PLANT,
+	WEAPON,
+	WSWAP,
+}
 
 # The mouse event a touch emulates carries device -1. The raw touch already
 # reached this layer, so the copy is skipped.
@@ -13,8 +27,9 @@ const EMULATED_MOUSE_DEVICE := -1
 const MOUSE_POINTER := -10
 # The context buttons wait for the run to open them; the rest are always on.
 # TOOL and SWAP wait with them: the belt starts empty until the player finds
-# the first support tool, section 11. PLANT waits until the bag holds a
-# coffee seedling, section 6.
+# the first support tool, section 11. WEAPON and WSWAP wait the same way for
+# the first cure weapon. PLANT waits until the bag holds a coffee seedling,
+# section 6.
 const CONTEXT_KINDS: Array[ButtonKind] = [
 	ButtonKind.TOOL,
 	ButtonKind.SWAP,
@@ -22,6 +37,8 @@ const CONTEXT_KINDS: Array[ButtonKind] = [
 	ButtonKind.VAN,
 	ButtonKind.BREW,
 	ButtonKind.PLANT,
+	ButtonKind.WEAPON,
+	ButtonKind.WSWAP,
 ]
 
 @export var balance: TouchControlsBalance
@@ -37,6 +54,7 @@ var _held_by_pointer: Dictionary = {}
 	ButtonKind.THROW: $Board/Buttons/Throw,
 	ButtonKind.DODGE: $Board/Buttons/Dodge,
 	ButtonKind.DRINK: $Board/Buttons/Drink,
+	ButtonKind.SERVE: $Board/Buttons/Serve,
 	ButtonKind.USE: $Board/Buttons/Use,
 	ButtonKind.TOOL: $Board/Buttons/Tool,
 	ButtonKind.SWAP: $Board/Buttons/Swap,
@@ -44,6 +62,8 @@ var _held_by_pointer: Dictionary = {}
 	ButtonKind.VAN: $Board/Buttons/Van,
 	ButtonKind.BREW: $Board/Buttons/Brew,
 	ButtonKind.PLANT: $Board/Buttons/Plant,
+	ButtonKind.WEAPON: $Board/Buttons/Weapon,
+	ButtonKind.WSWAP: $Board/Buttons/WeaponSwap,
 }
 
 
@@ -58,6 +78,10 @@ func _ready() -> void:
 	dodge_button.tapped.connect(func() -> void: player.try_action(&"dodge", stick_view.direction()))
 	var drink_button := _buttons[ButtonKind.DRINK] as TouchButton
 	drink_button.tapped.connect(func() -> void: player.try_action(&"drink_coffee", Vector2.ZERO))
+	# The serve hands the brewed cup straight over, no aim: the Turkish cure
+	# of the Tinfoil Man rides it past the hat, section 6.
+	var serve_button := _buttons[ButtonKind.SERVE] as TouchButton
+	serve_button.tapped.connect(func() -> void: player.try_action(&"serve_coffee", Vector2.ZERO))
 	# The shared buttons fire the same input actions the keys fire, so every
 	# handler in the game answers them unchanged: USE covers the interact key
 	# (tower fuse and switch, masters, quests, the van), REFILL the cafe pot,
@@ -81,6 +105,13 @@ func _ready() -> void:
 	# The seedling drops under the player, so the tap needs no aim, section 6.
 	var plant_button := _buttons[ButtonKind.PLANT] as TouchButton
 	plant_button.tapped.connect(func() -> void: player.try_action(&"plant_coffee", Vector2.ZERO))
+	# The cure weapons fire with the stick aim, and the weapon swap rides the
+	# same action the key fires, so the whole armory plays without a keyboard.
+	var weapon_button := _buttons[ButtonKind.WEAPON] as TouchButton
+	weapon_button.tapped.connect(_on_weapon_tapped)
+	weapon_button.released.connect(func() -> void: _release_action(&"fire_weapon"))
+	var weapon_swap_button := _buttons[ButtonKind.WSWAP] as TouchButton
+	weapon_swap_button.tapped.connect(func() -> void: player.try_action(&"cycle_weapon"))
 	# The context buttons wait closed for the run to open them. The state and
 	# the visibility start in step, so the first open call really opens.
 	for kind: ButtonKind in CONTEXT_KINDS:
@@ -187,6 +218,34 @@ func _fire_action(action: StringName) -> void:
 	press.action = action
 	press.pressed = true
 	Input.parse_input_event(press)
+	var release := InputEventAction.new()
+	release.action = action
+	release.pressed = false
+	Input.parse_input_event(release)
+
+
+func _on_weapon_tapped() -> void:
+	# The Minigun owns no single shot, section 11: its touch press holds the
+	# fire action like a key, and the lift releases it, so the stream runs
+	# only while the finger stays down. Every other weapon fires one shot on
+	# the tap, with the stick aim.
+	if player.armory.equipped_weapon() == CureArmory.Weapon.MINIGUN:
+		_press_action(&"fire_weapon")
+		return
+	player.try_action(&"fire_weapon", stick_view.direction())
+
+
+func _press_action(action: StringName) -> void:
+	# The press half of a held action: the release comes with the lift.
+	var press := InputEventAction.new()
+	press.action = action
+	press.pressed = true
+	Input.parse_input_event(press)
+
+
+func _release_action(action: StringName) -> void:
+	# The release half of a held action: the stream of the Minigun stops the
+	# moment the finger or the overlay takes the button away.
 	var release := InputEventAction.new()
 	release.action = action
 	release.pressed = false

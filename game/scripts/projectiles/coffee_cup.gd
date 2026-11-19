@@ -60,38 +60,27 @@ static func arc_height(progress: float, peak: float) -> float:
 func _on_body_entered(body: Node2D) -> void:
 	if _splash_pending:
 		return
-	if body is Sleepwalker:
-		# The Tinfoil Man's hat stops thrown coffee, section 6: the cup
-		# splashes on the tinfoil and dies there. No payload gets through
-		# while it flies, so the cure check never runs for him.
-		if not body.hat_stops_thrown_coffee():
+	if body.has_method(&"try_wake"):
+		# Every wakeable body takes the payload: the sleepwalkers of
+		# section 6, the band stage, the fish sellers of the market, the
+		# band members of Sleepvana, the husband of aisle 7. The cup asks
+		# the body, never its class, so no boss or quest script joins the
+		# cup compile (T112).
+		if not _hat_stops_the_throw(body):
 			body.try_wake(brewed)
-		_splash_and_free()
-	elif body is SleepJamBand:
-		# The band stage takes a thrown cure cup like any sleepwalker,
-		# section 6: the payload lands on the stage.
-		body.try_wake(brewed)
-		_splash_and_free()
-	elif body is FishSeller:
-		# The fish sellers of the market take a thrown cure cup the same way,
-		# section 6: the head-first rule inside the market decides its worth.
-		body.try_wake(brewed)
-		_splash_and_free()
-	elif body is BandMember:
-		# The band members of Sleepvana take a thrown order cup the same way,
-		# section 13: the member's own order and the encore rule decide.
-		body.try_wake(brewed)
-		_splash_and_free()
-	elif body is Aisle7Husband:
-		# The husband of aisle 7 takes a thrown Turkish cup the same way,
-		# section 13: the photo gate and the quest rule decide inside the stage.
-		body.try_wake(brewed)
 		_splash_and_free()
 	else:
 		# Every other body is environment geometry: a wall, a gate, a stage
 		# block. The cup breaks on it, so no coffee flies through walls and
 		# no sleeper behind one wakes from the flight.
 		_splash_and_free()
+
+
+func _hat_stops_the_throw(body: Node2D) -> bool:
+	# The Tinfoil Man's hat stops thrown coffee, section 6: the cup
+	# splashes on the tinfoil and dies there. No payload gets through
+	# while it flies, so the cure check never runs for him.
+	return body.has_method(&"hat_stops_thrown_coffee") and body.hat_stops_thrown_coffee()
 
 
 func _splash_and_free() -> void:
@@ -105,25 +94,20 @@ func _burst_and_free() -> void:
 	# The cup dies here and its payload bursts, section 15: a perfect cup
 	# wakes every sleepwalker in a small radius around the splash point.
 	# The tinfoil hat keeps the splash off its wearer, section 6, and walls
-	# keep it off every sleeper the geometry hides.
+	# keep it off every sleeper the geometry hides. Every splash weapon of
+	# section 11 wakes through the same shared math, CureDelivery.
 	monitoring = false
 	_splash_pending = false
 	if brewed == null or brewing_balance == null:
 		queue_free()
 		return
-	var radius := CureMatcher.wake_radius(brewed, brewing_balance)
-	if radius > 0.0:
-		var world := get_world_2d()
-		var origin := _splash_origin()
-		for node: Node in get_tree().get_nodes_in_group(Sleepwalker.SLEEPWALKER_GROUP):
-			var sleeper := node as Sleepwalker
-			if sleeper == null or sleeper.hat_stops_thrown_coffee():
-				continue
-			if sleeper.global_position.distance_to(origin) > radius:
-				continue
-			if not LineOfSight.is_clear(origin, sleeper.global_position, world):
-				continue
-			sleeper.try_wake(brewed)
+	CureDelivery.splash_wake(
+		_splash_origin(),
+		CureMatcher.wake_radius(brewed, brewing_balance),
+		brewed,
+		get_tree(),
+		get_world_2d()
+	)
 	queue_free()
 
 

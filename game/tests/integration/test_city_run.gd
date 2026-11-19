@@ -12,10 +12,10 @@ const MAX_FRAMES_TO_WAIT := 600
 
 # The deterministic spawn rule: the cafe block holds only the basic type,
 # every later block cycles the roster, so the counts follow the densities.
-const EXPECTED_CROWD_TOTAL := 24
-const EXPECTED_NEIGHBORS := 10
-const EXPECTED_TOURISTS := 7
-const EXPECTED_TECH_BROS := 7
+const EXPECTED_CROWD_TOTAL := 27
+const EXPECTED_NEIGHBORS := 11
+const EXPECTED_TOURISTS := 8
+const EXPECTED_TECH_BROS := 8
 
 var _city: CityRun
 
@@ -36,7 +36,7 @@ func after_test() -> void:
 
 func test_the_city_loads_with_the_full_landmark_set() -> void:
 	var map := _city.city_map()
-	assert_int(map.block_count()).is_equal(7)
+	assert_int(map.block_count()).is_equal(8)
 	var landmarks: Array[CityBlock.Kind] = [
 		CityBlock.Kind.CAFE,
 		CityBlock.Kind.TOWER,
@@ -74,6 +74,10 @@ func test_the_player_starts_inside_the_cafe_safe_zone() -> void:
 	var safe_zone := map.find_block_of_kind(CityBlock.Kind.CAFE).safe_zone()
 	assert_object(safe_zone).is_not_null()
 	assert_bool(safe_zone.has_player_inside()).is_true()
+	# The player draws above the map floor: the scene authors the player at
+	# tree index 0 while build() adds the map later, and the opaque floor then
+	# hides the sprite from the player (T090).
+	assert_int(_city.player.get_index()).is_greater(map.get_index())
 
 
 func test_the_hud_binds_to_the_city_player() -> void:

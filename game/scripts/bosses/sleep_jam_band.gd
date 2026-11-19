@@ -73,6 +73,23 @@ func is_awake() -> bool:
 	return not _performing
 
 
+func save_state() -> Dictionary:
+	# Section 18: the cure of the song rides the run slot as one plain flag,
+	# so a reloaded arena never replays a fight the save already ended.
+	return {"cured": not _performing}
+
+
+func load_state(saved: Dictionary) -> void:
+	# A saved cure lands silent: the song ends and the band wakes, but no wake
+	# line speaks and no signal fires, because the save point already recorded
+	# the beat.
+	if not bool(saved.get("cured", false)):
+		return
+	_performing = false
+	_lullaby.set_active(false)
+	_tint_members(AWAKE_COLOR)
+
+
 func band_members() -> Array[Polygon2D]:
 	return _members.duplicate()
 

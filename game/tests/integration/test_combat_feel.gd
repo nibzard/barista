@@ -274,6 +274,13 @@ func test_dodge_roll_has_a_cooldown_before_the_next_roll() -> void:
 func test_dodge_spam_keeps_a_gap_between_rolls() -> void:
 	# One roll press every physics frame still cannot chain rolls: the
 	# invulnerability uptime stays near the roll share of the cycle.
+	# The room must hold no huggers. A live neighbor that wanders into a
+	# rest gap grabs the player, the roll spam stops, and the count freezes
+	# at a random multiple of the roll length. Only the cooldown may decide
+	# when the next roll starts.
+	for index: int in _cafe.sleepwalkers.get_child_count():
+		_cafe.get_sleepwalker(index).wake_up()
+
 	var player := _cafe.player
 	var invulnerable_frames := 0
 	const TOTAL_FRAMES := 240

@@ -7,6 +7,7 @@ const BALANCE := preload("res://resources/balance/city.tres")
 const HOUSE_BEANS := preload("res://resources/items/beans/house.tres")
 const FUSE_ITEM := preload("res://resources/items/materials/fuse.tres")
 const SCRAP_PART := preload("res://resources/items/materials/scrap_part.tres")
+const SEEDLING := preload("res://resources/items/materials/coffee_seedling.tres")
 const PLAYER_SCENE := preload("res://scenes/player/player.tscn")
 
 const SAN_COFFESCO := preload("res://resources/city/san_coffesco.tres")
@@ -136,6 +137,8 @@ func test_scavenge_blocks_carry_a_stocked_loot_point() -> void:
 				)
 				# Section 15: scrap parts pay for the van upgrades.
 				assert_int(loot.remaining_amount(SCRAP_PART)).is_equal(BALANCE.scavenge_scrap_parts)
+				# Section 6, T109: the crates restock the plantable bait.
+				assert_int(loot.remaining_amount(SEEDLING)).is_equal(BALANCE.scavenge_seedlings)
 			else:
 				assert_object(loot).is_null()
 	# The crate stock reads city.tres, not a script literal: a tweaked copy of
@@ -143,11 +146,13 @@ func test_scavenge_blocks_carry_a_stocked_loot_point() -> void:
 	var kit_balance := BALANCE.duplicate() as CityBalance
 	kit_balance.scavenge_house_beans += 4
 	kit_balance.scavenge_scrap_parts += 5
+	kit_balance.scavenge_seedlings += 1
 	var tuned_map := _build_city(SAN_COFFESCO, kit_balance)
 	var tuned_loot := tuned_map.find_block_of_kind(CityBlock.Kind.SCAVENGE).scavenge_point()
 	assert_object(tuned_loot).is_not_null()
 	assert_int(tuned_loot.remaining_amount(HOUSE_BEANS)).is_equal(kit_balance.scavenge_house_beans)
 	assert_int(tuned_loot.remaining_amount(SCRAP_PART)).is_equal(kit_balance.scavenge_scrap_parts)
+	assert_int(tuned_loot.remaining_amount(SEEDLING)).is_equal(kit_balance.scavenge_seedlings)
 
 
 func test_the_cafe_block_carries_a_van_spot_outside_the_safe_zone() -> void:

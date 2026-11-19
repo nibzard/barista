@@ -17,18 +17,26 @@ const MASTER_NPC_SCENE := preload("res://scenes/masters/master_npc.tscn")
 const TUTORIAL_SCENE_PATH := "res://scenes/tutorial/tutorial_director.tscn"
 const MORGEN_REPLAY_SCENE := preload("res://scenes/tutorial/morgen_replay.tscn")
 const OUTRO_SCENE := preload("res://scenes/ending/outro_director.tscn")
+const MOONWALKER_MYSTERY_SCENE := preload("res://scenes/city/moonwalker_mystery.tscn")
 const ADDRESS_AUDIO_SCENE := preload("res://scenes/audio/address_audio_director.tscn")
 const DEX_CATALOG := preload("res://resources/dex/sleepy_dex.tres")
+# Section 18: the saved bag resolves its item ids back to stacks through the
+# catalog, so the reload rebuilds beans, gear, materials, and appliances.
+const ITEM_CATALOG := preload("res://resources/items/catalog.tres")
 const MAIN_ROUTE := preload("res://resources/quests/main_route.tres")
 const FIELD_BASE_QUEST_BALANCE := preload("res://resources/balance/field_base_quest.tres")
 const FIELD_BASE_QUEST_DEFINITION := preload("res://resources/quests/side/field_kitchen_stock.tres")
+# The cold brew steep of the run, section 8: the tuned timer of the fridge.
+const COLD_BREW_BALANCE := preload("res://resources/balance/cold_brew.tres")
 
-const WALL_THICKNESS := 40.0
 # The bridge deck east of the tower block; the paywall gate stands on it.
+# The tutorial and the outro directors read it through their run handle
+# (run.BRIDGE_DECK_WIDTH), never by class name, so their compiles stay out
+# of this script's graph (T112).
 const BRIDGE_DECK_WIDTH := 240.0
-# The travel trigger sits on the deck east of the open gate.
-const ROAD_EAST_FRACTION := 0.85
-const ROAD_EAST_RADIUS := 44.0
+# The wake line of a boss floats above its raised stage, higher than the
+# crowd line rides above a sleeper body.
+const STAGE_WAKE_LINE_OFFSET := Vector2(0.0, -170.0)
 
 const DEATH_TEXT := "Your last wake-up is gone. The dream takes you."
 const CITY_COMPLETE_TEXT := "%s is awake. The tower is silent and %s is up."
@@ -42,9 +50,10 @@ const VAN_NEED_SCRAP_TEXT := "NOT ENOUGH SCRAP PARTS. THE NEXT LEVEL NEEDS %d."
 const FIELD_BASE_OPEN_TEXT := "THE FIELD CAFE IS OPEN. THE SURVIVORS GATHER."
 const FIELD_BASE_PACKED_TEXT := "THE FIELD CAFE IS PACKED."
 const MOVING_DAY_TEXT := "MOVING DAY COMPLETE. ALL BELONGINGS ARE IN THE NEW CAFE."
-const MASTER_LESSON_TEXT := "%s, LESSON %d OF %d. +%d SKILL."
-const MASTER_RECIPE_TEXT := " NEW RECIPE: %s."
-const MASTER_SCHOOL_DONE_TEXT := "%s HAS TAUGHT EVERY LESSON."
+# Section 9, hardcore mode: the first sleep ends the game and deletes the slot.
+const HARDCORE_DEATH_TEXT := "HARDCORE: THE FIRST SLEEP TOOK YOU. THE SAVE IS GONE."
+# The hardcore way back runs through the menu and its mode select.
+const MENU_SCENE_PATH := "res://scenes/main/menu.tscn"
 
 @export var definition: CityDefinition
 @export var balance: CityBalance
@@ -55,16 +64,22 @@ const MASTER_SCHOOL_DONE_TEXT := "%s HAS TAUGHT EVERY LESSON."
 # complete. Null in the last city of the version.
 @export var east_city_scene: PackedScene
 # Section 19: the first ten minutes ride the first run as a tutorial. Only the
-# intro scene of San Coffesco turns this on; character creation (T046) stands
-# before that run when it ships.
+# intro scene of San Coffesco turns this on. The character creation screen of
+# section 5 stands between the menu and this run.
 @export var run_tutorial := false
 
 var progress := CityProgress.new()
 var unlock_state := UnlockState.new()
+# The stubbed purchase interface of the paywall, T049: the one payment of
+# section 4 lands through it; the real billing of T053 answers the same call.
+var purchase_gateway := PurchaseGateway.new()
 var van_state: MobileCafe = null
 var moving_day := MovingDay.new()
 # The SleepyDex rides the run: every spawned sleepwalker feeds it, section 9.
 var dex := SleepyDex.new(DEX_CATALOG)
+# Section 24: the Moonwalker mystery rides the run in every city of the
+# route, its hint speakers and, in Pourtland, the dawn haunt itself.
+var moonwalker_mystery: MoonwalkerMystery = null
 # The quest state rides the run too: the main chain plus the side quests.
 var quest_log := QuestLog.new()
 # The signature quest of the city rides the run like the quest log,
@@ -74,6 +89,12 @@ var signature_quest: SignatureQuest = null
 # small side quests. The giver rides the run beside the van and answers the
 # interact key at the open base.
 var field_base_quests: FieldBaseQuestGiver = null
+# The brewing station of the run, section 8: it owns the brew stand overlay
+# that turns the minigames into brewed cups.
+var brew_pot: BrewPot = null
+# The cold brew fridge of the run, section 8: the player starts the steep at
+# the stand, the pot ticks it while he plays, and the save holds it, section 18.
+var cold_fridge: ColdBrewFridge = null
 # The school of the city master rides the run, section 8: the lessons train
 # the player skills and grant the master recipes.
 var master_lessons: MasterLessons = null
@@ -94,6 +115,14 @@ var _van: MobileCafeVan = null
 var _crowd: Node2D = null
 var _markers: QuestMarkers = null
 var _tutorial: TutorialDirector = null
+# The run state of the last save point, read once at build. Empty when this
+# scene has no save of its own: only the writing scene reloads a slot.
+var _saved_state: Dictionary = {}
+var _has_saved_position := false
+var _saved_position := Vector2.ZERO
+# The cafe-entry poll of the first save point, section 18. The player starts
+# inside the zone, so the flag starts false and the spawn is an entry.
+var _player_was_in_cafe := false
 # The replay of the Dr. Morgen video on the cafe television, section 22. It
 # spawns on the first press at the set and plays every city's cafe.
 var _television_replay: MorgenReplayPlayer = null
@@ -102,6 +131,7 @@ var _television_replay: MorgenReplayPlayer = null
 var _outro: OutroDirector = null
 # The end screen owns the screen: the play controls stand down behind it.
 var _end_screen_shown := false
+var _end_screen_goes_to_menu := false
 
 @onready var player: Player = $Player
 @onready var hud: Hud = $Hud
@@ -124,6 +154,8 @@ func _ready() -> void:
 	player.died.connect(_on_player_died)
 	player.woke_in_cafe.connect(_on_player_woke_in_cafe)
 	progress.city_completed.connect(_on_city_completed)
+	# The payment writes the slot at once: a closed app never loses the bridge.
+	unlock_state.unlocked.connect(func() -> void: _record_save_point(SaveData.POINT_PURCHASE))
 	moving_day.finished.connect(func() -> void: hud.show_toast(MOVING_DAY_TEXT))
 	hud.bind_dex(dex, player.brewing_library)
 	dex.keychain_awarded.connect(_on_dex_complete)
@@ -131,14 +163,36 @@ func _ready() -> void:
 	# travel needs a destination. The last city keeps the road closed by
 	# itself: the chain there has no next city.
 	east_road_taken.connect(_on_east_road_taken)
-	master_lessons = MasterLessons.new(_definition_masters(), player.brewing_skills)
-	if save_system == null and DisplayServer.get_name() != "headless":
-		save_system = SaveSystem.new()
+	if save_system == null:
+		# A system parked through a scene change arrives first: the death
+		# reload and the menu continue hand the slot to the scene they load,
+		# so headless and player builds reload through one path. A run that
+		# arrives without one builds the default slot outside headless tests.
+		save_system = SaveSystem.take_after_scene_change()
+		if save_system == null and DisplayServer.get_name() != "headless":
+			save_system = SaveSystem.new()
+	if save_system != null:
+		player.wake_ups.set_hardcore(save_system.saved_game_mode() == SaveData.MODE_HARDCORE)
 	if definition != null and balance != null:
 		build()
 
 
 func build() -> void:
+	# Section 8: the school of the city masters rides the run.
+	master_lessons = MasterLessons.new(definition.masters, player.brewing_skills)
+	# Section 18: a fresh run reloads the last save point, but only a slot this
+	# very scene wrote. The intro tutorial stays the fresh start of the game
+	# against any other slot, and a save of another city never bleeds in.
+	if save_system != null:
+		_saved_state = save_system.saved_run_state_for(scene_file_path)
+	# The purchase flag lands before the gate builds, so an unlocked bridge
+	# opens at bind time instead of one frame later.
+	if not _saved_state.is_empty():
+		unlock_state.load_state(bool(_saved_state.get("unlock", false)))
+	# Section 5: the created look rides the save slot. The creation screen
+	# before this run wrote it; a run without a slot keeps the placeholder.
+	if save_system != null:
+		player.appearance = save_system.saved_appearance(player.appearance_catalog)
 	_map = CITY_MAP_SCENE.instantiate() as CityMap
 	_map.definition = definition
 	_map.balance = balance
@@ -147,34 +201,61 @@ func build() -> void:
 	if tower != null:
 		tower.switched_off.connect(_on_tower_switched_off)
 		tower.birdsong.connect(_on_tower_birdsong)
-	_build_walls()
+	CityWalls.build(self, _map.city_size(), BRIDGE_DECK_WIDTH)
 	_build_bridge_gate()
 	_build_road_east()
 	_build_boss()
 	_build_van()
 	_build_masters()
 	_build_signature_quest()
+	if definition.moonwalker_haunts or not definition.mystery_hints.is_empty():
+		moonwalker_mystery = MOONWALKER_MYSTERY_SCENE.instantiate() as MoonwalkerMystery
+		moonwalker_mystery.name = "MoonwalkerMystery"
+		add_child(moonwalker_mystery)
+		moonwalker_mystery.setup(self)
 	_buildaddress_audio(tower)
 	_spawn_crowd()
 	_build_quest_markers()
 	_build_field_base_quests()
-	_apply_saved_tower_state()
+	cold_fridge = ColdBrewFridge.new(COLD_BREW_BALANCE)
+	brew_pot = BrewPot.new()
+	brew_pot.name = "BrewPot"
+	add_child(brew_pot)
+	brew_pot.setup(self, cold_fridge)
+	_apply_saved_state()
+	# The scene authors the player at tree index 0 while this method adds the
+	# map and the crowd after it, so the opaque block floor would draw over the
+	# player sprite in every city. The player rides above the world children
+	# instead. The outro and the tutorial stay after it in the tree: they are
+	# CanvasLayers, so the order holds no draw meaning for them, while their
+	# per-frame watch of player state (the tutorial drink lesson) must tick
+	# after the player to see a channel close inside the player's physics step.
+	move_child(player, -1)
 	_build_outro()
 	if run_tutorial and city_index == 1:
 		_build_tutorial()
 	player.global_position = _map.cafe_spawn().global_position
+	if _has_saved_position:
+		# Section 18: the reload puts the player back at the save point, not
+		# at the cafe spawn. The camera snaps to the same spot below.
+		player.global_position = _saved_position
 	camera.global_position = player.global_position
 	var city_bounds := _map.city_size()
 	camera.limit_left = 0
 	camera.limit_top = 0
 	camera.limit_right = int(city_bounds.x + BRIDGE_DECK_WIDTH)
 	camera.limit_bottom = int(city_bounds.y)
+	_resume_completed_city()
 
 
 func _build_quest_markers() -> void:
 	# The quest log holds the chain of this run, and the marker layer draws
-	# its signals: the tower marker of section 19 step 7 comes first.
+	# its signals: the tower marker of section 19 step 7 comes first. The
+	# saved quest state lands before the bind, so the markers draw the loaded
+	# chain without replaying a beat.
 	quest_log.setup(MAIN_ROUTE, definition.city_id)
+	if not _saved_state.is_empty():
+		quest_log.load_state(SaveData.dict_or_empty(_saved_state.get("quests", {})))
 	_markers = QuestMarkers.new()
 	_markers.name = "QuestMarkers"
 	add_child(_markers)
@@ -208,13 +289,17 @@ func _buildaddress_audio(tower: BroadcastTower) -> void:
 
 func _build_outro() -> void:
 	# Section 16: the version ends after the last city of the main route. The
-	# outro director waits dormant on that city until it completes.
+	# outro director waits dormant on that city until it completes. A saved
+	# outro lands on its step before the setup, so it never replays.
 	if not _is_last_city():
 		return
 	_outro = OUTRO_SCENE.instantiate() as OutroDirector
 	_outro.name = "Outro"
 	add_child(_outro)
+	if not _saved_state.is_empty():
+		_outro.flow.load_state(SaveData.dict_or_empty(_saved_state.get("outro", {})))
 	_outro.setup(self)
+	_outro.flow.finished.connect(func() -> void: _record_save_point(SaveData.POINT_POST_GAME))
 
 
 func _is_last_city() -> bool:
@@ -227,10 +312,17 @@ func _is_last_city() -> bool:
 func _build_tutorial() -> void:
 	# Section 19: the first ten minutes play inside this run. The director
 	# rides the run as the "Tutorial" child; it hides the quest markers until
-	# the survivor names the tower.
+	# the survivor names the tower. A saved tutorial continues at its step,
+	# so a closed app mid-lesson loses no lesson.
 	_tutorial = (load(TUTORIAL_SCENE_PATH) as PackedScene).instantiate() as TutorialDirector
 	_tutorial.name = "Tutorial"
 	add_child(_tutorial)
+	if not _saved_state.is_empty():
+		var tower := _map.broadcast_tower()
+		_tutorial.load_saved_state(
+			SaveData.dict_or_empty(_saved_state.get("tutorial", {})),
+			tower != null and tower.is_switched_off()
+		)
 	_tutorial.setup(self)
 
 
@@ -246,7 +338,19 @@ func _physics_process(_delta: float) -> void:
 	if city_index > 1 and not moving_day.is_done() and _van != null:
 		if _van.is_player_at_van():
 			moving_day.unload()
+	_update_cafe_entry_save_point()
 	_update_touch_context()
+
+
+func _update_cafe_entry_save_point() -> void:
+	# The first save point of section 18: entry to the cafe. The poll runs
+	# before the player's own physics step, so a beat that lands inside the
+	# cafe this frame never writes the slot after itself: the sleep path must
+	# not reload, and the death path reloads the slot as it stood.
+	var inside := _player_inside_cafe() and not player.is_asleep()
+	if inside and not _player_was_in_cafe:
+		_record_save_point(SaveData.POINT_CAFE_ENTRY)
+	_player_was_in_cafe = inside
 
 
 func _update_touch_context() -> void:
@@ -255,16 +359,27 @@ func _update_touch_context() -> void:
 	# owning overlay is up, like the SleepyDex phone or the end screen.
 	touch_controls.set_button_available(TouchControls.ButtonKind.TOOL, player.toolbelt.has_any())
 	touch_controls.set_button_available(TouchControls.ButtonKind.SWAP, player.toolbelt.has_any())
+	# The cure weapon buttons open once the player finds the first weapon
+	# along the route, section 11.
+	touch_controls.set_button_available(TouchControls.ButtonKind.WEAPON, player.armory.has_any())
+	touch_controls.set_button_available(TouchControls.ButtonKind.WSWAP, player.armory.has_any())
 	touch_controls.set_button_available(TouchControls.ButtonKind.REFILL, _refill_available())
 	touch_controls.set_button_available(
 		TouchControls.ButtonKind.VAN, van_state != null and van_state.is_field_cafe()
 	)
-	touch_controls.set_button_available(TouchControls.ButtonKind.BREW, brewing_allowed_here())
+	touch_controls.set_button_available(TouchControls.ButtonKind.BREW, brew_pot.available_here())
 	# The seedling button shows only while the bag holds one, section 6.
 	touch_controls.set_button_available(
 		TouchControls.ButtonKind.PLANT, player.inventory.has_item(Player.COFFEE_SEEDLING_ID)
 	)
-	touch_controls.set_overlay_open(_end_screen_shown or hud.dex_app.is_open())
+	var screen_locked := (
+		_end_screen_shown
+		or hud.dex_app.is_open()
+		or brew_pot.stand() != null
+		or (signature_quest != null and signature_quest.owns_screen())
+		or (moonwalker_mystery != null and moonwalker_mystery.owns_screen())
+	)
+	touch_controls.set_overlay_open(screen_locked)
 
 
 func _refill_available() -> bool:
@@ -272,15 +387,19 @@ func _refill_available() -> bool:
 	# button hides once the pot has nothing left to fill.
 	if _map == null:
 		return false
+	return (
+		_player_inside_cafe() and (player.coffee_supply.cups < player.coffee_supply.carry_limit())
+	)
+
+
+func _player_inside_cafe() -> bool:
+	if _map == null:
+		return false
 	var cafe_block := _map.find_block_of_kind(CityBlock.Kind.CAFE)
 	if cafe_block == null:
 		return false
 	var safe_zone := cafe_block.safe_zone()
-	return (
-		safe_zone != null
-		and safe_zone.has_player_inside()
-		and player.coffee_supply.cups < player.coffee_supply.carry_limit()
-	)
+	return safe_zone != null and safe_zone.has_player_inside()
 
 
 func city_map() -> CityMap:
@@ -299,7 +418,7 @@ func van() -> MobileCafeVan:
 
 func boss() -> Node2D:
 	# The boss fight of the city on its arena block. Null until the city has
-	# one, like San Coffesco before the Sam Oatman fight ships.
+	# one, like a later city before its boss fight ships.
 	return _boss
 
 
@@ -401,9 +520,11 @@ func road_east_active() -> bool:
 
 func notify_boss_cured() -> void:
 	# The boss fight beat calls this when the city boss drinks the cure.
-	# The Sam Oatman fight wires itself here when backlog task T027 lands.
+	# Every boss fight of the route wires itself here, the band, the market,
+	# and the keynote alike.
 	progress.mark_boss_cured()
 	quest_log.mark_boss_cured()
+	_record_save_point(SaveData.POINT_BOSS_CURED)
 
 
 func refill_player_supply() -> int:
@@ -419,55 +540,14 @@ func refill_player_supply() -> int:
 	return player.refill_supply()
 
 
-func _build_walls() -> void:
-	# The city stands inside a hard boundary; the bridge deck reaches east.
-	var walls := Node2D.new()
-	walls.name = "Walls"
-	add_child(walls)
-	var city_bounds := _map.city_size()
-	var total_width := city_bounds.x + BRIDGE_DECK_WIDTH
-	var side_length := city_bounds.y + WALL_THICKNESS * 2.0
-	_add_wall(
-		walls,
-		"Top",
-		Vector2(total_width * 0.5, -WALL_THICKNESS * 0.5),
-		Vector2(total_width + WALL_THICKNESS * 2.0, WALL_THICKNESS)
-	)
-	_add_wall(
-		walls,
-		"Bottom",
-		Vector2(total_width * 0.5, city_bounds.y + WALL_THICKNESS * 0.5),
-		Vector2(total_width + WALL_THICKNESS * 2.0, WALL_THICKNESS)
-	)
-	_add_wall(
-		walls,
-		"West",
-		Vector2(-WALL_THICKNESS * 0.5, city_bounds.y * 0.5),
-		Vector2(WALL_THICKNESS, side_length)
-	)
-	_add_wall(
-		walls,
-		"East",
-		Vector2(total_width + WALL_THICKNESS * 0.5, city_bounds.y * 0.5),
-		Vector2(WALL_THICKNESS, side_length)
-	)
-
-
-func _add_wall(parent: Node, wall_name: String, wall_position: Vector2, wall_size: Vector2) -> void:
-	var wall := StaticBody2D.new()
-	wall.name = wall_name
-	wall.position = wall_position
-	var shape_node := CollisionShape2D.new()
-	var shape := RectangleShape2D.new()
-	shape.size = wall_size
-	shape_node.shape = shape
-	wall.add_child(shape_node)
-	parent.add_child(wall)
-
-
 func _build_bridge_gate() -> void:
 	# The road east ends at the bridge paywall, section 4. The gate reads the
-	# unlock state; the purchase itself stays external.
+	# unlock state; the purchase itself stays external. The paywall stands at
+	# the bridge out of San Coffesco only: every later city sits behind the
+	# paid bridge, so its deck stays open.
+	if city_index > 1:
+		return
+
 	var city_bounds := _map.city_size()
 	_bridge_gate = BRIDGE_GATE_SCENE.instantiate() as BridgeGate
 	_bridge_gate.position = Vector2(city_bounds.x + BRIDGE_DECK_WIDTH * 0.5, city_bounds.y * 0.5)
@@ -481,28 +561,14 @@ func _build_road_east() -> void:
 	# The road east opens when the city completes: the travel trigger stands on
 	# the deck beyond the gate and waits for the player. A locked or missing
 	# gate scene blocks the way on its own.
-	_road_east = Area2D.new()
-	_road_east.name = "RoadEast"
-	_road_east.collision_layer = 0
-	_road_east.collision_mask = 2
-	_road_east.monitoring = false
-	var shape_node := CollisionShape2D.new()
-	var circle := CircleShape2D.new()
-	circle.radius = ROAD_EAST_RADIUS
-	shape_node.shape = circle
-	_road_east.add_child(shape_node)
-	_road_east.body_entered.connect(_on_road_east_entered)
-	var city_bounds := _map.city_size()
-	_road_east.position = Vector2(
-		city_bounds.x + BRIDGE_DECK_WIDTH * ROAD_EAST_FRACTION, city_bounds.y * 0.5
-	)
-	add_child(_road_east)
+	_road_east = RoadEast.build(self, _map.city_size(), BRIDGE_DECK_WIDTH, _on_road_east_entered)
 
 
 func _build_boss() -> void:
 	# The boss of the city plays its fight on the arena landmark. The Sleep Jam
-	# of Pourtland and the Fish Throwers of Steamtle ride the same hook; the
-	# boss fights of the later cities reuse it when they ship.
+	# of Pourtland, the Fish Throwers of Steamtle, and the Sam Oatman keynote
+	# of San Coffesco ride the same hook; the boss fights of the later cities
+	# reuse it when they ship.
 	if definition.boss_scene == null:
 		return
 	var arena := _map.find_block_of_kind(CityBlock.Kind.BOSS_ARENA)
@@ -513,23 +579,23 @@ func _build_boss() -> void:
 	_boss.global_position = arena.global_position + arena.size * 0.5
 	var band := _boss as SleepJamBand
 	if band != null:
-		band.band_woke.connect(_on_band_woke)
+		band.band_woke.connect(_on_boss_woke.bind(SleepJamBand.WAKE_TOAST))
+		WakeLinePresenter.attach(band, band.spoke, STAGE_WAKE_LINE_OFFSET)
 	var throwers := _boss as FishThrowers
 	if throwers != null:
-		throwers.crew_woke.connect(_on_fish_crew_woke)
+		throwers.crew_woke.connect(_on_boss_woke.bind(FishThrowers.WAKE_TOAST))
+		WakeLinePresenter.attach(throwers, throwers.spoke, STAGE_WAKE_LINE_OFFSET)
+	var keynote := _boss as SamOatman
+	if keynote != null:
+		keynote.boss_woke.connect(_on_boss_woke.bind(SamOatman.WAKE_TOAST))
+		WakeLinePresenter.attach(keynote, keynote.spoke, STAGE_WAKE_LINE_OFFSET)
 
 
-func _on_band_woke() -> void:
-	# The cure landed: the song ends, the beat moves the chain, and the city
-	# completes once the tower is off too, section 7.
-	hud.show_toast(SleepJamBand.WAKE_TOAST)
-	notify_boss_cured()
-
-
-func _on_fish_crew_woke() -> void:
-	# The cure landed in the apron: the last throw flies, the market cheers,
-	# and the city completes once the tower is off too, section 7.
-	hud.show_toast(FishThrowers.WAKE_TOAST)
+func _on_boss_woke(toast: String) -> void:
+	# The cure landed: the show of the city ends, the beat moves the chain,
+	# and the city completes once the tower is off too, section 7. The wake
+	# toast carries each boss's own beat.
+	hud.show_toast(toast)
 	notify_boss_cured()
 
 
@@ -556,6 +622,10 @@ func _build_van() -> void:
 	van_state.upgraded.connect(_on_van_upgraded)
 	_van.field_base_opened.connect(func() -> void: hud.show_toast(FIELD_BASE_OPEN_TEXT))
 	_van.field_base_packed.connect(func() -> void: hud.show_toast(FIELD_BASE_PACKED_TEXT))
+	if not _saved_state.is_empty():
+		# Section 18: the save holds the van level. A loaded van never replays
+		# the gift or an upgrade beat, and the carry limit follows the level.
+		van_state.load_state(int(_saved_state.get("van_level", MobileCafe.Level.NONE)))
 	van_state.apply_supply_level(player.coffee_supply)
 
 
@@ -633,106 +703,158 @@ func interact_with_masters() -> bool:
 
 
 func _announce_master_beat(npc: MasterNpc, outcome: MasterNpc.Interaction) -> void:
-	# The chalkboard toast confirms the skill grant and every new recipe.
-	var master_data := npc.master
-	if outcome == MasterNpc.Interaction.SCHOOL_DONE:
-		hud.show_toast(MASTER_SCHOOL_DONE_TEXT % master_data.display_name.to_upper())
-		return
-	var text := (
-		MASTER_LESSON_TEXT
-		% [
-			master_data.display_name.to_upper(),
-			master_lessons.lessons_taken(master_data.master_id),
-			master_lessons.lessons_per_master(),
-			player.brewing_balance.master_lesson_skill_gain,
-		]
+	# The toast confirms the skill grant and every new recipe.
+	hud.show_toast(
+		npc.announce_text(
+			outcome, player.brewing_balance.master_lesson_skill_gain, player.brewing_library
+		)
 	)
-	for recipe_id: String in npc.last_granted_recipes():
-		var recipe := player.brewing_library.find_recipe(recipe_id)
-		text += MASTER_RECIPE_TEXT % recipe.display_name.to_upper()
-	if master_lessons.is_school_complete(master_data.master_id):
-		text += " " + MASTER_SCHOOL_DONE_TEXT % master_data.display_name.to_upper()
-	hud.show_toast(text)
-
-
-func _definition_masters() -> Array[BrewingMaster]:
-	if definition == null:
-		return []
-	return definition.masters
 
 
 func _spawn_crowd() -> void:
-	# Every block holds its budgeted sleepwalkers. The cafe block teaches the
-	# basic throw, so it spawns only the first roster entry, the basic type.
-	# Every later block cycles the full roster in order.
-	_crowd = Node2D.new()
-	_crowd.name = "Crowd"
-	add_child(_crowd)
-	var roster := definition.roster
-	if roster.is_empty():
-		return
-	var global_marker := 0
-	for i: int in range(_map.block_count()):
-		var view := _map.block_view(i)
-		for marker: Marker2D in view.crowd_spawn_markers():
-			var entry := roster[0]
-			if view.kind() != CityBlock.Kind.CAFE:
-				entry = roster[global_marker % roster.size()]
-			var enemy := entry.scene.instantiate() as Sleepwalker
-			_crowd.add_child(enemy)
-			enemy.global_position = marker.global_position
-			# The first meeting with a type opens its SleepyDex entry,
-			# section 9. The dex itself keeps the second meeting silent.
-			enemy.first_met.connect(dex.meet)
-			global_marker += 1
+	# Every block holds its budgeted sleepwalkers, section 17. The builder
+	# wires the dex feed of the first meetings and the wake lines.
+	_crowd = CrowdBuilder.spawn(self, _map, definition, dex)
 
 
 func _on_tower_switched_off() -> void:
-	# Section 14: the switch restores 1 wake-up, up to the maximum. The city
-	# map silences its own speaker poles, and the quest chain moves on.
+	# Section 14: the switch restores 1 wake-up, up to the maximum; hardcore
+	# holds none, so the restore lands as a no-op there. The map silences its
+	# own speaker poles, the quest chain moves on, and the save lands after
+	# the restore, so the slot holds the new wake-up count.
 	progress.mark_tower_off()
 	quest_log.mark_tower_off()
 	player.wake_ups.restore_one()
-	_record_tower_save_point()
+	_record_save_point(SaveData.POINT_TOWER_SWITCH)
 
 
-func _record_tower_save_point() -> void:
-	# Save point of section 18: the tower switch writes the slot at once. The
-	# phase travels as the plain number the tower save contract pins.
-	if save_system == null:
+func _apply_saved_state() -> void:
+	# The whole run state of the last save point lands silent: no beat
+	# replays and no signal fires. The quest chain already restored in
+	# _build_quest_markers, and the van level in _build_van, because both
+	# build before this call. A run without a slot of its own, like a fresh
+	# arrival from the road east, reads the steep the west city parked.
+	if _saved_state.is_empty():
+		var arriving_steep := ColdBrewHandoff.take_arriving_state()
+		if not arriving_steep.is_empty():
+			cold_fridge.load_state(arriving_steep, player.brewing_library)
+		# Section 10, moving day: a fresh arrival from the road east unpacks
+		# the traveler once. The first city has no road west, so it never
+		# takes a park. The fields land after the van level, so the supply
+		# clamp reads the kitchen carry limit.
+		if city_index > 1:
+			MoveHandoff.apply_arrival(
+				MoveHandoff.take_arriving(), player, dex, unlock_state, ITEM_CATALOG
+			)
 		return
+	progress.load_state(SaveData.dict_or_empty(_saved_state.get("progress", {})))
+	moving_day.load_state(bool(_saved_state.get("moving_day", false)))
+	BossSaveState.apply_saved(_boss, SaveData.dict_or_empty(_saved_state.get("boss", {})))
+	var saved_phase := int(_saved_state.get("tower_phase", -1))
+	if saved_phase >= 0:
+		# A loaded switch never replays its beat: the map silences the poles
+		# on its own load path, and no wake-up is granted again.
+		_map.load_tower_state(saved_phase)
+		var tower := _map.broadcast_tower()
+		if tower != null and tower.is_switched_off():
+			address_audio.cut_address()
+	var saved_vault := bool(_saved_state.get("vault_open", false))
+	var vault := _map.locked_side_room()
+	var vault_was_open := saved_vault or save_system.is_vault_open(definition.city_id)
+	if vault != null and vault_was_open:
+		# A loaded vault never re-locks: no key returns to any bag.
+		vault.load_state(true)
+	if cold_fridge != null:
+		# Section 18: a saved steep stands where it stood, and one that ran
+		# out while the game was closed is ready at once, section 8.
+		cold_fridge.load_state(
+			SaveData.dict_or_empty(_saved_state.get("cold_brew", {})), player.brewing_library
+		)
+	# The player fields land together: dex, meter, wake-ups, skills, bag,
+	# supply, and the brewed batch in hand, section 18.
+	MoveHandoff.apply_carry(player, dex, _saved_state, ITEM_CATALOG)
+	_has_saved_position = true
+	_saved_position = _saved_state.get("position", Vector2.ZERO) as Vector2
+
+
+func _record_save_point(point: String) -> void:
+	# Section 18: one of the save points writes the whole slot at once.
+	# The capture reads the live run, so the player can close the app the
+	# moment the beat lands.
+	if save_system == null or _map == null or definition == null:
+		return
+	save_system.record_save_point(point, _capture_run_state())
+
+
+func _capture_run_state() -> Dictionary:
+	# Every section 18 field of this run as one plain dict, the shape the
+	# save system records. Position, meter, wake-ups, beans and gear (the
+	# bag), cups, skill levels, SleepyDex, van level, quest state, and tower
+	# state, plus the run identity that reloads this very scene.
+	var supply := player.coffee_supply.save_state()
+	var tutorial := {}
+	if _tutorial != null:
+		tutorial = _tutorial.flow.save_state()
+	var outro := {}
+	if _outro != null:
+		outro = _outro.flow.save_state()
+	var tower_phase := -1
 	var tower := _map.broadcast_tower()
-	if tower == null:
-		return
-	save_system.record_tower_switch(definition.city_id, tower.save_state())
+	if tower != null:
+		tower_phase = tower.save_state()
+	return {
+		"city_id": definition.city_id,
+		"scene_path": scene_file_path,
+		"position": player.global_position,
+		"meter_value": player.sleep_meter.save_state(),
+		"wake_ups": player.wake_ups.save_state(),
+		"bag": player.inventory.save_state(),
+		"cups": int(supply.get("cups", 0)),
+		"thermos_belt": bool(supply.get("thermos_belt", false)),
+		"brew_hand": player.brew_hand.save_state(),
+		"skills": player.brewing_skills.save_state(),
+		"dex": dex.save_state(),
+		"cold_brew": cold_fridge.save_state() if cold_fridge != null else {},
+		"van_level": van_state.save_state() if van_state != null else MobileCafe.Level.NONE,
+		"quests": quest_log.save_state(),
+		"progress": progress.save_state(),
+		"boss": BossSaveState.capture(_boss),
+		"moving_day": moving_day.save_state(),
+		"tutorial": tutorial,
+		"outro": outro,
+		"unlock": unlock_state.save_state(),
+		"moonwalk_dodge": player.dodge_style == Player.DodgeStyle.MOONWALK,
+		"game_mode": SaveData.MODE_HARDCORE if player.wake_ups.hardcore else SaveData.MODE_NORMAL,
+		"tower_phase": tower_phase,
+		"vault_open": _city_vault_open(),
+	}
 
 
-func _apply_saved_tower_state() -> void:
-	# Section 18: the save holds the tower state, and a fresh run loads it
-	# back into its tower. The intro tutorial is the fresh start of the game,
-	# so a leftover slot from an earlier session must not darken its tower.
-	# A loaded switch never replays its beat: the poles and the address go
-	# quiet through the load path, the chain keeps its progress, and no
-	# wake-up is granted again.
-	if save_system == null or run_tutorial:
+func _city_vault_open() -> bool:
+	# The locked side room of this city, section 15: the slot stores the door.
+	var room := _map.locked_side_room() if _map != null else null
+	return room != null and not room.is_locked()
+
+
+func _resume_completed_city() -> void:
+	# A reload of an already complete city, like a boss-cured save, hands the
+	# road back without replaying a beat: the last city picks its outro up at
+	# the saved step, every earlier city arms the road-east trigger.
+	if not progress.is_complete():
 		return
-	if not save_system.has_tower_state(definition.city_id):
-		return
-	var saved_phase := save_system.saved_tower_phase(
-		definition.city_id, BroadcastTower.Phase.BROADCASTING
-	)
-	_map.load_tower_state(saved_phase)
-	var tower := _map.broadcast_tower()
-	if tower == null or not tower.is_switched_off():
-		return
-	progress.mark_tower_off()
-	quest_log.mark_tower_off()
-	address_audio.cut_address()
+	if _outro != null:
+		# The flow refuses a second run on its own, so a saved outro past its
+		# first step stays where the save left it.
+		_outro.begin()
+	elif _road_east != null:
+		_road_east.set_deferred(&"monitoring", true)
 
 
 func _on_tower_birdsong() -> void:
 	# The beat ends on birdsong; the toast confirms the restored wake-up.
-	hud.show_toast(WAKE_UP_RESTORED_TEXT)
+	# Hardcore holds none, so the switch stays quiet there.
+	if not player.wake_ups.hardcore:
+		hud.show_toast(WAKE_UP_RESTORED_TEXT)
 
 
 func _on_dex_complete() -> void:
@@ -747,7 +869,27 @@ func _on_player_woke_in_cafe() -> void:
 
 
 func _on_player_died() -> void:
+	# Section 18: full death at zero wake-ups reloads the last save, with the
+	# wake-ups from that save; a run with no slot keeps the end screen.
+	# Hardcore holds no wake-ups: the first sleep deletes the slot and ends
+	# the run. The reload waits for idle time: a scene change inside the
+	# physics step frees collision nodes mid-flush.
+	if player.wake_ups.hardcore:
+		if save_system != null:
+			save_system.delete_save()
+		_show_end_screen(HARDCORE_DEATH_TEXT, true, true)
+		return
+	if save_system != null and save_system.has_run_state():
+		_reload_last_save.call_deferred()
+		return
 	_show_end_screen(DEATH_TEXT, true)
+
+
+func _reload_last_save() -> void:
+	# The slot rides the scene change, so the arriving run reads the same
+	# document in a headless test and in a player build alike.
+	SaveSystem.park_for_scene_change(save_system)
+	get_tree().change_scene_to_file(save_system.continue_scene_path())
 
 
 func _on_city_completed() -> void:
@@ -780,7 +922,12 @@ func _on_east_road_taken() -> void:
 	# next city reads it in _build_van.
 	if van_state != null:
 		VanHandoff.park(van_state.save_state())
+	# The cold brew crosses the road too: the fridge parks its live steep
+	# beside the van level, because this city's slot never applies east.
+	ColdBrewHandoff.park(cold_fridge.save_state() if cold_fridge != null else {})
 	if east_city_scene != null:
+		# Section 10, moving day: the van carries every belonging east.
+		MoveHandoff.park_traveler(player, dex, unlock_state)
 		# The trigger fires inside the physics step, and the scene change
 		# frees collision nodes. The engine rejects that removal mid-callback,
 		# so the travel waits for idle time.
@@ -791,8 +938,9 @@ func _travel_east() -> void:
 	get_tree().change_scene_to_packed(east_city_scene)
 
 
-func _show_end_screen(message: String, show_restart: bool) -> void:
+func _show_end_screen(message: String, show_restart: bool, goes_to_menu := false) -> void:
 	_end_screen_shown = true
+	_end_screen_goes_to_menu = goes_to_menu
 	overlay.visible = true
 	status_label.visible = true
 	status_label.text = message
@@ -810,6 +958,10 @@ func _on_continue_pressed() -> void:
 
 
 func _on_restart_pressed() -> void:
+	# A hardcore death ends the whole run: the menu owns the way back.
+	if _end_screen_goes_to_menu:
+		get_tree().change_scene_to_file(MENU_SCENE_PATH)
+		return
 	get_tree().reload_current_scene()
 
 
@@ -817,17 +969,32 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed(&"refill_coffee"):
 		refill_player_supply()
 	elif event.is_action_pressed(&"interact"):
+		# A brew overlay that holds the key consumes the press: the stop and
+		# lift actions of the minigames share the E key with interact, so a
+		# press mid-brew must not also take a master lesson or drive the van.
+		if brew_pot.holds_interact():
+			return
 		# A quest overlay that holds the key, like the Aisle 7 Foam Watch,
 		# consumes the press: its lift action shares the E key with interact.
 		if signature_quest != null and signature_quest.holds_interact():
 			return
 		# The master at hand answers first; then the cafe television with the
-		# section 22 replay; then the signature quest, like the Sleepvana
-		# crowd at the van; then the small ask of the gathered field base
-		# survivors, section 10; the van takes the key otherwise.
+		# section 22 replay; then the locked paywall gate with the one payment
+		# of section 4; then the signature quest, like the Sleepvana crowd at
+		# the van; then the small ask of the gathered field base survivors,
+		# section 10; the van takes the key otherwise.
 		if not interact_with_masters() and not _interact_with_television():
-			if signature_quest == null or not signature_quest.try_interact():
-				if field_base_quests == null or not field_base_quests.try_interact(player):
-					interact_with_van()
+			if (
+				_bridge_gate == null
+				or not _bridge_gate.try_purchase(purchase_gateway, unlock_state)
+			):
+				if signature_quest == null or not signature_quest.try_interact():
+					if field_base_quests == null or not field_base_quests.try_interact(player):
+						interact_with_van()
 	elif event.is_action_pressed(&"call_van"):
 		call_van()
+	elif event.is_action_pressed(&"start_brew"):
+		# The tutorial owns the brew key until its first-ten-minutes script
+		# ends; after that the pot of the run takes it.
+		if _tutorial == null or _tutorial.flow.is_done():
+			brew_pot.try_open()

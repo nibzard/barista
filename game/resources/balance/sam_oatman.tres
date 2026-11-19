@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="SamOatmanBalance" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/bosses/sam_oatman_balance.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/items/gear/designer_dripper.tres" id="2"]
+
+[resource]
+script = ExtResource("1")
+dripper_item = ExtResource("2")
+slides_seconds = 6.0
+demo_seconds = 6.0
+slides_radius = 340.0
+demo_drones = 1
+finale_drones = 2
+phase_line = "One more thing."
+wake_line = "One more thing... this cup. My next product, and my best."

@@ -56,6 +56,36 @@ func held_items() -> Array[ItemType]:
 	return items
 
 
+func counts() -> Dictionary:
+	# One plain table of the bag: item id to held units. The save system
+	# stores beans, gear, materials, and appliances as this one table,
+	# section 18.
+	return _counts.duplicate()
+
+
+func save_state() -> Dictionary:
+	return counts()
+
+
+func load_state(saved: Dictionary, catalog: ItemCatalog) -> void:
+	# A loaded bag lands silent: no pickup beat fires and no belt equips
+	# itself here. The caller restores the equip effects, like the thermos
+	# belt carry bonus, from the saved supply state. An id the catalog does
+	# not know, like an item from a newer save, stays out.
+	_counts.clear()
+	_types.clear()
+	if catalog == null:
+		return
+	for item_id: String in saved:
+		var item := catalog.find_item(item_id)
+		if item == null:
+			continue
+		var amount := clampi(int(saved[item_id]), 0, item.max_stack)
+		if amount > 0:
+			_counts[item_id] = amount
+			_types[item_id] = item
+
+
 func _compare_for_display(a: ItemType, b: ItemType) -> bool:
 	if a.category != b.category:
 		return a.category < b.category

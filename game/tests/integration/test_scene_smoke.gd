@@ -4,6 +4,7 @@ extends GdUnitTestSuite
 
 const SCENE_PATHS := [
 	"res://scenes/main/menu.tscn",
+	"res://scenes/main/character_creation.tscn",
 	"res://scenes/cafe/cafe.tscn",
 	"res://scenes/cafe/cafe_television.tscn",
 	"res://scenes/player/player.tscn",
@@ -13,16 +14,23 @@ const SCENE_PATHS := [
 	"res://scenes/enemies/gamer.tscn",
 	"res://scenes/enemies/tinfoil_man.tscn",
 	"res://scenes/enemies/karen.tscn",
+	"res://scenes/enemies/moonwalker.tscn",
 	"res://scenes/enemies/drone.tscn",
 	"res://scenes/projectiles/coffee_cup.tscn",
 	"res://scenes/projectiles/fish.tscn",
+	"res://scenes/projectiles/travel_mug.tscn",
+	"res://scenes/projectiles/thermos_flask.tscn",
+	"res://scenes/projectiles/moka_pot.tscn",
 	"res://scenes/bosses/sleep_jam_band.tscn",
 	"res://scenes/bosses/fish_throwers.tscn",
+	"res://scenes/bosses/sam_oatman.tscn",
 	"res://scenes/components/sleep_zone.tscn",
 	"res://scenes/components/scavenge_point.tscn",
 	"res://scenes/components/building_shell.tscn",
+	"res://scenes/components/locked_side_room.tscn",
 	"res://scenes/components/bean_slick.tscn",
 	"res://scenes/components/coffee_plant.tscn",
+	"res://scenes/components/auto_drip_turret.tscn",
 	"res://scenes/city/city_block.tscn",
 	"res://scenes/city/city_map.tscn",
 	"res://scenes/city/bridge_gate.tscn",
@@ -38,6 +46,10 @@ const SCENE_PATHS := [
 	"res://scenes/quests/aisle_7_stage.tscn",
 	"res://scenes/quests/aisle_7_wife.tscn",
 	"res://scenes/quests/aisle_7_husband.tscn",
+	"res://scenes/quests/robotaxi_depot_stage.tscn",
+	"res://scenes/quests/robotaxi_engineer.tscn",
+	"res://scenes/quests/robotaxi_cab.tscn",
+	"res://scenes/quests/robotaxi_taxi_stand.tscn",
 	"res://scenes/tower/broadcast_tower.tscn",
 	"res://scenes/audio/address_audio_director.tscn",
 	"res://scenes/hud/hud.tscn",
@@ -52,6 +64,10 @@ const SCENE_PATHS := [
 	"res://scenes/minigames/pour_bloom.tscn",
 	"res://scenes/minigames/press_shot.tscn",
 	"res://scenes/minigames/foam_watch.tscn",
+	"res://scenes/minigames/dance_off.tscn",
+	"res://scenes/city/moonwalker_mystery.tscn",
+	"res://scenes/city/mystery_hint_npc.tscn",
+	"res://scenes/minigames/brew_stand.tscn",
 ]
 
 const INPUT_ACTIONS: Array[StringName] = [
@@ -61,6 +77,7 @@ const INPUT_ACTIONS: Array[StringName] = [
 	&"move_down",
 	&"throw_coffee",
 	&"drink_coffee",
+	&"serve_coffee",
 	&"dodge",
 	&"refill_coffee",
 	&"interact",
@@ -73,6 +90,8 @@ const INPUT_ACTIONS: Array[StringName] = [
 	&"use_tool",
 	&"cycle_tool",
 	&"plant_coffee",
+	&"fire_weapon",
+	&"cycle_weapon",
 ]
 
 

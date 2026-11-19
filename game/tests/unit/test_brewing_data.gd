@@ -39,10 +39,10 @@ func test_library_holds_the_full_dataset() -> void:
 	assert_int(LIBRARY.methods.size()).is_equal(8)
 	assert_int(LIBRARY.beans.size()).is_equal(4)
 	assert_int(LIBRARY.roasts.size()).is_equal(3)
-	# Nine extras, nineteen recipes, and twelve cures: the V1 table plus the
+	# Ten extras, twenty recipes, and twelve cures: the V1 table plus the
 	# V2 cure rows of section 6, pinned by test_v2_cure_data.gd.
-	assert_int(LIBRARY.extras.size()).is_equal(9)
-	assert_int(LIBRARY.recipes.size()).is_equal(19)
+	assert_int(LIBRARY.extras.size()).is_equal(10)
+	assert_int(LIBRARY.recipes.size()).is_equal(20)
 	assert_int(LIBRARY.cures.size()).is_equal(12)
 
 
@@ -200,8 +200,10 @@ func test_market_dark_roast_tall_pins_the_fishmonger_cure() -> void:
 
 
 func test_the_sleepvana_orders_pin_the_band_requests() -> void:
-	# The three simple orders of the band, section 13: plain serves of common
-	# methods, each with its own pinned roast, any beans.
+	# The three simple orders of the band plus the frontman order of the
+	# encore, section 13: plain serves of common methods, each with its own
+	# pinned roast, any beans. The frontman takes the beans of the Steamtle
+	# region, good or better, and three espresso shots.
 	var bassist := LIBRARY.find_recipe("sleepvana_order_bassist")
 	assert_object(bassist).is_not_null()
 	assert_int(bassist.method_match).is_equal(Recipe.Match.EXACT)
@@ -223,10 +225,6 @@ func test_the_sleepvana_orders_pin_the_band_requests() -> void:
 	assert_int(guitarist.bean_match).is_equal(Recipe.Match.ANY)
 	assert_int(guitarist.roast_match).is_equal(Recipe.Match.ANY)
 
-
-func test_the_frontman_order_pins_the_bean_spirit() -> void:
-	# The frontman order of the encore, section 13: the beans of the Steamtle
-	# region, good or better, a light roast, and three espresso shots.
 	var frontman := LIBRARY.find_recipe("sleepvana_order_frontman")
 	assert_object(frontman).is_not_null()
 	assert_str(frontman.display_name).is_equal("The Bean Spirit")
@@ -237,6 +235,23 @@ func test_the_frontman_order_pins_the_bean_spirit() -> void:
 	assert_int(frontman.min_bean_quality).is_equal(BeanType.Quality.GOOD)
 	assert_int(frontman.roast_match).is_equal(Recipe.Match.EXACT)
 	assert_int(frontman.roast).is_equal(RoastProfile.Kind.LIGHT)
+
+
+func test_the_engineer_order_pins_the_code_like_request() -> void:
+	# The order of the Robotaxi Depot routing engineer, section 13: a triple
+	# shot oat cortado with milk at exactly 31 degrees. An espresso base with
+	# the oat-cortado extra; the code names no bean and no roast.
+	var order := LIBRARY.find_recipe("robotaxi_engineer_order")
+	assert_object(order).is_not_null()
+	assert_str(order.display_name).is_equal("The Engineer's Order")
+	assert_int(order.method_match).is_equal(Recipe.Match.EXACT)
+	assert_str(order.method_id).is_equal("espresso")
+	assert_str(order.extra_id).is_equal("oat_cortado_31")
+	assert_int(order.bean_match).is_equal(Recipe.Match.ANY)
+	assert_int(order.roast_match).is_equal(Recipe.Match.ANY)
+	var extra := LIBRARY.find_extra("oat_cortado_31")
+	assert_object(extra).is_not_null()
+	assert_str(extra.display_name).is_equal("Triple Shot, Oat Milk at 31 Degrees")
 
 
 func test_cures_pin_recipes() -> void:

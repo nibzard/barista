@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="RobotaxiDepotBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/balance/robotaxi_depot_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+cab_speed = 260.0
+pickup_radius = 42.0
+delivery_radius = 130.0
+delivery_cooldown = 6.0
+first_ride_delay = 3.0
+pickup_min_player_distance = 200.0
+stand_notice_radius = 120.0
+depot_notice_radius = 160.0

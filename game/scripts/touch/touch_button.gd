@@ -4,6 +4,7 @@ class_name TouchButton
 extends Control
 
 signal tapped
+signal released
 
 # Placeholder chalk look until the art pass, in the style of the HUD.
 const BOARD_COLOR := Color(0.11, 0.15, 0.13, 0.72)
@@ -64,11 +65,13 @@ func press() -> void:
 
 
 func lift() -> void:
-	# The touch leaves: only the visual changes, the tap already fired.
+	# The touch leaves: only the visual changes, the tap already fired. The
+	# release fires too, so a held action like the Minigun stream can stop.
 	if not _pressed:
 		return
 	_pressed = false
 	queue_redraw()
+	released.emit()
 
 
 func _draw() -> void:

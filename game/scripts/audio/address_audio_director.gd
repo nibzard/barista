@@ -47,18 +47,56 @@ var _playback_live := false
 func setup(map: CityMap, run_player: Player, tower: BroadcastTower, city_id: String) -> void:
 	# The run hands over its poles, its player, and its tower. The city id
 	# seeds the pole offsets, so every city keeps its own stable spread.
-	_rules = AddressAudio.new(balance)
-	_tolerance = SoundTolerance.new(balance)
-	_tolerance.register(ADDRESS_ID, true)
-	_player = run_player
+	var poles: Array[Vector2] = []
+	var cafe_center := Vector2.ZERO
+	var cafe_radius := 0.0
 	if map != null:
-		_poles = map.speaker_pole_positions()
+		poles = map.speaker_pole_positions()
 		var cafe_block := map.find_block_of_kind(CityBlock.Kind.CAFE)
 		if cafe_block != null:
 			var cafe_zone := cafe_block.safe_zone()
 			if cafe_zone != null:
-				_cafe_center = cafe_zone.global_position
-				_cafe_radius = _circle_radius(cafe_zone)
+				cafe_center = cafe_zone.global_position
+				cafe_radius = _circle_radius(cafe_zone)
+	_setup_core(poles, cafe_center, cafe_radius, run_player, tower, city_id)
+
+
+func setup_room(
+	pole_zones: Array[SleepZone],
+	cafe_zone: SleepZone,
+	run_player: Player,
+	tower: BroadcastTower,
+	room_id: String
+) -> void:
+	# The cafe development room holds no CityMap, T099: it hands its own pole
+	# zones and its cafe circle over. The room id seeds the pole offsets like a
+	# city id does, so the room keeps its own stable spread too.
+	var poles: Array[Vector2] = []
+	for zone: SleepZone in pole_zones:
+		poles.append(zone.global_position)
+	var cafe_center := Vector2.ZERO
+	var cafe_radius := 0.0
+	if cafe_zone != null:
+		cafe_center = cafe_zone.global_position
+		cafe_radius = _circle_radius(cafe_zone)
+	_setup_core(poles, cafe_center, cafe_radius, run_player, tower, room_id)
+
+
+func _setup_core(
+	poles: Array[Vector2],
+	cafe_center: Vector2,
+	cafe_radius: float,
+	run_player: Player,
+	tower: BroadcastTower,
+	city_id: String
+) -> void:
+	_rules = AddressAudio.new(balance)
+	_tolerance = SoundTolerance.new(balance)
+	_tolerance.register(ADDRESS_ID, true)
+	_player = run_player
+	_poles = poles
+	_cafe_center = cafe_center
+	_cafe_radius = cafe_radius
 	_playback_live = DisplayServer.get_name() != "headless"
 	_offsets = _rules.loop_offsets(_poles.size(), AddressAudio.city_seed(city_id))
 	_address_volume_db = balance.far_volume_db

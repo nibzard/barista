@@ -13,3 +13,7 @@ extends Resource
 @export var thermos_cost: int
 @export var moka_launcher_cost: int
 @export var minigun_cups_per_second: float
+# Working values for the two weapons section 14 leaves open: the press pays a
+# short cone, the turret pays its whole tank at deploy.
+@export var french_press_cost: int
+@export var auto_drip_turret_cost: int

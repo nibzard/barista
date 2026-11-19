@@ -87,3 +87,34 @@ func test_tower_switch_restore_climbs_back_to_the_maximum() -> void:
 	assert_int(_wake_ups.remaining).is_equal(4)
 	assert_int(_wake_ups.restore_one()).is_equal(5)
 	assert_int(_wake_ups.restore_one()).is_equal(5)
+
+
+func test_hardcore_starts_with_no_wake_ups() -> void:
+	# Section 9, hardcore mode: no wake-ups, so the count stands at zero.
+	_wake_ups.set_hardcore(true)
+	assert_int(_wake_ups.remaining).is_equal(0)
+	assert_bool(_wake_ups.has_wake_ups()).is_false()
+
+
+func test_the_first_hardcore_sleep_is_the_full_death() -> void:
+	# Section 9, hardcore mode: the first sleep ends the game. No wake-up
+	# pays for a wake in the cafe, and the count never moves.
+	_wake_ups.set_hardcore(true)
+	assert_int(_wake_ups.register_sleep()).is_equal(WakeUps.SleepOutcome.DIED)
+	assert_int(_wake_ups.remaining).is_equal(0)
+	assert_int(_wake_ups.register_sleep()).is_equal(WakeUps.SleepOutcome.DIED)
+
+
+func test_a_hardcore_tower_switch_restores_no_wake_up() -> void:
+	_wake_ups.set_hardcore(true)
+	assert_int(_wake_ups.restore_one()).is_equal(0)
+	assert_bool(_wake_ups.has_wake_ups()).is_false()
+
+
+func test_a_hardcore_load_keeps_the_count_at_zero() -> void:
+	# A hardcore slot holds whatever count it carried; the mode wins, so the
+	# loaded run still holds no wake-ups.
+	_wake_ups.set_hardcore(true)
+	_wake_ups.load_state(4)
+	assert_int(_wake_ups.remaining).is_equal(0)
+	assert_int(_wake_ups.register_sleep()).is_equal(WakeUps.SleepOutcome.DIED)

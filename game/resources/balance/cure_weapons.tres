@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="CureWeaponsBalance" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/balance/cure_weapons_balance.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+travel_mug_throw_range = 340.0
+travel_mug_flight_time_seconds = 0.6
+travel_mug_bounce_seek_radius = 260.0
+travel_mug_bounce_flight_time_seconds = 0.4
+travel_mug_return_speed = 520.0
+thermos_throw_range = 320.0
+thermos_flight_time_seconds = 0.8
+thermos_arc_peak_height = 54.0
+thermos_splash_radius = 150.0
+french_press_reach = 90.0
+french_press_half_angle_degrees = 45.0
+moka_throw_range = 480.0
+moka_flight_time_seconds = 1.2
+moka_arc_peak_height = 150.0
+moka_splash_radius = 190.0
+minigun_range = 260.0
+minigun_half_angle_degrees = 12.0
+turret_drip_radius = 120.0
+turret_drip_interval_seconds = 1.0
+turret_tank_seconds = 8.0

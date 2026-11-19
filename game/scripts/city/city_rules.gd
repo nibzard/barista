@@ -36,6 +36,8 @@ static func validate(city: CityDefinition, balance: CityBalance) -> Array[String
 	violations.append_array(_landmark_violations(city))
 	violations.append_array(_site_violations(city))
 	violations.append_array(_find_violations(city))
+	violations.append_array(_side_room_violations(city))
+	violations.append_array(_crate_extra_violations(city))
 	violations.append_array(_tier_violations(city, balance))
 	violations.append_array(_density_violations(city, balance))
 	violations.append_array(_pole_violations(city, balance))
@@ -131,6 +133,65 @@ static func _find_violations(city: CityDefinition) -> Array[String]:
 				violations.append(
 					"Block %d authors a find of %s with no amount." % [i, find.item.item_id]
 				)
+	return violations
+
+
+static func _side_room_violations(city: CityDefinition) -> Array[String]:
+	# Section 15 beans table: one locked side room per city holds the Geisha
+	# Vault beans. The validator pins the authored shape: at most one room, on
+	# a scavenge block, behind a key the city crates stock.
+	var violations: Array[String] = []
+	var rooms := 0
+	for i: int in range(city.blocks.size()):
+		var loot: SideRoomLoot = city.blocks[i].locked_side_room
+		if loot == null:
+			continue
+		rooms += 1
+		if city.blocks[i].kind != CityBlock.Kind.SCAVENGE:
+			violations.append("Block %d hosts a locked side room outside a scavenge building." % i)
+		if loot.key == null:
+			violations.append("Block %d authors a locked side room with no key." % i)
+		elif not _crate_stocks(city, loot.key):
+			violations.append(
+				"The locked side room key %s has no stock in the city crates." % loot.key.item_id
+			)
+		if loot.drops.is_empty():
+			violations.append("Block %d authors a locked side room with no finds." % i)
+		for find: ScavengeDrop in loot.drops:
+			if find.item == null:
+				violations.append("Block %d authors a side room find with no item." % i)
+			elif find.amount <= 0:
+				violations.append(
+					(
+						"Block %d authors a side room find of %s with no amount."
+						% [i, find.item.item_id]
+					)
+				)
+	if rooms > 1:
+		violations.append("The city may hold at most one locked side room, found %d." % rooms)
+	return violations
+
+
+static func _crate_stocks(city: CityDefinition, item: ItemType) -> bool:
+	# The lock stays honest: the key that opens the room must also spawn
+	# somewhere in the city, or the finds lock away for good.
+	for extra: ScavengeDrop in city.crate_extras:
+		if extra.item == item and extra.amount > 0:
+			return true
+	return false
+
+
+static func _crate_extra_violations(city: CityDefinition) -> Array[String]:
+	# The city-wide crate stock follows the authored-find rule: a broken row
+	# would silently drop out of the crate.
+	var violations: Array[String] = []
+	for extra: ScavengeDrop in city.crate_extras:
+		if extra.item == null:
+			violations.append("The city authors a crate extra with no item.")
+		elif extra.amount <= 0:
+			violations.append(
+				"The city authors a crate extra of %s with no amount." % extra.item.item_id
+			)
 	return violations
 
 

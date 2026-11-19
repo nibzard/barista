@@ -1,0 +1,98 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/main/character_creation.gd" id="1"]
+[ext_resource type="Resource" path="res://resources/player/appearance_catalog.tres" id="2"]
+
+[node name="CharacterCreation" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1")
+catalog = ExtResource("2")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.09, 0.07, 0.05, 1)
+
+[node name="Title" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 18.0
+offset_right = 400.0
+offset_bottom = 58.0
+theme_override_font_sizes/font_size = 36
+text = "CREATE YOUR BARISTA"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Subtitle" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -400.0
+offset_top = 58.0
+offset_right = 400.0
+offset_bottom = 82.0
+theme_override_font_sizes/font_size = 16
+text = "EVERY OPTION IS COSMETIC. THE BEARD IS OPEN TO ALL BODY TYPES."
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Main" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 32.0
+offset_top = 92.0
+offset_right = -32.0
+offset_bottom = -24.0
+theme_override_constants/separation = 32
+
+[node name="PreviewPanel" type="PanelContainer" parent="Main"]
+custom_minimum_size = Vector2(400, 0)
+layout_mode = 2
+
+[node name="Preview" type="Control" parent="Main/PreviewPanel"]
+layout_mode = 2
+
+[node name="Portrait" type="Node2D" parent="Main/PreviewPanel/Preview"]
+position = Vector2(200, 230)
+scale = Vector2(3, 3)
+
+[node name="Body" type="Polygon2D" parent="Main/PreviewPanel/Preview/Portrait"]
+color = Color(0.2, 0.35, 0.7, 1)
+polygon = PackedVector2Array(-16, -24, 16, -24, 16, 20, -16, 20)
+
+[node name="Right" type="VBoxContainer" parent="Main"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="Rows" type="VBoxContainer" parent="Main/Right"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="Bottom" type="HBoxContainer" parent="Main/Right"]
+layout_mode = 2
+alignment = 2
+theme_override_constants/separation = 24
+
+[node name="BackButton" type="Button" parent="Main/Right/Bottom"]
+custom_minimum_size = Vector2(150, 56)
+layout_mode = 2
+text = "Back"
+
+[node name="StartButton" type="Button" parent="Main/Right/Bottom"]
+custom_minimum_size = Vector2(330, 56)
+layout_mode = 2
+text = "Start the First Run"

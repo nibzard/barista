@@ -13,7 +13,7 @@ const POST_GAME_TEXT := (
 	+ " FINISH THE SIDE QUESTS. COMPLETE THE SLEEPYDEX. FIND EVERY HIDDEN GLOVE."
 )
 # Where the Karen blocks the road east, as a share of the bridge deck. She
-# stands west of the paywall gate: she is the wall of the version.
+# stands west of the deck midpoint: she is the wall of the version.
 const KAREN_DECK_FRACTION := 0.4
 # She marches in from beyond the east end of the deck.
 const KAREN_MARCH_INSET := 60.0
@@ -27,7 +27,9 @@ const CAMERA_WEST_OFFSET := 180.0
 
 var flow := OutroFlow.new()
 
-var _run: CityRun = null
+# The run arrives as a plain Node: naming the run class here would tie this
+# director's compile back into the city script (T112).
+var _run: Node = null
 var _karen: OutroKaren = null
 var _demand_label: Label = null
 var _time := 0.0
@@ -37,7 +39,7 @@ var _camera_target := Vector2.ZERO
 @onready var credits_view: OutroCreditsView = $CreditsView
 
 
-func setup(run: CityRun) -> void:
+func setup(run: Node) -> void:
 	# The director waits dormant until the last city completes. A loaded world
 	# never replays a played beat: a finished outro leaves the Karen blocking
 	# the road, silent.
@@ -49,7 +51,7 @@ func setup(run: CityRun) -> void:
 
 
 func begin() -> void:
-	# CityRun calls this when the last city completes. The flow refuses a
+	# The run calls this when the last city completes. The flow refuses a
 	# second run on its own.
 	flow.begin()
 
@@ -171,9 +173,10 @@ func _stage_karen() -> void:
 	_karen.name = "OutroKaren"
 	_run.add_child(_karen)
 	var spot := _karen_spot()
-	var city_bounds := _run.city_map().city_size()
-	var from := Vector2(city_bounds.x + CityRun.BRIDGE_DECK_WIDTH + KAREN_MARCH_INSET, spot.y)
+	var city_bounds: Vector2 = _run.city_map().city_size()
+	var from := Vector2(city_bounds.x + _run.BRIDGE_DECK_WIDTH + KAREN_MARCH_INSET, spot.y)
 	_karen.place(spot, from)
+	_meet_the_karen()
 
 
 func _stage_karen_blocking() -> void:
@@ -184,12 +187,20 @@ func _stage_karen_blocking() -> void:
 	_karen.name = "OutroKaren"
 	_run.add_child(_karen)
 	_karen.stand_at(_karen_spot())
+	_meet_the_karen()
+
+
+func _meet_the_karen() -> void:
+	# Section 16: the Karen appears only in this outro, so the first meeting
+	# with her type happens when she takes the stage, section 9. The dex keeps
+	# a second meeting silent.
+	_run.sleepy_dex().meet(flow.karen_type_id())
 
 
 func _karen_spot() -> Vector2:
-	var city_bounds := _run.city_map().city_size()
+	var city_bounds: Vector2 = _run.city_map().city_size()
 	return Vector2(
-		city_bounds.x + CityRun.BRIDGE_DECK_WIDTH * KAREN_DECK_FRACTION, city_bounds.y * 0.5
+		city_bounds.x + _run.BRIDGE_DECK_WIDTH * KAREN_DECK_FRACTION, city_bounds.y * 0.5
 	)
 
 

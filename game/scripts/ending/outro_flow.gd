@@ -11,7 +11,10 @@ signal finished
 enum Step { WAITING, ARRIVAL, DEMAND, CREDITS, POST_GAME }
 
 # The outro Karen speaks the wake line of her type, section 6: the manager.
-const KAREN_TYPE := preload("res://resources/enemies/karen.tres")
+# The type stays a path, never a preload: the Karen scene and her dex entry
+# also load it, and a compile-time const can bind an empty type while such a
+# load is still running (T112).
+const KAREN_TYPE_PATH := "res://resources/enemies/karen.tres"
 # Where the credits cut her demand, as a share of the line: inside the last
 # word, so the frozen line reads cut off mid-sentence.
 const CAUGHT_CUT_FRACTION := 0.85
@@ -36,8 +39,15 @@ func is_post_game() -> bool:
 
 
 func demand_line() -> String:
-	# The full demand of the Karen of the outro.
-	return KAREN_TYPE.wake_line
+	# The full demand of the Karen of the outro. Loaded at use time, so no
+	# compile order can hand the outro an empty type.
+	return (load(KAREN_TYPE_PATH) as EnemyType).wake_line
+
+
+func karen_type_id() -> String:
+	# The dex meets her type when she takes the outro stage, section 9.
+	# Loaded at use time, like the demand line.
+	return (load(KAREN_TYPE_PATH) as EnemyType).type_id
 
 
 func caught_line() -> String:

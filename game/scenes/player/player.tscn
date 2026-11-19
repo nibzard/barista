@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://scripts/player/player.gd" id="1"]
 [ext_resource type="Resource" path="res://resources/balance/player.tres" id="2"]
@@ -12,6 +12,12 @@
 [ext_resource type="PackedScene" path="res://scenes/components/bean_slick.tscn" id="10"]
 [ext_resource type="Resource" path="res://resources/balance/cluster_bomb.tres" id="11"]
 [ext_resource type="PackedScene" path="res://scenes/components/coffee_plant.tscn" id="12"]
+[ext_resource type="Resource" path="res://resources/player/appearance_catalog.tres" id="13"]
+[ext_resource type="Resource" path="res://resources/balance/cure_weapons.tres" id="14"]
+[ext_resource type="PackedScene" path="res://scenes/projectiles/travel_mug.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://scenes/projectiles/thermos_flask.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://scenes/projectiles/moka_pot.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://scenes/components/auto_drip_turret.tscn" id="18"]
 
 [sub_resource type="RectangleShape2D" id="Body"]
 size = Vector2(28, 40)
@@ -26,11 +32,17 @@ supply_balance = ExtResource("4")
 cup_balance = ExtResource("8")
 support_tools_balance = ExtResource("9")
 cluster_bomb_balance = ExtResource("11")
+cure_weapons_balance = ExtResource("14")
 wake_ups_balance = ExtResource("7")
 brewing_library = ExtResource("5")
 brewing_balance = ExtResource("6")
+appearance_catalog = ExtResource("13")
 bean_slick_scene = ExtResource("10")
 coffee_plant_scene = ExtResource("12")
+travel_mug_scene = ExtResource("15")
+thermos_scene = ExtResource("16")
+moka_pot_scene = ExtResource("17")
+auto_drip_turret_scene = ExtResource("18")
 
 [node name="Visual" type="Polygon2D" parent="."]
 color = Color(0.2, 0.35, 0.7, 1)

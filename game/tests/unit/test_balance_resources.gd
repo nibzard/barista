@@ -12,6 +12,7 @@ const COFFEE_CUP_BALANCE := preload("res://resources/balance/coffee_cup.tres")
 const SLEEP_METER_BALANCE := preload("res://resources/balance/sleep_meter.tres")
 const COFFEE_SUPPLY_BALANCE := preload("res://resources/balance/coffee_supply.tres")
 const CLUSTER_BOMB_BALANCE := preload("res://resources/balance/cluster_bomb.tres")
+const CURE_WEAPONS_BALANCE := preload("res://resources/balance/cure_weapons.tres")
 const WAKE_UPS_BALANCE := preload("res://resources/balance/wake_ups.tres")
 const CITY_BALANCE := preload("res://resources/balance/city.tres")
 const BROADCAST_TOWER_BALANCE := preload("res://resources/balance/broadcast_tower.tres")
@@ -21,7 +22,9 @@ const PRESS_BALANCE := preload("res://resources/balance/press.tres")
 const FOAM_WATCH_BALANCE := preload("res://resources/balance/foam_watch.tres")
 const MOBILE_CAFE_BALANCE := preload("res://resources/balance/mobile_cafe.tres")
 const SLEEP_JAM_BALANCE := preload("res://resources/balance/sleep_jam.tres")
+const SAM_OATMAN_BALANCE := preload("res://resources/balance/sam_oatman.tres")
 const TUTORIAL_BALANCE := preload("res://resources/balance/tutorial.tres")
+const SEEDLING_ITEM := preload("res://resources/items/materials/coffee_seedling.tres")
 
 const PLAYER_SCENE := preload("res://scenes/player/player.tscn")
 const NEIGHBOR_SCENE := preload("res://scenes/enemies/neighbor.tscn")
@@ -52,6 +55,8 @@ func test_player_balance_values() -> void:
 	assert_float(PLAYER_BALANCE.dodge_speed).is_equal(440.0)
 	assert_int(PLAYER_BALANCE.hug_mash_presses_to_break).is_equal(5)
 	assert_float(PLAYER_BALANCE.hug_break_grace_seconds).is_equal(0.5)
+	# The serve hands one cup over within arm's reach, section 6.
+	assert_float(PLAYER_BALANCE.serve_reach).is_equal(60.0)
 
 
 func test_sleepwalker_balance_values() -> void:
@@ -163,6 +168,13 @@ func test_city_balance_values() -> void:
 	assert_int(CITY_BALANCE.scavenge_house_beans).is_equal(3)
 	assert_int(CITY_BALANCE.scavenge_scrap_parts).is_equal(9)
 	assert_int(CITY_BALANCE.scavenge_scrap_parts).is_greater(0)
+	# Section 6, T109: the crates restock the coffee seedlings, the plantable
+	# bait of the foraging rule, along the whole route. The stock stays at or
+	# under the seedling stack limit, so one crate hands its whole stock to an
+	# empty bag in one visit.
+	assert_int(CITY_BALANCE.scavenge_seedlings).is_equal(1)
+	assert_int(CITY_BALANCE.scavenge_seedlings).is_greater(0)
+	assert_int(CITY_BALANCE.scavenge_seedlings).is_less_equal(SEEDLING_ITEM.max_stack)
 	# Section 10: the cafe safe zone grows with the city on the route.
 	assert_int(CITY_BALANCE.cafe_zone_radius_per_tier.size()).is_equal(3)
 	assert_float(CITY_BALANCE.cafe_zone_radius_per_tier[0]).is_equal(180.0)
@@ -299,10 +311,24 @@ func test_mobile_cafe_balance_values() -> void:
 	assert_str(MOBILE_CAFE_BALANCE.scrap_item.item_id).is_equal("scrap_part")
 
 
-func test_sleep_jam_balance_values() -> void:
+func test_shipped_boss_balance_values() -> void:
+	# The boss fights pin their tuning here, one block per fight.
 	assert_bool(SLEEP_JAM_BALANCE is SleepJamBalance).is_true()
 	assert_float(SLEEP_JAM_BALANCE.lullaby_radius).is_equal(360.0)
 	assert_str(SLEEP_JAM_BALANCE.wake_line).is_equal("Best set ever. What year is it?")
+
+	assert_bool(SAM_OATMAN_BALANCE is SamOatmanBalance).is_true()
+	# Section 6: the show runs two changing acts before the endless finale,
+	# and the slides reach across the arena at the boring-attack rate.
+	assert_float(SAM_OATMAN_BALANCE.slides_seconds).is_equal(6.0)
+	assert_float(SAM_OATMAN_BALANCE.demo_seconds).is_equal(6.0)
+	assert_float(SAM_OATMAN_BALANCE.slides_radius).is_equal(340.0)
+	assert_int(SAM_OATMAN_BALANCE.demo_drones).is_equal(1)
+	assert_int(SAM_OATMAN_BALANCE.finale_drones).is_equal(2)
+	assert_str(SAM_OATMAN_BALANCE.phase_line).is_equal("One more thing.")
+	assert_str(SAM_OATMAN_BALANCE.wake_line).is_equal(
+		"One more thing... this cup. My next product, and my best."
+	)
 
 
 func test_scenes_load_balance_resources() -> void:
@@ -321,6 +347,14 @@ func test_scenes_load_balance_resources() -> void:
 	)
 	assert_object(player.cluster_bomb_balance).is_not_null()
 	assert_int(player.cluster_bomb_balance.max_charges).is_equal(CLUSTER_BOMB_BALANCE.max_charges)
+	assert_object(player.cure_weapons_balance).is_not_null()
+	assert_float(player.cure_weapons_balance.thermos_splash_radius).is_equal(
+		CURE_WEAPONS_BALANCE.thermos_splash_radius
+	)
+	assert_object(player.travel_mug_scene).is_not_null()
+	assert_object(player.thermos_scene).is_not_null()
+	assert_object(player.moka_pot_scene).is_not_null()
+	assert_object(player.auto_drip_turret_scene).is_not_null()
 	var sleepwalker := auto_free(NEIGHBOR_SCENE.instantiate()) as Sleepwalker
 	assert_object(sleepwalker.balance).is_not_null()
 	assert_float(sleepwalker.balance.walk_speed).is_equal(SLEEPWALKER_BALANCE.walk_speed)

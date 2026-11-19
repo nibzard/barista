@@ -11,3 +11,4 @@ drink_slow_walk_factor = 0.5
 hug_break_grace_seconds = 0.5
 hug_mash_presses_to_break = 5
 move_speed = 220.0
+serve_reach = 60.0

@@ -7,3 +7,4 @@
 script = ExtResource("1")
 enemy_type = ExtResource("2")
 rarity = 1
+found_status = "Status: smooth"

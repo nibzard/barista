@@ -82,6 +82,24 @@ func is_cured() -> bool:
 	return _cured
 
 
+func save_state() -> Dictionary:
+	# Section 18: the cure of the market rides the run slot as one plain flag,
+	# so a reloaded arena never replays a fight the save already ended.
+	return {"cured": _cured}
+
+
+func load_state(saved: Dictionary) -> void:
+	# A saved cure lands silent: the market wakes, but no celebration fish
+	# flies and no cheer speaks, because the save point already recorded the
+	# beat.
+	if not bool(saved.get("cured", false)):
+		return
+	_cured = true
+	_tint_members(AWAKE_COLOR)
+	for member: FishSeller in _members:
+		member.set_awake(true)
+
+
 func head() -> FishSeller:
 	return _head
 

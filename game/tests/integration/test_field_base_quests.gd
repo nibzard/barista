@@ -221,7 +221,9 @@ func _gathered_field_base_with_one_survivor() -> void:
 
 func _fire_interact_action() -> void:
 	# One synthesized press through the normal input pipeline, the same event
-	# the touch USE button fires.
+	# the touch USE button fires. The flush pushes the buffered pair out at
+	# once: under load, the headless input transport drops events that wait
+	# for the next frame.
 	var press := InputEventAction.new()
 	press.action = &"interact"
 	press.pressed = true
@@ -230,3 +232,4 @@ func _fire_interact_action() -> void:
 	release.action = &"interact"
 	release.pressed = false
 	Input.parse_input_event(release)
+	Input.flush_buffered_events()

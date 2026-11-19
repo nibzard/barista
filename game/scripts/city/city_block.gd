@@ -14,3 +14,7 @@ enum Kind { CAFE, TOWER, BOSS_ARENA, QUEST, SCAVENGE, QUEST_SITE }
 # Section 15: the one-time finds of the block, authored scavenge loot like the
 # thermos belt and the cafe appliances. Empty on plain kit blocks.
 @export var finds: Array[ScavengeDrop] = []
+# Section 15 beans table: the locked side room of the city. The excellent
+# Geisha Vault beans wait inside, behind a door the vault key opens. Null on
+# blocks without a room; the validator caps a city at one.
+@export var locked_side_room: SideRoomLoot

@@ -59,6 +59,18 @@ func reset() -> void:
 	_drink_time_left = 0.0
 
 
+func save_state() -> float:
+	# The save system stores the meter as one plain value, section 18.
+	return value
+
+
+func load_state(saved_value: float) -> void:
+	# A loaded meter lands mid-drip: the value restores and no drink carries
+	# over from the saved session.
+	value = clampf(saved_value, 0.0, balance.max_value)
+	_drink_time_left = 0.0
+
+
 func drain(amount: float) -> void:
 	value = clampf(value - amount, 0.0, balance.max_value)
 

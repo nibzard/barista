@@ -43,6 +43,10 @@ drink_coffee={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"physical_keycode":81)]
 }
+serve_coffee={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":71)]
+}
 dodge={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"physical_keycode":4194325)]
@@ -58,6 +62,14 @@ plant_coffee={
 cycle_tool={
 "deadzone": 0.5,
 "events": [Object(InputEventKey,"physical_keycode":67)]
+}
+fire_weapon={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":84)]
+}
+cycle_weapon={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"physical_keycode":88)]
 }
 refill_coffee={
 "deadzone": 0.5,

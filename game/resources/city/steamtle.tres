@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CityDefinition" load_steps=25 format=3]
+[gd_resource type="Resource" script_class="CityDefinition" load_steps=37 format=3]
 
 [ext_resource type="Script" path="res://scripts/city/city_definition.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/city/city_block.gd" id="2"]
@@ -16,11 +16,49 @@
 [ext_resource type="Script" path="res://scripts/items/scavenge_drop.gd" id="14"]
 [ext_resource type="Resource" path="res://resources/items/gear/thermos_belt.tres" id="15"]
 [ext_resource type="Resource" path="res://resources/items/beans/golden_coast_arabica.tres" id="16"]
+[ext_resource type="Script" path="res://scripts/city/side_room_loot.gd" id="20"]
+[ext_resource type="Resource" path="res://resources/items/materials/vault_key.tres" id="21"]
+[ext_resource type="Resource" path="res://resources/items/beans/geisha_vault.tres" id="22"]
+[ext_resource type="Resource" path="res://resources/quests/mystery/elvis_fans.tres" id="23"]
+
+[ext_resource type="Resource" path="res://resources/items/gear/french_press.tres" id="17"]
+[ext_resource type="Resource" path="res://resources/items/gear/moka_launcher.tres" id="18"]
 
 [sub_resource type="Resource" id="FindThermosBelt"]
 script = ExtResource("14")
 item = ExtResource("15")
 amount = 1
+
+[sub_resource type="Resource" id="CrateVaultKey"]
+script = ExtResource("14")
+item = ExtResource("21")
+amount = 1
+
+[sub_resource type="Resource" id="RoomGeishaBeans"]
+script = ExtResource("14")
+item = ExtResource("22")
+amount = 3
+
+[sub_resource type="Resource" id="SideRoomGeisha"]
+script = ExtResource("20")
+key = ExtResource("21")
+drops = [SubResource("RoomGeishaBeans")]
+
+[sub_resource type="Resource" id="FindFrenchPress"]
+script = ExtResource("14")
+item = ExtResource("17")
+amount = 1
+
+[sub_resource type="Resource" id="FindMokaLauncher"]
+script = ExtResource("14")
+item = ExtResource("18")
+amount = 1
+
+[sub_resource type="Resource" id="BlockFanClub"]
+script = ExtResource("2")
+kind = 5
+sleepwalker_count = 3
+site_name = "The Fan Club"
 
 [sub_resource type="Resource" id="Block0"]
 script = ExtResource("2")
@@ -37,7 +75,7 @@ site_name = "Greenhouse"
 script = ExtResource("2")
 kind = 4
 sleepwalker_count = 3
-finds = [SubResource("FindThermosBelt")]
+finds = [SubResource("FindThermosBelt"), SubResource("FindFrenchPress")]
 
 [sub_resource type="Resource" id="Block3"]
 script = ExtResource("2")
@@ -64,6 +102,8 @@ script = ExtResource("2")
 kind = 4
 sleepwalker_count = 4
 has_speaker_pole = true
+finds = [SubResource("FindMokaLauncher")]
+locked_side_room = SubResource("SideRoomGeisha")
 
 [sub_resource type="Resource" id="Block7"]
 script = ExtResource("2")
@@ -96,7 +136,9 @@ boss_scene = ExtResource("12")
 quest_scene = ExtResource("13")
 quest_name = "Sleepvana"
 region_bean = ExtResource("16")
-blocks = [SubResource("Block0"), SubResource("Block1"), SubResource("Block2"), SubResource("Block3"), SubResource("Block4"), SubResource("Block5"), SubResource("Block6"), SubResource("Block7")]
+blocks = [SubResource("Block0"), SubResource("Block1"), SubResource("BlockFanClub"), SubResource("Block2"), SubResource("Block3"), SubResource("Block4"), SubResource("Block5"), SubResource("Block6"), SubResource("Block7")]
+crate_extras = [SubResource("CrateVaultKey")]
 roster = [SubResource("RosterNeighbor"), SubResource("RosterTourist"), SubResource("RosterGamer")]
 side_quests = [ExtResource("10")]
+mystery_hints = [ExtResource("23")]
 masters = [ExtResource("11")]

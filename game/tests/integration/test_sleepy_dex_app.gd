@@ -192,7 +192,10 @@ func test_the_toggle_key_opens_and_closes_the_app() -> void:
 
 
 func _press_toggle() -> void:
+	# The flush pushes the buffered event out at once: under load, the headless
+	# input transport drops events that wait for the next frame.
 	var event := InputEventAction.new()
 	event.action = &"toggle_dex"
 	event.pressed = true
 	Input.parse_input_event(event)
+	Input.flush_buffered_events()

@@ -92,12 +92,24 @@ func test_the_karen_marches_in_and_blocks_the_road_east() -> void:
 	await _await_step(OutroFlow.Step.DEMAND, MAX_FRAMES_TO_WAIT)
 	var karen := _outro.karen()
 	assert_bool(karen.is_in_place()).is_true()
-	# She stands on the bridge deck, west of the paywall gate: she is the wall
-	# of the version.
+	# She stands on the bridge deck, west of its midpoint: she is the wall of
+	# the version.
 	var bounds := _city.city_map().city_size()
 	assert_float(karen.global_position.x).is_between(bounds.x, bounds.x + CityRun.BRIDGE_DECK_WIDTH)
 	assert_float(karen.global_position.y).is_equal(bounds.y * 0.5)
 	assert_float(karen.global_position.x).is_less(bounds.x + CityRun.BRIDGE_DECK_WIDTH * 0.5)
+
+
+func test_her_only_appearance_opens_the_dex_entry() -> void:
+	# Section 16: the Karen appears only in this outro, and the Pourtland
+	# street crowd holds no Karens, so her staging is the first meeting that
+	# opens her SleepyDex entry, section 9.
+	assert_bool(_city.sleepy_dex().is_found("karen")).is_false()
+	_complete_city()
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_object(_outro.karen()).is_not_null()
+	assert_bool(_city.sleepy_dex().is_found("karen")).is_true()
 
 
 func test_she_demands_the_manager() -> void:
@@ -192,6 +204,8 @@ func test_a_loaded_post_game_world_finds_the_karen_blocking() -> void:
 	assert_float(karen.global_position.x).is_between(bounds.x, bounds.x + CityRun.BRIDGE_DECK_WIDTH)
 	assert_bool(_city.player.is_input_locked()).is_false()
 	assert_bool(_city.hud.is_toast_visible()).is_false()
+	# The silent staging meets her too: the dex entry opens the same way.
+	assert_bool(_city.sleepy_dex().is_found("karen")).is_true()
 
 
 func _complete_city() -> void:

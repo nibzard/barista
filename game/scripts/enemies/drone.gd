@@ -108,6 +108,12 @@ func _begin_regroup() -> void:
 	state = State.REGROUP
 
 
+func land_for_good() -> void:
+	# The show that sent this drone ended, like the pitch of a woken Tech
+	# Bro: the drone lands and stays down for the rest of the fight.
+	_land()
+
+
 func _land() -> void:
 	# The cure wakes the pitcher. The drone lands and stays down.
 	state = State.LANDED

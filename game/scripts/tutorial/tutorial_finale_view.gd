@@ -3,9 +3,12 @@
 class_name TutorialFinaleView
 extends Control
 
-const CITY_SAN_COFFESCO := preload("res://resources/city/san_coffesco.tres")
-const CITY_STEAMTLE := preload("res://resources/city/steamtle.tres")
-const CITY_POURLAND := preload("res://resources/city/pourtland.tres")
+# The city definitions stay paths, never preloads: the city scenes and the
+# main route also load them, and a compile-time const can bind an empty
+# definition while such a load is still running (T112).
+const CITY_SAN_COFFESCO_PATH := "res://resources/city/san_coffesco.tres"
+const CITY_STEAMTLE_PATH := "res://resources/city/steamtle.tres"
+const CITY_POURLAND_PATH := "res://resources/city/pourtland.tres"
 
 const BACKDROP_COLOR := Color(0.02, 0.02, 0.04, 0.88)
 const ROAD_COLOR := Color(0.78, 0.7, 0.5, 0.9)
@@ -33,6 +36,7 @@ var _map_alpha := 0.0
 var _title_alpha := 0.0
 var _map_target := 0.0
 var _title_target := 0.0
+var _loaded_cities: Array[CityDefinition] = []
 
 
 func _process(delta: float) -> void:
@@ -138,5 +142,12 @@ func _draw_centered(at: Vector2, text: String, text_size: int, color: Color) -> 
 
 
 func _cities() -> Array[CityDefinition]:
-	var cities: Array[CityDefinition] = [CITY_SAN_COFFESCO, CITY_STEAMTLE, CITY_POURLAND]
-	return cities
+	# Loaded once at first use: every script is compiled by then, so no
+	# compile order can hand the map an empty city definition.
+	if _loaded_cities.is_empty():
+		_loaded_cities = [
+			load(CITY_SAN_COFFESCO_PATH) as CityDefinition,
+			load(CITY_STEAMTLE_PATH) as CityDefinition,
+			load(CITY_POURLAND_PATH) as CityDefinition,
+		]
+	return _loaded_cities

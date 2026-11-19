@@ -64,14 +64,25 @@ func test_the_document_round_trips_through_a_dictionary() -> void:
 func test_from_dict_rejects_a_document_from_a_future_version() -> void:
 	assert_object(SaveData.from_dict({"save_version": 99, "tower_phases": {}})).is_null()
 	assert_object(SaveData.from_dict({"tower_phases": {}})).is_null()
+	# A version 1 slot held tower phases only, a version 2 slot predates
+	# character creation, a version 3 slot predates the game mode, section 9,
+	# and a version 4 slot predates the boss cure state of the arena show:
+	# an old document reads as no save, so the game starts fresh.
+	assert_object(SaveData.from_dict({"save_version": 1, "tower_phases": {}})).is_null()
+	assert_object(SaveData.from_dict({"save_version": 2, "tower_phases": {}})).is_null()
+	assert_object(SaveData.from_dict({"save_version": 3, "tower_phases": {}})).is_null()
+	assert_object(SaveData.from_dict({"save_version": 4, "tower_phases": {}})).is_null()
 
 
 func test_from_dict_reads_plain_json_values() -> void:
 	# A JSON number loads as a float, so the document stores every phase as
 	# an int again, the plain number the tower contract pins.
-	var loaded := SaveData.from_dict({"save_version": 1, "tower_phases": {"san_coffesco": 3.0}})
+	var loaded := SaveData.from_dict(
+		{"save_version": 5, "tower_phases": {"san_coffesco": 3.0}, "wake_ups": 4.0}
+	)
 	assert_int(loaded.tower_phase("san_coffesco", 0)).is_equal(3)
-	var bare := SaveData.from_dict({"save_version": 1})
+	assert_int(loaded.wake_ups).is_equal(4)
+	var bare := SaveData.from_dict({"save_version": 5})
 	assert_bool(bare.has_tower_state("san_coffesco")).is_false()
 
 
@@ -134,11 +145,18 @@ func test_the_save_system_records_the_tower_switch() -> void:
 	var path := _slot("system-record")
 	var system := SaveSystem.new(path)
 
-	assert_int(system.record_tower_switch("san_coffesco", BroadcastTower.Phase.SILENCE)).is_equal(
-		OK
+	(
+		assert_int(
+			system.record_save_point(
+				SaveData.POINT_TOWER_SWITCH,
+				_run_state("san_coffesco", BroadcastTower.Phase.SILENCE)
+			)
+		)
+		. is_equal(OK)
 	)
 	assert_bool(system.has_save()).is_true()
 	assert_bool(system.has_tower_state("san_coffesco")).is_true()
+	assert_str(system.saved_save_point()).is_equal(SaveData.POINT_TOWER_SWITCH)
 	(
 		assert_int(system.saved_tower_phase("san_coffesco", BroadcastTower.Phase.BROADCASTING))
 		. is_equal(BroadcastTower.Phase.SILENCE)
@@ -152,10 +170,24 @@ func test_the_save_system_records_the_tower_switch() -> void:
 	)
 
 
+func _run_state(city_id: String, tower_phase: int) -> Dictionary:
+	# The smallest run state a save point can record: the city, its scene, and
+	# its tower phase. Every other field holds a harmless default.
+	return {
+		"city_id": city_id,
+		"scene_path": "res://scenes/city/%s.tscn" % city_id,
+		"tower_phase": tower_phase
+	}
+
+
 func test_the_save_system_keeps_cities_apart() -> void:
 	var system := SaveSystem.new(_slot("system-cities"))
-	system.record_tower_switch("san_coffesco", BroadcastTower.Phase.SILENCE)
-	system.record_tower_switch("steamtle", BroadcastTower.Phase.BIRDSONG)
+	system.record_save_point(
+		SaveData.POINT_TOWER_SWITCH, _run_state("san_coffesco", BroadcastTower.Phase.SILENCE)
+	)
+	system.record_save_point(
+		SaveData.POINT_TOWER_SWITCH, _run_state("steamtle", BroadcastTower.Phase.BIRDSONG)
+	)
 
 	assert_int(system.saved_tower_phase("san_coffesco", 0)).is_equal(BroadcastTower.Phase.SILENCE)
 	assert_int(system.saved_tower_phase("steamtle", 0)).is_equal(BroadcastTower.Phase.BIRDSONG)
@@ -166,13 +198,18 @@ func test_the_save_system_keeps_cities_apart() -> void:
 
 func test_delete_save_resets_the_document() -> void:
 	var system := SaveSystem.new(_slot("system-reset"))
-	system.record_tower_switch("san_coffesco", BroadcastTower.Phase.SILENCE)
+	system.record_save_point(
+		SaveData.POINT_TOWER_SWITCH, _run_state("san_coffesco", BroadcastTower.Phase.SILENCE)
+	)
 
 	assert_bool(system.delete_save()).is_true()
 	assert_bool(system.has_save()).is_false()
 	assert_bool(system.has_tower_state("san_coffesco")).is_false()
+	assert_bool(system.has_run_state()).is_false()
 
 	# The next record starts a fresh document, not the deleted one.
-	system.record_tower_switch("steamtle", BroadcastTower.Phase.FUSED)
+	system.record_save_point(
+		SaveData.POINT_TOWER_SWITCH, _run_state("steamtle", BroadcastTower.Phase.FUSED)
+	)
 	assert_bool(system.has_tower_state("san_coffesco")).is_false()
 	assert_bool(system.has_tower_state("steamtle")).is_true()

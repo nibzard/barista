@@ -24,6 +24,9 @@ const STAGGER_MODULATE := Color(0.62, 0.62, 0.74, 0.9)
 const BRAIN_FREEZE_MODULATE := Color(0.55, 0.78, 1.0, 0.9)
 # A slipped sleepwalker lies flat on the floor for the length of the fall.
 const SLIP_ROTATION := PI * 0.5
+# The Moonwalker leans far back while he slides, section 6, so the body
+# reads as one who ducks under any guard.
+const MOON_LEAN_ROTATION := -0.35
 
 @export var balance: SleepwalkerBalance
 @export var enemy_type: EnemyType
@@ -33,12 +36,16 @@ const SLIP_ROTATION := PI * 0.5
 @export var tech_bro_balance: TechBroBalance
 @export var gamer_balance: GamerBalance
 @export var karen_balance: KarenBalance
+@export var moonwalker_balance: MoonwalkerBalance
 # Section 6: the foraging rule. The walker takes the bait only while the
 # balance says so, so the V1 scope call is one field in forage.tres.
 @export var forage_balance: ForageBalance
 
 var state := State.WANDER
 var player: Player = null
+# Section 6: the Moonwalker never walks forward. The gait owns his slides,
+# his backwards facing, and his reversed telegraph.
+var moonwalk_gait: MoonwalkGait = null
 
 var _wander_direction := Vector2.ZERO
 var _wander_timer := 0.0
@@ -52,6 +59,7 @@ var _pitch_cooldown := 0.0
 var _dash_phase := DashPhase.REST
 var _dash_timer := 0.0
 var _dash_direction := Vector2.ZERO
+var _graze_cooldown := 0.0
 var _gathering := false
 var _gather_target := Vector2.ZERO
 var _follow_target: Node2D = null
@@ -81,6 +89,9 @@ func _ready() -> void:
 		_photo_cooldown = tourist_balance.photo_interval_seconds
 	if enemy_type.special_behavior == EnemyType.SpecialBehavior.DRONE_ATTACK:
 		_pitch_cooldown = tech_bro_balance.pitch_interval_seconds
+	if enemy_type.special_behavior == EnemyType.SpecialBehavior.MOONWALK:
+		moonwalk_gait = MoonwalkGait.new(moonwalker_balance)
+		moonwalk_gait.aim(_wander_direction)
 
 
 func _physics_process(delta: float) -> void:
@@ -299,6 +310,8 @@ func _speed_factor() -> float:
 
 
 func _tick_control_timers(delta: float) -> void:
+	if _graze_cooldown > 0.0:
+		_graze_cooldown = maxf(0.0, _graze_cooldown - delta)
 	if _stagger_time_left > 0.0:
 		_stagger_time_left = maxf(0.0, _stagger_time_left - delta)
 	if _slide_time_left > 0.0:
@@ -316,7 +329,11 @@ func _update_control_look() -> void:
 	# The control looks ride on the body node, never on the visual node, so
 	# the type telegraphs like the dash red stay untouched. A slipped body
 	# lies flat until it stands up again.
-	visual.rotation = SLIP_ROTATION if _down_time_left > 0.0 else 0.0
+	visual.rotation = SLIP_ROTATION if _down_time_left > 0.0 else _moon_lean()
+	if moonwalk_gait != null and state != State.AWAKE:
+		# The reverse telegraph, section 24: the red signal rides the phase
+		# that follows the slide, on the visual node like the dash red.
+		visual.modulate = (DASH_WINDUP_MODULATE if moonwalk_gait.is_telegraphing() else Color.WHITE)
 	if _stagger_time_left > 0.0 or _down_time_left > 0.0:
 		modulate = STAGGER_MODULATE
 	elif _brain_freeze_time_left > 0.0:
@@ -335,6 +352,9 @@ func _process_wander(delta: float) -> void:
 	elif enemy_type.special_behavior == EnemyType.SpecialBehavior.KAREN_SURPRISE:
 		# The Karen lulls: a slow creep that hides the sprint, section 6.
 		velocity = _wander_direction * karen_balance.lull_speed
+	elif enemy_type.special_behavior == EnemyType.SpecialBehavior.MOONWALK:
+		# Even his wandering comes in backwards slides, section 6.
+		velocity = moonwalk_gait.step(delta, _wander_direction)
 	else:
 		velocity = _wander_direction * balance.walk_speed
 
@@ -353,6 +373,8 @@ func _process_engage(delta: float) -> void:
 			_engage_simple_hug()
 		EnemyType.SpecialBehavior.KAREN_SURPRISE:
 			_engage_karen_surprise()
+		EnemyType.SpecialBehavior.MOONWALK:
+			_engage_moonwalk(delta)
 
 
 func _engage_photo_flash() -> void:
@@ -488,6 +510,38 @@ func _engage_karen_surprise() -> void:
 	# the moment she spots the player. No windup and no telegraph; the grab
 	# stays the plain hug.
 	_engage_chase_at(karen_balance.sprint_speed)
+
+
+func _engage_moonwalk(delta: float) -> void:
+	# Section 6: he does not hug. He closes in on backwards slides, and the
+	# pass itself is the attack: he leans far back and slides under the
+	# guard, so no parry and no block stops the pass.
+	state = State.CHASE
+	if player == null:
+		state = State.WANDER
+		return
+	velocity = moonwalk_gait.step(delta, (player.global_position - global_position).normalized())
+	_try_graze_player()
+
+
+func _try_graze_player() -> void:
+	# The brush of the slide costs the meter its price, at most once per
+	# cooldown. A rolling player is invulnerable: the slide passes under him
+	# too. The graze is the only touch he makes, section 6: he does not hug.
+	if _graze_cooldown > 0.0 or player == null:
+		return
+	if player.is_invulnerable() or player.is_asleep():
+		return
+	if not _is_player_in_area(hug_area):
+		return
+	player.sleep_meter.drain(moonwalker_balance.graze_meter_cost)
+	_graze_cooldown = moonwalker_balance.graze_cooldown_seconds
+
+
+func _moon_lean() -> float:
+	if moonwalk_gait == null or state == State.AWAKE or not moonwalk_gait.is_sliding():
+		return 0.0
+	return MOON_LEAN_ROTATION
 
 
 func _engage_chase_at(chase_speed: float) -> void:

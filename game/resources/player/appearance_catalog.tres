@@ -1,0 +1,203 @@
+[gd_resource type="Resource" script_class="AppearanceCatalog" format=3]
+
+[ext_resource type="Script" path="res://scripts/player/appearance_option.gd" id="1_yvqnj"]
+[ext_resource type="Script" path="res://scripts/player/appearance_catalog.gd" id="2_u0q40"]
+
+[sub_resource type="Resource" id="Resource_hwjtm"]
+script = ExtResource("1_yvqnj")
+option_id = "canvas"
+display_name = "Canvas Apron"
+color = Color(0.83, 0.76, 0.63, 1)
+
+[sub_resource type="Resource" id="Resource_scmfe"]
+script = ExtResource("1_yvqnj")
+option_id = "leather"
+display_name = "Leather Apron"
+color = Color(0.4, 0.26, 0.14, 1)
+
+[sub_resource type="Resource" id="Resource_cceoq"]
+script = ExtResource("1_yvqnj")
+option_id = "clean"
+display_name = "Clean"
+
+[sub_resource type="Resource" id="Resource_78q0f"]
+script = ExtResource("1_yvqnj")
+option_id = "stubble"
+display_name = "Stubble"
+color = Color(0.35, 0.27, 0.2, 1)
+
+[sub_resource type="Resource" id="Resource_tn878"]
+script = ExtResource("1_yvqnj")
+option_id = "hipster"
+display_name = "Hipster"
+color = Color(0.2, 0.14, 0.09, 1)
+
+[sub_resource type="Resource" id="Resource_pj6gg"]
+script = ExtResource("1_yvqnj")
+option_id = "lumberjack"
+display_name = "Lumberjack"
+color = Color(0.45, 0.28, 0.14, 1)
+
+[sub_resource type="Resource" id="Resource_abq7i"]
+script = ExtResource("1_yvqnj")
+option_id = "wizard"
+display_name = "Wizard"
+color = Color(0.85, 0.85, 0.8, 1)
+
+[sub_resource type="Resource" id="Resource_k8gle"]
+script = ExtResource("1_yvqnj")
+option_id = "male"
+display_name = "Male"
+
+[sub_resource type="Resource" id="Resource_s8u6i"]
+script = ExtResource("1_yvqnj")
+option_id = "female"
+display_name = "Female"
+
+[sub_resource type="Resource" id="Resource_o7lt4"]
+script = ExtResource("1_yvqnj")
+option_id = "leather"
+display_name = "Leather Boots"
+color = Color(0.3, 0.2, 0.12, 1)
+
+[sub_resource type="Resource" id="Resource_ul55n"]
+script = ExtResource("1_yvqnj")
+option_id = "steel"
+display_name = "Steel-Toe Boots"
+color = Color(0.45, 0.47, 0.5, 1)
+
+[sub_resource type="Resource" id="Resource_jvm08"]
+script = ExtResource("1_yvqnj")
+option_id = "none"
+display_name = "No Goggles"
+
+[sub_resource type="Resource" id="Resource_eu3ho"]
+script = ExtResource("1_yvqnj")
+option_id = "brass"
+display_name = "Brass Goggles"
+color = Color(0.78, 0.6, 0.2, 1)
+
+[sub_resource type="Resource" id="Resource_5yesy"]
+script = ExtResource("1_yvqnj")
+option_id = "welding"
+display_name = "Welding Goggles"
+color = Color(0.35, 0.3, 0.28, 1)
+
+[sub_resource type="Resource" id="Resource_1qdnd"]
+script = ExtResource("1_yvqnj")
+option_id = "bald"
+display_name = "Bald"
+
+[sub_resource type="Resource" id="Resource_blxtr"]
+script = ExtResource("1_yvqnj")
+option_id = "short"
+display_name = "Short"
+color = Color(0.23, 0.16, 0.1, 1)
+
+[sub_resource type="Resource" id="Resource_yklwl"]
+script = ExtResource("1_yvqnj")
+option_id = "long"
+display_name = "Long"
+color = Color(0.13, 0.11, 0.1, 1)
+
+[sub_resource type="Resource" id="Resource_nr1ql"]
+script = ExtResource("1_yvqnj")
+option_id = "mohawk"
+display_name = "Mohawk"
+color = Color(0.7, 0.22, 0.16, 1)
+
+[sub_resource type="Resource" id="Resource_issqq"]
+script = ExtResource("1_yvqnj")
+option_id = "bun"
+display_name = "Bun"
+color = Color(0.6, 0.6, 0.58, 1)
+
+[sub_resource type="Resource" id="Resource_jb87s"]
+script = ExtResource("1_yvqnj")
+option_id = "none"
+display_name = "No Hat"
+
+[sub_resource type="Resource" id="Resource_doql4"]
+script = ExtResource("1_yvqnj")
+option_id = "top_hat"
+display_name = "Top Hat"
+color = Color(0.12, 0.1, 0.1, 1)
+
+[sub_resource type="Resource" id="Resource_8ml3l"]
+script = ExtResource("1_yvqnj")
+option_id = "bowler"
+display_name = "Bowler"
+color = Color(0.25, 0.15, 0.1, 1)
+
+[sub_resource type="Resource" id="Resource_ip8wg"]
+script = ExtResource("1_yvqnj")
+option_id = "aviator_cap"
+display_name = "Aviator Cap"
+color = Color(0.55, 0.36, 0.18, 1)
+
+[sub_resource type="Resource" id="Resource_fsu3j"]
+script = ExtResource("1_yvqnj")
+option_id = "light"
+display_name = "Light"
+color = Color(0.98, 0.86, 0.74, 1)
+
+[sub_resource type="Resource" id="Resource_ygmw4"]
+script = ExtResource("1_yvqnj")
+option_id = "fair"
+display_name = "Fair"
+color = Color(0.9, 0.73, 0.58, 1)
+
+[sub_resource type="Resource" id="Resource_ckejm"]
+script = ExtResource("1_yvqnj")
+option_id = "tan"
+display_name = "Tan"
+color = Color(0.76, 0.57, 0.42, 1)
+
+[sub_resource type="Resource" id="Resource_mv2gn"]
+script = ExtResource("1_yvqnj")
+option_id = "brown"
+display_name = "Brown"
+color = Color(0.52, 0.36, 0.25, 1)
+
+[sub_resource type="Resource" id="Resource_hrp4k"]
+script = ExtResource("1_yvqnj")
+option_id = "deep"
+display_name = "Deep"
+color = Color(0.32, 0.21, 0.15, 1)
+
+[sub_resource type="Resource" id="Resource_od0o6"]
+script = ExtResource("1_yvqnj")
+option_id = "left_arm"
+display_name = "Left Arm"
+
+[sub_resource type="Resource" id="Resource_i5tpp"]
+script = ExtResource("1_yvqnj")
+option_id = "right_arm"
+display_name = "Right Arm"
+
+[sub_resource type="Resource" id="Resource_lo6i3"]
+script = ExtResource("1_yvqnj")
+option_id = "neck"
+display_name = "Neck"
+
+[sub_resource type="Resource" id="Resource_wswst"]
+script = ExtResource("1_yvqnj")
+option_id = "left_hand"
+display_name = "Left Hand"
+
+[sub_resource type="Resource" id="Resource_5uyug"]
+script = ExtResource("1_yvqnj")
+option_id = "right_hand"
+display_name = "Right Hand"
+
+[resource]
+script = ExtResource("2_u0q40")
+body_types = Array[ExtResource("1_yvqnj")]([SubResource("Resource_k8gle"), SubResource("Resource_s8u6i")])
+skin_tones = Array[ExtResource("1_yvqnj")]([SubResource("Resource_fsu3j"), SubResource("Resource_ygmw4"), SubResource("Resource_ckejm"), SubResource("Resource_mv2gn"), SubResource("Resource_hrp4k")])
+hair_styles = Array[ExtResource("1_yvqnj")]([SubResource("Resource_1qdnd"), SubResource("Resource_blxtr"), SubResource("Resource_yklwl"), SubResource("Resource_nr1ql"), SubResource("Resource_issqq")])
+beard_lengths = Array[ExtResource("1_yvqnj")]([SubResource("Resource_cceoq"), SubResource("Resource_78q0f"), SubResource("Resource_tn878"), SubResource("Resource_pj6gg"), SubResource("Resource_abq7i")])
+tattoo_placements = Array[ExtResource("1_yvqnj")]([SubResource("Resource_od0o6"), SubResource("Resource_i5tpp"), SubResource("Resource_lo6i3"), SubResource("Resource_wswst"), SubResource("Resource_5uyug")])
+hats = Array[ExtResource("1_yvqnj")]([SubResource("Resource_jb87s"), SubResource("Resource_doql4"), SubResource("Resource_8ml3l"), SubResource("Resource_ip8wg")])
+goggles = Array[ExtResource("1_yvqnj")]([SubResource("Resource_jvm08"), SubResource("Resource_eu3ho"), SubResource("Resource_5yesy")])
+aprons = Array[ExtResource("1_yvqnj")]([SubResource("Resource_hwjtm"), SubResource("Resource_scmfe")])
+boots = Array[ExtResource("1_yvqnj")]([SubResource("Resource_o7lt4"), SubResource("Resource_ul55n")])
