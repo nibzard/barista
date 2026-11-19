@@ -31,6 +31,8 @@ var selected_mode := SaveData.MODE_NORMAL
 
 
 func _ready() -> void:
+	# The chalkboard menu of the interface kit, ART_DIRECTION section 11.
+	theme = ChalkTheme.build()
 	play_button.pressed.connect(_on_play_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 	new_game_button.pressed.connect(_on_new_game_pressed)

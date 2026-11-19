@@ -30,13 +30,15 @@ const RIDE_TOAST := "THE TAXI ROUTES YOU TO %s."
 # clear of it, so a walker on the street never stumbles into the depot notice.
 const CONTROL_ROOM_FRACTION := Vector2(0.5, 0.24)
 const CONTROL_ROOM_SIZE := Vector2(250.0, 150.0)
-const ROOM_FLOOR_COLOR := Color(0.32, 0.3, 0.34, 1.0)
-const ROOM_EDGE_COLOR := Color(0.2, 0.15, 0.1, 1.0)
+# The art direction pass, section 20: the depot room keeps to the paper
+# palette. The console carries the San Coffesco teal, the tech accent.
+const ROOM_FLOOR_COLOR := Color(0.78, 0.72, 0.6, 1.0)
+const ROOM_EDGE_COLOR := Color(0.42, 0.29, 0.19, 1.0)
 const CONSOLE_SIZE := Vector2(130.0, 26.0)
-const CONSOLE_COLOR := Color(0.15, 0.16, 0.2, 1.0)
+const CONSOLE_COLOR := Color(0.369, 0.604, 0.58, 1.0)
 const ROOM_LABEL := "DEPOT CONTROL ROOM"
 const ROOM_TEXT_SIZE := 14
-const ROOM_TEXT_COLOR := Color(0.85, 0.88, 0.92, 1.0)
+const ROOM_TEXT_COLOR := Color(0.93, 0.95, 0.88, 1.0)
 # The cab parks at the depot curb, south of the control room.
 const CAB_PARK_OFFSET := Vector2(150.0, 60.0)
 

@@ -5,11 +5,11 @@ extends Node2D
 
 signal city_completed
 signal east_road_taken
+signal west_road_taken
 
 const CITY_MAP_SCENE := preload("res://scenes/city/city_map.tscn")
 const BRIDGE_GATE_SCENE := preload("res://scenes/city/bridge_gate.tscn")
 const VAN_SCENE := preload("res://scenes/van/mobile_cafe.tscn")
-const MASTER_NPC_SCENE := preload("res://scenes/masters/master_npc.tscn")
 # The tutorial scene stays a path, never a preload: the director script holds
 # CityRun type hints, so a preload made this parse depend on the tutorial
 # graph. When the director compiled first, that load rode a resource cycle
@@ -63,6 +63,12 @@ const MENU_SCENE_PATH := "res://scenes/main/menu.tscn"
 # The next city east. The road-east trigger travels there once this city is
 # complete. Null in the last city of the version.
 @export var east_city_scene: PackedScene
+# The city west of this one, section 23, as a scene path. The road-west
+# trigger travels there once this city completes, so the finished route stays
+# open both ways. The west stays a path, never an ext_resource of this scene:
+# the east links already chain the city scenes, and a west link would close a
+# load cycle the engine cannot resolve (T096). Empty in the first city.
+@export var west_city_path := ""
 # Section 19: the first ten minutes ride the first run as a tutorial. Only the
 # intro scene of San Coffesco turns this on. The character creation screen of
 # section 5 stands between the menu and this run.
@@ -98,6 +104,9 @@ var cold_fridge: ColdBrewFridge = null
 # The school of the city master rides the run, section 8: the lessons train
 # the player skills and grant the master recipes.
 var master_lessons: MasterLessons = null
+# The resident masters of the city at the cafe, section 8, built once by the
+# school component and answered through the interact key.
+var master_school: MasterSchool = null
 # While a cinematic plays, the camera follows the director, not the player.
 var cinematic_camera := false
 # Section 21: the address loop rides the run. The director reads the poles,
@@ -106,10 +115,12 @@ var address_audio: AddressAudioDirector = null
 # Section 18: the auto-save rides the run. It stays null in a headless test
 # build until a test injects one; a player build owns the default slot.
 var save_system: SaveSystem = null
+# The travel triggers of the city, built once in build: the road east over the
+# bridge deck and the road west back along the route, section 23.
+var roads: CityRoads = null
 
 var _map: CityMap = null
 var _bridge_gate: BridgeGate = null
-var _road_east: Area2D = null
 var _boss: Node2D = null
 var _van: MobileCafeVan = null
 var _crowd: Node2D = null
@@ -118,6 +129,13 @@ var _tutorial: TutorialDirector = null
 # The run state of the last save point, read once at build. Empty when this
 # scene has no save of its own: only the writing scene reloads a slot.
 var _saved_state: Dictionary = {}
+# The world state the build restores: this scene's own save point, or the
+# stored city world when a road just returned the player to a finished city,
+# section 23. Empty on a first visit.
+var _world_state: Dictionary = {}
+# The traveler that a road just parked, taken once at build. Empty when no
+# travel landed here, like a fresh start or a plain reload.
+var _arriving_traveler: Dictionary = {}
 var _has_saved_position := false
 var _saved_position := Vector2.ZERO
 # The cafe-entry poll of the first save point, section 18. The player starts
@@ -161,8 +179,10 @@ func _ready() -> void:
 	dex.keychain_awarded.connect(_on_dex_complete)
 	# The road-east beat always hands the quest chain east; only the scene
 	# travel needs a destination. The last city keeps the road closed by
-	# itself: the chain there has no next city.
+	# itself: the chain there has no next city. The road west hands the chain
+	# back the same way, section 23.
 	east_road_taken.connect(_on_east_road_taken)
+	west_road_taken.connect(_on_west_road_taken)
 	if save_system == null:
 		# A system parked through a scene change arrives first: the death
 		# reload and the menu continue hand the slot to the scene they load,
@@ -185,10 +205,22 @@ func build() -> void:
 	# against any other slot, and a save of another city never bleeds in.
 	if save_system != null:
 		_saved_state = save_system.saved_run_state_for(scene_file_path)
+	# Section 23: a road just landed here when a traveler waits. The world to
+	# restore comes from this scene's own save point or, on a return trip,
+	# from the city world the route saved in this city. A slot another scene
+	# wrote never hands its world over: the intro tutorial stays the fresh
+	# start of the game against it, like against any foreign run state.
+	_arriving_traveler = MoveHandoff.take_arriving()
+	_world_state = _saved_state
+	if _world_state.is_empty() and not _arriving_traveler.is_empty() and save_system != null:
+		_world_state = save_system.city_world(definition.city_id)
 	# The purchase flag lands before the gate builds, so an unlocked bridge
-	# opens at bind time instead of one frame later.
+	# opens at bind time instead of one frame later. A returning traveler paid
+	# the bridge west of here, so its flag lands the same way.
 	if not _saved_state.is_empty():
 		unlock_state.load_state(bool(_saved_state.get("unlock", false)))
+	elif not _arriving_traveler.is_empty():
+		unlock_state.load_state(bool(_arriving_traveler.get("unlock", false)))
 	# Section 5: the created look rides the save slot. The creation screen
 	# before this run wrote it; a run without a slot keeps the placeholder.
 	if save_system != null:
@@ -203,10 +235,18 @@ func build() -> void:
 		tower.birdsong.connect(_on_tower_birdsong)
 	CityWalls.build(self, _map.city_size(), BRIDGE_DECK_WIDTH)
 	_build_bridge_gate()
-	_build_road_east()
+	# The road east opens with the completion of the city, section 4. The road
+	# west, section 23, opens with it; the first city of the route names no
+	# city west and builds no road west.
+	var west_entered := Callable()
+	if not west_city_path.is_empty():
+		west_entered = _on_road_west_entered
+	roads = CityRoads.build(
+		self, _map.city_size(), BRIDGE_DECK_WIDTH, _on_road_east_entered, west_entered
+	)
 	_build_boss()
 	_build_van()
-	_build_masters()
+	_build_master_school()
 	_build_signature_quest()
 	if definition.moonwalker_haunts or not definition.mystery_hints.is_empty():
 		moonwalker_mystery = MOONWALKER_MYSTERY_SCENE.instantiate() as MoonwalkerMystery
@@ -251,11 +291,14 @@ func build() -> void:
 func _build_quest_markers() -> void:
 	# The quest log holds the chain of this run, and the marker layer draws
 	# its signals: the tower marker of section 19 step 7 comes first. The
-	# saved quest state lands before the bind, so the markers draw the loaded
-	# chain without replaying a beat.
+	# quest state lands before the bind, so the markers draw the loaded chain
+	# without replaying a beat. The chain rides the traveler when a road just
+	# landed, so the finished beats of the whole route cross with the player.
 	quest_log.setup(MAIN_ROUTE, definition.city_id)
-	if not _saved_state.is_empty():
-		quest_log.load_state(SaveData.dict_or_empty(_saved_state.get("quests", {})))
+	if not _arriving_traveler.is_empty():
+		quest_log.load_state(SaveData.dict_or_empty(_arriving_traveler.get("quests", {})))
+	elif not _world_state.is_empty():
+		quest_log.load_state(SaveData.dict_or_empty(_world_state.get("quests", {})))
 	_markers = QuestMarkers.new()
 	_markers.name = "QuestMarkers"
 	add_child(_markers)
@@ -290,14 +333,15 @@ func _buildaddress_audio(tower: BroadcastTower) -> void:
 func _build_outro() -> void:
 	# Section 16: the version ends after the last city of the main route. The
 	# outro director waits dormant on that city until it completes. A saved
-	# outro lands on its step before the setup, so it never replays.
+	# outro lands on its step before the setup, so it never replays. A return
+	# trip into the ended city reads the same stored step, section 23.
 	if not _is_last_city():
 		return
 	_outro = OUTRO_SCENE.instantiate() as OutroDirector
 	_outro.name = "Outro"
 	add_child(_outro)
-	if not _saved_state.is_empty():
-		_outro.flow.load_state(SaveData.dict_or_empty(_saved_state.get("outro", {})))
+	if not _world_state.is_empty():
+		_outro.flow.load_state(SaveData.dict_or_empty(_world_state.get("outro", {})))
 	_outro.setup(self)
 	_outro.flow.finished.connect(func() -> void: _record_save_point(SaveData.POINT_POST_GAME))
 
@@ -317,10 +361,10 @@ func _build_tutorial() -> void:
 	_tutorial = (load(TUTORIAL_SCENE_PATH) as PackedScene).instantiate() as TutorialDirector
 	_tutorial.name = "Tutorial"
 	add_child(_tutorial)
-	if not _saved_state.is_empty():
+	if not _world_state.is_empty():
 		var tower := _map.broadcast_tower()
 		_tutorial.load_saved_state(
-			SaveData.dict_or_empty(_saved_state.get("tutorial", {})),
+			SaveData.dict_or_empty(_world_state.get("tutorial", {})),
 			tower != null and tower.is_switched_off()
 		)
 	_tutorial.setup(self)
@@ -404,12 +448,6 @@ func _player_inside_cafe() -> bool:
 
 func city_map() -> CityMap:
 	return _map
-
-
-func road_east() -> Area2D:
-	# The travel trigger on the deck east of the gate. It listens only after
-	# the city completes.
-	return _road_east
 
 
 func van() -> MobileCafeVan:
@@ -512,12 +550,6 @@ func is_moving_day_done() -> bool:
 	return moving_day.is_done()
 
 
-func road_east_active() -> bool:
-	# The road east opens with the completion of the city. Before that, the
-	# trigger stays deaf, open gate or not.
-	return _road_east != null and _road_east.monitoring
-
-
 func notify_boss_cured() -> void:
 	# The boss fight beat calls this when the city boss drinks the cure.
 	# Every boss fight of the route wires itself here, the band, the market,
@@ -555,13 +587,6 @@ func _build_bridge_gate() -> void:
 	_bridge_gate.opened.connect(func() -> void: hud.show_toast(ROAD_OPEN_TEXT))
 	add_child(_bridge_gate)
 	_bridge_gate.bind_unlock_state(unlock_state)
-
-
-func _build_road_east() -> void:
-	# The road east opens when the city completes: the travel trigger stands on
-	# the deck beyond the gate and waits for the player. A locked or missing
-	# gate scene blocks the way on its own.
-	_road_east = RoadEast.build(self, _map.city_size(), BRIDGE_DECK_WIDTH, _on_road_east_entered)
 
 
 func _build_boss() -> void:
@@ -609,11 +634,12 @@ func _build_van() -> void:
 	_van = VAN_SCENE.instantiate() as MobileCafeVan
 	add_child(_van)
 	van_state = MobileCafe.new(_van.balance)
-	if city_index > 1:
+	if city_index > 1 or not _arriving_traveler.is_empty():
 		# Section 10, moving day: the van comes along on the move east with
 		# every level the west city paid for. The parked level rides the
 		# scene change; an arrival without one, like a fresh run that never
-		# traveled, starts at the plain van.
+		# traveled, starts at the plain van. A road west back into the first
+		# city carries the level the same way, section 23.
 		van_state.load_state(VanHandoff.take_arriving_level(MobileCafe.Level.VAN))
 	_van.global_position = cafe_block.van_spot().global_position
 	_van.bind_state(van_state)
@@ -658,63 +684,21 @@ func bridge_gate() -> BridgeGate:
 	return _bridge_gate
 
 
-func _build_masters() -> void:
+func _build_master_school() -> void:
 	# Section 8: the master of the city teaches at the cafe, where the awake
-	# coffee experts gather. The masters stand side by side on the spot. A
-	# quest can stand one more master later, like the Aisle 7 husband, so the
-	# run finds its masters through the brewing-masters group.
-	var cafe_block := _map.find_block_of_kind(CityBlock.Kind.CAFE)
-	if cafe_block == null or cafe_block.master_spot() == null:
-		return
-	var spot := cafe_block.master_spot().global_position
-	var count := definition.masters.size()
-	for i: int in range(count):
-		var master_data: BrewingMaster = definition.masters[i]
-		var npc := MASTER_NPC_SCENE.instantiate() as MasterNpc
-		npc.name = "Master" + master_data.master_id.capitalize()
-		add_child(npc)
-		npc.global_position = spot + Vector2(72.0 * float(i) - 36.0 * float(count - 1), 0.0)
-		npc.bind_master(master_data, master_lessons)
-
-
-func masters() -> Array[MasterNpc]:
-	# The masters of this run, in tree order: the resident cafe masters first,
-	# then any master a quest stood later.
-	var found: Array[MasterNpc] = []
-	for node: Node in get_tree().get_nodes_in_group(&"brewing_masters"):
-		var npc := node as MasterNpc
-		if npc != null and is_ancestor_of(npc):
-			found.append(npc)
-	return found
-
-
-func interact_with_masters() -> bool:
-	# One button at the master: a lesson while lessons remain, then only the
-	# catchphrase. Returns false when no master stands at hand.
-	for npc: MasterNpc in masters():
-		if not npc.is_player_at_master():
-			continue
-		var outcome := npc.interact()
-		if outcome == MasterNpc.Interaction.NOT_AT_MASTER:
-			return false
-		_announce_master_beat(npc, outcome)
-		return true
-	return false
-
-
-func _announce_master_beat(npc: MasterNpc, outcome: MasterNpc.Interaction) -> void:
-	# The toast confirms the skill grant and every new recipe.
-	hud.show_toast(
-		npc.announce_text(
-			outcome, player.brewing_balance.master_lesson_skill_gain, player.brewing_library
-		)
-	)
+	# coffee experts gather. The school component stands the residents on the
+	# master spot and answers the interact key there.
+	master_school = MasterSchool.new()
+	master_school.name = "MasterSchool"
+	add_child(master_school)
+	master_school.setup(self)
 
 
 func _spawn_crowd() -> void:
 	# Every block holds its budgeted sleepwalkers, section 17. The builder
-	# wires the dex feed of the first meetings and the wake lines.
-	_crowd = CrowdBuilder.spawn(self, _map, definition, dex)
+	# wires the dex feed and the wake lines, and the saved awake flags of a
+	# reload or a return trip ride the spawn, T134.
+	_crowd = CrowdBuilder.spawn(self, _map, definition, dex, CrowdBuilder.saved_flags(_world_state))
 
 
 func _on_tower_switched_off() -> void:
@@ -729,28 +713,24 @@ func _on_tower_switched_off() -> void:
 
 
 func _apply_saved_state() -> void:
-	# The whole run state of the last save point lands silent: no beat
-	# replays and no signal fires. The quest chain already restored in
-	# _build_quest_markers, and the van level in _build_van, because both
-	# build before this call. A run without a slot of its own, like a fresh
-	# arrival from the road east, reads the steep the west city parked.
-	if _saved_state.is_empty():
-		var arriving_steep := ColdBrewHandoff.take_arriving_state()
+	# One world, one carry. The world beats of this city land silent from this
+	# scene's own save point or from the stored city world of a return trip:
+	# no beat replays and no signal fires. The player carry comes from the
+	# traveler that a road just parked, else from the same save document. A
+	# first visit holds neither and starts plain. The quest chain restored in
+	# _build_quest_markers and the van level in _build_van, because both build
+	# before this call.
+	var arriving_steep := ColdBrewHandoff.take_arriving_state()
+	if _world_state.is_empty() and _arriving_traveler.is_empty():
+		# A first visit: no world to restore, no traveler to unpack. A parked
+		# steep rides alone, so it still lands.
 		if not arriving_steep.is_empty():
 			cold_fridge.load_state(arriving_steep, player.brewing_library)
-		# Section 10, moving day: a fresh arrival from the road east unpacks
-		# the traveler once. The first city has no road west, so it never
-		# takes a park. The fields land after the van level, so the supply
-		# clamp reads the kitchen carry limit.
-		if city_index > 1:
-			MoveHandoff.apply_arrival(
-				MoveHandoff.take_arriving(), player, dex, unlock_state, ITEM_CATALOG
-			)
 		return
-	progress.load_state(SaveData.dict_or_empty(_saved_state.get("progress", {})))
-	moving_day.load_state(bool(_saved_state.get("moving_day", false)))
-	BossSaveState.apply_saved(_boss, SaveData.dict_or_empty(_saved_state.get("boss", {})))
-	var saved_phase := int(_saved_state.get("tower_phase", -1))
+	progress.load_state(SaveData.dict_or_empty(_world_state.get("progress", {})))
+	moving_day.load_state(bool(_world_state.get("moving_day", false)))
+	BossSaveState.apply_saved(_boss, SaveData.dict_or_empty(_world_state.get("boss", {})))
+	var saved_phase := int(_world_state.get("tower_phase", -1))
 	if saved_phase >= 0:
 		# A loaded switch never replays its beat: the map silences the poles
 		# on its own load path, and no wake-up is granted again.
@@ -758,20 +738,33 @@ func _apply_saved_state() -> void:
 		var tower := _map.broadcast_tower()
 		if tower != null and tower.is_switched_off():
 			address_audio.cut_address()
-	var saved_vault := bool(_saved_state.get("vault_open", false))
+	var saved_vault := bool(_world_state.get("vault_open", false))
 	var vault := _map.locked_side_room()
-	var vault_was_open := saved_vault or save_system.is_vault_open(definition.city_id)
+	var vault_was_open := (
+		saved_vault or (save_system != null and save_system.is_vault_open(definition.city_id))
+	)
 	if vault != null and vault_was_open:
 		# A loaded vault never re-locks: no key returns to any bag.
 		vault.load_state(true)
 	if cold_fridge != null:
 		# Section 18: a saved steep stands where it stood, and one that ran
-		# out while the game was closed is ready at once, section 8.
-		cold_fridge.load_state(
-			SaveData.dict_or_empty(_saved_state.get("cold_brew", {})), player.brewing_library
-		)
-	# The player fields land together: dex, meter, wake-ups, skills, bag,
-	# supply, and the brewed batch in hand, section 18.
+		# out while the game was closed is ready at once, section 8. A steep
+		# that crossed the road with the traveler stands over the stored one.
+		var steep := arriving_steep
+		if steep.is_empty():
+			steep = SaveData.dict_or_empty(_world_state.get("cold_brew", {}))
+		cold_fridge.load_state(steep, player.brewing_library)
+	if not _arriving_traveler.is_empty():
+		# The road west and the road east land the traveler by the cafe of the
+		# city they reach: the bag, the dex, and every player field cross,
+		# while the city keeps its own saved world, section 23.
+		MoveHandoff.apply_arrival(_arriving_traveler, player, dex, unlock_state, ITEM_CATALOG)
+		return
+	# The reload of this scene's own save point restores the player with it,
+	# at the saved position: dex, meter, wake-ups, skills, bag, supply, and
+	# the brewed batch in hand, section 18.
+	if _saved_state.is_empty():
+		return
 	MoveHandoff.apply_carry(player, dex, _saved_state, ITEM_CATALOG)
 	_has_saved_position = true
 	_saved_position = _saved_state.get("position", Vector2.ZERO) as Vector2
@@ -819,6 +812,7 @@ func _capture_run_state() -> Dictionary:
 		"quests": quest_log.save_state(),
 		"progress": progress.save_state(),
 		"boss": BossSaveState.capture(_boss),
+		"crowd_awake": CrowdBuilder.awake_flags(_crowd),
 		"moving_day": moving_day.save_state(),
 		"tutorial": tutorial,
 		"outro": outro,
@@ -837,17 +831,19 @@ func _city_vault_open() -> bool:
 
 
 func _resume_completed_city() -> void:
-	# A reload of an already complete city, like a boss-cured save, hands the
-	# road back without replaying a beat: the last city picks its outro up at
-	# the saved step, every earlier city arms the road-east trigger.
+	# A reload or a return trip into an already complete city, like a
+	# boss-cured save, hands the roads back without replaying a beat: the last
+	# city picks its outro up at the saved step, every earlier city arms the
+	# road-east trigger. The road west arms in every complete city, section 23.
 	if not progress.is_complete():
 		return
+	roads.arm_west()
 	if _outro != null:
 		# The flow refuses a second run on its own, so a saved outro past its
 		# first step stays where the save left it.
 		_outro.begin()
-	elif _road_east != null:
-		_road_east.set_deferred(&"monitoring", true)
+	else:
+		roads.arm_east()
 
 
 func _on_tower_birdsong() -> void:
@@ -894,14 +890,16 @@ func _reload_last_save() -> void:
 
 func _on_city_completed() -> void:
 	city_completed.emit()
+	# Section 23: the finished city opens its road west, in the last city too,
+	# where the outro holds the player until the credits end.
+	roads.arm_west()
 	if _outro != null:
 		# Section 16: the version ends here. The Karen blocks the road east and
 		# the credits catch her mid-sentence, so no completion screen shows and
 		# the travel trigger never arms.
 		_outro.begin()
 		return
-	if _road_east != null:
-		_road_east.set_deferred(&"monitoring", true)
+	roads.arm_east()
 	_show_end_screen(CITY_COMPLETE_TEXT % [definition.display_name, definition.boss_name], false)
 
 
@@ -914,28 +912,29 @@ func _on_road_east_entered(body: Node2D) -> void:
 
 
 func _on_east_road_taken() -> void:
-	# The scene travels east only when the city scene names the destination.
-	# The last city of the version keeps the road closed with no destination.
+	# The road-east beat always hands the quest chain east; only the scene
+	# travel needs a destination. The last city of the version keeps the road
+	# closed by itself: the chain there has no next city.
 	quest_log.travel_east()
-	# Section 10, moving day: the van carries its own level east across the
-	# scene change. The park happens here, before the deferred travel, so the
-	# next city reads it in _build_van.
-	if van_state != null:
-		VanHandoff.park(van_state.save_state())
-	# The cold brew crosses the road too: the fridge parks its live steep
-	# beside the van level, because this city's slot never applies east.
-	ColdBrewHandoff.park(cold_fridge.save_state() if cold_fridge != null else {})
-	if east_city_scene != null:
-		# Section 10, moving day: the van carries every belonging east.
-		MoveHandoff.park_traveler(player, dex, unlock_state)
-		# The trigger fires inside the physics step, and the scene change
-		# frees collision nodes. The engine rejects that removal mid-callback,
-		# so the travel waits for idle time.
-		_travel_east.call_deferred()
+	roads.travel(east_city_scene)
 
 
-func _travel_east() -> void:
-	get_tree().change_scene_to_packed(east_city_scene)
+func _on_road_west_entered(body: Node2D) -> void:
+	# Section 23: the completed city hands the player back to the city west of
+	# it, so the post-game activities of the earlier cities stay reachable.
+	if not progress.is_complete() or not (body is Player):
+		return
+	west_road_taken.emit()
+
+
+func _on_west_road_taken() -> void:
+	# The road west hands the chain back one city, then the road carries the
+	# traveler. The destination loads at use time, like the tutorial scene,
+	# because a west ext_resource would close a scene load cycle (T096).
+	quest_log.travel_west()
+	if west_city_path.is_empty():
+		return
+	roads.travel(load(west_city_path) as PackedScene)
 
 
 func _show_end_screen(message: String, show_restart: bool, goes_to_menu := false) -> void:
@@ -983,7 +982,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		# of section 4; then the signature quest, like the Sleepvana crowd at
 		# the van; then the small ask of the gathered field base survivors,
 		# section 10; the van takes the key otherwise.
-		if not interact_with_masters() and not _interact_with_television():
+		if not master_school.interact() and not _interact_with_television():
 			if (
 				_bridge_gate == null
 				or not _bridge_gate.try_purchase(purchase_gateway, unlock_state)

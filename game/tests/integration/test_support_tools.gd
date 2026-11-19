@@ -380,21 +380,26 @@ func test_the_touch_tool_and_swap_buttons_drive_the_belt() -> void:
 	add_child(auto_free(board))
 	board.player = _player
 	# The tool buttons wait for the run to open them, like the other context
-	# buttons: an empty belt shows no tool buttons at all.
+	# buttons: an empty belt shows no tool buttons at all. The readout waits
+	# with them: an empty belt names no tool.
 	assert_bool(board.button(TouchControls.ButtonKind.TOOL).visible).is_false()
 	assert_bool(board.button(TouchControls.ButtonKind.SWAP).visible).is_false()
+	assert_bool(board.tool_readout.visible).is_false()
 	board.set_button_available(TouchControls.ButtonKind.TOOL, true)
 	board.set_button_available(TouchControls.ButtonKind.SWAP, true)
 
 	var target := _spawn_walker(TAMPER_TARGET_OFFSET)
 	_player.toolbelt.unlock_all()
 	assert_bool(_player.toolbelt.equip(SupportToolbelt.Tool.TAMPER)).is_true()
+	await _until_readout(board, "Tamper")
 
 	_tap(board, TouchControls.ButtonKind.TOOL)
 	assert_bool(target.is_staggered()).is_true()
 
 	_tap(board, TouchControls.ButtonKind.SWAP)
 	assert_int(_player.toolbelt.equipped_tool()).is_equal(SupportToolbelt.Tool.STEAM_WAND)
+	await _until_readout(board, "Steam Wand")
+	assert_bool(board.tool_readout.visible).is_true()
 
 
 func _tap(board: TouchControls, kind: TouchControls.ButtonKind) -> void:
@@ -402,6 +407,16 @@ func _tap(board: TouchControls, kind: TouchControls.ButtonKind) -> void:
 	var center: Vector2 = board.button(kind).get_global_rect().get_center()
 	board._input(_touch(true, center))
 	board._input(_touch(false, center))
+
+
+func _until_readout(board: TouchControls, tool_name: String) -> void:
+	# The readout polls the belt once per process frame, so the wait runs on
+	# the drawn text, never on a fixed frame count.
+	var frames := 0
+	while board.tool_readout.text != tool_name and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().process_frame
+		frames += 1
+	assert_str(board.tool_readout.text).is_equal(tool_name)
 
 
 func _touch(pressed: bool, position: Vector2) -> InputEventScreenTouch:

@@ -10,3 +10,4 @@ definition = ExtResource("2")
 balance = ExtResource("3")
 city_index = 2
 east_city_scene = ExtResource("4")
+west_city_path = "res://scenes/city/san_coffesco.tscn"

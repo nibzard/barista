@@ -9,6 +9,11 @@ const LANDMARK_KINDS := [
 	CityBlock.Kind.BOSS_ARENA,
 	CityBlock.Kind.QUEST,
 ]
+# The cafe building keeps the shape of the kit shell (460 by 270), and its
+# interior stops this share of the tier circle short of the rim, so the safe
+# zone always covers the whole cafe floor, section 17.
+const CAFE_BUILDING_ASPECT := 460.0 / 270.0
+const CAFE_INTERIOR_FILL := 0.97
 
 
 static func validate(city: CityDefinition, balance: CityBalance) -> Array[String]:
@@ -81,6 +86,20 @@ static func cafe_zone_radius(balance: CityBalance, cafe_tier: int) -> float:
 		return 0.0
 	var index := clampi(cafe_tier, 1, balance.cafe_zone_radius_per_tier.size()) - 1
 	return balance.cafe_zone_radius_per_tier[index]
+
+
+static func cafe_interior_size(balance: CityBalance, cafe_tier: int) -> Vector2:
+	# Section 10 with section 17, T063: the real cafe building grows with the
+	# city tier, and the safe zone circle of the tier carries its whole
+	# interior. The interior rect keeps the kit building shape and sits
+	# inscribed in the circle, short of the rim.
+	var radius := cafe_zone_radius(balance, cafe_tier)
+	if radius <= 0.0:
+		return Vector2.ZERO
+	var filled := radius * CAFE_INTERIOR_FILL
+	var half_height := filled / sqrt(CAFE_BUILDING_ASPECT * CAFE_BUILDING_ASPECT + 1.0)
+	var half_width := CAFE_BUILDING_ASPECT * half_height
+	return Vector2(half_width, half_height) * 2.0
 
 
 static func kind_name(kind: CityBlock.Kind) -> String:

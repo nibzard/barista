@@ -26,6 +26,7 @@ func build() -> void:
 		view.name = "Block%02d" % i
 		view.block = definition.blocks[i]
 		view.accent_color = definition.accent_color
+		view.city_look = definition.city_look
 		view.balance = balance
 		view.region_bean = definition.region_bean
 		view.crate_extras = definition.crate_extras
@@ -38,6 +39,17 @@ func build() -> void:
 	var tower := broadcast_tower()
 	if tower != null:
 		tower.switched_off.connect(_on_tower_switched_off)
+	if definition.city_look != null:
+		# The live wiring of the art direction: dusk light, weather, and paper
+		# grain over the whole city, ART_DIRECTION section 14.
+		var stage := CityLookStage.new()
+		stage.name = "LookStage"
+		stage.setup(definition.city_look, city_size())
+		add_child(stage)
+
+
+func look_stage() -> CityLookStage:
+	return get_node_or_null(^"LookStage") as CityLookStage
 
 
 func city_size() -> Vector2:
@@ -93,6 +105,10 @@ func load_tower_state(saved_phase: int) -> void:
 		return
 	tower.load_state(saved_phase)
 	if tower.is_switched_off():
+		var stage := look_stage()
+		if stage != null:
+			# A loaded city never replays the sunrise: the morning stands.
+			stage.bring_morning(true)
 		_on_tower_switched_off()
 
 
@@ -102,6 +118,9 @@ func _on_tower_switched_off() -> void:
 		var pole := view.pole_zone()
 		if pole != null:
 			pole.silence_broadcast()
+	var stage := look_stage()
+	if stage != null:
+		stage.bring_morning()
 
 
 func block_count() -> int:

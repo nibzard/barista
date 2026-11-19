@@ -30,15 +30,12 @@ tourist_balance = ExtResource("6")
 
 [node name="Visual" type="Polygon2D" parent="."]
 color = Color(0.98, 0.82, 0.4, 1)
-polygon = PackedVector2Array(-16, -24, 16, -24, 16, 20, -16, 20)
+polygon = PackedVector2Array(-13, -16, 13, -16, 15, -2, 13, 11, -13, 11, -15, -2)
 
 [node name="Nightcap" type="Polygon2D" parent="Visual"]
 color = Color(0.98, 0.82, 0.4, 1)
-polygon = PackedVector2Array(-14, -24, 12, -24, 17, -31, 5, -36, -8, -31)
+polygon = PackedVector2Array(-8, -35.5, -2, -40.5, 9, -38.5, 16, -30.5, 10, -27.5, 0, -30.5)
 
-[node name="Camera" type="Polygon2D" parent="Visual"]
-color = Color(0.12, 0.12, 0.15, 1)
-polygon = PackedVector2Array(8, -16, 24, -16, 24, -4, 8, -4)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("Body")

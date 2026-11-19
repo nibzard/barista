@@ -218,7 +218,7 @@ func test_the_keynote_cure_completes_the_city_after_the_tower() -> void:
 	# The road-east trigger arms through a deferred set, so it listens one
 	# physics frame after the completion.
 	await get_tree().physics_frame
-	assert_bool(_city.road_east_active()).is_true()
+	assert_bool(_city.roads.east_active()).is_true()
 
 
 func test_a_saved_cure_lands_silent_on_a_reloaded_show() -> void:

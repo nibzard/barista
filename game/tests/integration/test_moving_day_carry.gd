@@ -65,7 +65,7 @@ func test_the_move_east_carries_every_belonging() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
-	west.player.global_position = west.road_east().global_position
+	west.player.global_position = west.roads.east().global_position
 	var frames := 0
 	while (
 		(tree.current_scene == null or tree.current_scene == west) and frames < MAX_FRAMES_TO_WAIT

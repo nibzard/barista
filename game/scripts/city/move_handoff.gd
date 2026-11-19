@@ -1,5 +1,5 @@
-# ABOUTME: MoveHandoff carries the whole traveler across the move east, section 10.
-# ABOUTME: The leaving city packs the van; the arriving city unpacks it once.
+# ABOUTME: MoveHandoff carries the whole traveler across the roads, section 10
+# ABOUTME: east and section 23 west. One city packs; the next unpacks once.
 class_name MoveHandoff
 extends RefCounted
 
@@ -9,10 +9,13 @@ extends RefCounted
 static var _parked: Dictionary = {}
 
 
-static func park_traveler(player: Player, dex: SleepyDex, unlock: UnlockState) -> void:
-	# Section 10, moving day: the van carries every belonging east. The pack
-	# reads the live player: bag, cups, belt, brewed batch, skills, dex, meter,
-	# wake-ups, and the paid-bridge flag.
+static func park_traveler(
+	player: Player, dex: SleepyDex, unlock: UnlockState, log: QuestLog
+) -> void:
+	# Section 10, moving day: the van carries every belonging east, and the
+	# road west carries the same traveler back, section 23. The pack reads the
+	# live player: bag, cups, belt, brewed batch, skills, dex, meter, wake-ups,
+	# the quest chain, and the paid-bridge flag.
 	var supply := player.coffee_supply.save_state()
 	_parked = {
 		"meter_value": player.sleep_meter.save_state(),
@@ -23,6 +26,7 @@ static func park_traveler(player: Player, dex: SleepyDex, unlock: UnlockState) -
 		"brew_hand": player.brew_hand.save_state(),
 		"skills": player.brewing_skills.save_state(),
 		"dex": dex.save_state(),
+		"quests": log.save_state(),
 		"unlock": unlock.save_state(),
 		"moonwalk_dodge": player.dodge_style == Player.DodgeStyle.MOONWALK,
 	}
@@ -59,9 +63,11 @@ static func apply_carry(
 	player.wake_ups.load_state(int(carry.get("wake_ups", 0)))
 	player.brewing_skills.load_state(SaveData.int_dict(carry.get("skills", {})))
 	player.inventory.load_state(SaveData.int_dict(carry.get("bag", {})), catalog)
-	# Section 11: the cure weapons ride the bag as gear, so a loaded traveler
-	# finds its armory restocked from the saved finds.
+	# Section 11: the cure weapons and the support tools ride the bag as gear,
+	# so a loaded traveler finds its armory and its belt restocked from the
+	# saved finds.
 	player.armory.sync_found_from_inventory(player.inventory)
+	player.toolbelt.sync_unlocked_from_inventory(player.inventory)
 	var supply := {
 		"cups": int(carry.get("cups", 0)),
 		"thermos_belt": bool(carry.get("thermos_belt", false)),

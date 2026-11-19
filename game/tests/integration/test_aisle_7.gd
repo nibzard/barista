@@ -253,7 +253,7 @@ func test_the_sleeper_becomes_the_turkish_master() -> void:
 
 	_city.player.global_position = npc.global_position
 	await _await_frames(4)
-	assert_bool(_city.interact_with_masters()).is_true()
+	assert_bool(_city.master_school.interact()).is_true()
 	assert_int(_city.player.brewing_skills.skill("turkish")).is_equal(2)
 	assert_bool(_city.master_lessons.is_recipe_known("turkish_cup")).is_true()
 	assert_str(_city.hud.toast_message()).is_equal(
@@ -261,7 +261,7 @@ func test_the_sleeper_becomes_the_turkish_master() -> void:
 	)
 
 	for _lesson: int in range(2):
-		assert_bool(_city.interact_with_masters()).is_true()
+		assert_bool(_city.master_school.interact()).is_true()
 	assert_bool(_city.master_lessons.is_school_complete("husband")).is_true()
 	assert_int(_city.player.brewing_skills.skill("turkish")).is_equal(6)
 
@@ -269,8 +269,8 @@ func test_the_sleeper_becomes_the_turkish_master() -> void:
 func test_the_turkish_master_stays_locked_before_the_quest() -> void:
 	# Before the quest, only Raoast teaches in Pourtland: the husband is no
 	# city resident, so nothing of him exists in the run.
-	assert_int(_city.masters().size()).is_equal(1)
-	assert_str(_city.masters()[0].master.master_id).is_equal("raoast")
+	assert_int(_city.master_school.masters().size()).is_equal(1)
+	assert_str(_city.master_school.masters()[0].master.master_id).is_equal("raoast")
 	assert_object(_city.master_lessons.find_master("husband")).is_null()
 	assert_bool(_city.master_lessons.can_take_lesson("husband")).is_false()
 
@@ -329,7 +329,7 @@ func _await_quest_master() -> void:
 
 
 func _quest_master_npc() -> MasterNpc:
-	for npc: MasterNpc in _city.masters():
+	for npc: MasterNpc in _city.master_school.masters():
 		if npc.master.master_id == "husband":
 			return npc
 	return null

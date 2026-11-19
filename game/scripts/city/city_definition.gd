@@ -6,6 +6,9 @@ extends Resource
 @export var city_id: String
 @export var display_name: String
 @export var accent_color := Color.WHITE
+# The art identity of the city, ART_DIRECTION section 6: accent, morning
+# light, sleep dusk, and weather. The run wires it into the live world.
+@export var city_look: CityLook
 # Section 15 beans table: the region bean the scavenge buildings of the city
 # yield. Golden Coast arabica in Steamtle, Moss Hollow organic in Pourtland.
 # Null in San Coffesco: house beans are the common bean of every city.

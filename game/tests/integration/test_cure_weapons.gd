@@ -405,16 +405,22 @@ func test_the_weapon_button_fires_and_holds_on_touch() -> void:
 	await get_tree().physics_frame
 	var weapon_button := touch.button(TouchControls.ButtonKind.WEAPON)
 	weapon_button.set_available(true)
+	# The readout of T138 waits with the context buttons: an empty armory
+	# names no weapon, like the hidden weapon buttons themselves.
+	assert_bool(touch.weapon_readout.visible).is_false()
 
-	# A tap fires one shot of a discrete weapon, with the stick aim.
+	# A tap fires one shot of a discrete weapon, with the stick aim. The find
+	# names itself in chalk the same frame the slot takes it.
 	var cups_before: int = _player.coffee_supply.cups
 	_equip(CureArmory.Weapon.THERMOS)
+	await _until_weapon_readout(touch, "Thermos")
 	weapon_button.press()
 	assert_int(_player.coffee_supply.cups).is_equal(cups_before - SUPPLY_BALANCE.thermos_cost)
 
 	# The hold streams the Minigun and the lift stops it: the cups hold
 	# still after the finger leaves the button.
 	_equip(CureArmory.Weapon.MINIGUN)
+	await _until_weapon_readout(touch, "Coffee Minigun")
 	weapon_button.press()
 	Input.flush_buffered_events()
 	for _frame: int in range(30):
@@ -427,6 +433,25 @@ func test_the_weapon_button_fires_and_holds_on_touch() -> void:
 
 	assert_int(mid_stream).is_less(_player.coffee_supply.carry_limit())
 	assert_int(_player.coffee_supply.cups).is_equal(mid_stream)
+
+	# The WSWAP tap swaps the slot and the readout follows, T138: the tap
+	# carries no other feedback on a touch board.
+	var swap_button := touch.button(TouchControls.ButtonKind.WSWAP)
+	swap_button.set_available(true)
+	swap_button.press()
+	assert_int(_player.armory.equipped_weapon()).is_equal(CureArmory.Weapon.THERMOS)
+	await _until_weapon_readout(touch, "Thermos")
+	assert_bool(touch.weapon_readout.visible).is_true()
+
+
+func _until_weapon_readout(board: TouchControls, weapon_name: String) -> void:
+	# The readout polls the armory once per process frame, so the wait runs on
+	# the drawn text, never on a fixed frame count.
+	var frames := 0
+	while board.weapon_readout.text != weapon_name and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().process_frame
+		frames += 1
+	assert_str(board.weapon_readout.text).is_equal(weapon_name)
 
 
 func _fired_turret() -> AutoDripTurret:

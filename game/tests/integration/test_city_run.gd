@@ -287,9 +287,9 @@ func test_the_road_east_stays_closed_before_completion() -> void:
 	var run := await _build_raw_run()
 	var arrivals: Array[int] = []
 	run.east_road_taken.connect(func() -> void: arrivals.append(1))
-	var road := run.road_east()
+	var road := run.roads.east()
 	assert_object(road).is_not_null()
-	assert_bool(run.road_east_active()).is_false()
+	assert_bool(run.roads.east_active()).is_false()
 
 	# The player stands on the deck end with the gate open; nothing travels.
 	run.unlock_state.unlock()
@@ -297,18 +297,18 @@ func test_the_road_east_stays_closed_before_completion() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	assert_int(arrivals.size()).is_equal(0)
-	assert_bool(run.road_east_active()).is_false()
+	assert_bool(run.roads.east_active()).is_false()
 
 
 func test_the_completed_city_opens_the_road_east() -> void:
 	var run := await _build_raw_run()
-	assert_bool(run.road_east_active()).is_false()
+	assert_bool(run.roads.east_active()).is_false()
 	_complete_the_city(run)
 	# The monitoring flip is deferred to the end of the completion frame.
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	assert_bool(run.is_city_complete()).is_true()
-	assert_bool(run.road_east_active()).is_true()
+	assert_bool(run.roads.east_active()).is_true()
 
 
 func test_the_road_east_carries_the_player_to_the_next_city() -> void:
@@ -319,7 +319,7 @@ func test_the_road_east_carries_the_player_to_the_next_city() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
-	run.player.global_position = run.road_east().global_position
+	run.player.global_position = run.roads.east().global_position
 	var frames := 0
 	while arrivals.is_empty() and frames < MAX_FRAMES_TO_WAIT:
 		await get_tree().physics_frame

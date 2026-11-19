@@ -441,9 +441,10 @@ func pickup_item(item: ItemType, amount: int) -> int:
 	if added > 0 and item.item_id == THERMOS_BELT_ID:
 		coffee_supply.equip_thermos_belt()
 	if added > 0:
-		# A found cure weapon joins the armory the moment its gear enters the
-		# bag, section 11.
+		# A found cure weapon joins the armory and a found support tool joins
+		# the belt the moment its gear enters the bag, section 11.
 		armory.grant_item(item.item_id)
+		toolbelt.grant_item(item.item_id)
 	return added
 
 

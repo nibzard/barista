@@ -15,6 +15,8 @@ const CHALK_COLOR := Color(0.93, 0.95, 0.88, 1)
 const KEYCHAIN_COLOR := Color(0.98, 0.9, 0.55, 1)
 const PORTRAIT_SIZE := Vector2(48, 48)
 const NOT_FOUND_DARKEN := 0.55
+# The ink of the field-guide sketch on the pajama backdrop.
+const PORTRAIT_INK := Color(0.16, 0.12, 0.1, 0.92)
 const NAME_FONT_SIZE := 20
 const ROW_FONT_SIZE := 15
 
@@ -139,6 +141,8 @@ func _add_row(entry: SleepyDexEntry) -> void:
 		entry.portrait_color() if found else entry.portrait_color().darkened(NOT_FOUND_DARKEN)
 	)
 	row.add_child(portrait)
+	if entry.enemy_type != null:
+		_add_portrait_figure(portrait, entry.enemy_type)
 	var texts := VBoxContainer.new()
 	texts.add_theme_constant_override(&"separation", 2)
 	texts.add_child(_make_label(entry.display_name(), NAME_FONT_SIZE, CHALK_COLOR))
@@ -154,6 +158,42 @@ func _make_label(text: String, font_size: int, color: Color) -> Label:
 	label.add_theme_font_size_override(&"font_size", font_size)
 	label.add_theme_color_override(&"font_color", color)
 	return label
+
+
+func _add_portrait_figure(portrait: ColorRect, enemy_type: EnemyType) -> void:
+	# The field-guide sketch of the entry: the type's own silhouette, drawn
+	# as ink on its pajama color, ART_DIRECTION section 11.
+	portrait.clip_contents = true
+	var figure := Node2D.new()
+	figure.name = "Figure"
+	portrait.add_child(figure)
+	var shapes := SleeperFigure.silhouette_parts(enemy_type)
+	var bounds := _silhouette_bounds(shapes)
+	if bounds.size == Vector2.ZERO:
+		return
+	var scale := minf(
+		(PORTRAIT_SIZE.y - 6.0) / bounds.size.y, (PORTRAIT_SIZE.x - 6.0) / bounds.size.x
+	)
+	figure.scale = Vector2.ONE * scale
+	figure.position = PORTRAIT_SIZE * 0.5 - bounds.get_center() * scale
+	for shape: PackedVector2Array in shapes:
+		var poly := Polygon2D.new()
+		poly.polygon = shape
+		poly.color = PORTRAIT_INK
+		figure.add_child(poly)
+
+
+func _silhouette_bounds(shapes: Array[PackedVector2Array]) -> Rect2:
+	var bounds := Rect2(Vector2.ZERO, Vector2.ZERO)
+	var started := false
+	for shape: PackedVector2Array in shapes:
+		for point: Vector2 in shape:
+			if not started:
+				bounds = Rect2(point, Vector2.ZERO)
+				started = true
+				continue
+			bounds = bounds.expand(point)
+	return bounds
 
 
 func _status_text(entry: SleepyDexEntry, found: bool) -> String:

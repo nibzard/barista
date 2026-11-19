@@ -18,6 +18,27 @@ const CYCLE_ORDER: Array[Tool] = [
 	Tool.BEAN_SLICK,
 ]
 
+# The gear item id that unlocks each tool, section 11: the player finds the
+# tools along the route, so every tool rides a gear item in the bag and the
+# save holds it with the rest of the gear, section 18.
+const ITEM_IDS: Dictionary = {
+	Tool.TAMPER: "tamper",
+	Tool.STEAM_WAND: "steam_wand",
+	Tool.PORTAFILTER: "portafilter",
+	Tool.ICED_SPRAYER: "iced_sprayer",
+	Tool.BEAN_SLICK: "bean_slick",
+}
+
+# The chalk name each tool wears on the interface: the display name of the
+# gear item that carries it, so the readout and the bag row always agree.
+const TOOL_NAMES: Dictionary = {
+	Tool.TAMPER: "Tamper",
+	Tool.STEAM_WAND: "Steam Wand",
+	Tool.PORTAFILTER: "Portafilter",
+	Tool.ICED_SPRAYER: "Iced Sprayer",
+	Tool.BEAN_SLICK: "Bean Slick",
+}
+
 var balance: SupportToolsBalance
 
 var _unlocked: Array[Tool] = []
@@ -44,6 +65,26 @@ func unlock_all() -> void:
 	# The development room hands the whole belt over for play and tests.
 	for tool: Tool in CYCLE_ORDER:
 		unlock(tool)
+
+
+func grant_item(item_id: String) -> bool:
+	# A picked-up gear item unlocks its tool. Gear that carries no tool
+	# changes nothing.
+	var tool := _tool_for_item(item_id)
+	if tool == NO_TOOL:
+		return false
+	unlock(tool)
+	return true
+
+
+func sync_unlocked_from_inventory(inventory: Inventory) -> void:
+	# A loaded bag restocks the belt, section 18: the save and the move east
+	# carry the tools as bag gear, so every tool item in the bag unlocks its
+	# tool again.
+	for tool: Tool in CYCLE_ORDER:
+		var item_id := ITEM_IDS[tool] as String
+		if inventory.has_item(item_id):
+			unlock(tool)
 
 
 func is_unlocked(tool: Tool) -> bool:
@@ -155,6 +196,14 @@ func try_block_hug(attacker: Sleepwalker, player: Player) -> bool:
 		balance.portafilter_block_push_seconds
 	)
 	return true
+
+
+func _tool_for_item(item_id: String) -> int:
+	# The gear item of a tool names it. Unknown gear carries no tool.
+	for tool: Tool in CYCLE_ORDER:
+		if ITEM_IDS[tool] == item_id:
+			return tool
+	return NO_TOOL
 
 
 func _cooldown_seconds_for(tool: Tool) -> float:

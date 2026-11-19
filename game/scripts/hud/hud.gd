@@ -12,10 +12,10 @@ var player: Player = null
 
 var _toast_time_left := 0.0
 
-@onready var awake_bar: ProgressBar = $Board/Margin/Rows/AwakeRow/AwakeBar
+@onready var awake_meter: MugMeter = $Board/Margin/Rows/AwakeRow/AwakeMeter
 @onready var awake_value: Label = $Board/Margin/Rows/AwakeRow/AwakeValue
-@onready var coffee_value: Label = $Board/Margin/Rows/CoffeeRow/CoffeeValue
-@onready var wake_ups_value: Label = $Board/Margin/Rows/WakeUpsRow/WakeUpsValue
+@onready var cup_row: PaperCupRow = $Board/Margin/Rows/CoffeeRow/CupRow
+@onready var wake_clocks: AlarmClocks = $Board/Margin/Rows/WakeUpsRow/WakeClocks
 @onready var bag_label: Label = $Board/Margin/Rows/BagLabel
 @onready var toast_label: Label = $Toast
 @onready var dex_button: Button = $DexButton
@@ -95,17 +95,15 @@ func refresh() -> void:
 	if player == null or player.sleep_meter == null:
 		return
 	var meter := player.sleep_meter
-	awake_bar.max_value = meter.balance.max_value
-	awake_bar.value = meter.value
+	awake_meter.max_value = meter.balance.max_value
+	awake_meter.value = meter.value
 	awake_value.text = "%d/%d" % [roundi(meter.value), roundi(meter.balance.max_value)]
 	var supply := player.coffee_supply
-	coffee_value.text = "%d/%d cups in hand" % [supply.cups, supply.carry_limit()]
-	# Section 9, hardcore mode: the run holds no wake-ups at all, so the row
-	# says so instead of counting a life the mode never grants.
-	wake_ups_value.text = (
-		"none"
-		if player.wake_ups.hardcore
-		else "%d/%d" % [player.wake_ups.remaining, player.wake_ups.balance.max_wake_ups]
+	# Section 11: the cups in hand and the wake-ups read as icon rows, so the
+	# board carries numbers only where no icon speaks, like the awake value.
+	cup_row.read(supply.cups, supply.carry_limit())
+	wake_clocks.read(
+		player.wake_ups.remaining, player.wake_ups.balance.max_wake_ups, player.wake_ups.hardcore
 	)
 	bag_label.text = _bag_text()
 

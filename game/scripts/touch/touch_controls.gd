@@ -1,6 +1,8 @@
 # ABOUTME: TouchControls routes raw screen touches into the game: the virtual
 # ABOUTME: stick drives the move actions, the buttons fire the same input actions
 # ABOUTME: the keys fire, so the whole game plays without a keyboard, section 4.
+# ABOUTME: The board also names the equipped support tool and cure weapon in
+# ABOUTME: chalk, each beside the coasters that fire and swap it.
 class_name TouchControls
 extends CanvasLayer
 
@@ -25,6 +27,24 @@ enum ButtonKind {
 const EMULATED_MOUSE_DEVICE := -1
 # The desktop mouse rides the same routing as one more pointer.
 const MOUSE_POINTER := -10
+# One chalk glyph per button, ART_DIRECTION section 11: icons replace words
+# where possible. Cup for throw, mug for drink, roll arrow for dodge; the
+# rest follow the interface kit of the artboard.
+const BUTTON_ICONS := {
+	ButtonKind.THROW: TouchButton.Icon.CUP,
+	ButtonKind.DODGE: TouchButton.Icon.ROLL_ARROW,
+	ButtonKind.DRINK: TouchButton.Icon.MUG,
+	ButtonKind.SERVE: TouchButton.Icon.SERVE_CUP,
+	ButtonKind.USE: TouchButton.Icon.UP_ARROW,
+	ButtonKind.TOOL: TouchButton.Icon.WRENCH,
+	ButtonKind.SWAP: TouchButton.Icon.SWAP_ARROWS,
+	ButtonKind.REFILL: TouchButton.Icon.FILL_CUP,
+	ButtonKind.VAN: TouchButton.Icon.VAN,
+	ButtonKind.BREW: TouchButton.Icon.POT,
+	ButtonKind.PLANT: TouchButton.Icon.SPROUT,
+	ButtonKind.WEAPON: TouchButton.Icon.RETICLE,
+	ButtonKind.WSWAP: TouchButton.Icon.CYCLE_ARROWS,
+}
 # The context buttons wait for the run to open them; the rest are always on.
 # TOOL and SWAP wait with them: the belt starts empty until the player finds
 # the first support tool, section 11. WEAPON and WSWAP wait the same way for
@@ -50,6 +70,8 @@ var _overlay_open := false
 var _held_by_pointer: Dictionary = {}
 
 @onready var stick_view: TouchStickView = $Board/Stick
+@onready var tool_readout: Label = $Board/ToolReadout
+@onready var weapon_readout: Label = $Board/WeaponReadout
 @onready var _buttons: Dictionary = {
 	ButtonKind.THROW: $Board/Buttons/Throw,
 	ButtonKind.DODGE: $Board/Buttons/Dodge,
@@ -116,9 +138,36 @@ func _ready() -> void:
 	# the visibility start in step, so the first open call really opens.
 	for kind: ButtonKind in CONTEXT_KINDS:
 		(_buttons[kind] as TouchButton).set_available(false)
+	# Every coaster takes its chalk glyph, section 11.
+	for kind: ButtonKind in _buttons:
+		(_buttons[kind] as TouchButton).icon = icon_for(kind)
+
+
+static func icon_for(kind: ButtonKind) -> TouchButton.Icon:
+	# The glyph one button wears. Every kind carries one: the words left the
+	# coasters, so a missing row is a bug, not a fallback.
+	return BUTTON_ICONS[kind]
+
+
+static func tool_name_for(tool: int) -> String:
+	# The chalk name of a support tool, or an empty string for the empty slot.
+	# The readout draws this; an empty belt shows no readout at all.
+	if tool == SupportToolbelt.NO_TOOL:
+		return ""
+	return SupportToolbelt.TOOL_NAMES[tool]
+
+
+static func weapon_name_for(weapon: int) -> String:
+	# The chalk name of a cure weapon, or an empty string for the empty slot.
+	# The readout draws this; an empty armory shows no readout at all.
+	if weapon == CureArmory.NO_WEAPON:
+		return ""
+	return CureArmory.WEAPON_NAMES[weapon]
 
 
 func _process(_delta: float) -> void:
+	_update_tool_readout()
+	_update_weapon_readout()
 	# The controls show only while the player acts: a locked player stands in a
 	# cinematic or a minigame overlay that owns the whole screen, and a sleeping
 	# player needs no buttons.
@@ -209,6 +258,32 @@ func _handle_mouse(event: InputEvent) -> void:
 	if motion != null and motion.device != EMULATED_MOUSE_DEVICE:
 		if (motion.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
 			stick_view.move_pointer(MOUSE_POINTER, motion.position)
+
+
+func _update_tool_readout() -> void:
+	# The swap readout of T098: the chalk name of the tool that rides the
+	# slot, beside the TOOL and SWAP coasters. The SWAP tap changes the slot
+	# with no other feedback, so the name is the only way a touch player
+	# sees the swap land. An empty belt shows no readout, like the hidden
+	# tool buttons themselves.
+	var tool_name := ""
+	if player != null:
+		tool_name = tool_name_for(player.toolbelt.equipped_tool())
+	tool_readout.text = tool_name
+	tool_readout.visible = tool_name != ""
+
+
+func _update_weapon_readout() -> void:
+	# The weapon twin of the T098 swap readout: the chalk name of the weapon
+	# that rides the slot, beside the WEAPON and WSWAP coasters. The WSWAP tap
+	# changes the slot with no other feedback, so the name is the only way a
+	# touch player sees the swap land. An empty armory shows no readout, like
+	# the hidden weapon buttons themselves.
+	var weapon_name := ""
+	if player != null:
+		weapon_name = weapon_name_for(player.armory.equipped_weapon())
+	weapon_readout.text = weapon_name
+	weapon_readout.visible = weapon_name != ""
 
 
 func _fire_action(action: StringName) -> void:

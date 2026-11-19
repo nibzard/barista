@@ -170,17 +170,24 @@ func test_the_player_loots_the_crate_inside_the_building() -> void:
 func test_every_scavenge_block_ships_one_enterable_building() -> void:
 	# Section 17: the rest of the city is scavenge buildings. Every scavenge
 	# block wraps its crate and its find inside a shell, the crowd lane stays
-	# on the street outside the walls, and the landmark blocks stay open.
+	# on the street outside the walls, the cafe block carries its own cafe
+	# building (T063), and the other landmark blocks stay open.
 	for city: CityDefinition in [SAN_COFFESCO, STEAMTLE, POURTLAND]:
 		var map := _build_city_map(city)
 		for i: int in range(map.block_count()):
 			var view := map.block_view(i)
 			var building := view.building()
 			var where := "%s block %d" % [city.city_id, i]
+			if view.kind() == CityBlock.Kind.CAFE:
+				assert_object(building).override_failure_message(where).is_null()
+				assert_object(view.cafe_building()).override_failure_message(where).is_not_null()
+				continue
 			if view.kind() != CityBlock.Kind.SCAVENGE:
 				assert_object(building).override_failure_message(where).is_null()
+				assert_object(view.cafe_building()).override_failure_message(where).is_null()
 				continue
 			assert_object(building).override_failure_message(where).is_not_null()
+			assert_object(view.cafe_building()).override_failure_message(where).is_null()
 			var interior := building.interior_rect()
 			var crate_local := building.to_local(view.scavenge_point().global_position)
 			assert_bool(interior.has_point(crate_local)).override_failure_message(where).is_true()

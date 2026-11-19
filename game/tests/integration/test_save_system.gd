@@ -440,7 +440,10 @@ func test_a_hardcore_run_holds_no_wake_ups() -> void:
 	assert_int(city.player.wake_ups.remaining).is_equal(0)
 	assert_bool(city.player.wake_ups.has_wake_ups()).is_false()
 	await get_tree().process_frame
-	assert_str(city.hud.wake_ups_value.text).is_equal("none")
+	# The icon row holds no clocks at all: the mode never granted a life
+	# the row could count.
+	assert_int(city.hud.wake_clocks.clock_count()).is_equal(0)
+	assert_int(city.hud.wake_clocks.standing_count()).is_equal(0)
 
 	_switch_the_tower_off(city)
 	assert_int(city.player.wake_ups.remaining).is_equal(0)
@@ -572,7 +575,7 @@ func test_the_road_east_carries_the_running_steep_to_the_next_city() -> void:
 	assert_dict(city.save_system.saved_run_state().get("cold_brew", {})).is_empty()
 
 	# The player steps on the road east; the scene travels to Steamtle.
-	city.player.global_position = city.road_east().global_position
+	city.player.global_position = city.roads.east().global_position
 	var frames := 0
 	while (
 		(tree.current_scene == null or tree.current_scene == city) and frames < MAX_FRAMES_TO_WAIT

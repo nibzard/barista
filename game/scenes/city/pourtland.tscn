@@ -8,3 +8,4 @@
 definition = ExtResource("2")
 balance = ExtResource("3")
 city_index = 3
+west_city_path = "res://scenes/city/steamtle.tscn"

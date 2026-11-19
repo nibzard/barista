@@ -64,7 +64,7 @@ func test_the_road_from_the_west_lands_in_steamtle_with_the_traveler() -> void:
 	west.unlock_state.unlock()
 	await _settle(SETTLE_FRAMES)
 	SaveSystem.park_for_scene_change(SaveSystem.new(_slot_path()))
-	west.player.global_position = west.road_east().global_position
+	west.player.global_position = west.roads.east().global_position
 	var city := await _await_scene_change(west, STEAMTLE_SCENE_PATH) as CityRun
 	assert_str(city.definition.city_id).is_equal("steamtle")
 	assert_bool(city.van_state.is_owned()).is_true()
@@ -189,7 +189,7 @@ func test_the_market_cure_and_the_tower_silence_complete_steamtle() -> void:
 
 	# The road east travels to Pourtland.
 	SaveSystem.park_for_scene_change(SaveSystem.new(_slot_path()))
-	reloaded.player.global_position = reloaded.road_east().global_position
+	reloaded.player.global_position = reloaded.roads.east().global_position
 	var east := await _await_scene_change(reloaded, POURTLAND_SCENE_PATH) as CityRun
 	assert_str(east.definition.city_id).is_equal("pourtland")
 	assert_bool(east.van_state.is_owned()).is_true()
@@ -790,7 +790,7 @@ func _gather_fans(city: CityRun, count: int) -> Array[Sleepwalker]:
 
 
 func _quest_master_npc(city: CityRun) -> MasterNpc:
-	for npc: MasterNpc in city.masters():
+	for npc: MasterNpc in city.master_school.masters():
 		if npc.master.master_id == "husband":
 			return npc
 	return null

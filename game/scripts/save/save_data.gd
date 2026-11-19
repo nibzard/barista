@@ -5,7 +5,7 @@ extends RefCounted
 
 # Bump when the document changes shape. A save from a newer version stays
 # unreadable, so a read from the future returns no document.
-const SAVE_VERSION := 5
+const SAVE_VERSION := 7
 
 # The save point kinds of section 18. The document stores the kind that wrote
 # the slot, so a reload can say where the player stands. The purchase of
@@ -63,6 +63,10 @@ var progress_state: Dictionary = {}
 # The boss fight state of the saved city, like the cure flag of the arena
 # show. Empty when the saved city holds no boss.
 var boss_state: Dictionary = {}
+# The street crowd of the saved city, T134: one awake flag per sleepwalker
+# in spawn order, so a reload and the return west rebuild the woken street.
+# Empty when the run state predates the crowd snapshot.
+var crowd_awake: Array = []
 # The moving-day unload of the saved city.
 var moving_day_done := false
 # The tutorial flow state of the intro run.
@@ -86,6 +90,12 @@ var game_mode := MODE_NORMAL
 var tower_phases: Dictionary = {}
 # The unlocked vault doors per city id: a reload never re-locks a door.
 var vaults_open: Dictionary = {}
+# The world state per city id, section 23: the beats of a city stay saved when
+# the road west returns the player to it. One plain dict per city: the run
+# progress, the boss state, the street crowd awake flags, the outro step, the
+# moving-day unload, the tutorial flow, the cold brew steep, and the tower
+# phase at the city's last save point.
+var city_worlds: Dictionary = {}
 
 
 static func from_dict(saved: Dictionary) -> SaveData:
@@ -113,6 +123,7 @@ static func from_dict(saved: Dictionary) -> SaveData:
 	data.quest_state = dict_or_empty(plain.get("quest_state", {}))
 	data.progress_state = dict_or_empty(plain.get("progress_state", {}))
 	data.boss_state = dict_or_empty(plain.get("boss_state", {}))
+	data.crowd_awake = bool_array(plain.get("crowd_awake", []))
 	data.moving_day_done = bool(plain.get("moving_day_done", false))
 	data.tutorial_state = dict_or_empty(plain.get("tutorial_state", {}))
 	data.outro_state = dict_or_empty(plain.get("outro_state", {}))
@@ -125,6 +136,9 @@ static func from_dict(saved: Dictionary) -> SaveData:
 	var vaults: Dictionary = plain.get("vaults_open", {})
 	for city_id: String in vaults:
 		data.vaults_open[city_id] = bool(vaults[city_id])
+	var worlds: Dictionary = plain.get("city_worlds", {})
+	for city_id: String in worlds:
+		data.city_worlds[city_id] = dict_or_empty(worlds[city_id])
 	return data
 
 
@@ -151,6 +165,7 @@ func to_dict() -> Dictionary:
 		"quest_state": quest_state.duplicate(),
 		"progress_state": progress_state.duplicate(),
 		"boss_state": boss_state.duplicate(),
+		"crowd_awake": crowd_awake.duplicate(),
 		"moving_day_done": moving_day_done,
 		"tutorial_state": tutorial_state.duplicate(),
 		"outro_state": outro_state.duplicate(),
@@ -159,6 +174,7 @@ func to_dict() -> Dictionary:
 		"game_mode": game_mode,
 		"tower_phases": tower_phases.duplicate(),
 		"vaults_open": vaults_open.duplicate(),
+		"city_worlds": city_worlds.duplicate(true),
 	}
 
 
@@ -186,6 +202,18 @@ func set_vault_open(city_id: String, is_open: bool) -> void:
 
 func is_vault_open(city_id: String) -> bool:
 	return bool(vaults_open.get(city_id, false))
+
+
+func set_city_world(city_id: String, world: Dictionary) -> void:
+	# Every save point of a city refreshes its own world, so the map holds the
+	# last save point of every city on the route.
+	city_worlds[city_id] = world.duplicate(true)
+
+
+func city_world(city_id: String) -> Dictionary:
+	# The saved world of one city. A city the save never saw reads as no world,
+	# so a first visit builds fresh.
+	return dict_or_empty(city_worlds.get(city_id, {}))
 
 
 static func string_or_default(saved: Variant, default_value: String) -> String:
@@ -217,6 +245,15 @@ static func array_or_empty(saved: Variant) -> Array:
 	if saved is Array:
 		return saved as Array
 	return []
+
+
+static func bool_array(saved: Variant) -> Array:
+	# Flag lists ride the document as plain arrays of booleans. A foreign
+	# entry, like a string, reads as false, so a corrupt slot wakes nobody.
+	var result: Array = []
+	for entry in array_or_empty(saved):
+		result.append(entry is bool and bool(entry))
+	return result
 
 
 static func int_dict(saved: Variant) -> Dictionary:

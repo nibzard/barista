@@ -1,23 +1,47 @@
-# ABOUTME: BaristaPortrait draws the placeholder look of the created barista.
+# ABOUTME: BaristaPortrait draws the created barista, sections 5 and 20.
 # ABOUTME: One builder serves the city player and the creation preview alike.
 class_name BaristaPortrait
 extends RefCounted
 
 const TATTOO_INK := Color(0.12, 0.22, 0.28, 1.0)
+# The oversized hands of the cast rule, ART_DIRECTION section 7, and the
+# cup they are made to hold, section 20.
+const HAND_COLOR := Color("#E9C3A0")
+const HAND_RADIUS := 5.5
+const CUP_COLOR := Color("#F3E6C8")
+const CUP_BAND_COLOR := Color("#F2C866")
 
 
-# The body shapes of section 5. The male silhouette keeps the classic block
-# of the placeholder era; the female silhouette narrows the shoulders and
+# The body shapes of section 5. The male silhouette keeps the wide shoulders
+# of the classic block; the female silhouette narrows the shoulders and
 # widens the hips. Everything else paints on top of this skin polygon.
 static func body_male_polygon() -> PackedVector2Array:
 	return PackedVector2Array(
-		[Vector2(-16, -24), Vector2(16, -24), Vector2(16, 20), Vector2(-16, 20)]
+		[
+			Vector2(-16, -18),
+			Vector2(-7, -24),
+			Vector2(7, -24),
+			Vector2(16, -18),
+			Vector2(15, 6),
+			Vector2(9, 20),
+			Vector2(-9, 20),
+			Vector2(-15, 6),
+		]
 	)
 
 
 static func body_female_polygon() -> PackedVector2Array:
 	return PackedVector2Array(
-		[Vector2(-13, -24), Vector2(13, -24), Vector2(15, 20), Vector2(-15, 20)]
+		[
+			Vector2(-13, -18),
+			Vector2(-6, -24),
+			Vector2(6, -24),
+			Vector2(13, -18),
+			Vector2(15, 6),
+			Vector2(9, 20),
+			Vector2(-9, 20),
+			Vector2(-15, 6),
+		]
 	)
 
 
@@ -78,6 +102,7 @@ static func build(
 		boots_polygon(appearance.boots),
 		AppearanceCatalog.color_of(catalog.boots, appearance.boots)
 	)
+	_add_hands(body)
 	for placement: String in appearance.tattoo_placements:
 		_add_part(body, "Tattoo" + _part_suffix(placement), tattoo_polygon(placement), TATTOO_INK)
 
@@ -247,6 +272,34 @@ static func _add_part(
 	part.polygon = polygon
 	part.color = color
 	body.add_child(part)
+
+
+static func _add_hands(body: Node2D) -> void:
+	# The cast rule of ART_DIRECTION section 7: oversized hands, made to hold
+	# cups. The right hand carries one brewed cup, the weapon of the player.
+	_add_part(body, "HandL", _hand_polygon(Vector2(-19, 8)), HAND_COLOR)
+	_add_part(body, "HandR", _hand_polygon(Vector2(19, 8)), HAND_COLOR)
+	_add_part(body, "HeldCup", held_cup_polygon(), CUP_COLOR)
+	var band := Polygon2D.new()
+	band.name = "HeldCupBand"
+	band.polygon = PackedVector2Array(
+		[Vector2(17, 14), Vector2(25, 14), Vector2(24.4, 17), Vector2(17.6, 17)]
+	)
+	band.color = CUP_BAND_COLOR
+	body.add_child(band)
+
+
+static func _hand_polygon(center: Vector2) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	for step: int in 12:
+		var angle := TAU * float(step) / 12.0
+		points.append(center + Vector2(cos(angle), sin(angle)) * HAND_RADIUS)
+	return points
+
+
+static func held_cup_polygon() -> PackedVector2Array:
+	# A paper cup in the right hand, wide rim at the top.
+	return PackedVector2Array([Vector2(16, 10), Vector2(26, 10), Vector2(24, 24), Vector2(18, 24)])
 
 
 static func _clear_parts(body: Node2D) -> void:

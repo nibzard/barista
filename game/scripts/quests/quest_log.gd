@@ -95,6 +95,11 @@ func travel_east() -> bool:
 	return main_quest.travel_east()
 
 
+func travel_west() -> bool:
+	# The road back west of section 23: the chain moves with the traveler.
+	return main_quest.travel_west()
+
+
 func save_state() -> Dictionary:
 	# The save system stores the chain and every quest state in one dict.
 	var side := {}

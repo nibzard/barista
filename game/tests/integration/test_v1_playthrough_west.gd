@@ -216,7 +216,7 @@ func test_sam_oatman_drinks_the_designer_cup_and_completes_the_city() -> void:
 	assert_str(system.saved_save_point()).is_equal(SaveData.POINT_BOSS_CURED)
 
 	# The completion screen stands down and the road east opens.
-	assert_bool(city.road_east_active()).is_true()
+	assert_bool(city.roads.east_active()).is_true()
 	# A closed app after the cure reloads the finished city with the road
 	# armed and no beat replayed.
 	_clear_current_scene()
@@ -225,7 +225,7 @@ func test_sam_oatman_drinks_the_designer_cup_and_completes_the_city() -> void:
 	_city_checks(reloaded)
 	assert_bool(reloaded.is_city_complete()).is_true()
 	assert_bool((reloaded.boss() as SamOatman).is_cured()).is_true()
-	assert_bool(reloaded.road_east_active()).is_true()
+	assert_bool(reloaded.roads.east_active()).is_true()
 
 
 func test_one_payment_opens_the_bridge_and_the_road_east_travels() -> void:
@@ -262,7 +262,7 @@ func test_one_payment_opens_the_bridge_and_the_road_east_travels() -> void:
 	# The player steps on the travel trigger; the scene travels east. The
 	# slot parks for the change like a player build hands it to the next run.
 	SaveSystem.park_for_scene_change(SaveSystem.new(_slot_path()))
-	city.player.global_position = city.road_east().global_position
+	city.player.global_position = city.roads.east().global_position
 	var east := await _await_scene_change(city, STEAMTLE_SCENE_PATH) as CityRun
 	assert_object(east).is_not_null()
 	assert_str(east.definition.city_id).is_equal("steamtle")
@@ -502,7 +502,7 @@ func _ride_the_road_lessons(city: CityRun, tutorial: TutorialDirector) -> void:
 	# The three lessons of the road in prompt order: brew, dodge, hug. The
 	# BREW tap reaches the tutorial director, which owns the key while its
 	# first-ten-minutes script runs.
-	city.player.global_position = city.masters()[0].global_position
+	city.player.global_position = city.master_school.masters()[0].global_position
 	await _settle(3)
 	_tap(city, TouchControls.ButtonKind.BREW)
 	var dial := tutorial.grind_dial_view()

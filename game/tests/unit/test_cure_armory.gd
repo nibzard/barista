@@ -62,6 +62,7 @@ func test_armory_starts_empty() -> void:
 
 	assert_bool(armory.has_any()).is_false()
 	assert_int(armory.equipped_weapon()).is_equal(CureArmory.NO_WEAPON)
+	assert_str(TouchControls.weapon_name_for(armory.equipped_weapon())).is_equal("")
 	assert_bool(armory.cycle()).is_false()
 	assert_bool(armory.equip(CureArmory.Weapon.THERMOS)).is_false()
 
@@ -74,6 +75,7 @@ func test_the_first_found_weapon_equips_itself() -> void:
 	assert_bool(armory.has_any()).is_true()
 	assert_bool(armory.is_found(CureArmory.Weapon.THERMOS)).is_true()
 	assert_int(armory.equipped_weapon()).is_equal(CureArmory.Weapon.THERMOS)
+	assert_str(TouchControls.weapon_name_for(armory.equipped_weapon())).is_equal("Thermos")
 
 
 func test_the_cycle_wraps_through_the_found_weapons_only() -> void:
@@ -84,8 +86,10 @@ func test_the_cycle_wraps_through_the_found_weapons_only() -> void:
 
 	assert_bool(armory.cycle()).is_true()
 	assert_int(armory.equipped_weapon()).is_equal(CureArmory.Weapon.MOKA_LAUNCHER)
+	assert_str(TouchControls.weapon_name_for(armory.equipped_weapon())).is_equal("Moka Launcher")
 	assert_bool(armory.cycle()).is_true()
 	assert_int(armory.equipped_weapon()).is_equal(CureArmory.Weapon.TRAVEL_MUG)
+	assert_str(TouchControls.weapon_name_for(armory.equipped_weapon())).is_equal("Travel Mug")
 
 
 func test_the_unlock_all_hands_the_whole_armory_over() -> void:
@@ -138,12 +142,14 @@ func test_a_loaded_bag_restocks_the_armory() -> void:
 
 func test_every_weapon_gear_item_resolves_through_the_catalog() -> void:
 	# The save resolves bag ids through the catalog, so a weapon that misses
-	# from it would vanish on reload.
+	# from it would vanish on reload. The interface name of a weapon is the
+	# display name of its gear item, so the readout and the bag row agree.
 	for weapon: CureArmory.Weapon in CureArmory.CYCLE_ORDER:
 		var item: ItemType = ITEM_CATALOG.find_item(CureArmory.ITEM_IDS[weapon])
 		assert_object(item).is_not_null()
 		assert_int(item.max_stack).is_equal(1)
 		assert_int(item.category).is_equal(ItemType.Category.GEAR)
+		assert_str(CureArmory.WEAPON_NAMES[weapon]).is_equal(item.display_name)
 
 
 func test_every_weapon_waits_exactly_once_along_the_route() -> void:

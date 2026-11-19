@@ -30,19 +30,13 @@ karen_balance = ExtResource("6")
 
 [node name="Visual" type="Polygon2D" parent="."]
 color = Color(0.87, 0.55, 0.66, 1)
-polygon = PackedVector2Array(-26, -18, 26, -18, 26, 22, -26, 22)
+polygon = PackedVector2Array(-22, -16, 0, -19, 22, -16, 21, 2, 12, 12, -12, 12, -21, 2)
 
 [node name="Nightcap" type="Polygon2D" parent="Visual"]
 color = Color(0.87, 0.55, 0.66, 1)
-polygon = PackedVector2Array(-12, -18, 12, -18, 17, -25, 5, -30, -8, -25)
+polygon = PackedVector2Array(-8, -35.5, -2, -40.5, 9, -38.5, 16, -30.5, 10, -27.5, 0, -30.5)
 
-[node name="KarenBob" type="Polygon2D" parent="Visual"]
-color = Color(0.24, 0.15, 0.12, 1)
-polygon = PackedVector2Array(-28, -22, 26, -22, 26, -8, -28, -8)
 
-[node name="KarenSweep" type="Polygon2D" parent="Visual"]
-color = Color(0.24, 0.15, 0.12, 1)
-polygon = PackedVector2Array(24, -22, 34, -12, 22, -8)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("Body")

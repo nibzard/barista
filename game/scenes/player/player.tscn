@@ -45,8 +45,8 @@ moka_pot_scene = ExtResource("17")
 auto_drip_turret_scene = ExtResource("18")
 
 [node name="Visual" type="Polygon2D" parent="."]
-color = Color(0.2, 0.35, 0.7, 1)
-polygon = PackedVector2Array(-16, -24, 16, -24, 16, 20, -16, 20)
+color = Color(0.914, 0.765, 0.627, 1)
+polygon = PackedVector2Array(-16, -18, -7, -24, 7, -24, 16, -18, 15, 6, 9, 20, -9, 20, -15, 6)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("Body")

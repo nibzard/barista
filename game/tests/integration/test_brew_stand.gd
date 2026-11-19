@@ -88,7 +88,7 @@ func test_the_stand_gates_the_player_for_its_whole_run() -> void:
 func test_the_stand_holds_the_interact_key_at_the_masters() -> void:
 	# The lift and stop actions share the E key with interact, so a press
 	# mid-brew must not also take a master lesson at the cafe pot.
-	var master := _city.masters()[0]
+	var master := _city.master_school.masters()[0]
 	_city.player.global_position = master.global_position
 	await get_tree().physics_frame
 	await get_tree().physics_frame

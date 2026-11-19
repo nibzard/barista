@@ -38,7 +38,7 @@ func test_the_scene_pins_its_parts() -> void:
 
 func test_the_run_builds_the_city_master_at_the_cafe() -> void:
 	_wake_the_crowd()
-	var masters := _city.masters()
+	var masters := _city.master_school.masters()
 	assert_int(masters.size()).is_equal(1)
 	var master_npc := masters[0]
 	assert_str(master_npc.master.master_id).is_equal("offmug")
@@ -53,10 +53,10 @@ func test_the_run_builds_the_city_master_at_the_cafe() -> void:
 
 func test_offmug_says_ultimately_when_he_teaches() -> void:
 	_wake_the_crowd()
-	var master_npc := _city.masters()[0]
+	var master_npc := _city.master_school.masters()[0]
 	await _stand_at_master(master_npc)
 
-	assert_bool(_city.interact_with_masters()).is_true()
+	assert_bool(_city.master_school.interact()).is_true()
 	assert_str(master_npc.spoken_line()).is_equal(
 		"Ultimately... Pour in a slow circle. Let the bloom lead. Patience makes the cup."
 	)
@@ -69,11 +69,11 @@ func test_offmug_says_ultimately_when_he_teaches() -> void:
 
 func test_three_lessons_complete_the_school() -> void:
 	_wake_the_crowd()
-	var master_npc := _city.masters()[0]
+	var master_npc := _city.master_school.masters()[0]
 	await _stand_at_master(master_npc)
 
 	for lesson: int in range(3):
-		assert_bool(_city.interact_with_masters()).is_true()
+		assert_bool(_city.master_school.interact()).is_true()
 	assert_int(_city.player.brewing_skills.skill("v60")).is_equal(6)
 	assert_bool(_city.master_lessons.is_school_complete("offmug")).is_true()
 	assert_str(_city.hud.toast_message()).is_equal(
@@ -81,7 +81,7 @@ func test_three_lessons_complete_the_school() -> void:
 	)
 
 	# The fourth visit teaches nothing: the master only says the catchphrase.
-	assert_bool(_city.interact_with_masters()).is_true()
+	assert_bool(_city.master_school.interact()).is_true()
 	assert_str(master_npc.spoken_line()).is_equal("Ultimately...")
 	assert_str(_city.hud.toast_message()).is_equal("JAMES OFFMUG HAS TAUGHT EVERY LESSON.")
 	assert_int(_city.player.brewing_skills.skill("v60")).is_equal(6)
@@ -94,13 +94,13 @@ func test_hedrip_teaches_both_methods_in_steamtle() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	var master_npc := steamtle.masters()[0]
+	var master_npc := steamtle.master_school.masters()[0]
 	assert_str(master_npc.master.master_id).is_equal("hedrip")
 	steamtle.player.global_position = master_npc.global_position
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
-	assert_bool(steamtle.interact_with_masters()).is_true()
+	assert_bool(steamtle.master_school.interact()).is_true()
 	assert_int(steamtle.player.brewing_skills.skill("aeropress")).is_equal(2)
 	assert_int(steamtle.player.brewing_skills.skill("cold_brew")).is_equal(2)
 	assert_bool(steamtle.master_lessons.is_recipe_known("triple_shot")).is_true()
@@ -115,14 +115,14 @@ func test_raoast_grants_three_recipes_in_pourtland() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	var master_npc := pourtland.masters()[0]
+	var master_npc := pourtland.master_school.masters()[0]
 	assert_str(master_npc.master.master_id).is_equal("raoast")
 	pourtland.player.global_position = master_npc.global_position
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
 	for lesson: int in range(3):
-		assert_bool(pourtland.interact_with_masters()).is_true()
+		assert_bool(pourtland.master_school.interact()).is_true()
 	assert_array(pourtland.master_lessons.known_recipes()).is_equal(
 		["super_tall_american", "ristretto", "bulletproof"]
 	)
@@ -136,7 +136,7 @@ func test_interact_away_from_the_master_returns_false() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
-	assert_bool(_city.interact_with_masters()).is_false()
+	assert_bool(_city.master_school.interact()).is_false()
 	assert_int(_city.player.brewing_skills.skill("v60")).is_equal(0)
 	assert_int(_city.master_lessons.lessons_taken("offmug")).is_equal(0)
 
@@ -150,7 +150,7 @@ func test_the_van_keeps_the_interact_key_at_its_own_spot() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 
-	assert_bool(_city.interact_with_masters()).is_false()
+	assert_bool(_city.master_school.interact()).is_false()
 	assert_int(_city.player.brewing_skills.skill("v60")).is_equal(0)
 
 

@@ -6,17 +6,35 @@ extends Area2D
 
 enum Kind { SLEEP, SAFE, BORING }
 
-# Placeholder tints until the art pass brings the purple haze and the lamps.
-const SLEEP_ZONE_TINT := Color(0.55, 0.25, 0.75, 0.22)
-const SAFE_ZONE_TINT := Color(0.45, 0.85, 0.55, 0.12)
-const LULLABY_TINT := Color(0.4, 0.35, 0.8, 0.16)
-const POLE_TINT := Color(0.3, 0.1, 0.45, 0.9)
-const POLE_MARKER_RADIUS := 10.0
+# The shader stays a path, never a preload: the city kit and the tests share
+# this scene, and a compile-time const can bind an empty shader while another
+# load of it still runs (T102).
+const SLEEP_HAZE_SHADER_PATH := "res://shaders/sleep_haze.gdshader"
+# The haze square draws over the street and the walkers, like air.
+const HAZE_Z_INDEX := 50
+const HAZE_FADE_SECONDS := 0.9
+# The drooping street lamp of a sleep zone: a post that bends like a tired
+# flower, with its head still on, ART_DIRECTION section 5.
+const LAMP_CURVE := [Vector2(0, 0), Vector2(3, -30), Vector2(10, -52), Vector2(22, -60)]
+const LAMP_POLE_WIDTH := 5.0
+const LAMP_HEAD_RADIUS := 7.0
+const LAMP_GLOW_RADIUS := 18.0
+# Soft ring steps: three lavender rings fade the zone edge, never a hard cut.
+const RING_STEPS := 3
+const RING_OUTER_ALPHA := 0.16
 
 @export var kind: Kind = Kind.SLEEP
 
 var _broadcast_silenced := false
 var _active := true
+var _palette: ArtPalette
+var _haze: Polygon2D
+
+
+func _ready() -> void:
+	_palette = ArtPalette.world()
+	if kind == Kind.SLEEP:
+		_build_haze()
 
 
 func set_active(active: bool) -> void:
@@ -25,6 +43,8 @@ func set_active(active: bool) -> void:
 	if _active == active:
 		return
 	_active = active
+	if _haze != null:
+		_haze.visible = active
 	queue_redraw()
 
 
@@ -34,12 +54,27 @@ func is_active() -> bool:
 
 func silence_broadcast() -> void:
 	# The tower of the city is off: the address no longer plays through this
-	# pole, so the zone stops pulling the player down.
+	# pole, so the zone stops pulling the player down. The haze burns off and
+	# the drooping lamp goes dark.
+	if _broadcast_silenced:
+		return
 	_broadcast_silenced = true
+	_fade_haze()
+	queue_redraw()
 
 
 func is_broadcast_silenced() -> bool:
 	return _broadcast_silenced
+
+
+func haze_strength() -> float:
+	# Test read of the live haze shader strength.
+	if _haze == null:
+		return 0.0
+	var material := _haze.material as ShaderMaterial
+	if material == null:
+		return 0.0
+	return material.get_shader_parameter("strength") as float
 
 
 func _physics_process(_delta: float) -> void:
@@ -75,16 +110,85 @@ func _player_inside() -> Player:
 	return null
 
 
+func _build_haze() -> void:
+	# The sleep haze shader of the style lab, now live on the pole zones: the
+	# street inside loses color and drifts in lavender, never dark.
+	var radius := _circle_radius()
+	if radius <= 0.0:
+		return
+	_haze = Polygon2D.new()
+	_haze.name = "SleepHaze"
+	_haze.z_index = HAZE_Z_INDEX
+	var half := Vector2(radius, radius)
+	_haze.polygon = PackedVector2Array(
+		[-half, Vector2(half.x, -half.y), half, Vector2(-half.x, half.y)]
+	)
+	var material := ShaderMaterial.new()
+	material.shader = load(SLEEP_HAZE_SHADER_PATH) as Shader
+	material.set_shader_parameter(
+		"haze", _palette.lavender if _palette != null else Color("#A99BC4")
+	)
+	material.set_shader_parameter("strength", 1.0)
+	material.set_shader_parameter("rect_size", half * 2.0)
+	_haze.material = material
+	add_child(_haze)
+
+
+func _fade_haze() -> void:
+	if _haze == null:
+		return
+	var material := _haze.material as ShaderMaterial
+	var fade := create_tween()
+	fade.tween_method(
+		func(strength: float) -> void: material.set_shader_parameter("strength", strength),
+		1.0,
+		0.0,
+		HAZE_FADE_SECONDS
+	)
+	fade.tween_callback(_haze.hide)
+
+
 func _draw() -> void:
-	# Placeholder zone marker: the circle always matches the area radius.
-	if not _active:
+	# The zone edge stays visible, section 13 of ART_DIRECTION: soft rings in
+	# the zone color, and the drooping lamp at the pole.
+	if not _active or _palette == null:
 		return
 	var radius := _circle_radius()
 	if radius <= 0.0:
 		return
-	draw_circle(Vector2.ZERO, radius, _zone_tint())
+	_draw_rings(radius)
 	if kind == Kind.SLEEP:
-		draw_circle(Vector2.ZERO, POLE_MARKER_RADIUS, POLE_TINT)
+		_draw_lamp()
+
+
+func _draw_rings(radius: float) -> void:
+	var color := _ring_color()
+	for step: int in RING_STEPS:
+		var ring_radius := radius * (1.0 - float(step) * 0.12)
+		var alpha := RING_OUTER_ALPHA * (1.0 - float(step) * 0.28)
+		draw_circle(Vector2.ZERO, ring_radius, Color(color, alpha))
+
+
+func _ring_color() -> Color:
+	# The cafe safe zone reads warm: the sanctuary is the one finished
+	# drawing. Sleep and boring zones read lavender: dusk and dream.
+	if kind == Kind.SAFE:
+		return _palette.butter
+	return _palette.lavender
+
+
+func _draw_lamp() -> void:
+	# A street lamp that droops like a tired flower, section 5. While the
+	# address plays, the head still burns warm inside the blue dusk.
+	var curve := PackedVector2Array(LAMP_CURVE)
+	draw_polyline(curve, _palette.espresso.lerp(_palette.cream, 0.45), LAMP_POLE_WIDTH)
+	var head: Vector2 = LAMP_CURVE[LAMP_CURVE.size() - 1] + Vector2(LAMP_HEAD_RADIUS + 2.0, 4.0)
+	var lit := _active and not _broadcast_silenced
+	if lit:
+		draw_circle(head, LAMP_GLOW_RADIUS, Color(_palette.butter, 0.28))
+		draw_circle(head, LAMP_HEAD_RADIUS, _palette.butter)
+	else:
+		draw_circle(head, LAMP_HEAD_RADIUS, _palette.rain.lerp(_palette.cream, 0.4))
 
 
 func _circle_radius() -> float:
@@ -95,13 +199,3 @@ func _circle_radius() -> float:
 	if circle == null:
 		return 0.0
 	return circle.radius
-
-
-func _zone_tint() -> Color:
-	match kind:
-		Kind.SAFE:
-			return SAFE_ZONE_TINT
-		Kind.BORING:
-			return LULLABY_TINT
-		_:
-			return SLEEP_ZONE_TINT

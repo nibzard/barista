@@ -48,6 +48,20 @@ func test_the_layer_sits_ready_for_play() -> void:
 	assert_bool(_city.touch_controls.button(TouchControls.ButtonKind.VAN).visible).is_false()
 
 
+func test_the_coasters_wear_chalk_icons_not_words() -> void:
+	# ART_DIRECTION section 11: icons replace words on the touch buttons.
+	# Cup for throw, mug for drink, roll arrow for dodge; the layer applies
+	# its map when it enters the tree.
+	var controls := _city.touch_controls
+	for kind: TouchControls.ButtonKind in TouchControls.ButtonKind.values():
+		assert_int(controls.button(kind).icon).is_equal(TouchControls.icon_for(kind))
+	assert_int(controls.button(TouchControls.ButtonKind.THROW).icon).is_equal(TouchButton.Icon.CUP)
+	assert_int(controls.button(TouchControls.ButtonKind.DRINK).icon).is_equal(TouchButton.Icon.MUG)
+	assert_int(controls.button(TouchControls.ButtonKind.DODGE).icon).is_equal(
+		TouchButton.Icon.ROLL_ARROW
+	)
+
+
 func test_the_stick_moves_the_player() -> void:
 	_wake_the_crowd()
 	var start := _city.player.global_position
@@ -322,7 +336,7 @@ func test_the_completion_screen_hands_the_controls_back() -> void:
 	var arrivals: Array[int] = []
 	run.east_road_taken.connect(func() -> void: arrivals.append(1))
 	run.unlock_state.unlock()
-	run.player.global_position = run.road_east().global_position - Vector2(100.0, 0.0)
+	run.player.global_position = run.roads.east().global_position - Vector2(100.0, 0.0)
 	await get_tree().physics_frame
 	_hold_stick_on(run, Vector2.RIGHT)
 	frames = 0
@@ -370,8 +384,12 @@ func test_the_intro_rides_on_touch_alone() -> void:
 	_tap_on(run, TouchControls.ButtonKind.DRINK)
 	await _ride_until(run, TutorialFlow.Step.DOOR)
 
-	# Step 4: the stick walks the player out of the cafe.
-	_hold_stick_on(run, Vector2.DOWN)
+	# Step 4: the stick walks the player out of the cafe. The cafe is a real
+	# building now (T063), so the ride steers for the south door instead of
+	# holding straight down into the wall west of it.
+	var cafe_building := run.city_map().find_block_of_kind(CityBlock.Kind.CAFE).cafe_building()
+	var door_world := cafe_building.global_position + cafe_building.door_position()
+	_hold_stick_on(run, (door_world - run.player.global_position).normalized())
 	await _ride_until(run, TutorialFlow.Step.THROW)
 	_release_stick_on(run)
 

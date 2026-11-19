@@ -150,7 +150,10 @@ func test_the_menu_mode_select_boots_a_hardcore_run() -> void:
 	assert_int(city.player.wake_ups.remaining).is_equal(0)
 	assert_bool(city.player.wake_ups.has_wake_ups()).is_false()
 	await get_tree().process_frame
-	assert_str(city.hud.wake_ups_value.text).is_equal("none")
+	# The icon row holds no clocks at all: the mode never granted a life
+	# the row could count.
+	assert_int(city.hud.wake_clocks.clock_count()).is_equal(0)
+	assert_int(city.hud.wake_clocks.standing_count()).is_equal(0)
 
 	city.player.pickup_item(FUSE_ITEM, 1)
 	var tower := city.city_map().broadcast_tower()

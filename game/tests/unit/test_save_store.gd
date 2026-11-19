@@ -66,24 +66,55 @@ func test_from_dict_rejects_a_document_from_a_future_version() -> void:
 	assert_object(SaveData.from_dict({"tower_phases": {}})).is_null()
 	# A version 1 slot held tower phases only, a version 2 slot predates
 	# character creation, a version 3 slot predates the game mode, section 9,
-	# and a version 4 slot predates the boss cure state of the arena show:
+	# a version 4 slot predates the boss cure state of the arena show, a
+	# version 5 slot predates the saved city worlds of the road west, section
+	# 23, and a version 6 slot predates the street crowd awake flags, T134:
 	# an old document reads as no save, so the game starts fresh.
 	assert_object(SaveData.from_dict({"save_version": 1, "tower_phases": {}})).is_null()
 	assert_object(SaveData.from_dict({"save_version": 2, "tower_phases": {}})).is_null()
 	assert_object(SaveData.from_dict({"save_version": 3, "tower_phases": {}})).is_null()
 	assert_object(SaveData.from_dict({"save_version": 4, "tower_phases": {}})).is_null()
+	assert_object(SaveData.from_dict({"save_version": 5, "tower_phases": {}})).is_null()
+	assert_object(SaveData.from_dict({"save_version": 6, "tower_phases": {}})).is_null()
 
 
 func test_from_dict_reads_plain_json_values() -> void:
 	# A JSON number loads as a float, so the document stores every phase as
 	# an int again, the plain number the tower contract pins.
 	var loaded := SaveData.from_dict(
-		{"save_version": 5, "tower_phases": {"san_coffesco": 3.0}, "wake_ups": 4.0}
+		{"save_version": 7, "tower_phases": {"san_coffesco": 3.0}, "wake_ups": 4.0}
 	)
 	assert_int(loaded.tower_phase("san_coffesco", 0)).is_equal(3)
 	assert_int(loaded.wake_ups).is_equal(4)
-	var bare := SaveData.from_dict({"save_version": 5})
+	var bare := SaveData.from_dict({"save_version": 7})
 	assert_bool(bare.has_tower_state("san_coffesco")).is_false()
+	assert_dict(bare.city_world("san_coffesco")).is_empty()
+	assert_array(bare.crowd_awake).is_empty()
+
+
+func test_the_crowd_flags_ride_the_run_state_and_the_city_world() -> void:
+	# T134: the per-walker awake flags of the street crowd ride the run state
+	# of section 18 and the stored city world of section 23, so a reload and
+	# the return west both find the woken street. A foreign entry reads as
+	# false, so a corrupt slot wakes nobody.
+	var data := SaveData.new()
+	data.crowd_awake = [true, false, true]
+	assert_array(SaveData.from_dict(data.to_dict()).crowd_awake).is_equal([true, false, true])
+
+	var system := SaveSystem.new(_slot("crowd-flags"))
+	var run := _run_state("san_coffesco", BroadcastTower.Phase.SILENCE)
+	run["crowd_awake"] = [true, false, true]
+	assert_int(system.record_save_point(SaveData.POINT_BOSS_CURED, run)).is_equal(OK)
+	assert_array(system.saved_run_state().get("crowd_awake", [])).is_equal([true, false, true])
+
+	var reopened := SaveSystem.new(_slot("crowd-flags"))
+	var world := reopened.city_world("san_coffesco")
+	assert_array(world.get("crowd_awake", [])).is_equal([true, false, true])
+
+	var foreign := _run_state("steamtle", BroadcastTower.Phase.SILENCE)
+	foreign["crowd_awake"] = [true, "awake", 2]
+	assert_int(system.record_save_point(SaveData.POINT_CAFE_ENTRY, foreign)).is_equal(OK)
+	assert_array(system.saved_run_state().get("crowd_awake", [])).is_equal([true, false, false])
 
 
 func test_the_store_writes_and_reads_one_slot() -> void:
@@ -194,6 +225,34 @@ func test_the_save_system_keeps_cities_apart() -> void:
 	assert_int(system.saved_tower_phase("pourtland", BroadcastTower.Phase.BROADCASTING)).is_equal(
 		BroadcastTower.Phase.BROADCASTING
 	)
+
+
+func test_the_city_world_of_one_city_survives_a_save_in_another() -> void:
+	# Section 23: every save point refreshes the world of its own city only,
+	# so a save in Pourtland keeps the finished Steamtle world stored for the
+	# road west. The road reads the world back through a reopened slot.
+	var system := SaveSystem.new(_slot("city-worlds"))
+	var steamtle := _run_state("steamtle", BroadcastTower.Phase.SILENCE)
+	steamtle["progress"] = {"tower_off": true, "boss_cured": true}
+	steamtle["boss"] = {"cured": true}
+	steamtle["moving_day"] = true
+	system.record_save_point(SaveData.POINT_BOSS_CURED, steamtle)
+	var pourtland := _run_state("pourtland", BroadcastTower.Phase.SILENCE)
+	pourtland["outro"] = {"step": 4}
+	assert_int(system.record_save_point(SaveData.POINT_POST_GAME, pourtland)).is_equal(OK)
+
+	var reopened := SaveSystem.new(_slot("city-worlds"))
+	var world := reopened.city_world("steamtle")
+	var progress: Dictionary = world.get("progress", {})
+	assert_bool(progress.get("tower_off", false)).is_true()
+	assert_bool(progress.get("boss_cured", false)).is_true()
+	var boss: Dictionary = world.get("boss", {})
+	assert_bool(boss.get("cured", false)).is_true()
+	assert_bool(world.get("moving_day", false)).is_true()
+	assert_int(world.get("tower_phase", -1)).is_equal(BroadcastTower.Phase.SILENCE)
+	var outro: Dictionary = reopened.city_world("pourtland").get("outro", {})
+	assert_int(outro.get("step", 0)).is_equal(OutroFlow.Step.POST_GAME)
+	assert_dict(reopened.city_world("san_coffesco")).is_empty()
 
 
 func test_delete_save_resets_the_document() -> void:

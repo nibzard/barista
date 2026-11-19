@@ -85,6 +85,9 @@ func _ready() -> void:
 	_pick_wander_direction()
 	visual.color = enemy_type.pajama_color
 	nightcap.color = enemy_type.pajama_color
+	# The art direction pass: the placeholder rectangle becomes the cast
+	# figure of ART_DIRECTION section 7, built from the type data.
+	SleeperFigure.build(visual, nightcap, enemy_type)
 	if enemy_type.special_behavior == EnemyType.SpecialBehavior.PHOTO_FLASH:
 		_photo_cooldown = tourist_balance.photo_interval_seconds
 	if enemy_type.special_behavior == EnemyType.SpecialBehavior.DRONE_ATTACK:
@@ -123,7 +126,7 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 
 
-func wake_up() -> void:
+func wake_up(restore := false) -> void:
 	if state == State.AWAKE:
 		return
 	if state == State.HUG and player != null:
@@ -139,7 +142,14 @@ func wake_up() -> void:
 	_brain_freeze_time_left = 0.0
 	_brain_freeze_speed_factor = 1.0
 	_update_control_look()
-	visual.modulate = Color(0.45, 0.85, 0.5)
+	# The wake beat of the art direction, ART_DIRECTION section 1: the sketch
+	# colors in from the cup hit, the eyes pop open, and the drool arc goes.
+	# A restored wake, T134, replays no beat: the color front stands complete
+	# at once, no wake line floats, and no signal fires, because the save
+	# already recorded the wake.
+	SleeperFigure.set_awake(visual, true, global_position, restore)
+	if restore:
+		return
 	if not enemy_type.wake_line.is_empty():
 		spoke.emit(enemy_type.wake_line)
 	woke_up.emit()

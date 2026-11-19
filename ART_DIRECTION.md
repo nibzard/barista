@@ -225,6 +225,18 @@ The engine adds the shared look, so every asset matches without extra work:
 - The engine parts of the prototype are ready for the real game: `game/shaders/` (hand_drawn, sleep_haze, paper_grain), `ColorFill` in `game/scripts/components/`, `ArtPalette`, and the `CityLook` resources in `game/resources/art/`.
 - The style lab figures and street are placeholder shapes. Do not ship them. Real art replaces them.
 
+### What the placeholder pass already wired into the live game (T045)
+
+The in-house pass before the real art (T054) replaced the flat placeholder shapes with placeholder-quality vector art that follows this document:
+
+- `SleeperFigure` (`game/scripts/components/sleeper_figure.gd`) builds every sleepwalker type from the silhouette hooks of section 7: 3.5 heads, oversized hands, pastel pajamas, nightcap or hat, and the white chalk drool arc. The one-centimeter readability rule is pinned by `game/tests/unit/test_silhouette_readability.gd`.
+- `BaristaPortrait` rounds the player body and adds the oversized hands with a held cup; the steampunk apron and goggles ride the appearance catalog of the character creator.
+- `CityLookStage` (`game/scripts/art/city_look_stage.gd`) wires one `CityLook` into live play: dusk `CanvasModulate`, the city weather, the paper grain overlay above the screen, and the sunrise tween when the tower switches off. Every city definition links its look (`city_look`), and the block kit draws the cream paper ground with the city accent.
+- The sleep zones run the `sleep_haze` shader over the pole zones, draw the drooping lamp, and burn the haze off when the address dies.
+- The broadcast tower wears the Mug Roasters Co. look: mug black and red, the smiling logo panel, and the chalk strike of the survivors after the switch-off.
+- The interface theme (`ChalkTheme`, `game/scripts/ui/chalk_theme.gd`) puts the menus on chalkboards with a wood frame, and the SleepyDex phone rows carry the field-guide silhouette portraits.
+- The awake meter reads as the mug of section 11 (`MugMeter`, `game/scripts/ui/mug_meter.gd`): the coffee level in the mug is the meter value, and below one quarter the steam stops and the coffee cools from buttery yellow toward rainy blue.
+
 ### Order of work
 
 1. Palette resources and the interface theme (chalkboard, mug meter). Low cost, large effect.

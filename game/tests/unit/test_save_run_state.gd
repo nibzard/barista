@@ -76,6 +76,7 @@ func _full_run_state() -> Dictionary:
 		},
 		"progress": {"tower_off": true, "boss_cured": false},
 		"boss": {"cured": false},
+		"crowd_awake": [false, true, false, true],
 		"moving_day": true,
 		"tutorial": {"step": 10, "hug": true, "dodge": true, "brew": false},
 		"outro": {"step": 4},
@@ -137,6 +138,7 @@ func test_every_run_state_field_round_trips_through_the_slot() -> void:
 	assert_bool(progress.get("boss_cured", true)).is_false()
 	var boss: Dictionary = loaded.get("boss", {})
 	assert_bool(boss.get("cured", true)).is_false()
+	assert_array(loaded.get("crowd_awake", [])).is_equal([false, true, false, true])
 	assert_bool(loaded.get("moving_day", false)).is_true()
 	var tutorial: Dictionary = loaded.get("tutorial", {})
 	assert_int(tutorial.get("step", -1)).is_equal(10)

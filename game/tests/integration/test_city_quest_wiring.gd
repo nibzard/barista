@@ -73,7 +73,7 @@ func test_the_completed_city_unlocks_the_next_one_in_the_log() -> void:
 	# the trigger only after it lands.
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	run.player.global_position = run.road_east().global_position
+	run.player.global_position = run.roads.east().global_position
 	var frames := 0
 	while run.quest_log.main_quest.current_city() != "steamtle" and frames < MAX_FRAMES_TO_WAIT:
 		await get_tree().physics_frame

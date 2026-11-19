@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CityDefinition" load_steps=37 format=3]
+[gd_resource type="Resource" script_class="CityDefinition" load_steps=40 format=3]
 
 [ext_resource type="Script" path="res://scripts/city/city_definition.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/city/city_block.gd" id="2"]
@@ -23,6 +23,10 @@
 
 [ext_resource type="Resource" path="res://resources/items/gear/french_press.tres" id="17"]
 [ext_resource type="Resource" path="res://resources/items/gear/moka_launcher.tres" id="18"]
+
+[ext_resource type="Resource" path="res://resources/items/gear/portafilter.tres" id="24"]
+[ext_resource type="Resource" path="res://resources/items/gear/iced_sprayer.tres" id="25"]
+[ext_resource type="Resource" path="res://resources/art/city_looks/steamtle.tres" id="look"]
 
 [sub_resource type="Resource" id="FindThermosBelt"]
 script = ExtResource("14")
@@ -54,6 +58,16 @@ script = ExtResource("14")
 item = ExtResource("18")
 amount = 1
 
+[sub_resource type="Resource" id="FindPortafilter"]
+script = ExtResource("14")
+item = ExtResource("24")
+amount = 1
+
+[sub_resource type="Resource" id="FindIcedSprayer"]
+script = ExtResource("14")
+item = ExtResource("25")
+amount = 1
+
 [sub_resource type="Resource" id="BlockFanClub"]
 script = ExtResource("2")
 kind = 5
@@ -75,7 +89,7 @@ site_name = "Greenhouse"
 script = ExtResource("2")
 kind = 4
 sleepwalker_count = 3
-finds = [SubResource("FindThermosBelt"), SubResource("FindFrenchPress")]
+finds = [SubResource("FindThermosBelt"), SubResource("FindFrenchPress"), SubResource("FindPortafilter")]
 
 [sub_resource type="Resource" id="Block3"]
 script = ExtResource("2")
@@ -102,7 +116,7 @@ script = ExtResource("2")
 kind = 4
 sleepwalker_count = 4
 has_speaker_pole = true
-finds = [SubResource("FindMokaLauncher")]
+finds = [SubResource("FindMokaLauncher"), SubResource("FindIcedSprayer")]
 locked_side_room = SubResource("SideRoomGeisha")
 
 [sub_resource type="Resource" id="Block7"]
@@ -129,7 +143,8 @@ scene = ExtResource("9")
 script = ExtResource("1")
 city_id = "steamtle"
 display_name = "Steamtle"
-accent_color = Color(0.35, 0.5, 0.78, 1)
+accent_color = Color(0.424, 0.529, 0.651, 1)
+city_look = ExtResource("look")
 cafe_tier = 2
 boss_name = "The Fish Throwers"
 boss_scene = ExtResource("12")

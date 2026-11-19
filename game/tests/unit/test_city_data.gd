@@ -9,9 +9,9 @@ const SAN_COFFESCO := preload("res://resources/city/san_coffesco.tres")
 const STEAMTLE := preload("res://resources/city/steamtle.tres")
 const POURTLAND := preload("res://resources/city/pourtland.tres")
 
-const SAN_COFFESCO_ACCENT := Color(0.1, 0.65, 0.65, 1)
-const STEAMTLE_ACCENT := Color(0.35, 0.5, 0.78, 1)
-const POURTLAND_ACCENT := Color(0.38, 0.6, 0.3, 1)
+const SAN_COFFESCO_ACCENT := Color(0.369, 0.604, 0.58, 1)
+const STEAMTLE_ACCENT := Color(0.424, 0.529, 0.651, 1)
+const POURTLAND_ACCENT := Color(0.435, 0.498, 0.271, 1)
 
 const EXPECTED_BLOCK_COUNTS := {"san_coffesco": 8, "steamtle": 9, "pourtland": 8}
 

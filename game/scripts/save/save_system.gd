@@ -75,6 +75,10 @@ func record_save_point(point: String, run_state: Dictionary) -> Error:
 	# cross-city maps, so a save in one city never erases another city's.
 	_ensure_loaded()
 	var city_id := run_state.get("city_id", "") as String
+	# The street crowd awake flags of the saved city, T134: they ride the run
+	# state and the stored city world, so a reload and the return west both
+	# rebuild the woken street.
+	var crowd_awake := SaveData.bool_array(run_state.get("crowd_awake", []))
 	_data.save_point = point
 	_data.city_id = city_id
 	_data.scene_path = run_state.get("scene_path", "") as String
@@ -94,6 +98,7 @@ func record_save_point(point: String, run_state: Dictionary) -> Error:
 	_data.quest_state = SaveData.dict_or_empty(run_state.get("quests", {}))
 	_data.progress_state = SaveData.dict_or_empty(run_state.get("progress", {}))
 	_data.boss_state = SaveData.dict_or_empty(run_state.get("boss", {}))
+	_data.crowd_awake = crowd_awake
 	_data.moving_day_done = bool(run_state.get("moving_day", false))
 	_data.tutorial_state = SaveData.dict_or_empty(run_state.get("tutorial", {}))
 	_data.outro_state = SaveData.dict_or_empty(run_state.get("outro", {}))
@@ -107,6 +112,25 @@ func record_save_point(point: String, run_state: Dictionary) -> Error:
 		_data.set_tower_phase(city_id, int(run_state.get("tower_phase", -1)))
 	if city_id != "" and bool(run_state.get("vault_open", false)):
 		_data.set_vault_open(city_id, true)
+	if city_id != "":
+		# The world of this city at its last save point, section 23: a save in
+		# one city never erases the saved world of another.
+		(
+			_data
+			. set_city_world(
+				city_id,
+				{
+					"progress": SaveData.dict_or_empty(run_state.get("progress", {})),
+					"boss": SaveData.dict_or_empty(run_state.get("boss", {})),
+					"crowd_awake": crowd_awake,
+					"outro": SaveData.dict_or_empty(run_state.get("outro", {})),
+					"moving_day": bool(run_state.get("moving_day", false)),
+					"tutorial": SaveData.dict_or_empty(run_state.get("tutorial", {})),
+					"cold_brew": SaveData.dict_or_empty(run_state.get("cold_brew", {})),
+					"tower_phase": int(run_state.get("tower_phase", -1)),
+				}
+			)
+		)
 	return _store.write(_data)
 
 
@@ -135,6 +159,7 @@ func saved_run_state() -> Dictionary:
 		"quests": _data.quest_state.duplicate(),
 		"progress": _data.progress_state.duplicate(),
 		"boss": _data.boss_state.duplicate(),
+		"crowd_awake": _data.crowd_awake.duplicate(),
 		"moving_day": _data.moving_day_done,
 		"tutorial": _data.tutorial_state.duplicate(),
 		"outro": _data.outro_state.duplicate(),
@@ -177,6 +202,14 @@ func saved_save_point() -> String:
 func saved_tower_phase(city_id: String, default_phase: int) -> int:
 	_ensure_loaded()
 	return _data.tower_phase(city_id, default_phase)
+
+
+func city_world(city_id: String) -> Dictionary:
+	# The saved world of one city, section 23: the road west reads it, so the
+	# return finds the city as its last save point left it. Empty when the
+	# route never saved in this city.
+	_ensure_loaded()
+	return _data.city_world(city_id)
 
 
 func has_tower_state(city_id: String) -> bool:

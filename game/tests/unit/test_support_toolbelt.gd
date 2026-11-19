@@ -1,8 +1,21 @@
-# ABOUTME: Unit tests for the SupportToolbelt: unlock, cycle, cooldowns, parry window.
-# ABOUTME: Pure logic: the clocks tick by hand, so no scene tree is needed.
+# ABOUTME: Unit tests for the SupportToolbelt: unlock, cycle, cooldowns, parry
+# ABOUTME: window, the found-gear grant, and the route placement of section 11.
 extends GdUnitTestSuite
 
 const BALANCE := preload("res://resources/balance/support_tools.tres")
+const ITEM_CATALOG := preload("res://resources/items/catalog.tres")
+const SAN_COFFESCO := preload("res://resources/city/san_coffesco.tres")
+const STEAMTLE := preload("res://resources/city/steamtle.tres")
+const POURTLAND := preload("res://resources/city/pourtland.tres")
+
+# Section 11, the route order: San Coffesco hands over the tamper and the
+# steam wand, Steamtle the portafilter and the iced sprayer, Pourtland the
+# bean slick.
+const ROUTE_FINDS := {
+	"san_coffesco": ["tamper", "steam_wand"],
+	"steamtle": ["portafilter", "iced_sprayer"],
+	"pourtland": ["bean_slick"],
+}
 
 
 func _belt() -> SupportToolbelt:
@@ -54,6 +67,7 @@ func test_a_fresh_belt_is_empty() -> void:
 	var belt := _belt()
 	assert_bool(belt.has_any()).is_false()
 	assert_int(belt.equipped_tool()).is_equal(SupportToolbelt.NO_TOOL)
+	assert_str(TouchControls.tool_name_for(belt.equipped_tool())).is_equal("")
 	assert_bool(belt.cycle()).is_false()
 	assert_bool(belt.equip(SupportToolbelt.Tool.TAMPER)).is_false()
 
@@ -64,6 +78,7 @@ func test_the_first_find_equips_itself() -> void:
 	assert_bool(belt.has_any()).is_true()
 	assert_bool(belt.is_unlocked(SupportToolbelt.Tool.ICED_SPRAYER)).is_true()
 	assert_int(belt.equipped_tool()).is_equal(SupportToolbelt.Tool.ICED_SPRAYER)
+	assert_str(TouchControls.tool_name_for(belt.equipped_tool())).is_equal("Iced Sprayer")
 
 
 func test_unlocking_the_same_tool_twice_changes_nothing() -> void:
@@ -82,11 +97,13 @@ func test_the_cycle_walks_the_found_tools_in_order() -> void:
 
 	assert_bool(belt.cycle()).is_true()
 	assert_int(belt.equipped_tool()).is_equal(SupportToolbelt.Tool.PORTAFILTER)
+	assert_str(TouchControls.tool_name_for(belt.equipped_tool())).is_equal("Portafilter")
 	assert_bool(belt.cycle()).is_true()
 	assert_int(belt.equipped_tool()).is_equal(SupportToolbelt.Tool.BEAN_SLICK)
 	# The swap wraps around to the first found tool.
 	assert_bool(belt.cycle()).is_true()
 	assert_int(belt.equipped_tool()).is_equal(SupportToolbelt.Tool.TAMPER)
+	assert_str(TouchControls.tool_name_for(belt.equipped_tool())).is_equal("Tamper")
 
 
 func test_equip_swaps_to_any_found_tool() -> void:
@@ -159,3 +176,87 @@ func test_a_new_parry_window_reopens_after_a_spend() -> void:
 	assert_bool(belt.consume_parry()).is_true()
 	belt.open_parry_window()
 	assert_bool(belt.is_parrying()).is_true()
+
+
+func test_a_found_gear_item_unlocks_its_tool() -> void:
+	# Section 11: a tool joins the belt through its gear item, like the cure
+	# weapons. Gear that carries no tool changes nothing.
+	var belt := _belt()
+	assert_bool(belt.grant_item("tamper")).is_true()
+	assert_bool(belt.is_unlocked(SupportToolbelt.Tool.TAMPER)).is_true()
+	# The first find equips itself.
+	assert_int(belt.equipped_tool()).is_equal(SupportToolbelt.Tool.TAMPER)
+	# A later find unlocks without stealing the slot.
+	assert_bool(belt.grant_item("bean_slick")).is_true()
+	assert_int(belt.equipped_tool()).is_equal(SupportToolbelt.Tool.TAMPER)
+	# A cure weapon and plain material carry no support tool.
+	assert_bool(belt.grant_item("travel_mug")).is_false()
+	assert_bool(belt.grant_item("scrap_part")).is_false()
+	assert_int(belt.unlocked_tools().size()).is_equal(2)
+
+
+func test_a_loaded_bag_restocks_the_belt() -> void:
+	# Section 18: the tools ride the bag as gear, so a save or a move east
+	# rebuilds the unlocked set from the loaded bag.
+	var belt := _belt()
+	var bag := Inventory.new()
+	bag.add(ITEM_CATALOG.find_item("portafilter"), 1)
+	bag.add(ITEM_CATALOG.find_item("iced_sprayer"), 1)
+	bag.add(ITEM_CATALOG.find_item("fuse"), 3)
+
+	belt.sync_unlocked_from_inventory(bag)
+
+	assert_bool(belt.is_unlocked(SupportToolbelt.Tool.PORTAFILTER)).is_true()
+	assert_bool(belt.is_unlocked(SupportToolbelt.Tool.ICED_SPRAYER)).is_true()
+	assert_bool(belt.is_unlocked(SupportToolbelt.Tool.TAMPER)).is_false()
+	assert_int(belt.equipped_tool()).is_equal(SupportToolbelt.Tool.PORTAFILTER)
+
+
+func test_the_tool_gear_resolves_in_the_catalog() -> void:
+	# The save resolves bag ids through the catalog, so a tool that misses
+	# from it would vanish on reload. The interface name of a tool is the
+	# display name of its gear item, so the readout and the bag row agree.
+	for tool: SupportToolbelt.Tool in SupportToolbelt.CYCLE_ORDER:
+		var item: ItemType = ITEM_CATALOG.find_item(SupportToolbelt.ITEM_IDS[tool])
+		assert_object(item).is_not_null()
+		assert_int(item.max_stack).is_equal(1)
+		assert_int(item.category).is_equal(ItemType.Category.GEAR)
+		assert_str(SupportToolbelt.TOOL_NAMES[tool]).is_equal(item.display_name)
+
+
+func test_every_tool_waits_exactly_once_along_the_route() -> void:
+	# Section 11: the player finds the support tools along the route. Every
+	# tool of the belt waits as a find in one city, and no city hands the
+	# same tool over twice.
+	var found_cities: Dictionary = {}
+	for city: CityDefinition in [SAN_COFFESCO, STEAMTLE, POURTLAND]:
+		var expected: Array = ROUTE_FINDS[city.city_id]
+		var finds := _city_tool_finds(city)
+		assert_int(finds.size()).override_failure_message(city.city_id).is_equal(expected.size())
+		for item_id: String in finds:
+			assert_bool(expected.has(item_id)).is_true()
+			assert_bool(found_cities.has(item_id)).is_false()
+			found_cities[item_id] = city.city_id
+	assert_int(found_cities.size()).is_equal(5)
+
+
+func test_the_route_hands_the_tools_over_in_the_cycle_order() -> void:
+	# The early cities arm the player gently: the push and the parry in San
+	# Coffesco where hugs rule, the shield and the crowd slow in Steamtle,
+	# the comedy slick in Pourtland at the end of the road.
+	assert_str(_city_tool_finds(SAN_COFFESCO)[0]).is_equal("tamper")
+	assert_str(_city_tool_finds(SAN_COFFESCO)[1]).is_equal("steam_wand")
+	assert_str(_city_tool_finds(STEAMTLE)[0]).is_equal("portafilter")
+	assert_str(_city_tool_finds(STEAMTLE)[1]).is_equal("iced_sprayer")
+	assert_str(_city_tool_finds(POURTLAND)[0]).is_equal("bean_slick")
+
+
+func _city_tool_finds(city: CityDefinition) -> Array[String]:
+	# The tool gear ids of every authored find of the city, in block order.
+	var tool_ids: Array = SupportToolbelt.ITEM_IDS.values()
+	var finds: Array[String] = []
+	for block: CityBlock in city.blocks:
+		for drop: ScavengeDrop in block.finds:
+			if tool_ids.has(drop.item.item_id):
+				finds.append(drop.item.item_id)
+	return finds

@@ -1,5 +1,5 @@
 # ABOUTME: CityBlockView is the shared kit scene script for one city block.
-# ABOUTME: It composes the sleep zone and scavenge scenes from the block data.
+# ABOUTME: It composes the cafe and scavenge buildings and the zones from data.
 class_name CityBlockView
 extends Node2D
 
@@ -19,7 +19,6 @@ const BUILDING_SHELL_SCENE := preload("res://scenes/components/building_shell.ts
 const LOCKED_SIDE_ROOM_SCENE := preload("res://scenes/components/locked_side_room.tscn")
 const CAFE_TELEVISION_SCENE := preload("res://scenes/cafe/cafe_television.tscn")
 
-const FLOOR_COLOR := Color(0.18, 0.14, 0.1, 1)
 const ACCENT_BORDER_WIDTH := 6.0
 const KIND_MARKER_RADIUS := 70.0
 # Section 10: the cafe marker grows with the cafe tier of the city. The tier
@@ -27,7 +26,6 @@ const KIND_MARKER_RADIUS := 70.0
 const CAFE_MARKER_TIER_STEP := 0.4
 const QUEST_SITE_MARKER_RADIUS := 45.0
 const KIND_TEXT_SIZE := 26
-const KIND_TEXT_COLOR := Color(0.12, 0.09, 0.06)
 const LABEL_TEXT_SIZE := 17
 const LABEL_GAP := 8.0
 const CROWD_MARKER_SPACING := 90.0
@@ -37,19 +35,26 @@ const CROWD_MARKER_LANE_Y := 0.5
 # itself, and a chase into the cafe on the wake-up frames would break the
 # script. The mid-block lane keeps the plain kit look on every other block.
 const CAFE_CROWD_MARKER_LANE_Y := 0.9
-# The player start stands off the crowd lane, inside the cafe safe zone.
-const CAFE_SPAWN_FRACTION := Vector2(0.35, 0.35)
+# The interior anchors of the cafe, T063: fractions of the interior half
+# extents of the tier-sized cafe building, minus one to one per axis. Every
+# anchor rides the building, so it stays inside the safe zone by construction
+# and keeps its kit direction in every city.
+# The player start stands in the northwest of the floor, off the crowd lane
+# and the walls, with open floor for the first walk of section 19.
+const CAFE_SPAWN_ANCHOR := Vector2(-0.72, -0.45)
 # The van stands by the cafe, outside the safe zone: the survivors hand it over
 # there, section 10. When a bigger cafe tier grows the zone past the spot, the
 # spot steps past the radius and keeps its kit direction.
 const VAN_SPOT_FRACTION := Vector2(0.78, 0.3)
 const VAN_SPOT_CLEARANCE := 60.0
-# The brewing master of the city teaches at the cafe, inside the safe zone,
-# section 8: the awake coffee experts gather where the coffee is real.
-const MASTER_SPOT_FRACTION := Vector2(0.4, 0.66)
-# The cafe television hangs inside the safe zone, off the master spot and the
-# player start, so the section 22 replay never snags another cafe lesson.
-const TELEVISION_FRACTION := Vector2(0.6, 0.4)
+# The brewing master of the city teaches in the northeast of the floor, off
+# the south door, section 8: the awake coffee experts gather where the coffee
+# is real. The school spaces a master pair along the spot, clear of the wall.
+const CAFE_MASTER_ANCHOR := Vector2(0.65, -0.5)
+# The cafe television hangs in the southwest of the floor, off the door, the
+# master spot, and the player start, so the section 22 replay never snags
+# another cafe lesson.
+const CAFE_TELEVISION_ANCHOR := Vector2(-0.75, 0.68)
 # A named site stands north of the crowd lane, off the pole zone center.
 const QUEST_SITE_FRACTION := Vector2(0.5, 0.32)
 # Section 17: the scavenge building stands on the crate row, north of the
@@ -68,18 +73,18 @@ const FIND_POINT_OFFSET := Vector2(0, 170)
 # Section 19 step 9: one fuse waits at the foot of the tower.
 const TOWER_FUSE_OFFSET := Vector2(140, 0)
 
-# Placeholder landmark marker colors until the art pass replaces the kit shapes.
-const KIND_COLORS := {
-	CityBlock.Kind.CAFE: Color(0.93, 0.87, 0.72),
-	CityBlock.Kind.TOWER: Color(0.78, 0.16, 0.14),
-	CityBlock.Kind.BOSS_ARENA: Color(0.35, 0.3, 0.42),
-	CityBlock.Kind.QUEST: Color(0.85, 0.7, 0.25),
-	CityBlock.Kind.SCAVENGE: Color(0.55, 0.4, 0.25),
-	CityBlock.Kind.QUEST_SITE: Color(0.55, 0.62, 0.45),
-}
+# The art direction pass, section 20: warm creams, wood browns, and brick
+# reds on the kit, one accent per city, and no horror darkness anywhere.
+# Landmark markers take the world palette; the tower block carries the
+# corporate red of Mug Roasters Co.
+const ACCENT_WASH_ALPHA := 0.14
+const STREET_LANE_HEIGHT := 0.24
 
 @export var block: CityBlock
 @export var accent_color := Color.WHITE
+# The art identity of the city: the kit washes its street lane with the city
+# accent, ART_DIRECTION section 6. Null keeps the plain kit.
+@export var city_look: CityLook
 @export var balance: CityBalance
 # Section 15 beans table: the region bean of the city. The scavenge crates of
 # a region city yield it on top of the house beans. Null when the city holds
@@ -100,6 +105,7 @@ const KIND_COLORS := {
 
 var size := Vector2.ZERO
 var _built := false
+var _palette: ArtPalette
 
 
 func _ready() -> void:
@@ -111,6 +117,7 @@ func build() -> void:
 	if _built:
 		return
 	_built = true
+	_palette = ArtPalette.world()
 	size = CityRules.block_size(balance)
 	_compose()
 	queue_redraw()
@@ -175,10 +182,19 @@ func scavenge_point() -> ScavengePoint:
 
 func building() -> BuildingShell:
 	# The enterable scavenge building of the block, section 17. Null on every
-	# landmark block: the cafe building is T063.
+	# landmark block: the cafe keeps its own building through cafe_building().
 	if not _built:
 		return null
 	return get_node_or_null(^"Building") as BuildingShell
+
+
+func cafe_building() -> BuildingShell:
+	# The enterable cafe building of the city, T063: the tier-sized shell at
+	# the safe zone center, whose whole interior the safe zone covers. Null on
+	# every other block.
+	if not _built:
+		return null
+	return get_node_or_null(^"CafeBuilding") as BuildingShell
 
 
 func locked_side_room() -> LockedSideRoom:
@@ -263,6 +279,17 @@ func _compose() -> void:
 		marker.position = _crowd_spawn_position(i)
 		crowd.add_child(marker)
 	if block.kind == CityBlock.Kind.CAFE:
+		# The real cafe building, T063: one kit shell at the safe zone center,
+		# sized so the zone circle covers its whole interior. The tier of the
+		# city cafe sizes the floor, and the shell adds its walls around it.
+		var cafe_building := BUILDING_SHELL_SCENE.instantiate() as BuildingShell
+		cafe_building.name = "CafeBuilding"
+		cafe_building.position = size * 0.5
+		var wall := cafe_building.wall_thickness
+		cafe_building.building_size = (
+			CityRules.cafe_interior_size(balance, cafe_tier) + Vector2(wall, wall) * 2.0
+		)
+		add_child(cafe_building)
 		var cafe_safe_zone := _sleep_zone_scene().instantiate() as SleepZone
 		cafe_safe_zone.name = "CafeSafeZone"
 		cafe_safe_zone.kind = SleepZone.Kind.SAFE
@@ -274,7 +301,7 @@ func _compose() -> void:
 		zones.add_child(cafe_safe_zone)
 		var spawn := Marker2D.new()
 		spawn.name = "CafeSpawn"
-		spawn.position = size * CAFE_SPAWN_FRACTION
+		spawn.position = _cafe_anchor(CAFE_SPAWN_ANCHOR)
 		add_child(spawn)
 		var van_spot := Marker2D.new()
 		van_spot.name = "VanSpot"
@@ -282,11 +309,11 @@ func _compose() -> void:
 		add_child(van_spot)
 		var master_spot := Marker2D.new()
 		master_spot.name = "MasterSpot"
-		master_spot.position = size * MASTER_SPOT_FRACTION
+		master_spot.position = _cafe_anchor(CAFE_MASTER_ANCHOR)
 		add_child(master_spot)
 		var television := CAFE_TELEVISION_SCENE.instantiate() as CafeTelevision
 		television.name = "CafeTelevision"
-		television.position = size * TELEVISION_FRACTION
+		television.position = _cafe_anchor(CAFE_TELEVISION_ANCHOR)
 		add_child(television)
 	if not block.site_name.is_empty():
 		var site := Marker2D.new()
@@ -434,13 +461,33 @@ func _van_spot_position() -> Vector2:
 	return center + offset.normalized() * (zone_radius + VAN_SPOT_CLEARANCE)
 
 
+func _cafe_anchor(anchor: Vector2) -> Vector2:
+	# A spot on the cafe interior floor, T063: the anchor fraction of the
+	# interior half extents around the building center. The tier sizes the
+	# floor, so every cafe anchor moves with the building and the safe zone
+	# covers each one by construction.
+	var interior_half := CityRules.cafe_interior_size(balance, cafe_tier) * 0.5
+	return size * 0.5 + interior_half * anchor
+
+
 func _draw() -> void:
-	if not _built:
+	if not _built or _palette == null:
 		return
+	# The paper ground of the world: warm cream, never a dark void. The
+	# street lane that the crowd walks reads through the city accent wash.
 	var rect := Rect2(Vector2.ZERO, size)
-	draw_rect(rect, FLOOR_COLOR)
+	draw_rect(rect, _palette.cream)
+	var lane := Rect2(
+		Vector2(0, size.y * (1.0 - STREET_LANE_HEIGHT)),
+		Vector2(size.x, size.y * STREET_LANE_HEIGHT)
+	)
+	draw_rect(lane, _palette.espresso.lerp(_palette.cream, 0.82))
+	if city_look != null:
+		draw_rect(lane, Color(city_look.accent, ACCENT_WASH_ALPHA))
 	draw_rect(rect, accent_color, false, ACCENT_BORDER_WIDTH)
-	draw_circle(size * 0.5, _marker_radius(), KIND_COLORS[block.kind])
+	var marker_color := _marker_color()
+	draw_circle(size * 0.5, _marker_radius(), marker_color)
+	draw_arc(size * 0.5, _marker_radius() - 2.0, 0.0, TAU, 40, _palette.espresso, 2.0)
 	draw_string(
 		ThemeDB.fallback_font,
 		Vector2(0, size.y * 0.5 + KIND_TEXT_SIZE * 0.5),
@@ -448,7 +495,7 @@ func _draw() -> void:
 		HORIZONTAL_ALIGNMENT_CENTER,
 		size.x,
 		KIND_TEXT_SIZE,
-		KIND_TEXT_COLOR
+		_palette.espresso
 	)
 	var label_y := size.y * 0.5 + KIND_TEXT_SIZE * 0.5
 	for label: String in [landmark_label, site_label]:
@@ -462,8 +509,26 @@ func _draw() -> void:
 			HORIZONTAL_ALIGNMENT_CENTER,
 			size.x,
 			LABEL_TEXT_SIZE,
-			accent_color
+			_palette.espresso
 		)
+
+
+func _marker_color() -> Color:
+	# Landmark markers keep one palette color per kind, so every city reads
+	# the same kit. The tower block carries the corporate red.
+	match block.kind:
+		CityBlock.Kind.CAFE:
+			return _palette.butter
+		CityBlock.Kind.TOWER:
+			return _palette.mug_red
+		CityBlock.Kind.BOSS_ARENA:
+			return _palette.lavender
+		CityBlock.Kind.QUEST:
+			return _palette.brick
+		CityBlock.Kind.QUEST_SITE:
+			return _palette.moss
+		_:
+			return _palette.espresso.lerp(_palette.cream, 0.62)
 
 
 func _marker_radius() -> float:

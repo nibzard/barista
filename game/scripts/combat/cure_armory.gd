@@ -31,6 +31,17 @@ const ITEM_IDS: Dictionary = {
 	Weapon.AUTO_DRIP_TURRET: "auto_drip_turret",
 }
 
+# The chalk name each weapon wears on the interface: the display name of the
+# gear item that carries it, so the readout and the bag row always agree.
+const WEAPON_NAMES: Dictionary = {
+	Weapon.TRAVEL_MUG: "Travel Mug",
+	Weapon.THERMOS: "Thermos",
+	Weapon.FRENCH_PRESS: "French Press",
+	Weapon.MOKA_LAUNCHER: "Moka Launcher",
+	Weapon.MINIGUN: "Coffee Minigun",
+	Weapon.AUTO_DRIP_TURRET: "Auto-Drip Turret",
+}
+
 var _found: Array[Weapon] = []
 var _equipped := NO_WEAPON
 var _press_loaded := false

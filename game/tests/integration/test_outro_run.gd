@@ -81,7 +81,7 @@ func test_the_completion_begins_the_outro_and_locks_the_player() -> void:
 	var overlay := _city.get_node(^"UI/Overlay") as ColorRect
 	assert_bool(overlay.visible).is_false()
 	# The Karen blocks the road east, so the travel trigger never arms.
-	assert_bool(_city.road_east_active()).is_false()
+	assert_bool(_city.roads.east_active()).is_false()
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	assert_object(_outro.karen()).is_not_null()

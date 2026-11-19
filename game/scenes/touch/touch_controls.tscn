@@ -44,7 +44,6 @@ offset_top = 504.0
 offset_right = 1196.0
 offset_bottom = 636.0
 script = ExtResource("3")
-label = "THROW"
 radius = 66.0
 
 [node name="Dodge" type="Control" parent="Board/Buttons"]
@@ -54,7 +53,6 @@ offset_top = 600.0
 offset_right = 1038.0
 offset_bottom = 696.0
 script = ExtResource("3")
-label = "DODGE"
 radius = 48.0
 
 [node name="Drink" type="Control" parent="Board/Buttons"]
@@ -64,7 +62,6 @@ offset_top = 414.0
 offset_right = 1068.0
 offset_bottom = 510.0
 script = ExtResource("3")
-label = "DRINK"
 radius = 48.0
 
 [node name="Serve" type="Control" parent="Board/Buttons"]
@@ -74,7 +71,6 @@ offset_top = 292.0
 offset_right = 1002.0
 offset_bottom = 378.0
 script = ExtResource("3")
-label = "SERVE"
 radius = 43.0
 
 [node name="Use" type="Control" parent="Board/Buttons"]
@@ -84,7 +80,6 @@ offset_top = 548.0
 offset_right = 928.0
 offset_bottom = 644.0
 script = ExtResource("3")
-label = "USE"
 radius = 48.0
 
 [node name="Tool" type="Control" parent="Board/Buttons"]
@@ -95,7 +90,6 @@ offset_top = 372.0
 offset_right = 908.0
 offset_bottom = 468.0
 script = ExtResource("3")
-label = "TOOL"
 radius = 48.0
 
 [node name="Swap" type="Control" parent="Board/Buttons"]
@@ -106,7 +100,6 @@ offset_top = 578.0
 offset_right = 802.0
 offset_bottom = 662.0
 script = ExtResource("3")
-label = "SWAP"
 radius = 42.0
 
 [node name="Refill" type="Control" parent="Board/Buttons"]
@@ -117,7 +110,6 @@ offset_top = 478.0
 offset_right = 798.0
 offset_bottom = 562.0
 script = ExtResource("3")
-label = "REFILL"
 radius = 42.0
 
 [node name="Van" type="Control" parent="Board/Buttons"]
@@ -128,7 +120,6 @@ offset_top = 358.0
 offset_right = 758.0
 offset_bottom = 442.0
 script = ExtResource("3")
-label = "VAN"
 radius = 42.0
 
 [node name="Brew" type="Control" parent="Board/Buttons"]
@@ -139,7 +130,6 @@ offset_top = 294.0
 offset_right = 878.0
 offset_bottom = 378.0
 script = ExtResource("3")
-label = "BREW"
 radius = 42.0
 
 [node name="Plant" type="Control" parent="Board/Buttons"]
@@ -150,7 +140,6 @@ offset_top = 470.0
 offset_right = 684.0
 offset_bottom = 554.0
 script = ExtResource("3")
-label = "PLANT"
 radius = 42.0
 
 [node name="Weapon" type="Control" parent="Board/Buttons"]
@@ -161,7 +150,6 @@ offset_top = 380.0
 offset_right = 1160.0
 offset_bottom = 476.0
 script = ExtResource("3")
-label = "WEAPON"
 radius = 48.0
 
 [node name="WeaponSwap" type="Control" parent="Board/Buttons"]
@@ -172,5 +160,32 @@ offset_top = 562.0
 offset_right = 702.0
 offset_bottom = 646.0
 script = ExtResource("3")
-label = "WSWAP"
 radius = 42.0
+
+[node name="ToolReadout" type="Label" parent="Board"]
+visible = false
+layout_mode = 1
+offset_left = 640.0
+offset_top = 666.0
+offset_right = 880.0
+offset_bottom = 714.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 0.9)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1
+text = ""
+
+[node name="WeaponReadout" type="Label" parent="Board"]
+visible = false
+layout_mode = 1
+offset_left = 378.0
+offset_top = 566.0
+offset_right = 618.0
+offset_bottom = 614.0
+mouse_filter = 2
+theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 0.9)
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+vertical_alignment = 1
+text = ""

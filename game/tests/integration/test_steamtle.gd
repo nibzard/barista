@@ -127,8 +127,15 @@ func test_the_crowd_spawns_the_roster_at_full_density() -> void:
 		assert_str(_city.crowd_enemy(i).enemy_type.type_id).is_equal("neighbor")
 
 
+func test_the_hud_binds_to_the_city_player() -> void:
+	# T079: the city scene carries its own Hud, and its player_path names
+	# this run's Player, so the section 9 chalkboard reads live from the start.
+	assert_object(_city.hud.player).is_equal(_city.player)
+	assert_str(_city.hud.awake_value.text).is_equal("100/100")
+
+
 func test_the_rain_blue_accent_covers_the_blocks() -> void:
-	var expected := Color(0.35, 0.5, 0.78, 1)
+	var expected := Color(0.424, 0.529, 0.651, 1)
 	var map := _city.city_map()
 	for i: int in range(map.block_count()):
 		assert_bool(map.block_view(i).accent_color == expected).is_true()
@@ -232,9 +239,9 @@ func test_the_wired_road_east_travels_outside_the_physics_step() -> void:
 	_complete_the_city(run)
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	assert_bool(run.road_east_active()).is_true()
+	assert_bool(run.roads.east_active()).is_true()
 
-	run.player.global_position = run.road_east().global_position
+	run.player.global_position = run.roads.east().global_position
 	var frames := 0
 	while (tree.current_scene == null or tree.current_scene == run) and frames < MAX_FRAMES_TO_WAIT:
 		await get_tree().physics_frame

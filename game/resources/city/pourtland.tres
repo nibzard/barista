@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CityDefinition" load_steps=34 format=3]
+[gd_resource type="Resource" script_class="CityDefinition" load_steps=36 format=3]
 
 [ext_resource type="Script" path="res://scripts/city/city_definition.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/city/city_block.gd" id="2"]
@@ -20,6 +20,9 @@
 
 [ext_resource type="Resource" path="res://resources/items/gear/coffee_minigun.tres" id="17"]
 [ext_resource type="Resource" path="res://resources/items/gear/auto_drip_turret.tres" id="18"]
+
+[ext_resource type="Resource" path="res://resources/items/gear/bean_slick.tres" id="23"]
+[ext_resource type="Resource" path="res://resources/art/city_looks/pourtland.tres" id="look"]
 
 [sub_resource type="Resource" id="FindTurkishPot"]
 script = ExtResource("14")
@@ -49,6 +52,11 @@ amount = 1
 [sub_resource type="Resource" id="FindAutoDripTurret"]
 script = ExtResource("14")
 item = ExtResource("18")
+amount = 1
+
+[sub_resource type="Resource" id="FindBeanSlick"]
+script = ExtResource("14")
+item = ExtResource("23")
 amount = 1
 
 [sub_resource type="Resource" id="Block0"]
@@ -93,7 +101,7 @@ script = ExtResource("2")
 kind = 4
 sleepwalker_count = 4
 has_speaker_pole = true
-finds = [SubResource("FindAutoDripTurret")]
+finds = [SubResource("FindAutoDripTurret"), SubResource("FindBeanSlick")]
 locked_side_room = SubResource("SideRoomGeisha")
 
 [sub_resource type="Resource" id="Block7"]
@@ -115,7 +123,8 @@ scene = ExtResource("8")
 script = ExtResource("1")
 city_id = "pourtland"
 display_name = "Pourtland"
-accent_color = Color(0.38, 0.6, 0.3, 1)
+accent_color = Color(0.435, 0.498, 0.271, 1)
+city_look = ExtResource("look")
 cafe_tier = 3
 boss_name = "The Sleep Jam"
 boss_scene = ExtResource("11")

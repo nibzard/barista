@@ -56,7 +56,7 @@ func test_a_cured_sam_oatman_reloads_without_replaying_the_show() -> void:
 	assert_int(lines.size()).is_equal(0)
 	assert_bool(reloaded.hud.is_toast_visible()).is_false()
 	assert_bool(reloaded.progress.is_complete()).is_true()
-	assert_bool(reloaded.road_east_active()).is_true()
+	assert_bool(reloaded.roads.east_active()).is_true()
 
 
 func test_a_cured_fish_market_reloads_without_replaying_the_show() -> void:
@@ -82,7 +82,7 @@ func test_a_cured_fish_market_reloads_without_replaying_the_show() -> void:
 	assert_int(lines.size()).is_equal(0)
 	assert_bool(reloaded.hud.is_toast_visible()).is_false()
 	assert_bool(reloaded.progress.is_complete()).is_true()
-	assert_bool(reloaded.road_east_active()).is_true()
+	assert_bool(reloaded.roads.east_active()).is_true()
 
 	# The sleeping show never restarts: a player inside the market reach
 	# draws no fish across two full volley beats.

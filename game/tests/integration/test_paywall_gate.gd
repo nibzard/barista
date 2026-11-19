@@ -39,7 +39,7 @@ func test_the_completed_city_keeps_its_road_behind_the_locked_gate() -> void:
 	_complete_the_city()
 	await get_tree().physics_frame
 	await get_tree().physics_frame
-	assert_bool(_city.road_east_active()).is_true()
+	assert_bool(_city.roads.east_active()).is_true()
 	var gate := _city.bridge_gate()
 	assert_bool(gate.is_open()).is_false()
 
@@ -140,7 +140,7 @@ func test_steamtle_has_no_paywall_behind_the_paid_bridge() -> void:
 
 	assert_int(city.city_index).is_equal(2)
 	assert_object(city.bridge_gate()).is_null()
-	assert_object(city.road_east()).is_not_null()
+	assert_object(city.roads.east()).is_not_null()
 
 
 func test_pourtland_has_no_paywall_behind_the_paid_bridge() -> void:

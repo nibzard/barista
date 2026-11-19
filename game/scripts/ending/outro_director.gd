@@ -7,9 +7,10 @@ extends CanvasLayer
 
 const KAREN_SCENE := preload("res://scenes/ending/outro_karen.tscn")
 
-# Section 23, sized for version 1: the three cities stay open for these.
+# Section 23, sized for version 1: the three cities stay open for these, and
+# the road west carries the player back to the two cities behind the credits.
 const POST_GAME_TEXT := (
-	"THE CITIES STAY OPEN AND AWAKE."
+	"THE CITIES STAY OPEN AND AWAKE. THE ROAD WEST IS OPEN."
 	+ " FINISH THE SIDE QUESTS. COMPLETE THE SLEEPYDEX. FIND EVERY HIDDEN GLOVE."
 )
 # Where the Karen blocks the road east, as a share of the bridge deck. She

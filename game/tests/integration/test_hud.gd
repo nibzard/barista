@@ -6,6 +6,7 @@ const CAFE_SCENE := preload("res://scenes/cafe/cafe.tscn")
 const FUSE_ITEM := preload("res://resources/items/materials/fuse.tres")
 const HOUSE_BEANS_ITEM := preload("res://resources/items/beans/house.tres")
 const THERMOS_BELT_ITEM := preload("res://resources/items/gear/thermos_belt.tres")
+const WORLD_PALETTE := preload("res://resources/art/world_palette.tres")
 
 var _cafe: Cafe
 var _hud: Hud
@@ -20,27 +21,53 @@ func before_test() -> void:
 
 func test_hud_binds_to_the_cafe_player_and_shows_the_starting_status() -> void:
 	assert_object(_hud.player).is_equal(_cafe.player)
-	assert_float(_hud.awake_bar.value).is_equal_approx(100.0, 0.01)
+	assert_float(_hud.awake_meter.value).is_equal_approx(100.0, 0.01)
 	assert_str(_hud.awake_value.text).is_equal("100/100")
-	assert_str(_hud.coffee_value.text).is_equal("12/12 cups in hand")
-	assert_str(_hud.wake_ups_value.text).is_equal("5/5")
+	assert_int(_hud.cup_row.filled_count()).is_equal(12)
+	assert_int(_hud.cup_row.empty_count()).is_equal(0)
+	assert_int(_hud.wake_clocks.standing_count()).is_equal(5)
+	assert_int(_hud.wake_clocks.fallen_count()).is_equal(0)
 	assert_str(_hud.bag_label.text).is_equal("empty bag")
 
 
 func test_sleepy_meter_reading_follows_the_meter() -> void:
 	_cafe.player.sleep_meter.drain(30.0)
 	_hud.refresh()
-	assert_float(_hud.awake_bar.value).is_equal_approx(70.0, 0.01)
+	assert_float(_hud.awake_meter.value).is_equal_approx(70.0, 0.01)
 	assert_str(_hud.awake_value.text).is_equal("70/100")
 	_cafe.player.sleep_meter.gain(10.0)
 	_hud.refresh()
 	assert_str(_hud.awake_value.text).is_equal("80/100")
 
 
+func test_the_awake_meter_reads_as_a_mug_that_cools_and_stops_steaming() -> void:
+	# ART_DIRECTION section 11: the awake meter is a mug. The coffee level
+	# is the meter; low coffee cools the mug and the steam stops.
+	var mug := _hud.awake_meter
+	assert_float(mug.fill_fraction()).is_equal_approx(1.0, 0.01)
+	assert_bool(mug.is_steam_on()).is_true()
+	_cafe.player.sleep_meter.drain(85.0)
+	_hud.refresh()
+	assert_bool(mug.is_low()).is_true()
+	assert_bool(mug.is_steam_on()).is_false()
+	# The coffee sits at about 15 of 100, so it cooled about 60 percent of
+	# the way from butter to rainy blue. The exact weight comes from the
+	# live fraction, because the meter drains a little before this drain.
+	var cool_weight := 1.0 - mug.fill_fraction() / mug.low_fraction
+	var expected := WORLD_PALETTE.butter.lerp(WORLD_PALETTE.rain, cool_weight)
+	assert_bool(mug.coffee_color().is_equal_approx(expected)).is_true()
+	# A drunk cup heats the mug up again and the steam comes back.
+	_cafe.player.sleep_meter.gain(60.0)
+	_hud.refresh()
+	assert_bool(mug.is_steam_on()).is_true()
+	assert_bool(mug.coffee_color().is_equal_approx(WORLD_PALETTE.butter)).is_true()
+
+
 func test_coffee_supply_reading_follows_the_supply() -> void:
 	_cafe.player.coffee_supply.spend_cups(4)
 	_hud.refresh()
-	assert_str(_hud.coffee_value.text).is_equal("8/12 cups in hand")
+	assert_int(_hud.cup_row.filled_count()).is_equal(8)
+	assert_int(_hud.cup_row.empty_count()).is_equal(4)
 
 
 func test_carry_limit_change_updates_the_coffee_reading() -> void:
@@ -48,16 +75,21 @@ func test_carry_limit_change_updates_the_coffee_reading() -> void:
 	_cafe.player.pickup_item(THERMOS_BELT_ITEM, 1)
 	_cafe.player.coffee_supply.spend_cups(12)
 	_hud.refresh()
-	assert_str(_hud.coffee_value.text).is_equal("0/15 cups in hand")
+	assert_int(_hud.cup_row.filled_count()).is_equal(0)
+	assert_int(_hud.cup_row.empty_count()).is_equal(15)
+	assert_int(_hud.cup_row.icon_count()).is_equal(15)
 
 
 func test_wake_ups_reading_follows_the_wake_ups() -> void:
 	_cafe.player.wake_ups.register_sleep()
 	_hud.refresh()
-	assert_str(_hud.wake_ups_value.text).is_equal("4/5")
+	assert_int(_hud.wake_clocks.standing_count()).is_equal(4)
+	assert_int(_hud.wake_clocks.fallen_count()).is_equal(1)
+	assert_bool(_hud.wake_clocks.is_fallen(4)).is_true()
 	_cafe.player.wake_ups.restore_one()
 	_hud.refresh()
-	assert_str(_hud.wake_ups_value.text).is_equal("5/5")
+	assert_int(_hud.wake_clocks.standing_count()).is_equal(5)
+	assert_int(_hud.wake_clocks.fallen_count()).is_equal(0)
 
 
 func test_bag_rows_list_held_items_grouped_by_category() -> void:
@@ -95,9 +127,9 @@ func test_hud_refreshes_itself_every_frame() -> void:
 	_cafe.player.wake_ups.register_sleep()
 	for frame: int in range(5):
 		await get_tree().process_frame
-	assert_float(_hud.awake_bar.value).is_equal_approx(75.0, 0.01)
-	assert_str(_hud.coffee_value.text).is_equal("11/12 cups in hand")
-	assert_str(_hud.wake_ups_value.text).is_equal("4/5")
+	assert_float(_hud.awake_meter.value).is_equal_approx(75.0, 0.01)
+	assert_int(_hud.cup_row.filled_count()).is_equal(11)
+	assert_int(_hud.wake_clocks.standing_count()).is_equal(4)
 
 
 func test_toast_shows_its_message_and_fades_after_a_hold() -> void:

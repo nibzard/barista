@@ -2,37 +2,21 @@
 
 [ext_resource type="Script" path="res://scripts/hud/hud.gd" id="1"]
 [ext_resource type="PackedScene" path="res://scenes/dex/sleepy_dex_app.tscn" id="2"]
+[ext_resource type="Script" path="res://scripts/ui/mug_meter.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/ui/paper_cup_row.gd" id="4"]
+[ext_resource type="Script" path="res://scripts/ui/alarm_clocks.gd" id="5"]
 
 [sub_resource type="StyleBoxFlat" id="ChalkBoard"]
-bg_color = Color(0.11, 0.15, 0.13, 0.85)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.93, 0.95, 0.88, 0.9)
+bg_color = Color(0.18, 0.19, 0.17, 0.88)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0.42, 0.29, 0.19, 0.95)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_right = 8
 corner_radius_bottom_left = 8
-
-[sub_resource type="StyleBoxFlat" id="BarBackground"]
-bg_color = Color(0.07, 0.1, 0.08, 1)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.93, 0.95, 0.88, 0.7)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="BarFill"]
-bg_color = Color(0.62, 0.82, 0.55, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
 
 [node name="Hud" type="CanvasLayer"]
 script = ExtResource("1")
@@ -61,13 +45,13 @@ theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
 theme_override_font_sizes/font_size = 15
 text = "AWAKE"
 
-[node name="AwakeBar" type="ProgressBar" parent="Board/Margin/Rows/AwakeRow"]
-custom_minimum_size = Vector2(110, 18)
-theme_override_styles/background = SubResource("BarBackground")
-theme_override_styles/fill = SubResource("BarFill")
+[node name="AwakeMeter" type="Range" parent="Board/Margin/Rows/AwakeRow"]
+custom_minimum_size = Vector2(46, 46)
+script = ExtResource("3")
+min_value = 0.0
 max_value = 100.0
 value = 100.0
-show_percentage = false
+low_fraction = 0.25
 
 [node name="AwakeValue" type="Label" parent="Board/Margin/Rows/AwakeRow"]
 custom_minimum_size = Vector2(64, 0)
@@ -84,10 +68,9 @@ theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
 theme_override_font_sizes/font_size = 15
 text = "COFFEE"
 
-[node name="CoffeeValue" type="Label" parent="Board/Margin/Rows/CoffeeRow"]
-theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
-theme_override_font_sizes/font_size = 15
-text = "12/12 cups in hand"
+[node name="CupRow" type="Control" parent="Board/Margin/Rows/CoffeeRow"]
+custom_minimum_size = Vector2(156, 18)
+script = ExtResource("4")
 
 [node name="WakeUpsRow" type="HBoxContainer" parent="Board/Margin/Rows"]
 theme_override_constants/separation = 8
@@ -98,10 +81,9 @@ theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
 theme_override_font_sizes/font_size = 15
 text = "WAKE-UPS"
 
-[node name="WakeUpsValue" type="Label" parent="Board/Margin/Rows/WakeUpsRow"]
-theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)
-theme_override_font_sizes/font_size = 15
-text = "5/5"
+[node name="WakeClocks" type="Control" parent="Board/Margin/Rows/WakeUpsRow"]
+custom_minimum_size = Vector2(100, 22)
+script = ExtResource("5")
 
 [node name="BagTitle" type="Label" parent="Board/Margin/Rows"]
 theme_override_colors/font_color = Color(0.93, 0.95, 0.88, 1)

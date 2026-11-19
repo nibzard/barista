@@ -472,7 +472,7 @@ func _brew_at_the_pot() -> void:
 	# The stand of the masters shares the cafe, so the probe stands at one:
 	# the dial must own the interact key while it plays. The press rides the
 	# real input pipeline, because the director consumes it there.
-	var master := _city.masters()[0]
+	var master := _city.master_school.masters()[0]
 	_city.player.global_position = master.global_position
 	await get_tree().physics_frame
 	await get_tree().physics_frame

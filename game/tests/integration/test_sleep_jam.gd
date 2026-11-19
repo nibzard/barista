@@ -150,7 +150,7 @@ func test_the_band_cure_completes_the_city_after_the_tower() -> void:
 	var outro := _city.get_node_or_null(^"Outro") as OutroDirector
 	assert_object(outro).is_not_null()
 	assert_int(outro.flow.current_step()).is_equal(OutroFlow.Step.ARRIVAL)
-	assert_bool(_city.road_east_active()).is_false()
+	assert_bool(_city.roads.east_active()).is_false()
 
 
 func test_a_thrown_geisha_cup_wakes_the_band() -> void:

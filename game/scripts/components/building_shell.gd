@@ -3,10 +3,9 @@
 class_name BuildingShell
 extends Node2D
 
-# Placeholder wall colors until the art pass replaces the kit shapes.
-const WALL_FILL := Color(0.3, 0.22, 0.16, 1)
-const WALL_EDGE := Color(0.18, 0.13, 0.09, 1)
-const DOOR_COLOR := Color(0.85, 0.7, 0.45, 0.95)
+# The art direction pass, section 20: wood-brown walls on cream, espresso
+# contours, and a butter rim on the door the player can use.
+const DOOR_RIM_WIDTH := 6.0
 
 # Section 17: all cities share one block kit, so the shell keeps one shape.
 # The door stays wider than the walking bodies (28 by 40), so the player and
@@ -16,6 +15,7 @@ const DOOR_COLOR := Color(0.85, 0.7, 0.45, 0.95)
 @export var door_width := 96.0
 
 var _built := false
+var _palette: ArtPalette
 
 
 func _ready() -> void:
@@ -26,6 +26,7 @@ func build() -> void:
 	if _built:
 		return
 	_built = true
+	_palette = ArtPalette.world()
 	var walls := StaticBody2D.new()
 	walls.name = "Walls"
 	# The environment layer of the project: the player and the sleepwalkers
@@ -95,9 +96,14 @@ func _rect_at(center: Vector2, rect_size: Vector2) -> Rect2:
 
 
 func _draw() -> void:
-	if not _built:
+	if not _built or _palette == null:
 		return
+	# Wood-brown walls on the cream block, with espresso contours. The door
+	# keeps its warm butter rim: it is the way in, and the value rules mark
+	# everything the player can use.
+	var wall_fill := _palette.espresso.lerp(_palette.cream, 0.58)
 	for rect: Rect2 in wall_rects():
-		draw_rect(rect, WALL_FILL)
-		draw_rect(rect, WALL_EDGE, false, 2.0)
-	draw_rect(door_rect(), DOOR_COLOR)
+		draw_rect(rect, wall_fill)
+		draw_rect(rect, _palette.espresso, false, 2.0)
+	draw_rect(door_rect().grow(DOOR_RIM_WIDTH * 0.5), _palette.butter)
+	draw_rect(door_rect(), _palette.espresso.lerp(_palette.butter, 0.35))

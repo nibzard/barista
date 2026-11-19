@@ -106,8 +106,15 @@ func test_the_crowd_spawns_the_roster_at_full_density() -> void:
 		assert_str(_city.crowd_enemy(i).enemy_type.type_id).is_equal("neighbor")
 
 
+func test_the_hud_binds_to_the_city_player() -> void:
+	# T079: the city scene carries its own Hud, and its player_path names
+	# this run's Player, so the section 9 chalkboard reads live from the start.
+	assert_object(_city.hud.player).is_equal(_city.player)
+	assert_str(_city.hud.awake_value.text).is_equal("100/100")
+
+
 func test_the_moss_green_accent_covers_the_blocks() -> void:
-	var expected := Color(0.38, 0.6, 0.3, 1)
+	var expected := Color(0.435, 0.498, 0.271, 1)
 	var map := _city.city_map()
 	for i: int in range(map.block_count()):
 		assert_bool(map.block_view(i).accent_color == expected).is_true()

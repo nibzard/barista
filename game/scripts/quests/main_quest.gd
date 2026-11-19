@@ -124,6 +124,20 @@ func travel_east() -> bool:
 	return true
 
 
+func travel_west() -> bool:
+	# The road back west, section 23: the chain moves one city west, into a
+	# city the route already completed. The beats stay, so a completed city
+	# never uncompletes by the return.
+	if _current_index <= 0:
+		return false
+	if not is_city_complete(_route[_current_index - 1]):
+		return false
+	_current_index -= 1
+	city_entered.emit(current_city())
+	_refresh_objective()
+	return true
+
+
 func save_state() -> Dictionary:
 	# The save system stores the route position and both beat maps as plain
 	# values.
