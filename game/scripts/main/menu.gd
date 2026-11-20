@@ -129,7 +129,7 @@ func _hide_new_game_confirmation() -> void:
 	new_game_note.visible = false
 	confirm_row.visible = false
 	play_button.visible = true
-	quit_button.visible = true
+	quit_button.visible = not OS.has_feature("web")
 	# The gate opens only when a run or barista exists: a slot holding only a
 	# mode selection starts through Play alone.
 	var save_system := SaveSystem.new(save_file_path)

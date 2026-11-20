@@ -4,7 +4,7 @@
 GODOT ?= godot
 PROJECT := game
 
-.PHONY: import lint fmt test check run lab
+.PHONY: import lint fmt test check run lab web
 
 import:
 	$(GODOT) --headless --path $(PROJECT) --import
@@ -29,3 +29,7 @@ run:
 
 lab:
 	$(GODOT) --path $(PROJECT) res://scenes/prototypes/style_lab.tscn
+
+web: import
+	mkdir -p builds/web
+	$(GODOT) --headless --path $(PROJECT) --export-release "Web" ../builds/web/index.html
