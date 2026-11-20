@@ -35,6 +35,7 @@ var _appearance: CharacterAppearance = null
 
 
 func _ready() -> void:
+	theme = ChalkTheme.build()
 	if _appearance == null:
 		# A slot that already holds a look starts from it, so a revisit edits
 		# the same barista instead of resetting the choices.
@@ -44,14 +45,6 @@ func _ready() -> void:
 	back_button.pressed.connect(_on_back_pressed)
 	start_button.pressed.connect(_on_start_pressed)
 	_refresh()
-
-
-func set_appearance(new_appearance: CharacterAppearance) -> void:
-	# A test or a caller with its own state paints the screen before the
-	# first draw; after _ready the same call works as a full reset.
-	_appearance = new_appearance
-	if is_node_ready():
-		_refresh()
 
 
 func appearance() -> CharacterAppearance:
@@ -112,6 +105,8 @@ func _add_tattoo_row() -> void:
 
 
 func _on_cycle_pressed(property: StringName, options: Array[AppearanceOption], step: int) -> void:
+	if options.is_empty():
+		return
 	var current := SaveData.string_or_default(_appearance.get(property), "")
 	var index := 0
 	for option_index: int in options.size():

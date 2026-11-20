@@ -34,7 +34,8 @@ func step(delta: float, steer: Vector2) -> Vector2:
 				_phase = Phase.TELEGRAPH
 				_timer = balance.telegraph_seconds
 				return Vector2.ZERO
-			facing = -_direction
+			if _direction != Vector2.ZERO:
+				facing = -_direction
 			return _direction * balance.slide_speed
 		Phase.TELEGRAPH:
 			if _timer <= 0.0:

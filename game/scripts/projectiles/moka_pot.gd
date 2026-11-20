@@ -51,10 +51,19 @@ func _physics_process(delta: float) -> void:
 	visual.position = Vector2(0.0, -CoffeeCup.arc_height(progress, balance.moka_arc_peak_height))
 
 
-func _on_body_entered(_body: Node2D) -> void:
-	# The pot bursts on the first body it meets: a sleeper, a wall, or a stage
-	# block. The splash itself asks the tinfoil hat guard and the walls, so
-	# nothing here needs the body.
+func _on_body_entered(body: Node2D) -> void:
+	if _burst_pending:
+		return
+	if body.has_method(&"try_wake"):
+		if body.has_method(&"is_awake") and body.is_awake():
+			return
+		var blocked: bool = (
+			body.has_method(&"hat_stops_thrown_coffee") and body.hat_stops_thrown_coffee()
+		)
+		if not blocked:
+			body.try_wake(brewed)
+	# The pot bursts on the first sleeping body or solid obstacle it meets,
+	# then runs its area splash on the next physics frame.
 	_burst_pending = true
 
 

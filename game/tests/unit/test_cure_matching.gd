@@ -124,6 +124,17 @@ func test_perfect_cup_has_wake_radius_others_do_not() -> void:
 	assert_float(CureMatcher.wake_radius(weak, BALANCE)).is_equal(0.0)
 
 
+func test_geisha_vault_beans_still_match_specific_cures() -> void:
+	# Brewing a specific special cure with geisha_vault beans must still wake
+	# its target instead of being shadowed by the wildcard geisha_vault_cup.
+	var geisha_bulletproof := _brew("geisha_vault", "medium", "espresso", "butter", 88.0)
+	assert_bool(_wakes(geisha_bulletproof, "tech_bro")).is_true()
+	var geisha_triple := _brew("geisha_vault", "light", "aeropress", "three_shots", 88.0)
+	assert_bool(_wakes(geisha_triple, "gamer")).is_true()
+	var geisha_turkish := _brew("geisha_vault", "medium", "turkish", "", 88.0)
+	assert_bool(_wakes(geisha_turkish, "tinfoil_man")).is_true()
+
+
 func _brew(
 	bean_id: String, roast_id: String, method_id: String, extra_id: String, score: float
 ) -> BrewedCup:

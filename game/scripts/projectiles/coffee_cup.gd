@@ -61,6 +61,10 @@ func _on_body_entered(body: Node2D) -> void:
 	if _splash_pending:
 		return
 	if body.has_method(&"try_wake"):
+		# Awake survivors stand out of the flight: only sleeping targets catch
+		# the thrown cup.
+		if body.has_method(&"is_awake") and body.is_awake():
+			return
 		# Every wakeable body takes the payload: the sleepwalkers of
 		# section 6, the band stage, the fish sellers of the market, the
 		# band members of Sleepvana, the husband of aisle 7. The cup asks

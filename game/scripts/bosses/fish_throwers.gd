@@ -98,6 +98,8 @@ func load_state(saved: Dictionary) -> void:
 	_tint_members(AWAKE_COLOR)
 	for member: FishSeller in _members:
 		member.set_awake(true)
+	for fish: Fish in live_fish():
+		fish.harmless = true
 
 
 func head() -> FishSeller:
@@ -184,6 +186,8 @@ func _wake_the_market() -> void:
 	_tint_members(AWAKE_COLOR)
 	for member: FishSeller in _members:
 		member.set_awake(true)
+	for fish: Fish in live_fish():
+		fish.harmless = true
 	# The wake can arrive inside a physics callback, like the landing of the
 	# thrown cure cup, so the celebration fish spawn on the deferred queue.
 	for member: FishSeller in _members:

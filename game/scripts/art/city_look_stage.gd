@@ -8,7 +8,7 @@ const SUNRISE_SECONDS := 2.4
 # The paper grain overlay sits above the interface, so the whole screen reads
 # as one sheet of paper, ART_DIRECTION sections 3 and 14.
 const PAPER_LAYER := 8
-const WEATHER_HEIGHT := 900.0
+const FOG_BAND_Y := 60.0
 
 var _look: CityLook
 var _modulate: CanvasModulate
@@ -63,7 +63,7 @@ func _build_weather(world_size: Vector2) -> void:
 			_weather.scale_amount_min = 0.9
 			_weather.scale_amount_max = 1.2
 		CityLook.Weather.FALLING_LEAVES:
-			_weather = _particles(world_size, 22, Vector2(-30, 60), 6.0)
+			_weather = _particles(world_size, 22, Vector2(-30, 60), 12.5)
 			_weather.texture = _soft_dot(14)
 			_weather.scale_amount_min = 0.8
 			_weather.scale_amount_max = 1.3
@@ -74,9 +74,7 @@ func _build_weather(world_size: Vector2) -> void:
 				var fog := Sprite2D.new()
 				fog.name = "FogBank%d" % side
 				fog.texture = _soft_dot(256)
-				fog.position = Vector2(
-					world_size.x * (0.25 + 0.5 * float(side)), -WEATHER_HEIGHT * 0.35
-				)
+				fog.position = Vector2(world_size.x * (0.25 + 0.5 * float(side)), FOG_BAND_Y)
 				fog.scale = Vector2(3.2, 1.1)
 				fog.modulate = _look.weather_color
 				add_child(fog)

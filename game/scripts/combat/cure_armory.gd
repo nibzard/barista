@@ -48,11 +48,14 @@ var _press_loaded := false
 
 
 func unlock(weapon: Weapon) -> void:
-	# A found weapon joins the armory. The first find equips itself, so the
-	# armory is ready the moment it stops being empty.
+	# A found weapon joins the armory in canonical cycle order. The first find
+	# equips itself, so the armory is ready the moment it stops being empty.
 	if _found.has(weapon):
 		return
 	_found.append(weapon)
+	_found.sort_custom(
+		func(a: Weapon, b: Weapon) -> bool: return CYCLE_ORDER.find(a) < CYCLE_ORDER.find(b)
+	)
 	if _equipped == NO_WEAPON:
 		_equipped = weapon
 

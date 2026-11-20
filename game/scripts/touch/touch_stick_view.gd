@@ -27,6 +27,10 @@ func _ready() -> void:
 	queue_redraw()
 
 
+func _exit_tree() -> void:
+	force_release()
+
+
 func direction() -> Vector2:
 	if model == null:
 		return Vector2.ZERO
@@ -50,10 +54,11 @@ func try_press(pointer_id: int, position: Vector2) -> bool:
 	return true
 
 
-func move_pointer(pointer_id: int, position: Vector2) -> void:
+func move_pointer(pointer_id: int, position: Vector2) -> bool:
 	if _pointer != pointer_id:
-		return
+		return false
 	_drag_to(position)
+	return true
 
 
 func release_pointer(pointer_id: int) -> bool:

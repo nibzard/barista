@@ -17,14 +17,11 @@ const DROP_OFFSET := Vector2(0.0, 46.0)
 
 var stand_name := ""
 
-var _notice_radius := 120.0
-
 
 func setup(stand_display_name: String, notice_radius: float) -> void:
 	# The stage names the stop and sizes its notice circle from the quest
 	# balance, then the stand composes its area before it enters the tree.
 	stand_name = stand_display_name
-	_notice_radius = notice_radius
 	var notice := Area2D.new()
 	notice.name = "NoticeArea"
 	notice.collision_layer = 0
@@ -48,10 +45,6 @@ func is_player_at_stand() -> bool:
 		if body is Player:
 			return true
 	return false
-
-
-func notice_radius() -> float:
-	return _notice_radius
 
 
 func drop_position() -> Vector2:

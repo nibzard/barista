@@ -81,7 +81,12 @@ func try_deliver(log: QuestLog, inventory: Inventory, field_base_open: bool) -> 
 	# The goal of the round: house beans for the field kitchen. The beans
 	# leave the bag at the open base, and the survivors answer with scrap
 	# parts for the van.
-	if _phase != Phase.ACTIVE or not field_base_open:
+	if (
+		_phase != Phase.ACTIVE
+		or not field_base_open
+		or log == null
+		or not log.is_active(quest_id())
+	):
 		return false
 	if balance == null or balance.bean_item == null or balance.reward_item == null:
 		return false

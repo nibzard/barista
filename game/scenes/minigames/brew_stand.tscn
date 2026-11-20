@@ -90,13 +90,11 @@ theme_override_constants/separation = 12
 [node name="LeftColumn" type="VBoxContainer" parent="Board/Columns"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 14
 theme_override_constants/separation = 2
 
 [node name="RightColumn" type="VBoxContainer" parent="Board/Columns"]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 14
 theme_override_constants/separation = 2
 
 [node name="SteepPanel" type="HBoxContainer" parent="Board"]

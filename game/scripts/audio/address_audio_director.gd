@@ -275,10 +275,13 @@ func _update_address(delta: float) -> void:
 
 
 func _apply_filters(deep: bool) -> void:
-	# The tolerance remedy filters the address deeper on every layer at once.
+	# The tolerance remedy filters the address deeper on every layer at once,
+	# never raising a layer whose cutoff already sits below the remedy floor.
 	var cutoffs := _rules.cutoffs_hz()
 	for i: int in range(_layer_filters.size()):
-		_layer_filters[i].cutoff_hz = balance.tolerance_filter_hz if deep else cutoffs[i]
+		_layer_filters[i].cutoff_hz = (
+			minf(cutoffs[i], balance.tolerance_filter_hz) if deep else cutoffs[i]
+		)
 
 
 func _update_antagonist() -> void:
@@ -345,8 +348,12 @@ func _switch_track() -> void:
 		_diegetic_track = ""
 		return
 	# A diegetic record is not the address: past the tolerance limit it goes
-	# silent instead of filtering deeper.
+	# silent instead of filtering deeper, and stays silent on re-entry.
 	_tolerance.register(track, false)
+	if _tolerance.remedy(track) == SoundTolerance.Remedy.STOP:
+		_diegetic_player.stop()
+		_diegetic_track = ""
+		return
 	_diegetic_track = track
 	if _playback_live:
 		_diegetic_player.stream = PlaceholderTones.diegetic_loop(_venue)

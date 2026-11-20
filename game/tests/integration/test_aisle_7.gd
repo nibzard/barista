@@ -275,6 +275,21 @@ func test_the_turkish_master_stays_locked_before_the_quest() -> void:
 	assert_bool(_city.master_lessons.can_take_lesson("husband")).is_false()
 
 
+func test_a_completed_aisle_7_resumes_silently_with_the_master() -> void:
+	# Reloading a save where aisle_7 is complete restores the woken husband,
+	# hugging wife, and Turkish master without replaying toasts.
+	var reloaded := POURTLAND_SCENE.instantiate() as CityRun
+	add_child(auto_free(reloaded))
+	reloaded.quest_log.load_state({"side": {"aisle_7": SideQuest.State.COMPLETE}})
+	var stage := reloaded.signature_quest as Aisle7Stage
+	await _await_frames(3)
+	assert_int(stage.quest.phase()).is_equal(Aisle7Quest.Phase.MASTER_OPEN)
+	assert_bool(stage.husband().is_awake()).is_true()
+	assert_bool(stage.wife().is_hugging()).is_true()
+	assert_bool(reloaded.master_lessons.find_master("husband") != null).is_true()
+	assert_bool(reloaded.hud.is_toast_visible()).is_false()
+
+
 func _wake_the_crowd() -> void:
 	# Awakened sleepwalkers never hug or stun, so the flow tests stay steady.
 	for i: int in range(_city.crowd_count()):

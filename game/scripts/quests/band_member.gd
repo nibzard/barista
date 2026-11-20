@@ -38,6 +38,7 @@ var _line_time_left := 0.0
 
 
 func _ready() -> void:
+	add_to_group(CureDelivery.WAKEABLE_GROUP)
 	visual.color = SLEEPING_COLOR
 	line_label.visible = true
 	line_label.text = _idle_text()
@@ -84,12 +85,16 @@ func try_wake(cup: BrewedCup) -> bool:
 	return true
 
 
-func wake_now() -> void:
-	# The wake beat itself: the green tint, the line, the signal.
+func wake_now(restore := false) -> void:
+	# The wake beat itself: the green tint, the line, the signal. A silent
+	# restore hides the idle order without replaying the beat.
 	if _awake:
 		return
 	_awake = true
 	visual.color = AWAKE_COLOR
+	if restore:
+		line_label.visible = false
+		return
 	if not wake_line.is_empty():
 		line_label.text = wake_line
 		line_label.visible = true
@@ -103,6 +108,14 @@ func announce_encore() -> void:
 	if _awake or not is_frontman:
 		return
 	line_label.text = "%s\n%s" % [role_label, order_text()]
+	line_label.visible = true
+
+
+func reset_encore() -> void:
+	# The encore window closed: restore the crowd rule hint until the next one.
+	if _awake or not is_frontman:
+		return
+	line_label.text = _idle_text()
 	line_label.visible = true
 
 

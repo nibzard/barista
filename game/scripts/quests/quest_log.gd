@@ -9,6 +9,9 @@ signal side_quest_changed(quest_id: String, new_state: SideQuest.State)
 var main_quest := MainQuest.new()
 
 var _side_quests := {}
+# Saved states for late-registered quests (such as the level-3 field base
+# round) that are not part of the static city definition list.
+var _pending_side_states := {}
 
 
 func _init() -> void:
@@ -24,6 +27,7 @@ func setup(route: MainRoute, start_city := "") -> bool:
 	if not main_quest.setup(route.city_ids(), start_city):
 		return false
 	_side_quests.clear()
+	_pending_side_states.clear()
 	for city: CityDefinition in route.cities:
 		for quest: SideQuestDefinition in city.side_quests:
 			register(quest)
@@ -38,6 +42,9 @@ func register(definition: SideQuestDefinition) -> bool:
 	if _side_quests.has(definition.quest_id):
 		return false
 	var quest := SideQuest.new(definition)
+	if _pending_side_states.has(definition.quest_id):
+		quest.load_state(int(_pending_side_states[definition.quest_id]))
+		_pending_side_states.erase(definition.quest_id)
 	quest.state_changed.connect(_on_quest_state_changed)
 	_side_quests[definition.quest_id] = quest
 	return true
@@ -102,7 +109,7 @@ func travel_west() -> bool:
 
 func save_state() -> Dictionary:
 	# The save system stores the chain and every quest state in one dict.
-	var side := {}
+	var side := _pending_side_states.duplicate()
 	for quest_id: String in _side_quests:
 		side[quest_id] = (_side_quests[quest_id] as SideQuest).save_state()
 	return {"main": main_quest.save_state(), "side": side}
@@ -110,12 +117,18 @@ func save_state() -> Dictionary:
 
 func load_state(saved: Dictionary) -> void:
 	# A loaded log never replays a beat or a state change. Quests that the
-	# save does not know keep their offered state.
+	# save does not know keep their offered state, and quests that register
+	# later (like field base quests) receive their saved state on register.
 	main_quest.load_state(saved.get("main", {}) as Dictionary)
+	_pending_side_states.clear()
 	var side := saved.get("side", {}) as Dictionary
-	for quest_id: String in _side_quests:
-		if side.has(quest_id):
-			(_side_quests[quest_id] as SideQuest).load_state(int(side[quest_id]))
+	for quest_id: Variant in side:
+		var id := str(quest_id)
+		var state := int(side[quest_id])
+		if _side_quests.has(id):
+			(_side_quests[id] as SideQuest).load_state(state)
+		else:
+			_pending_side_states[id] = state
 
 
 func _on_quest_state_changed(

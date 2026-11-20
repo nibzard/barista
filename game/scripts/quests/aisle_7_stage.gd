@@ -78,6 +78,7 @@ var _foam_view: FoamWatchView = null
 var _store_position := Vector2.ZERO
 var _greeted := false
 var _master_time_left := 0.0
+var _log_state_applied := false
 
 
 func _ready() -> void:
@@ -99,6 +100,7 @@ func setup(run: Node) -> void:
 func _physics_process(delta: float) -> void:
 	if quest == null or _run == null:
 		return
+	_apply_loaded_log_state()
 	match quest.phase():
 		Aisle7Quest.Phase.PHOTO_WAIT:
 			_tick_photo_wait()
@@ -115,6 +117,11 @@ func try_interact() -> bool:
 	# husband. Anywhere else keeps the key for the van.
 	if _run == null or quest == null:
 		return false
+	if _foam_view != null:
+		return true
+	var player: Player = _run.player
+	if player.is_asleep() or player.is_grabbed() or player.is_input_locked():
+		return false
 	match quest.phase():
 		Aisle7Quest.Phase.PHOTO_WAIT:
 			return _try_take_photo()
@@ -127,6 +134,12 @@ func try_interact() -> bool:
 func holds_interact() -> bool:
 	# The Foam Watch overlay owns the interact key while it plays, because the
 	# lift action shares the E key with interact.
+	return _foam_view != null
+
+
+func owns_screen() -> bool:
+	# The Foam Watch overlay owns the screen while it plays, so the touch
+	# buttons stand down behind it.
 	return _foam_view != null
 
 
@@ -301,18 +314,48 @@ func _on_sweet_hug() -> void:
 	_master_time_left = balance.master_unlock_delay
 
 
-func _spawn_master() -> void:
+func _apply_loaded_log_state() -> void:
+	# Section 18: a reload resumes the quest from the saved log, silent and
+	# without a replayed beat. The quest log loads after the stage in the
+	# run's build order, so the apply waits for this first physics tick.
+	if _log_state_applied:
+		return
+	_log_state_applied = true
+	if _husband == null or _wife == null:
+		return
+	var saved: SideQuest = _run.quest_log.quest(QUEST_ID)
+	if saved == null or saved.is_offered():
+		return
+	_greeted = true
+	_wife.set_photo_held(false)
+	if saved.is_active():
+		quest.load_state({"phase": Aisle7Quest.Phase.HUSBAND_ASLEEP})
+		return
+	if saved.is_complete():
+		quest.load_state({"phase": Aisle7Quest.Phase.MASTER_OPEN})
+		_husband.wake_now(true)
+		_wife.global_position = _husband.global_position + Vector2(0.0, balance.hug_arrive_radius)
+		_wife.set_hugging(true)
+		_spawn_master(true)
+
+
+func _spawn_master(restore := false) -> void:
 	# Section 13: the sleeper becomes the teacher. The husband joins the school
 	# where he woke, south of the hugging pair, and the run finds him through
 	# the same master path as its cafe masters.
-	if not _run.master_lessons.register_master(master):
+	var registered: bool = _run.master_lessons.register_master(master)
+	if not registered and not restore:
+		return
+	var npc_name := "Master" + master.master_id.capitalize()
+	if get_node_or_null(npc_name) != null:
 		return
 	var npc := (load(MASTER_NPC_SCENE_PATH) as PackedScene).instantiate() as MasterNpc
-	npc.name = "Master" + master.master_id.capitalize()
+	npc.name = npc_name
 	add_child(npc)
 	npc.global_position = _store_position + MASTER_OFFSET
 	npc.bind_master(master, _run.master_lessons)
-	_run.hud.show_toast(MASTER_TOAST)
+	if not restore:
+		_run.hud.show_toast(MASTER_TOAST)
 
 
 func _draw() -> void:

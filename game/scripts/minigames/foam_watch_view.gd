@@ -89,10 +89,14 @@ func request_lift() -> FoamResult:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Touch first: any tap lifts the pot. The action covers keyboard and
-	# mouse, and both paths may fire on one tap, so the lift is idempotent.
+	# Touch first: any tap lifts the pot. Emulated mouse clicks from touch are
+	# skipped so a tap that just closed the grind dial cannot lift a cold pot.
+	if event is InputEventMouseButton and event.device == TouchControls.EMULATED_MOUSE_DEVICE:
+		return
 	if event.is_action_pressed(&"lift_pot") or _is_screen_tap(event):
 		request_lift()
+		if get_viewport() != null:
+			get_viewport().set_input_as_handled()
 
 
 func _is_screen_tap(event: InputEvent) -> bool:

@@ -83,10 +83,6 @@ func is_speaking() -> bool:
 	return line_label.visible
 
 
-func last_granted_recipes() -> Array[String]:
-	return _last_granted.duplicate()
-
-
 func announce_text(outcome: Interaction, skill_gain: int, library: BrewingLibrary) -> String:
 	# The toast line of the beat, built on the school numbers: the lesson
 	# count, every granted recipe, and the school end when the last lesson
@@ -103,7 +99,9 @@ func announce_text(outcome: Interaction, skill_gain: int, library: BrewingLibrar
 		]
 	)
 	for recipe_id: String in _last_granted:
-		text += LESSON_RECIPE_TEXT % library.find_recipe(recipe_id).display_name.to_upper()
+		var recipe := library.find_recipe(recipe_id) if library != null else null
+		if recipe != null:
+			text += LESSON_RECIPE_TEXT % recipe.display_name.to_upper()
 	if _school.is_school_complete(master.master_id):
 		text += " " + SCHOOL_DONE_TOAST_TEXT % master.display_name.to_upper()
 	return text

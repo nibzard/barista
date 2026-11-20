@@ -271,9 +271,6 @@ func build() -> void:
 	# per-frame watch of player state (the tutorial drink lesson) must tick
 	# after the player to see a channel close inside the player's physics step.
 	move_child(player, -1)
-	_build_outro()
-	if run_tutorial and city_index == 1:
-		_build_tutorial()
 	player.global_position = _map.cafe_spawn().global_position
 	if _has_saved_position:
 		# Section 18: the reload puts the player back at the save point, not
@@ -285,6 +282,9 @@ func build() -> void:
 	camera.limit_top = 0
 	camera.limit_right = int(city_bounds.x + BRIDGE_DECK_WIDTH)
 	camera.limit_bottom = int(city_bounds.y)
+	_build_outro()
+	if run_tutorial and city_index == 1:
+		_build_tutorial()
 	_resume_completed_city()
 
 
@@ -634,12 +634,11 @@ func _build_van() -> void:
 	_van = VAN_SCENE.instantiate() as MobileCafeVan
 	add_child(_van)
 	van_state = MobileCafe.new(_van.balance)
-	if city_index > 1 or not _arriving_traveler.is_empty():
-		# Section 10, moving day: the van comes along on the move east with
-		# every level the west city paid for. The parked level rides the
-		# scene change; an arrival without one, like a fresh run that never
-		# traveled, starts at the plain van. A road west back into the first
-		# city carries the level the same way, section 23.
+	if not _arriving_traveler.is_empty():
+		van_state.load_state(VanHandoff.take_arriving_level(MobileCafe.Level.VAN))
+	elif not _saved_state.is_empty():
+		van_state.load_state(int(_saved_state.get("van_level", MobileCafe.Level.NONE)))
+	elif city_index > 1:
 		van_state.load_state(VanHandoff.take_arriving_level(MobileCafe.Level.VAN))
 	_van.global_position = cafe_block.van_spot().global_position
 	_van.bind_state(van_state)
@@ -648,10 +647,6 @@ func _build_van() -> void:
 	van_state.upgraded.connect(_on_van_upgraded)
 	_van.field_base_opened.connect(func() -> void: hud.show_toast(FIELD_BASE_OPEN_TEXT))
 	_van.field_base_packed.connect(func() -> void: hud.show_toast(FIELD_BASE_PACKED_TEXT))
-	if not _saved_state.is_empty():
-		# Section 18: the save holds the van level. A loaded van never replays
-		# the gift or an upgrade beat, and the carry limit follows the level.
-		van_state.load_state(int(_saved_state.get("van_level", MobileCafe.Level.NONE)))
 	van_state.apply_supply_level(player.coffee_supply)
 
 
@@ -713,17 +708,11 @@ func _on_tower_switched_off() -> void:
 
 
 func _apply_saved_state() -> void:
-	# One world, one carry. The world beats of this city land silent from this
-	# scene's own save point or from the stored city world of a return trip:
-	# no beat replays and no signal fires. The player carry comes from the
-	# traveler that a road just parked, else from the same save document. A
-	# first visit holds neither and starts plain. The quest chain restored in
-	# _build_quest_markers and the van level in _build_van, because both build
-	# before this call.
+	# Restore city world beats silently, then unpack either the arriving
+	# traveler or this scene's own saved run state.
+	var has_arriving_steep := ColdBrewHandoff.has_arriving()
 	var arriving_steep := ColdBrewHandoff.take_arriving_state()
 	if _world_state.is_empty() and _arriving_traveler.is_empty():
-		# A first visit: no world to restore, no traveler to unpack. A parked
-		# steep rides alone, so it still lands.
 		if not arriving_steep.is_empty():
 			cold_fridge.load_state(arriving_steep, player.brewing_library)
 		return
@@ -732,8 +721,6 @@ func _apply_saved_state() -> void:
 	BossSaveState.apply_saved(_boss, SaveData.dict_or_empty(_world_state.get("boss", {})))
 	var saved_phase := int(_world_state.get("tower_phase", -1))
 	if saved_phase >= 0:
-		# A loaded switch never replays its beat: the map silences the poles
-		# on its own load path, and no wake-up is granted again.
 		_map.load_tower_state(saved_phase)
 		var tower := _map.broadcast_tower()
 		if tower != null and tower.is_switched_off():
@@ -744,28 +731,20 @@ func _apply_saved_state() -> void:
 		saved_vault or (save_system != null and save_system.is_vault_open(definition.city_id))
 	)
 	if vault != null and vault_was_open:
-		# A loaded vault never re-locks: no key returns to any bag.
 		vault.load_state(true)
 	if cold_fridge != null:
-		# Section 18: a saved steep stands where it stood, and one that ran
-		# out while the game was closed is ready at once, section 8. A steep
-		# that crossed the road with the traveler stands over the stored one.
 		var steep := arriving_steep
-		if steep.is_empty():
+		if not has_arriving_steep:
 			steep = SaveData.dict_or_empty(_world_state.get("cold_brew", {}))
 		cold_fridge.load_state(steep, player.brewing_library)
 	if not _arriving_traveler.is_empty():
-		# The road west and the road east land the traveler by the cafe of the
-		# city they reach: the bag, the dex, and every player field cross,
-		# while the city keeps its own saved world, section 23.
-		MoveHandoff.apply_arrival(_arriving_traveler, player, dex, unlock_state, ITEM_CATALOG)
+		MoveHandoff.apply_arrival(
+			_arriving_traveler, player, dex, unlock_state, ITEM_CATALOG, master_lessons
+		)
 		return
-	# The reload of this scene's own save point restores the player with it,
-	# at the saved position: dex, meter, wake-ups, skills, bag, supply, and
-	# the brewed batch in hand, section 18.
 	if _saved_state.is_empty():
 		return
-	MoveHandoff.apply_carry(player, dex, _saved_state, ITEM_CATALOG)
+	MoveHandoff.apply_carry(player, dex, _saved_state, ITEM_CATALOG, master_lessons)
 	_has_saved_position = true
 	_saved_position = _saved_state.get("position", Vector2.ZERO) as Vector2
 
@@ -818,6 +797,7 @@ func _capture_run_state() -> Dictionary:
 		"outro": outro,
 		"unlock": unlock_state.save_state(),
 		"moonwalk_dodge": player.dodge_style == Player.DodgeStyle.MOONWALK,
+		"master_lessons": master_lessons.save_state() if master_lessons != null else {},
 		"game_mode": SaveData.MODE_HARDCORE if player.wake_ups.hardcore else SaveData.MODE_NORMAL,
 		"tower_phase": tower_phase,
 		"vault_open": _city_vault_open(),
@@ -884,6 +864,7 @@ func _on_player_died() -> void:
 func _reload_last_save() -> void:
 	# The slot rides the scene change, so the arriving run reads the same
 	# document in a headless test and in a player build alike.
+	MoveHandoff.reset_all()
 	SaveSystem.park_for_scene_change(save_system)
 	get_tree().change_scene_to_file(save_system.continue_scene_path())
 
@@ -940,6 +921,7 @@ func _on_west_road_taken() -> void:
 func _show_end_screen(message: String, show_restart: bool, goes_to_menu := false) -> void:
 	_end_screen_shown = true
 	_end_screen_goes_to_menu = goes_to_menu
+	player.set_input_locked(true)
 	overlay.visible = true
 	status_label.visible = true
 	status_label.text = message
@@ -951,6 +933,7 @@ func _on_continue_pressed() -> void:
 	# The completion beat ends: the player takes the screen back, the touch
 	# controls return, and the walk east can start.
 	_end_screen_shown = false
+	player.set_input_locked(false)
 	overlay.visible = false
 	status_label.visible = false
 	continue_button.visible = false
@@ -958,6 +941,7 @@ func _on_continue_pressed() -> void:
 
 func _on_restart_pressed() -> void:
 	# A hardcore death ends the whole run: the menu owns the way back.
+	MoveHandoff.reset_all()
 	if _end_screen_goes_to_menu:
 		get_tree().change_scene_to_file(MENU_SCENE_PATH)
 		return
@@ -965,23 +949,15 @@ func _on_restart_pressed() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _end_screen_shown or hud.dex_app.is_open() or player.is_asleep() or player.is_input_locked():
+		return
 	if event.is_action_pressed(&"refill_coffee"):
 		refill_player_supply()
 	elif event.is_action_pressed(&"interact"):
-		# A brew overlay that holds the key consumes the press: the stop and
-		# lift actions of the minigames share the E key with interact, so a
-		# press mid-brew must not also take a master lesson or drive the van.
 		if brew_pot.holds_interact():
 			return
-		# A quest overlay that holds the key, like the Aisle 7 Foam Watch,
-		# consumes the press: its lift action shares the E key with interact.
 		if signature_quest != null and signature_quest.holds_interact():
 			return
-		# The master at hand answers first; then the cafe television with the
-		# section 22 replay; then the locked paywall gate with the one payment
-		# of section 4; then the signature quest, like the Sleepvana crowd at
-		# the van; then the small ask of the gathered field base survivors,
-		# section 10; the van takes the key otherwise.
 		if not master_school.interact() and not _interact_with_television():
 			if (
 				_bridge_gate == null
@@ -993,7 +969,5 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event.is_action_pressed(&"call_van"):
 		call_van()
 	elif event.is_action_pressed(&"start_brew"):
-		# The tutorial owns the brew key until its first-ten-minutes script
-		# ends; after that the pot of the run takes it.
 		if _tutorial == null or _tutorial.flow.is_done():
 			brew_pot.try_open()

@@ -68,12 +68,14 @@ func set_player(target: Player) -> void:
 func bind_dex(sleepy_dex: SleepyDex, library: BrewingLibrary) -> void:
 	# The smartphone lives on the HUD: one button opens the one app, section 9.
 	# Scenes without a dex, like the cafe development room, keep the button hid.
-	dex_app.bind(sleepy_dex)
 	dex_app.library = library
+	dex_app.bind(sleepy_dex)
 	dex_button.visible = true
 
 
 func open_dex() -> void:
+	if player != null and player.is_input_locked():
+		return
 	dex_app.open()
 
 
@@ -81,13 +83,16 @@ func toggle_dex() -> void:
 	if dex_app.is_open():
 		dex_app.close()
 	else:
-		dex_app.open()
+		open_dex()
 
 
 func _unhandled_input(event: InputEvent) -> void:
 	# The Tab key is the desktop convenience for the phone button, section 4.
 	if event.is_action_pressed(&"toggle_dex"):
+		if player != null and player.is_input_locked() and not dex_app.is_open():
+			return
 		toggle_dex()
+		get_viewport().set_input_as_handled()
 
 
 func refresh() -> void:

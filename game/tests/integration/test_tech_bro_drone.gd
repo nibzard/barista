@@ -177,6 +177,19 @@ func test_tech_bro_emits_first_met_for_the_sleepydex() -> void:
 	assert_int(_met_types.size()).is_equal(1)
 
 
+func test_the_drone_lands_when_the_tech_bro_restores_awake() -> void:
+	# A restored awake Tech Bro never emits woke_up; its drone must still land
+	# instead of orbiting and diving at the player after reload.
+	var restored := TECH_BRO_SCENE.instantiate() as Sleepwalker
+	restored.position = Vector2(200, 200)
+	add_child(auto_free(restored))
+	restored.wake_up(true)
+	var drone := restored.get_node("Drone") as Drone
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_int(drone.state).is_equal(Drone.State.LANDED)
+
+
 func _place_player_near(offset: Vector2) -> void:
 	_player.global_position = _tech_bro.global_position + offset
 

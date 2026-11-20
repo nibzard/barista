@@ -65,14 +65,6 @@ func show_title() -> void:
 	_title_target = 1.0
 
 
-func is_map_faded_in() -> bool:
-	return _map_alpha >= 0.99
-
-
-func is_title_faded_in() -> bool:
-	return _title_alpha >= 0.99
-
-
 func _draw() -> void:
 	draw_rect(Rect2(Vector2.ZERO, size), BACKDROP_COLOR)
 	if _map_alpha > 0.0:

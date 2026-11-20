@@ -8,12 +8,20 @@ extends RefCounted
 # change, because the two city runs never share a tree and the slot of the
 # west city never bleeds into the east one.
 static var _parked_state: Dictionary = {}
+static var _has_parked := false
 
 
 static func park(state: Dictionary) -> void:
 	# The leaving city parks its live steep for the arrival: the cold brew
-	# crosses the road east with the player, steeped seconds and all.
+	# crosses the road east with the player, steeped seconds and all. An empty
+	# dict still marks a travel, so returning west with an empty fridge does
+	# not resurrect an already-collected steep from the old city world.
 	_parked_state = state.duplicate()
+	_has_parked = true
+
+
+static func has_arriving() -> bool:
+	return _has_parked
 
 
 static func take_arriving_state() -> Dictionary:
@@ -21,6 +29,7 @@ static func take_arriving_state() -> Dictionary:
 	# steep, like a fresh run that never traveled, arrives at an empty fridge.
 	var arriving := _parked_state
 	_parked_state = {}
+	_has_parked = false
 	return arriving
 
 
@@ -28,3 +37,4 @@ static func reset() -> void:
 	# A fresh session starts with an empty handoff. The test suites call this
 	# so a parked steep never leaks into an unrelated run.
 	_parked_state = {}
+	_has_parked = false

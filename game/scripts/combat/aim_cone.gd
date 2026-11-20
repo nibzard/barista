@@ -24,7 +24,7 @@ static func landing_point(
 		var angle := absf(rad_to_deg(angle_difference(aim.angle(), offset.angle())))
 		if angle > best_angle:
 			continue
-		if angle < best_angle or distance < best_distance:
+		if best == null or angle < best_angle or distance < best_distance:
 			best_angle = angle
 			best_distance = distance
 			best = candidate

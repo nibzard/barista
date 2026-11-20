@@ -298,3 +298,19 @@ func test_load_state_clamps_impossible_counts_and_drops_unknown_masters() -> voi
 	assert_int(school.lessons_taken("hedrip")).is_equal(0)
 	assert_int(school.lessons_taken("ghost")).is_equal(0)
 	assert_bool(school.is_recipe_known("single_origin_v60")).is_true()
+
+
+func test_late_registered_master_restores_saved_lessons_and_recipes() -> void:
+	# Mid-run quest masters like the Aisle 7 husband register after load_state;
+	# saved lessons and granted recipes must restore when they register.
+	var school := MasterLessons.new([RAOAST], _make_skills())
+	assert_bool(school.register_master(TURKISH_HUSBAND)).is_true()
+	school.take_lesson("husband")
+	var saved := school.save_state()
+
+	var reloaded := MasterLessons.new([RAOAST], _make_skills())
+	reloaded.load_state(saved)
+	assert_bool(reloaded.is_recipe_known("turkish_cup")).is_true()
+	assert_bool(reloaded.register_master(TURKISH_HUSBAND)).is_true()
+	assert_int(reloaded.lessons_taken("husband")).is_equal(1)
+	assert_bool(reloaded.is_recipe_known("turkish_cup")).is_true()

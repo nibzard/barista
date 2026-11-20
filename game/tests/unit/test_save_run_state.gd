@@ -81,6 +81,8 @@ func _full_run_state() -> Dictionary:
 		"tutorial": {"step": 10, "hug": true, "dodge": true, "brew": false},
 		"outro": {"step": 4},
 		"unlock": true,
+		"moonwalk_dodge": true,
+		"master_lessons": {"lessons": {"offmug": 2}, "known_recipes": ["single_origin_v60"]},
 		"game_mode": "hardcore",
 		"tower_phase": 3,
 		"vault_open": true,
@@ -148,6 +150,10 @@ func test_every_run_state_field_round_trips_through_the_slot() -> void:
 	var outro: Dictionary = loaded.get("outro", {})
 	assert_int(outro.get("step", 0)).is_equal(4)
 	assert_bool(loaded.get("unlock", false)).is_true()
+	assert_bool(loaded.get("moonwalk_dodge", false)).is_true()
+	var master_lessons: Dictionary = loaded.get("master_lessons", {})
+	assert_int((master_lessons.get("lessons", {}) as Dictionary).get("offmug", 0)).is_equal(2)
+	assert_array(master_lessons.get("known_recipes", [])).is_equal(["single_origin_v60"])
 	assert_str(loaded.get("game_mode", "")).is_equal("hardcore")
 	assert_int(loaded.get("tower_phase", -1)).is_equal(3)
 	assert_bool(loaded.get("vault_open", false)).is_true()

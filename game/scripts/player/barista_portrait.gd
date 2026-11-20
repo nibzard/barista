@@ -102,7 +102,7 @@ static func build(
 		boots_polygon(appearance.boots),
 		AppearanceCatalog.color_of(catalog.boots, appearance.boots)
 	)
-	_add_hands(body)
+	_add_hands(body, body.color)
 	for placement: String in appearance.tattoo_placements:
 		_add_part(body, "Tattoo" + _part_suffix(placement), tattoo_polygon(placement), TATTOO_INK)
 
@@ -164,13 +164,13 @@ static func hat_polygon(hat: String) -> PackedVector2Array:
 			return PackedVector2Array(
 				[
 					Vector2(-20, -26),
-					Vector2(-8, -26),
-					Vector2(-8, -40),
-					Vector2(8, -40),
-					Vector2(8, -26),
 					Vector2(20, -26),
 					Vector2(20, -30),
-					Vector2(-20, -30)
+					Vector2(8, -30),
+					Vector2(8, -40),
+					Vector2(-8, -40),
+					Vector2(-8, -30),
+					Vector2(-20, -30),
 				]
 			)
 		"bowler":
@@ -274,11 +274,11 @@ static func _add_part(
 	body.add_child(part)
 
 
-static func _add_hands(body: Node2D) -> void:
+static func _add_hands(body: Node2D, skin_color: Color = HAND_COLOR) -> void:
 	# The cast rule of ART_DIRECTION section 7: oversized hands, made to hold
 	# cups. The right hand carries one brewed cup, the weapon of the player.
-	_add_part(body, "HandL", _hand_polygon(Vector2(-19, 8)), HAND_COLOR)
-	_add_part(body, "HandR", _hand_polygon(Vector2(19, 8)), HAND_COLOR)
+	_add_part(body, "HandL", _hand_polygon(Vector2(-19, 8)), skin_color)
+	_add_part(body, "HandR", _hand_polygon(Vector2(19, 8)), skin_color)
 	_add_part(body, "HeldCup", held_cup_polygon(), CUP_COLOR)
 	var band := Polygon2D.new()
 	band.name = "HeldCupBand"

@@ -88,10 +88,14 @@ func _result_text(dial_result: GrindResult) -> String:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Touch first: any tap stops the marker. The action covers keyboard and
-	# mouse, and both paths may fire on one tap, so the stop is idempotent.
+	# Touch first: any tap stops the marker. Emulated mouse clicks from touch
+	# are skipped so the same tap cannot leak into the next minigame view.
+	if event is InputEventMouseButton and event.device == TouchControls.EMULATED_MOUSE_DEVICE:
+		return
 	if event.is_action_pressed(&"stop_grind") or _is_screen_tap(event):
 		request_stop()
+		if get_viewport() != null:
+			get_viewport().set_input_as_handled()
 
 
 func _is_screen_tap(event: InputEvent) -> bool:

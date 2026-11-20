@@ -113,6 +113,9 @@ func load_state(saved: Dictionary) -> void:
 	_opened = true
 	_slides.set_active(false)
 	_screen.color = SCREEN_DARK_COLOR
+	for drone: Drone in _drones:
+		if is_instance_valid(drone):
+			drone.land_for_good()
 	_tint_hall(AWAKE_COLOR)
 
 
@@ -189,8 +192,9 @@ func _build_slides() -> void:
 	_slides.name = SLIDES_ZONE_NAME
 	_slides.kind = SleepZone.Kind.BORING
 	var shape_node := _slides.get_node(^"CollisionShape2D") as CollisionShape2D
-	var circle := shape_node.shape as CircleShape2D
+	var circle := CircleShape2D.new()
 	circle.radius = balance.slides_radius
+	shape_node.shape = circle
 	add_child(_slides)
 
 

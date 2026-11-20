@@ -4,8 +4,6 @@
 class_name AutoDripTurret
 extends Node2D
 
-signal ran_dry
-
 # Placeholder tower colors until the art pass brings real props.
 const TOWER_FILL := Color(0.72, 0.7, 0.62, 0.95)
 const TOWER_EDGE := Color(0.25, 0.24, 0.2, 1.0)
@@ -33,20 +31,10 @@ func _physics_process(delta: float) -> void:
 	_tank_time_left = maxf(0.0, _tank_time_left - delta)
 	_drip_time_left -= delta
 	if _drip_time_left <= 0.0:
-		_drip_time_left = balance.turret_drip_interval_seconds
+		_drip_time_left += balance.turret_drip_interval_seconds
 		_drip()
 	if _tank_time_left <= 0.0:
-		# The tank ran dry: the tower gives one last signal, then folds.
-		ran_dry.emit()
 		queue_free()
-
-
-func tank_time_left() -> float:
-	return _tank_time_left
-
-
-func is_dry() -> bool:
-	return _tank_time_left <= 0.0
 
 
 func _drip() -> void:

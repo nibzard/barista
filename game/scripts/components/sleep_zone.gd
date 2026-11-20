@@ -33,7 +33,7 @@ var _haze: Polygon2D
 
 func _ready() -> void:
 	_palette = ArtPalette.world()
-	if kind == Kind.SLEEP:
+	if kind == Kind.SLEEP and not _broadcast_silenced:
 		_build_haze()
 
 
@@ -44,7 +44,7 @@ func set_active(active: bool) -> void:
 		return
 	_active = active
 	if _haze != null:
-		_haze.visible = active
+		_haze.visible = active and not _broadcast_silenced
 	queue_redraw()
 
 
@@ -119,9 +119,10 @@ func _build_haze() -> void:
 	_haze = Polygon2D.new()
 	_haze.name = "SleepHaze"
 	_haze.z_index = HAZE_Z_INDEX
-	var half := Vector2(radius, radius)
+	var diameter := radius * 2.0
+	_haze.position = Vector2(-radius, -radius)
 	_haze.polygon = PackedVector2Array(
-		[-half, Vector2(half.x, -half.y), half, Vector2(-half.x, half.y)]
+		[Vector2.ZERO, Vector2(diameter, 0.0), Vector2(diameter, diameter), Vector2(0.0, diameter)]
 	)
 	var material := ShaderMaterial.new()
 	material.shader = load(SLEEP_HAZE_SHADER_PATH) as Shader
@@ -129,8 +130,9 @@ func _build_haze() -> void:
 		"haze", _palette.lavender if _palette != null else Color("#A99BC4")
 	)
 	material.set_shader_parameter("strength", 1.0)
-	material.set_shader_parameter("rect_size", half * 2.0)
+	material.set_shader_parameter("rect_size", Vector2(diameter, diameter))
 	_haze.material = material
+	_haze.visible = _active and not _broadcast_silenced
 	add_child(_haze)
 
 

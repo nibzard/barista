@@ -165,6 +165,10 @@ static func weapon_name_for(weapon: int) -> String:
 	return CureArmory.WEAPON_NAMES[weapon]
 
 
+func _exit_tree() -> void:
+	_release_all()
+
+
 func _process(_delta: float) -> void:
 	_update_tool_readout()
 	_update_weapon_readout()
@@ -177,13 +181,24 @@ func _process(_delta: float) -> void:
 		and not player.is_asleep()
 		and not _overlay_open
 	)
+	if playable and (_buttons[ButtonKind.WEAPON] as TouchButton).is_pressed():
+		if player.armory.equipped_weapon() == CureArmory.Weapon.MINIGUN:
+			var aim := stick_view.direction()
+			if aim != Vector2.ZERO:
+				player.try_action(&"fire_weapon", aim)
 	if playable == visible:
 		return
 	visible = playable
 	if not playable:
+		_release_all()
+
+
+func _release_all() -> void:
+	if stick_view != null:
 		stick_view.force_release()
-		for button: TouchButton in _buttons.values():
-			button.lift()
+	for button: TouchButton in _buttons.values():
+		button.lift()
+	_held_by_pointer.clear()
 
 
 func stick() -> TouchStickView:
@@ -204,6 +219,9 @@ func set_overlay_open(open: bool) -> void:
 	# A full-screen overlay that is not a cinematic, like the SleepyDex phone or
 	# the end screen, owns the screen for its own buttons.
 	_overlay_open = open
+	if open and visible:
+		visible = false
+		_release_all()
 
 
 func _input(event: InputEvent) -> void:
@@ -211,35 +229,43 @@ func _input(event: InputEvent) -> void:
 		return
 	var touch := event as InputEventScreenTouch
 	if touch != null:
+		var handled := false
 		if touch.pressed:
-			_pointer_down(touch.index, touch.position)
+			handled = _pointer_down(touch.index, touch.position)
 		else:
-			_pointer_up(touch.index)
+			handled = _pointer_up(touch.index)
+		if handled and get_viewport() != null:
+			get_viewport().set_input_as_handled()
 		return
 	var drag := event as InputEventScreenDrag
 	if drag != null:
-		stick_view.move_pointer(drag.index, drag.position)
+		if stick_view.move_pointer(drag.index, drag.position) and get_viewport() != null:
+			get_viewport().set_input_as_handled()
 		return
 	_handle_mouse(event)
 
 
-func _pointer_down(pointer_id: int, position: Vector2) -> void:
+func _pointer_down(pointer_id: int, position: Vector2) -> bool:
 	if stick_view.try_press(pointer_id, position):
-		return
+		return true
 	for kind: ButtonKind in _buttons:
 		var action_button := _buttons[kind] as TouchButton
 		if action_button.is_hit(position):
-			action_button.press()
-			_held_by_pointer[pointer_id] = action_button
-			return
+			if not action_button.is_pressed():
+				action_button.press()
+				_held_by_pointer[pointer_id] = action_button
+			return true
+	return false
 
 
-func _pointer_up(pointer_id: int) -> void:
-	stick_view.release_pointer(pointer_id)
+func _pointer_up(pointer_id: int) -> bool:
+	var handled := stick_view.release_pointer(pointer_id)
 	var held := _held_by_pointer.get(pointer_id) as TouchButton
 	if held != null:
 		held.lift()
 		_held_by_pointer.erase(pointer_id)
+		handled = true
+	return handled
 
 
 func _handle_mouse(event: InputEvent) -> void:
@@ -249,15 +275,19 @@ func _handle_mouse(event: InputEvent) -> void:
 	if mouse != null:
 		if mouse.device == EMULATED_MOUSE_DEVICE or mouse.button_index != MOUSE_BUTTON_LEFT:
 			return
+		var handled := false
 		if mouse.pressed:
-			_pointer_down(MOUSE_POINTER, mouse.position)
+			handled = _pointer_down(MOUSE_POINTER, mouse.position)
 		else:
-			_pointer_up(MOUSE_POINTER)
+			handled = _pointer_up(MOUSE_POINTER)
+		if handled and get_viewport() != null:
+			get_viewport().set_input_as_handled()
 		return
 	var motion := event as InputEventMouseMotion
 	if motion != null and motion.device != EMULATED_MOUSE_DEVICE:
 		if (motion.button_mask & MOUSE_BUTTON_MASK_LEFT) != 0:
-			stick_view.move_pointer(MOUSE_POINTER, motion.position)
+			if stick_view.move_pointer(MOUSE_POINTER, motion.position) and get_viewport() != null:
+				get_viewport().set_input_as_handled()
 
 
 func _update_tool_readout() -> void:
@@ -300,11 +330,11 @@ func _fire_action(action: StringName) -> void:
 
 
 func _on_weapon_tapped() -> void:
-	# The Minigun owns no single shot, section 11: its touch press holds the
-	# fire action like a key, and the lift releases it, so the stream runs
-	# only while the finger stays down. Every other weapon fires one shot on
-	# the tap, with the stick aim.
+	# The Minigun owns no single shot, section 11: set its aim from the virtual
+	# stick and hold the fire action directly so Player._unhandled_input does
+	# not overwrite the aim with the touch button's screen position.
 	if player.armory.equipped_weapon() == CureArmory.Weapon.MINIGUN:
+		player.try_action(&"fire_weapon", stick_view.direction())
 		_press_action(&"fire_weapon")
 		return
 	player.try_action(&"fire_weapon", stick_view.direction())
@@ -312,16 +342,11 @@ func _on_weapon_tapped() -> void:
 
 func _press_action(action: StringName) -> void:
 	# The press half of a held action: the release comes with the lift.
-	var press := InputEventAction.new()
-	press.action = action
-	press.pressed = true
-	Input.parse_input_event(press)
+	Input.action_press(action)
 
 
 func _release_action(action: StringName) -> void:
 	# The release half of a held action: the stream of the Minigun stops the
 	# moment the finger or the overlay takes the button away.
-	var release := InputEventAction.new()
-	release.action = action
-	release.pressed = false
-	Input.parse_input_event(release)
+	if Input.is_action_pressed(action):
+		Input.action_release(action)

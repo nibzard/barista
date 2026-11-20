@@ -33,6 +33,8 @@ func _physics_process(_delta: float) -> void:
 		var walker := body as Sleepwalker
 		if walker == null:
 			continue
+		if not LineOfSight.is_clear(global_position, walker.global_position, get_world_2d()):
+			continue
 		walker.notice_food(self)
 
 

@@ -257,6 +257,31 @@ func test_released_guests_leave_the_tables_for_a_leader() -> void:
 	assert_int(_city.van().gathered_survivors().size()).is_equal(0)
 
 
+func test_a_freed_gathered_survivor_does_not_crash_the_field_base() -> void:
+	await _own_the_van(false)
+	var player := _city.player
+	player.pickup_item(SCRAP_PART, 99)
+	_city.interact_with_van()
+	_city.interact_with_van()
+
+	var survivor := _city.crowd_enemy(6)
+	player.global_position = survivor.global_position + Vector2(-120.0, 0.0)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	_city.call_van()
+	survivor.wake_up()
+	var frames := 0
+	while _city.van().gathered_survivors().is_empty() and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().physics_frame
+		frames += 1
+	assert_int(_city.van().gathered_survivors().size()).is_equal(1)
+
+	survivor.free()
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_int(_city.van().gathered_survivors().size()).is_equal(0)
+
+
 func _own_the_van(wake_crowd := true) -> void:
 	# Walk the player up to the van so the survivors hand it over, then let the
 	# overlap report settle. The gathering tests keep the crowd asleep.

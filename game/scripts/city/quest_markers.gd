@@ -31,10 +31,21 @@ var _objective_position := Vector2.ZERO
 var _objective_label := ""
 var _side_positions: Array[Vector2] = []
 var _suppressed := false
+var _last_view_center := Vector2.INF
 
 
 func _ready() -> void:
 	z_index = MARKER_Z_INDEX
+
+
+func _process(_delta: float) -> void:
+	# Redraw the off-screen objective arrow as the camera moves across the city.
+	if not _has_objective_target:
+		return
+	var center := _view_rect().get_center()
+	if center != _last_view_center:
+		_last_view_center = center
+		queue_redraw()
 
 
 func bind(quest_log: QuestLog, map: CityMap) -> void:
@@ -241,4 +252,4 @@ func _view_rect() -> Rect2:
 	var camera := viewport.get_camera_2d()
 	if camera == null:
 		return Rect2(-half, half * 2.0)
-	return Rect2(camera.global_position - half, half * 2.0)
+	return Rect2(camera.get_screen_center_position() - half, half * 2.0)

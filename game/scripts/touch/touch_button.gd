@@ -68,7 +68,7 @@ func set_available(available: bool) -> void:
 	_available = available
 	visible = available
 	if not available:
-		_pressed = false
+		lift()
 	queue_redraw()
 
 

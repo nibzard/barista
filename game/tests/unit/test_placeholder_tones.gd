@@ -57,9 +57,9 @@ func test_no_tone_is_silent_data() -> void:
 	]
 	for stream: AudioStreamWAV in streams:
 		var bytes := stream.data
-		assert_int(bytes.size()).is_greater(44)
+		assert_int(bytes.size()).is_greater(0)
 		var loudest := 0
-		for i: int in range(44, bytes.size(), 2):
+		for i: int in range(0, bytes.size(), 2):
 			var value := absi(bytes.decode_s16(i))
 			loudest = maxi(loudest, value)
 		assert_int(loudest).is_greater(1000)

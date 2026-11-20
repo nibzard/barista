@@ -20,6 +20,10 @@ func build() -> void:
 	for view: CityBlockView in _block_views:
 		view.queue_free()
 	_block_views.clear()
+	var old_stage := look_stage()
+	if old_stage != null:
+		remove_child(old_stage)
+		old_stage.queue_free()
 	var block_size := CityRules.block_size(balance)
 	for i: int in range(definition.blocks.size()):
 		var view := CITY_BLOCK_SCENE.instantiate() as CityBlockView

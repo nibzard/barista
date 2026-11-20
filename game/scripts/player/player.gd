@@ -91,7 +91,15 @@ var _weapon_aim := Vector2.ZERO
 @onready var visual: Polygon2D = $Visual
 
 
+func _ready() -> void:
+	if appearance != null:
+		BaristaPortrait.build(visual, appearance, appearance_catalog)
+
+
 func _physics_process(delta: float) -> void:
+	if _grabber != null and not is_instance_valid(_grabber):
+		_grabber = null
+		_mash_presses = 0
 	if _asleep:
 		velocity = Vector2.ZERO
 		return
@@ -170,6 +178,9 @@ func wake_in_cafe() -> void:
 	_grabber = null
 	_mash_presses = 0
 	_stun_time_left = 0.0
+	_dodge_time_left = 0.0
+	_dodge_cooldown_time_left = 0.0
+	_grace_time_left = 0.0
 	_asleep = false
 
 
@@ -229,11 +240,11 @@ func is_stunned() -> bool:
 
 
 func is_grabbed() -> bool:
-	return _grabber != null
+	return _grabber != null and is_instance_valid(_grabber)
 
 
 func set_grabbed_by(sleepwalker: Sleepwalker) -> void:
-	if _grabber == null:
+	if _grabber == null or not is_instance_valid(_grabber):
 		_grabber = sleepwalker
 		_mash_presses = 0
 
@@ -247,7 +258,9 @@ func clear_grab(sleepwalker: Sleepwalker) -> void:
 func struggle() -> bool:
 	# A grabbed player mashes presses to break the hug. The breaking press
 	# frees the player and buys a grace window against an instant re-grab.
-	if _grabber == null:
+	if not is_grabbed():
+		_grabber = null
+		_mash_presses = 0
 		return false
 	_mash_presses += 1
 	if _mash_presses >= balance.hug_mash_presses_to_break:
@@ -388,8 +401,11 @@ func _sleepwalkers_in_cone(
 		var offset := walker.global_position - global_position
 		if offset.length() > reach:
 			continue
-		var angle := absf(rad_to_deg(angle_difference(direction.angle(), offset.angle())))
-		if angle > half_angle_degrees:
+		if offset.length_squared() > 0.0001:
+			var angle := absf(rad_to_deg(angle_difference(direction.angle(), offset.angle())))
+			if angle > half_angle_degrees:
+				continue
+		if not LineOfSight.is_clear(global_position, walker.global_position, get_world_2d()):
 			continue
 		hits.append(walker)
 	return hits
@@ -418,7 +434,7 @@ func _away_from_player(walker: Sleepwalker) -> Vector2:
 
 
 func drink_cup() -> bool:
-	if _asleep or _grabber != null or is_stunned():
+	if _asleep or _grabber != null or is_stunned() or sleep_meter.is_drinking():
 		return false
 	# The same cup heals the meter or wakes a sleepwalker, never both.
 	if not coffee_supply.spend_cups(supply_balance.drink_cost):
@@ -537,7 +553,7 @@ func throw_cup(direction: Vector2) -> CoffeeCup:
 	if not coffee_supply.fire(CoffeeSupply.Weapon.CUP_THROW):
 		return null
 	var aim := direction.normalized() if direction != Vector2.ZERO else _last_move_direction
-	var start := cup_spawn.global_position
+	var start := _safe_spawn_origin()
 	var landing := AimCone.landing_point(
 		start,
 		aim,
@@ -595,20 +611,39 @@ func _serve_cup() -> bool:
 	return true
 
 
-func _sleeper_in_serve_reach() -> Sleepwalker:
-	# The nearest sleeping walker inside the serve reach, any direction: the
+func _sleeper_in_serve_reach() -> Node2D:
+	# The nearest sleeping target inside the serve reach, any direction: the
 	# serve needs no aim, the barista walks up and hands the cup over.
-	var best: Sleepwalker = null
+	var best: Node2D = null
 	var best_distance := balance.serve_reach
-	for node: Node in get_tree().get_nodes_in_group(&"sleepwalkers"):
-		var walker := node as Sleepwalker
-		if walker == null or walker.is_awake():
+	for node: Node in get_tree().get_nodes_in_group(CureDelivery.WAKEABLE_GROUP):
+		var target := node as Node2D
+		if target == null or not target.has_method(&"try_wake"):
 			continue
-		var distance := walker.global_position.distance_to(global_position)
-		if distance <= best_distance:
-			best = walker
-			best_distance = distance
+		if target.has_method(&"is_awake") and target.is_awake():
+			continue
+		var distance := target.global_position.distance_to(global_position)
+		if distance > best_distance:
+			continue
+		var exclude: Array[RID] = []
+		if target is CollisionObject2D:
+			exclude.append((target as CollisionObject2D).get_rid())
+		if not LineOfSight.is_clear(
+			global_position, target.global_position, get_world_2d(), exclude
+		):
+			continue
+		best = target
+		best_distance = distance
 	return best
+
+
+func _safe_spawn_origin() -> Vector2:
+	# CupSpawn sits slightly ahead of the body; if a wall lies between the
+	# player center and CupSpawn, spawn at the player center instead.
+	var spawn := cup_spawn.global_position
+	if LineOfSight.is_clear(global_position, spawn, get_world_2d()):
+		return spawn
+	return global_position
 
 
 func _standard_cup() -> BrewedCup:
@@ -666,7 +701,7 @@ func _throw_travel_mug(direction: Vector2) -> bool:
 	# one around corners, and rolls back to the hand.
 	if not coffee_supply.fire(CoffeeSupply.Weapon.TRAVEL_MUG):
 		return false
-	var start := cup_spawn.global_position
+	var start := _safe_spawn_origin()
 	var landing := AimCone.landing_point(
 		start,
 		direction,
@@ -690,9 +725,10 @@ func _throw_travel_mug(direction: Vector2) -> bool:
 func _throw_thermos(direction: Vector2) -> bool:
 	# The Thermos, section 11: a thrown flask that breaks and splashes coffee
 	# in a wide area. Three cups pay the tank.
+	var before := coffee_supply.cups
 	if not coffee_supply.fire(CoffeeSupply.Weapon.THERMOS):
 		return false
-	var start := cup_spawn.global_position
+	var start := _safe_spawn_origin()
 	var landing := AimCone.landing_point(
 		start,
 		direction,
@@ -703,7 +739,7 @@ func _throw_thermos(direction: Vector2) -> bool:
 	)
 	var flask := thermos_scene.instantiate() as ThermosFlask
 	flask.direction = direction
-	flask.brewed = _draw_weapon_payload()
+	flask.brewed = _draw_weapon_payload(before - coffee_supply.cups)
 	get_parent().add_child(flask)
 	flask.global_position = start
 	flask.launch(landing)
@@ -716,6 +752,7 @@ func _fire_french_press(direction: Vector2) -> bool:
 	if not armory.is_press_loaded():
 		armory.load_press()
 		return true
+	var before := coffee_supply.cups
 	if not coffee_supply.fire(CoffeeSupply.Weapon.FRENCH_PRESS):
 		return false
 	armory.consume_press_load()
@@ -724,7 +761,7 @@ func _fire_french_press(direction: Vector2) -> bool:
 		direction,
 		cure_weapons_balance.french_press_reach,
 		cure_weapons_balance.french_press_half_angle_degrees,
-		_draw_weapon_payload(),
+		_draw_weapon_payload(before - coffee_supply.cups),
 		get_tree(),
 		get_world_2d()
 	)
@@ -735,9 +772,10 @@ func _fire_moka_launcher(direction: Vector2) -> bool:
 	# The Moka Launcher, section 11: a pressurized pot on a high arc. The
 	# coffee brews during the flight, so the pot carries real coffee even
 	# when the hand holds only plain cups. Four cups pay the shot.
+	var before := coffee_supply.cups
 	if not coffee_supply.fire(CoffeeSupply.Weapon.MOKA_LAUNCHER):
 		return false
-	var start := cup_spawn.global_position
+	var start := _safe_spawn_origin()
 	var landing := AimCone.landing_point(
 		start,
 		direction,
@@ -748,7 +786,7 @@ func _fire_moka_launcher(direction: Vector2) -> bool:
 	)
 	var pot := moka_pot_scene.instantiate() as MokaPot
 	pot.direction = direction
-	pot.brewed = _draw_weapon_payload()
+	pot.brewed = _draw_weapon_payload(before - coffee_supply.cups)
 	get_parent().add_child(pot)
 	pot.global_position = start
 	pot.launch(landing)
@@ -758,10 +796,11 @@ func _fire_moka_launcher(direction: Vector2) -> bool:
 func _deploy_auto_drip_turret() -> bool:
 	# The Auto-Drip Turret, section 11: the tower stands where the player is
 	# and drips on every sleepwalker below it, alone, until the tank runs dry.
+	var before := coffee_supply.cups
 	if not coffee_supply.fire(CoffeeSupply.Weapon.AUTO_DRIP_TURRET):
 		return false
 	var turret := auto_drip_turret_scene.instantiate() as AutoDripTurret
-	turret.payload = _draw_weapon_payload()
+	turret.payload = _draw_weapon_payload(before - coffee_supply.cups)
 	get_parent().add_child(turret)
 	turret.global_position = global_position
 	return true
@@ -777,30 +816,32 @@ func _stream_minigun(delta: float) -> void:
 	if _asleep or _input_locked or _grabber != null or is_stunned():
 		return
 	var before := coffee_supply.cups
+	if before <= 0:
+		return
+	var payload := _peek_weapon_payload()
 	coffee_supply.fire_continuous(CoffeeSupply.Weapon.MINIGUN, delta)
 	for _cup: int in range(before - coffee_supply.cups):
 		brew_hand.consume()
-	if before <= 0:
-		return
 	var aim := _weapon_aim if _weapon_aim != Vector2.ZERO else _last_move_direction
 	CureDelivery.cone_wake(
-		cup_spawn.global_position,
+		_safe_spawn_origin(),
 		aim,
 		cure_weapons_balance.minigun_range,
 		cure_weapons_balance.minigun_half_angle_degrees,
-		_peek_weapon_payload(),
+		payload,
 		get_tree(),
 		get_world_2d()
 	)
 
 
-func _draw_weapon_payload() -> BrewedCup:
-	# The payload of one weapon shot: the brewed batch in hand spends one of
-	# its cups, and a hand of plain cups pays the cafe standard.
+func _draw_weapon_payload(cups_spent: int = 1) -> BrewedCup:
+	# The payload of one weapon shot: the brewed batch in hand spends each cup
+	# the shot paid for, and a hand of plain cups pays the cafe standard.
 	var payload := brew_hand.active_payload()
 	if payload == null:
 		return _standard_cup()
-	brew_hand.consume()
+	for _i: int in range(maxi(cups_spent, 1)):
+		brew_hand.consume()
 	return payload
 
 

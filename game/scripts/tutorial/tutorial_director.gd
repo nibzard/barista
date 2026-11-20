@@ -86,6 +86,7 @@ func setup(run: Node) -> void:
 	if tower != null:
 		tower.birdsong.connect(_on_tower_birdsong)
 	video_view.visible = false
+	video_view.gui_input.connect(_on_video_gui_input)
 	finale_view.visible = false
 	_enter_step(flow.current_step())
 
@@ -140,6 +141,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if flow.current_step() == TutorialFlow.Step.VIDEO and _is_press(event):
 		flow.end_video()
 		get_viewport().set_input_as_handled()
+	elif flow.current_step() == TutorialFlow.Step.FINALE and _is_press(event):
+		get_viewport().set_input_as_handled()
 	elif (
 		flow.current_step() == TutorialFlow.Step.ROAD
 		and _dial == null
@@ -150,6 +153,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			begin_brew()
 		else:
 			_run.hud.show_toast(BREW_NOT_HERE_TEXT)
+
+
+func _on_video_gui_input(event: InputEvent) -> void:
+	if flow.current_step() == TutorialFlow.Step.VIDEO and _is_press(event):
+		flow.end_video()
+		video_view.accept_event()
 
 
 func _is_press(event: InputEvent) -> bool:
@@ -221,6 +230,8 @@ func _enter_step(to_step: TutorialFlow.Step) -> void:
 		TutorialFlow.Step.DOOR:
 			_spawn_window_neighbor()
 		TutorialFlow.Step.THROW:
+			if _window_neighbor == null:
+				_spawn_window_neighbor()
 			_watch_first_wake()
 		TutorialFlow.Step.POLE:
 			_pole_step_time = 0.0
@@ -374,10 +385,27 @@ func _spawn_pole() -> void:
 	circle.radius = balance.pole_zone_radius
 	shape_node.shape = circle
 	_actors.add_child(_pole)
-	_pole.global_position = _run.player.global_position
+	var cafe_block := _cafe_block()
+	var cafe_zone := _cafe_zone()
+	if (
+		cafe_block != null
+		and cafe_zone != null
+		and (
+			_run.player.global_position.distance_to(cafe_zone.global_position)
+			<= cafe_block.cafe_zone_radius()
+		)
+	):
+		_pole.global_position = (
+			_cafe_center() + Vector2(0.0, cafe_block.cafe_zone_radius() + balance.survivor_door_gap)
+		)
+	else:
+		_pole.global_position = _run.player.global_position
 	var tower: BroadcastTower = _run.city_map().broadcast_tower()
 	if tower != null:
-		tower.switched_off.connect(_on_tower_switched_off)
+		if tower.is_switched_off():
+			_pole.silence_broadcast()
+		else:
+			tower.switched_off.connect(_on_tower_switched_off)
 
 
 func _on_tower_switched_off() -> void:

@@ -10,12 +10,16 @@ static var _parked: Dictionary = {}
 
 
 static func park_traveler(
-	player: Player, dex: SleepyDex, unlock: UnlockState, log: QuestLog
+	player: Player,
+	dex: SleepyDex,
+	unlock: UnlockState,
+	log: QuestLog,
+	lessons: MasterLessons = null
 ) -> void:
 	# Section 10, moving day: the van carries every belonging east, and the
 	# road west carries the same traveler back, section 23. The pack reads the
 	# live player: bag, cups, belt, brewed batch, skills, dex, meter, wake-ups,
-	# the quest chain, and the paid-bridge flag.
+	# the quest chain, master lessons, and the paid-bridge flag.
 	var supply := player.coffee_supply.save_state()
 	_parked = {
 		"meter_value": player.sleep_meter.save_state(),
@@ -29,6 +33,7 @@ static func park_traveler(
 		"quests": log.save_state(),
 		"unlock": unlock.save_state(),
 		"moonwalk_dodge": player.dodge_style == Player.DodgeStyle.MOONWALK,
+		"master_lessons": lessons.save_state() if lessons != null else {},
 	}
 
 
@@ -42,7 +47,12 @@ static func take_arriving() -> Dictionary:
 
 
 static func apply_arrival(
-	traveler: Dictionary, player: Player, dex: SleepyDex, unlock: UnlockState, catalog: ItemCatalog
+	traveler: Dictionary,
+	player: Player,
+	dex: SleepyDex,
+	unlock: UnlockState,
+	catalog: ItemCatalog,
+	lessons: MasterLessons = null
 ) -> void:
 	# The arrival unpacks the van by the new cafe. An empty park changes
 	# nothing. The caller runs this after the van level lands, so the supply
@@ -50,18 +60,25 @@ static func apply_arrival(
 	if traveler.is_empty():
 		return
 	unlock.load_state(bool(traveler.get("unlock", false)))
-	apply_carry(player, dex, traveler, catalog)
+	apply_carry(player, dex, traveler, catalog, lessons)
 
 
 static func apply_carry(
-	player: Player, dex: SleepyDex, carry: Dictionary, catalog: ItemCatalog
+	player: Player,
+	dex: SleepyDex,
+	carry: Dictionary,
+	catalog: ItemCatalog,
+	lessons: MasterLessons = null
 ) -> void:
 	# The player fields that ride a save point and a move east alike: dex,
 	# meter, wake-ups, skills, the bag, the supply, and the brewed batch.
 	dex.load_state(SaveData.dict_or_empty(carry.get("dex", {})))
-	player.sleep_meter.load_state(float(carry.get("meter_value", 0.0)))
+	var default_meter := player.sleep_meter.balance.max_value
+	player.sleep_meter.load_state(float(carry.get("meter_value", default_meter)))
 	player.wake_ups.load_state(int(carry.get("wake_ups", 0)))
 	player.brewing_skills.load_state(SaveData.int_dict(carry.get("skills", {})))
+	if lessons != null:
+		lessons.load_state(SaveData.dict_or_empty(carry.get("master_lessons", {})))
 	player.inventory.load_state(SaveData.int_dict(carry.get("bag", {})), catalog)
 	# Section 11: the cure weapons and the support tools ride the bag as gear,
 	# so a loaded traveler finds its armory and its belt restocked from the
@@ -91,3 +108,10 @@ static func reset() -> void:
 	# A fresh session starts with an empty handoff. The test suites call this
 	# so a parked move never leaks into an unrelated run.
 	_parked = {}
+
+
+static func reset_all() -> void:
+	# Clears every cross-scene handoff together on reload or new game.
+	_parked = {}
+	VanHandoff.reset()
+	ColdBrewHandoff.reset()

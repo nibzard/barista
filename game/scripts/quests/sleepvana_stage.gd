@@ -3,7 +3,6 @@
 class_name SleepvanaStage
 extends SignatureQuest
 
-signal concert_began(center: Vector2, radius: float)
 signal spoke(line: String)
 
 const BAND_MEMBER_SCENE := preload("res://scenes/quests/band_member.tscn")
@@ -48,6 +47,7 @@ var _frontman: BandMember = null
 var _fans: Array[Sleepwalker] = []
 var _garage_position := Vector2.ZERO
 var _quest_accepted := false
+var _log_state_applied := false
 
 
 func _ready() -> void:
@@ -65,6 +65,7 @@ func setup(run: Node) -> void:
 func _physics_process(delta: float) -> void:
 	if quest == null or _run == null:
 		return
+	_apply_loaded_log_state()
 	quest.tick(delta)
 	if quest.phase() == SleepvanaQuest.Phase.CROWD_STAGE and quest.is_crowd_recruited():
 		quest.crowd_arrived(_fans_at_garage())
@@ -74,6 +75,9 @@ func try_interact() -> bool:
 	# The interact key at the open field cafe recruits the gathered crowd for
 	# the show, section 13. Anywhere else keeps the key for the van.
 	if _run == null or quest == null:
+		return false
+	var player: Player = _run.player
+	if player.is_asleep() or player.is_grabbed() or player.is_input_locked():
 		return false
 	if quest.phase() != SleepvanaQuest.Phase.CROWD_STAGE or quest.is_crowd_recruited():
 		return false
@@ -209,8 +213,27 @@ func _on_encore_began() -> void:
 	_frontman.announce_encore()
 
 
+func _apply_loaded_log_state() -> void:
+	# Section 18: a reload resumes the completed quest silently without
+	# replaying the concert beat.
+	if _log_state_applied:
+		return
+	_log_state_applied = true
+	var saved: SideQuest = _run.quest_log.quest(QUEST_ID)
+	if saved == null or not saved.is_complete():
+		return
+	_quest_accepted = true
+	quest.load_state({"phase": SleepvanaQuest.Phase.CONCERT, "woke_sites": [0, 1, 2]})
+	for member: BandMember in _members:
+		member.wake_now(true)
+	if _frontman != null:
+		_frontman.wake_now(true)
+
+
 func _on_encore_missed() -> void:
 	_run.hud.show_toast(ENCORE_MISSED_TOAST)
+	if _frontman != null:
+		_frontman.reset_encore()
 	_release_fans()
 
 
@@ -229,7 +252,8 @@ func _hire_fans(gathered: Array[Sleepwalker]) -> void:
 
 func _release_fans() -> void:
 	for fan: Sleepwalker in _fans:
-		fan.stop_following()
+		if is_instance_valid(fan):
+			fan.stop_following()
 	_fans.clear()
 
 
@@ -256,4 +280,3 @@ func _play_concert() -> void:
 	_run.quest_log.complete(QUEST_ID)
 	spoke.emit(SONG_LINE)
 	_run.hud.show_toast(CONCERT_TOAST)
-	concert_began.emit(_garage_position, balance.concert_wake_radius)

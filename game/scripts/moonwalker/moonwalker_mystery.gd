@@ -54,7 +54,6 @@ var _offer_hinted := false
 var _run: Node = null
 var _player: Player = null
 var _map: CityMap = null
-var _hud: Hud = null
 var _dex: SleepyDex = null
 var _haunts := false
 
@@ -70,7 +69,6 @@ func setup(run: Node) -> void:
 	_run = run
 	_player = run.player
 	_map = run.city_map()
-	_hud = run.hud
 	_dex = run.sleepy_dex()
 	_build_hints()
 	_haunts = run.definition.moonwalker_haunts
@@ -144,6 +142,8 @@ func try_begin_dance_off() -> bool:
 	# stands at him. Anywhere else keeps the press for the run.
 	if _phase != Phase.OFFER or _figure == null:
 		return false
+	if _player.is_asleep() or _player.is_input_locked():
+		return false
 	if _player.global_position.distance_to(_figure.global_position) > OFFER_RADIUS:
 		return false
 	_open_dance_off()
@@ -155,6 +155,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	# press at the figure, and the beats consume every press while the
 	# overlay plays, so the run chain below never answers the same press.
 	if not event.is_action_pressed(&"interact"):
+		return
+	if _run != null and _run.brew_pot != null and _run.brew_pot.holds_interact():
+		return
+	if _run != null and _run.signature_quest != null and _run.signature_quest.holds_interact():
 		return
 	if _phase == Phase.DANCE_OFF or try_begin_dance_off():
 		get_viewport().set_input_as_handled()
@@ -279,6 +283,8 @@ func _spawn_figure() -> void:
 		# He woke here before and the dance-off still stands: he returns
 		# awake, straight to the offer.
 		_figure.wake_up()
+		_detach_figure_from_groups()
+		_offer_hinted = false
 		_phase = Phase.OFFER
 		_run.hud.show_toast(RETURN_TOAST)
 		return
@@ -286,6 +292,7 @@ func _spawn_figure() -> void:
 
 
 func _begin_finale() -> void:
+	_detach_figure_from_groups()
 	_phase = Phase.FINALE
 	_finale_step = FinaleStep.SPIN
 	_beat_time_left = balance.finale_beat_seconds
@@ -302,9 +309,26 @@ func _finish_wake() -> void:
 
 
 func _begin_depart() -> void:
+	_detach_figure_from_groups()
+	if _figure != null:
+		_figure.set_physics_process(false)
 	_phase = Phase.DEPARTING
 	_beat_time_left = DEPART_SECONDS
 	_depart_direction = Vector2.RIGHT
+
+
+func _detach_figure_from_groups() -> void:
+	# Once awake or leaving, the mystery figure is no longer a crowd sleeper:
+	# the field cafe tables never gather him before he slides away.
+	if _figure == null:
+		return
+	if _figure.is_in_group(Sleepwalker.SLEEPWALKER_GROUP):
+		_figure.remove_from_group(Sleepwalker.SLEEPWALKER_GROUP)
+	if _figure.is_in_group(CureDelivery.WAKEABLE_GROUP):
+		_figure.remove_from_group(CureDelivery.WAKEABLE_GROUP)
+	if _run != null and _run.van() != null:
+		var leaving: Array[Sleepwalker] = [_figure]
+		_run.van().release_survivors(leaving)
 
 
 func _open_dance_off() -> void:

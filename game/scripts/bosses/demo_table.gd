@@ -7,8 +7,16 @@ extends StaticBody2D
 var keynote: SamOatman = null
 
 
+func _ready() -> void:
+	add_to_group(CureDelivery.WAKEABLE_GROUP)
+
+
 func bind_show(show: SamOatman) -> void:
 	keynote = show
+
+
+func is_awake() -> bool:
+	return keynote != null and keynote.is_cured()
 
 
 func try_wake(cup: BrewedCup) -> bool:

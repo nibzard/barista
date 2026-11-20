@@ -30,6 +30,6 @@ void fragment() {
 	float lum = dot(scene, vec3(0.299, 0.587, 0.114));
 	vec3 washed = mix(scene, vec3(lum), desaturate);
 	washed = mix(washed, vec3(1.0), lift);
-	washed = mix(washed, haze.rgb, haze_amount + 0.15 * drift);
+	washed = mix(washed, haze.rgb, clamp(haze_amount + 0.15 * drift, 0.0, 1.0));
 	COLOR = vec4(mix(scene, washed, inside), 1.0);
 }

@@ -38,7 +38,8 @@ func build() -> void:
 		return
 	_built = true
 	_build_walls()
-	_build_locked_door()
+	if _locked:
+		_build_locked_door()
 	_build_door_reach()
 	queue_redraw()
 
@@ -210,11 +211,17 @@ func _find_player_at_door() -> Player:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _player_at_door == null or _player_at_door.is_asleep():
+	if (
+		_player_at_door == null
+		or not is_instance_valid(_player_at_door)
+		or _player_at_door.is_asleep()
+		or _player_at_door.is_input_locked()
+	):
 		return
 	if not event.is_action_pressed(&"interact"):
 		return
-	try_unlock(_player_at_door)
+	if try_unlock(_player_at_door) and get_viewport() != null:
+		get_viewport().set_input_as_handled()
 
 
 func _rect_at(center: Vector2, rect_size: Vector2) -> Rect2:

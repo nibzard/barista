@@ -16,9 +16,18 @@ var _orbit_angle := 0.0
 var _dive_cooldown := 0.0
 var _dive_direction := Vector2.ZERO
 var _dive_distance_left := 0.0
+var _bumped_this_dive := false
 
 
 func _ready() -> void:
+	# Apply the balance trigger radius so tuning tech_bro.tres affects live play.
+	var shape_node := get_node_or_null(^"SenseShape") as CollisionShape2D
+	if shape_node != null and balance != null:
+		var circle := shape_node.shape as CircleShape2D
+		if circle != null:
+			circle = circle.duplicate() as CircleShape2D
+			circle.radius = balance.dive_trigger_radius
+			shape_node.shape = circle
 	# The drone follows the sleepwalker it was spawned with. When its master
 	# wakes up, the pitch ends and the drone lands for good.
 	var node := get_node_or_null(anchor_path) as Node2D
@@ -27,11 +36,18 @@ func _ready() -> void:
 	anchor = node
 	var sleeper := node as Sleepwalker
 	if sleeper != null:
-		sleeper.woke_up.connect(_land)
+		if sleeper.is_awake():
+			_land()
+		else:
+			sleeper.woke_up.connect(_land)
 
 
 func _physics_process(delta: float) -> void:
-	if state == State.LANDED or anchor == null:
+	if state == State.LANDED or anchor == null or not is_instance_valid(anchor):
+		return
+	var sleeper := anchor as Sleepwalker
+	if sleeper != null and sleeper.is_awake():
+		_land()
 		return
 	_dive_cooldown = maxf(0.0, _dive_cooldown - delta)
 	match state:
@@ -56,6 +72,7 @@ func _orbit(delta: float) -> void:
 		var to_player := player.global_position - global_position
 		_dive_direction = to_player.normalized()
 		_dive_distance_left = to_player.length()
+		_bumped_this_dive = false
 		state = State.DIVE
 
 
@@ -65,8 +82,14 @@ func _dive(delta: float) -> void:
 	var step := balance.dive_speed * delta
 	_dive_distance_left -= step
 	global_position += _dive_direction * step
-	if target != null and is_instance_valid(target) and not target.is_asleep():
+	if (
+		not _bumped_this_dive
+		and target != null
+		and is_instance_valid(target)
+		and not target.is_asleep()
+	):
 		if global_position.distance_to(target.global_position) <= balance.bump_radius:
+			_bumped_this_dive = true
 			_bump()
 	if _dive_distance_left <= 0.0:
 		_begin_regroup()
@@ -90,8 +113,9 @@ func _orbit_point() -> Vector2:
 
 func _sense_player() -> Player:
 	for body: Node2D in get_overlapping_bodies():
-		if body is Player:
-			return body
+		var player := body as Player
+		if player != null and not player.is_input_locked() and not player.is_asleep():
+			return player
 	return null
 
 

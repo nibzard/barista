@@ -168,6 +168,8 @@ func _complete_the_city() -> void:
 	tower.insert_fuse(_city.player)
 	tower.switch_off()
 	_city.notify_boss_cured()
+	if _city.continue_button.visible:
+		_city.continue_button.pressed.emit()
 
 
 func _walk_east_from_the_city_edge() -> void:

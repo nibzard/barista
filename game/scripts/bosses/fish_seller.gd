@@ -13,6 +13,10 @@ var crew: FishThrowers = null
 var _awake := false
 
 
+func _ready() -> void:
+	add_to_group(CureDelivery.WAKEABLE_GROUP)
+
+
 func bind_crew(market: FishThrowers) -> void:
 	crew = market
 

@@ -23,6 +23,9 @@ func _ready() -> void:
 		if drop.item == null or drop.amount <= 0:
 			continue
 		_remaining[drop.item] = int(_remaining.get(drop.item, 0)) + drop.amount
+	if _remaining.is_empty():
+		_depleted = true
+		visible = false
 	queue_redraw()
 
 

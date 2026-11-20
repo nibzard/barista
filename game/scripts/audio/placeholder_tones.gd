@@ -163,45 +163,16 @@ static func _looping_wave(samples: PackedFloat32Array) -> AudioStreamWAV:
 
 
 static func _wave(samples: PackedFloat32Array) -> AudioStreamWAV:
-	# A plain 16-bit mono PCM WAV built by hand: RIFF header, format chunk,
-	# then the data chunk.
+	# AudioStreamWAV.data expects raw 16-bit mono PCM samples, never a RIFF
+	# container header.
 	var data_bytes := PackedByteArray()
 	data_bytes.resize(samples.size() * 2)
 	for i: int in samples.size():
 		var value := int(clampf(samples[i], -1.0, 1.0) * 32767.0)
 		data_bytes.encode_s16(i * 2, value)
-	var bytes := PackedByteArray()
-	bytes.append_array("RIFF".to_ascii_buffer())
-	bytes.append_array(_u32(36 + data_bytes.size()))
-	bytes.append_array("WAVE".to_ascii_buffer())
-	bytes.append_array("fmt ".to_ascii_buffer())
-	bytes.append_array(_u32(16))
-	bytes.append_array(_u16(1))
-	bytes.append_array(_u16(1))
-	bytes.append_array(_u32(SAMPLE_RATE))
-	bytes.append_array(_u32(SAMPLE_RATE * 2))
-	bytes.append_array(_u16(2))
-	bytes.append_array(_u16(16))
-	bytes.append_array("data".to_ascii_buffer())
-	bytes.append_array(_u32(data_bytes.size()))
-	bytes.append_array(data_bytes)
 	var stream := AudioStreamWAV.new()
 	stream.format = AudioStreamWAV.FORMAT_16_BITS
 	stream.mix_rate = SAMPLE_RATE
 	stream.stereo = false
-	stream.data = bytes
+	stream.data = data_bytes
 	return stream
-
-
-static func _u32(value: int) -> PackedByteArray:
-	var out := PackedByteArray()
-	out.resize(4)
-	out.encode_u32(0, value)
-	return out
-
-
-static func _u16(value: int) -> PackedByteArray:
-	var out := PackedByteArray()
-	out.resize(2)
-	out.encode_u16(0, value)
-	return out

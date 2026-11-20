@@ -88,7 +88,6 @@ const STATIC_JITTER_HZ := 60.0
 
 var _model := MorgenVideo.new()
 var _elapsed := 0.0
-var _voice_live := false
 
 @onready var subtitle_label: Label = $SubtitleLabel
 @onready var voice_player: AudioStreamPlayer = $VoicePlayer
@@ -110,8 +109,8 @@ func start() -> void:
 	# speaks under the subtitles. The real voice lands with T054; a headless
 	# run stays silent so its input pipeline never sees audio activity.
 	reset()
-	_voice_live = DisplayServer.get_name() != "headless"
-	if _voice_live:
+	var voice_live := DisplayServer.get_name() != "headless"
+	if voice_live:
 		voice_player.stream = PlaceholderTones.morgen_voice_track(_model.video_seconds())
 		voice_player.play()
 
@@ -119,7 +118,6 @@ func start() -> void:
 func stop() -> void:
 	# A skip or the end stops the voice with the picture.
 	voice_player.stop()
-	_voice_live = false
 
 
 func set_progress(fraction: float) -> void:

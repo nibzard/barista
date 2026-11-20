@@ -100,14 +100,6 @@ func phase() -> int:
 	return _phase
 
 
-func selected_recipe() -> Recipe:
-	return _recipe
-
-
-func selected_bean() -> BeanType:
-	return _bean
-
-
 func brewable_recipes() -> Array[Recipe]:
 	# Every recipe the stand can brew: one of the seven minigame methods,
 	# plus the cold brew steep that runs on its own clock, section 8.
@@ -203,6 +195,8 @@ func begin_selected_brew() -> void:
 	if not _flow.needs_method_minigame():
 		_begin_cold_steep()
 		return
+	if player.coffee_supply.cups >= player.coffee_supply.carry_limit():
+		return
 	if not _spend_the_bean():
 		return
 	_hide_menu()
@@ -218,6 +212,8 @@ func begin_auto_brew() -> void:
 		return
 	_flow = BrewFlow.resolve(_recipe, _bean, player.brewing_library, _chosen_roast_kind())
 	if not _flow.needs_method_minigame():
+		return
+	if player.coffee_supply.cups >= player.coffee_supply.carry_limit():
 		return
 	if not _spend_the_bean():
 		return
@@ -242,7 +238,7 @@ func _begin_cold_steep() -> void:
 	# The cold brew start: no grind, no minigame. The chosen bean and the
 	# chosen roast pay into the fridge, the fridge takes the steep, and the
 	# stand closes at once; the player comes back later.
-	if fridge == null:
+	if fridge == null or not fridge.is_empty():
 		return
 	if not _spend_the_bean():
 		return
@@ -292,6 +288,9 @@ func _refresh_steep_panel() -> void:
 	if fridge.is_ready():
 		steep_label.text = STEEP_READY_TEXT
 		collect_button.visible = true
+		collect_button.disabled = (
+			player != null and player.coffee_supply.cups >= player.coffee_supply.carry_limit()
+		)
 	else:
 		steep_label.text = STEEP_STATUS_TEXT % _countdown(fridge.remaining_seconds())
 		collect_button.visible = false
@@ -320,6 +319,7 @@ func _build_menu() -> void:
 		var recipe: Recipe = recipes[i]
 		var row := Button.new()
 		row.text = _row_text(recipe)
+		row.add_theme_font_size_override(&"font_size", 14)
 		row.pressed.connect(select_recipe.bind(recipe))
 		if i < half:
 			left_column.add_child(row)
@@ -432,12 +432,14 @@ func _chosen_roast_kind() -> int:
 
 
 func _cold_start_blocked() -> bool:
-	# One fridge holds one steep: a busy or ready fridge blocks only the
-	# start of another cold brew, never a minigame brew beside it.
-	if fridge == null or fridge.is_empty() or _recipe == null:
+	# One fridge holds one steep: a missing, busy, or ready fridge blocks only
+	# the start of another cold brew, never a minigame brew beside it.
+	if _recipe == null:
 		return false
 	var brew_method := _recipe_method(_recipe)
-	return brew_method != null and brew_method.minigame_group == BrewingMethod.MinigameGroup.NONE
+	if brew_method == null or brew_method.minigame_group != BrewingMethod.MinigameGroup.NONE:
+		return false
+	return fridge == null or not fridge.is_empty()
 
 
 func _show_menu() -> void:

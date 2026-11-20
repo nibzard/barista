@@ -81,6 +81,7 @@ var _eat_time_left := 0.0
 
 func _ready() -> void:
 	add_to_group(SLEEPWALKER_GROUP)
+	add_to_group(CureDelivery.WAKEABLE_GROUP)
 	_rng.randomize()
 	_pick_wander_direction()
 	visual.color = enemy_type.pajama_color
@@ -129,7 +130,7 @@ func _physics_process(delta: float) -> void:
 func wake_up(restore := false) -> void:
 	if state == State.AWAKE:
 		return
-	if state == State.HUG and player != null:
+	if state == State.HUG and _has_valid_player():
 		player.clear_grab(self)
 	state = State.AWAKE
 	velocity = Vector2.ZERO
@@ -141,6 +142,7 @@ func wake_up(restore := false) -> void:
 	_down_time_left = 0.0
 	_brain_freeze_time_left = 0.0
 	_brain_freeze_speed_factor = 1.0
+	visual.modulate = Color.WHITE
 	_update_control_look()
 	# The wake beat of the art direction, ART_DIRECTION section 1: the sketch
 	# colors in from the cup hit, the eyes pop open, and the drool arc goes.
@@ -233,8 +235,10 @@ func stagger(duration: float) -> void:
 	# stagger wins while one runs.
 	if state == State.AWAKE:
 		return
-	if state == State.HUG and player != null:
-		player.clear_grab(self)
+	if state == State.HUG:
+		if _has_valid_player():
+			player.clear_grab(self)
+		state = State.CHASE
 	_stagger_time_left = maxf(_stagger_time_left, duration)
 	_update_control_look()
 
@@ -276,10 +280,6 @@ func apply_brain_freeze(duration: float, speed_factor: float) -> void:
 	_brain_freeze_time_left = maxf(_brain_freeze_time_left, duration)
 	_brain_freeze_speed_factor = speed_factor
 	_update_control_look()
-
-
-func brain_freeze_time_left() -> float:
-	return _brain_freeze_time_left
 
 
 func is_brain_frozen() -> bool:
@@ -455,10 +455,15 @@ func _fire_flash() -> void:
 	# player has nothing left to dazzle.
 	visual.modulate = FLASH_MODULATE
 	flashed.emit()
-	if player == null or player.is_invulnerable() or player.is_asleep():
+	if not _has_valid_player():
+		_is_player_in_area(sense_area)
+	if not _has_valid_player() or player.is_invulnerable() or player.is_asleep():
 		return
-	if player.global_position.distance_to(global_position) <= tourist_balance.flash_radius:
-		player.apply_stun(tourist_balance.flash_stun_seconds)
+	if player.global_position.distance_to(global_position) > tourist_balance.flash_radius:
+		return
+	if not LineOfSight.is_clear(global_position, player.global_position, get_world_2d()):
+		return
+	player.apply_stun(tourist_balance.flash_stun_seconds)
 
 
 func _resume_after_photo() -> void:
@@ -527,7 +532,8 @@ func _engage_moonwalk(delta: float) -> void:
 	# pass itself is the attack: he leans far back and slides under the
 	# guard, so no parry and no block stops the pass.
 	state = State.CHASE
-	if player == null:
+	if not _has_valid_player():
+		player = null
 		state = State.WANDER
 		return
 	velocity = moonwalk_gait.step(delta, (player.global_position - global_position).normalized())
@@ -538,7 +544,7 @@ func _try_graze_player() -> void:
 	# The brush of the slide costs the meter its price, at most once per
 	# cooldown. A rolling player is invulnerable: the slide passes under him
 	# too. The graze is the only touch he makes, section 6: he does not hug.
-	if _graze_cooldown > 0.0 or player == null:
+	if _graze_cooldown > 0.0 or not _has_valid_player():
 		return
 	if player.is_invulnerable() or player.is_asleep():
 		return
@@ -558,7 +564,8 @@ func _engage_chase_at(chase_speed: float) -> void:
 	if _try_hug_grab():
 		return
 	state = State.CHASE
-	if player == null:
+	if not _has_valid_player():
+		player = null
 		state = State.WANDER
 		return
 	velocity = (player.global_position - global_position).normalized() * chase_speed
@@ -571,7 +578,8 @@ func _engage_dash_charge(delta: float) -> void:
 	if _try_hug_grab():
 		return
 	state = State.CHASE
-	if player == null:
+	if not _has_valid_player():
+		player = null
 		state = State.WANDER
 		return
 	velocity = _dash_gait(delta, (player.global_position - global_position).normalized())
@@ -582,7 +590,12 @@ func _try_hug_grab() -> bool:
 	# delivery order between sibling areas is not guaranteed and can misorder
 	# the WANDER/CHASE/HUG transitions. A rolling or freshly-freed player
 	# cannot be grabbed: the hug slides off.
-	if _is_player_in_area(hug_area) and player != null and not player.is_invulnerable():
+	if (
+		_is_player_in_area(hug_area)
+		and _has_valid_player()
+		and not player.is_invulnerable()
+		and not player.is_asleep()
+	):
 		if player.toolbelt.try_parry_hug(self) or player.toolbelt.try_block_hug(self, player):
 			# The hug never lands: the Steam Wand parry of section 14 or the
 			# Portafilter shield of section 11 throws the sleepwalker off.
@@ -591,12 +604,18 @@ func _try_hug_grab() -> bool:
 			return true
 		state = State.HUG
 		velocity = Vector2.ZERO
+		if _dash_phase == DashPhase.WINDUP:
+			visual.modulate = Color.WHITE
 		player.set_grabbed_by(self)
 		player.sleep_meter.escalate_drain(SleepMeter.DrainTier.HUG)
 		return true
-	if state == State.HUG and player != null:
+	if state == State.HUG and _has_valid_player():
 		player.clear_grab(self)
 	return false
+
+
+func _has_valid_player() -> bool:
+	return player != null and is_instance_valid(player)
 
 
 func _dash_gait(delta: float, steer_direction: Vector2) -> Vector2:

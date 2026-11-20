@@ -63,9 +63,9 @@ func tick(delta: float, player: Player, candidate: Sleepwalker, may_deliver: boo
 		CabState.PARKED:
 			_tick_parked(delta, player, candidate, may_deliver)
 		CabState.PICKUP:
-			_tick_pickup(delta)
+			_tick_pickup(delta, may_deliver)
 		CabState.DELIVER:
-			_tick_deliver(delta, player)
+			_tick_deliver(delta, player, may_deliver)
 
 
 func retire() -> void:
@@ -94,10 +94,12 @@ func _tick_parked(delta: float, player: Player, candidate: Sleepwalker, may_deli
 	queue_redraw()
 
 
-func _tick_pickup(delta: float) -> void:
+func _tick_pickup(delta: float, may_deliver: bool) -> void:
 	# The cab drives to its hailed sleeper and takes him aboard on arrival.
-	if not _passenger_rides_still():
-		_abort_ride()
+	# If the player enters the cafe safe zone or the sleeper leaves wander,
+	# the cab aborts the hail instead of delivering into a safe zone or mid-hug.
+	if not may_deliver or _passenger == null or _passenger.state != Sleepwalker.State.WANDER:
+		_release_passenger()
 		return
 	var distance_left := _step_toward(_passenger.global_position, delta)
 	if distance_left <= balance.pickup_radius:
@@ -106,10 +108,10 @@ func _tick_pickup(delta: float) -> void:
 		queue_redraw()
 
 
-func _tick_deliver(delta: float, player: Player) -> void:
+func _tick_deliver(delta: float, player: Player, may_deliver: bool) -> void:
 	# The cab carries its sleeper to the player and lets him out at the curb,
 	# still asleep, so the player can wake him.
-	if not _passenger_rides_still():
+	if not may_deliver or _passenger == null:
 		_release_passenger()
 		return
 	_passenger.global_position = global_position + SEAT_OFFSET.rotated(rotation)
@@ -125,15 +127,6 @@ func _release_passenger() -> void:
 	if _passenger != null and is_instance_valid(_passenger):
 		_passenger.set_physics_process(true)
 	_last_passenger = _passenger
-	_passenger = null
-	_state = CabState.PARKED
-	_wait_left = balance.delivery_cooldown if balance != null else 0.0
-	queue_redraw()
-
-
-func _abort_ride() -> void:
-	# The hailed sleeper left the wandering street before the cab arrived, so
-	# this haul finds no passenger.
 	_passenger = null
 	_state = CabState.PARKED
 	_wait_left = balance.delivery_cooldown if balance != null else 0.0

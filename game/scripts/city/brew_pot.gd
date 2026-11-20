@@ -90,9 +90,15 @@ func holds_interact() -> bool:
 
 func available_here() -> bool:
 	# The BREW button shows where brewing works and the hand has room for
-	# the brewed cup.
+	# the brewed cup. During the tutorial it opens only during Step.ROAD,
+	# where the tutorial grind dial runs even when the hand is full.
 	if _run == null:
 		return false
+	var tutorial: Node = _run.get_node_or_null(^"Tutorial")
+	if tutorial != null and not tutorial.flow.is_done():
+		return (
+			tutorial.flow.current_step() == TutorialFlow.Step.ROAD and _run.brewing_allowed_here()
+		)
 	var player: Player = _run.player
 	return (
 		_run.brewing_allowed_here()

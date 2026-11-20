@@ -28,6 +28,7 @@ const GAUGE_WIDTH := 44.0
 const GAUGE_HEIGHT := 256.0
 const MARKER_HEIGHT := 4.0
 const ARC_POINTS := 64
+const CENTER_DEAD_RADIUS := 8.0
 
 @export var balance: PourBalance
 @export var method: BrewingMethod
@@ -40,6 +41,7 @@ var pour_rate := 0.0
 
 var _announced := false
 var _pointer_down := false
+var _active_touch := -1
 var _pointer_angle := 0.0
 var _angle_travel := 0.0
 
@@ -68,6 +70,10 @@ func begin(p_method: BrewingMethod) -> void:
 	# after the Grind Dial pre-step.
 	model = PourBloom.new(balance)
 	_announced = false
+	_pointer_down = false
+	_active_touch = -1
+	_pointer_angle = 0.0
+	_angle_travel = 0.0
 	pour_rate = 0.0
 	method_label.text = "POUR: %s" % p_method.display_name.to_upper()
 	result_label.text = ""
@@ -77,28 +83,40 @@ func begin(p_method: BrewingMethod) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Touch first: press and drag a slow circle around the ring to pour. The
-	# same path covers a held mouse button on the desktop build. The pointer
-	# owns the pour rate only while it is down; lifting it stops the pour.
+	# same path covers a held mouse button on the desktop build. Track one
+	# active touch index and skip emulated mouse copies from touch.
 	var touch := event as InputEventScreenTouch
 	if touch != null:
 		if touch.pressed:
-			_begin_pointer(touch.position)
-		else:
+			if _active_touch == -1:
+				_active_touch = touch.index
+				_begin_pointer(touch.position)
+		elif touch.index == _active_touch:
+			_active_touch = -1
 			_end_pointer()
+		if get_viewport() != null:
+			get_viewport().set_input_as_handled()
 		return
 	var drag := event as InputEventScreenDrag
-	if drag != null and _pointer_down:
-		_follow_pointer(drag.position)
+	if drag != null:
+		if _pointer_down and drag.index == _active_touch:
+			_follow_pointer(drag.position)
+			if get_viewport() != null:
+				get_viewport().set_input_as_handled()
 		return
 	var button := event as InputEventMouseButton
 	if button != null and button.button_index == MOUSE_BUTTON_LEFT:
+		if button.device == TouchControls.EMULATED_MOUSE_DEVICE:
+			return
 		if button.pressed:
 			_begin_pointer(button.position)
 		else:
 			_end_pointer()
+		if get_viewport() != null:
+			get_viewport().set_input_as_handled()
 		return
 	var motion := event as InputEventMouseMotion
-	if motion != null and _pointer_down:
+	if motion != null and motion.device != TouchControls.EMULATED_MOUSE_DEVICE and _pointer_down:
 		_follow_pointer(motion.position)
 
 
@@ -124,7 +142,11 @@ func _end_pointer() -> void:
 
 
 func _follow_pointer(screen_position: Vector2) -> void:
-	var new_angle := _ring_angle(screen_position)
+	var local := get_global_transform_with_canvas().affine_inverse() * screen_position
+	var offset := local - RING_CENTER
+	if offset.length() < CENTER_DEAD_RADIUS:
+		return
+	var new_angle := offset.angle()
 	_angle_travel += absf(wrapf(new_angle - _pointer_angle, -PI, PI))
 	_pointer_angle = new_angle
 

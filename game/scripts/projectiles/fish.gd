@@ -17,6 +17,8 @@ var _distance_left := 0.0
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
+	if direction != Vector2.ZERO:
+		direction = direction.normalized()
 	_distance_left = balance.fish_flight_range
 	visual.rotation = direction.angle()
 
@@ -29,10 +31,6 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 		return
 	global_position += direction * step
-
-
-func distance_left() -> float:
-	return _distance_left
 
 
 func _on_body_entered(body: Node2D) -> void:

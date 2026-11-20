@@ -3,8 +3,6 @@
 class_name Cafe
 extends Node2D
 
-signal game_over
-
 const DEATH_TEXT := "Your last wake-up is gone. The dream takes you."
 const WAKE_UP_RESTORED_TEXT := "WAKE-UP RESTORED"
 # The director scene stays a path, never a preload: CityRun already
@@ -74,7 +72,6 @@ func is_game_over() -> bool:
 
 func _on_player_died() -> void:
 	_game_over = true
-	game_over.emit()
 	_show_end_screen(DEATH_TEXT)
 
 
@@ -111,5 +108,7 @@ func refill_player_supply() -> int:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _game_over:
+		return
 	if event.is_action_pressed(&"refill_coffee"):
 		refill_player_supply()

@@ -173,6 +173,23 @@ func test_a_loaded_log_still_plays_on() -> void:
 	assert_int(side_signals.size()).is_equal(1)
 
 
+func test_late_registered_side_quest_keeps_its_saved_state() -> void:
+	# Field base quests register after QuestLog.load_state() runs; their saved
+	# state must survive load and apply when register() is called.
+	var late_def := SideQuestDefinition.new()
+	late_def.quest_id = "field_kitchen_stock"
+	late_def.title = "Field Kitchen Stock"
+	var log := _log()
+	assert_bool(log.register(late_def)).is_true()
+	assert_bool(log.accept("field_kitchen_stock")).is_true()
+	assert_bool(log.complete("field_kitchen_stock")).is_true()
+
+	var reloaded := _log()
+	reloaded.load_state(log.save_state())
+	assert_bool(reloaded.register(late_def)).is_true()
+	assert_bool(reloaded.quest("field_kitchen_stock").is_complete()).is_true()
+
+
 func test_the_shipped_route_covers_the_three_version_one_cities() -> void:
 	assert_int(MAIN_ROUTE.cities.size()).is_equal(3)
 	var ids := MAIN_ROUTE.city_ids()

@@ -18,8 +18,10 @@ static func can_wake(
 		# Section 15: the roast sets the wake power. A good cup below the
 		# strength of the sleeper cannot wake it, even with the right recipe.
 		return false
-	var recipe := cup.matched_recipe(library)
-	return recipe != null and recipe.recipe_id == cure.cure_recipe_id
+	if library == null:
+		return false
+	var target := library.find_recipe(cure.cure_recipe_id)
+	return target != null and target.matches(cup.bean, cup.roast, cup.method, cup.extra_id)
 
 
 static func wake_power(cup: BrewedCup) -> float:

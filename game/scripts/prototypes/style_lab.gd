@@ -3,9 +3,6 @@
 class_name StyleLab
 extends Node2D
 
-signal walker_woken(index: int)
-signal tower_switched_off
-
 const HAND_DRAWN := preload("res://shaders/hand_drawn.gdshader")
 const SLEEP_HAZE := preload("res://shaders/sleep_haze.gdshader")
 const PAPER_GRAIN := preload("res://shaders/paper_grain.gdshader")
@@ -148,7 +145,6 @@ func wake_walker(index: int, hit_point: Vector2) -> void:
 	if not target.sleepwalking:
 		return
 	target.wake(hit_point)
-	walker_woken.emit(index)
 
 
 func switch_off_tower() -> void:
@@ -160,7 +156,6 @@ func switch_off_tower() -> void:
 	morning.tween_property(_sunlight, "color", current_city().morning_light, SUNRISE_SECONDS)
 	morning.tween_property(_haze.material, "shader_parameter/strength", 0.0, HAZE_FADE_SECONDS)
 	morning.tween_property(_address, "modulate:a", 0.0, HAZE_FADE_SECONDS)
-	tower_switched_off.emit()
 
 
 func _unhandled_input(event: InputEvent) -> void:

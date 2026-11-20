@@ -131,14 +131,14 @@ func _find_player_inside() -> Player:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _player_inside == null or _player_inside.is_asleep():
+	if _player_inside == null or _player_inside.is_asleep() or _player_inside.is_input_locked():
 		return
 	if not event.is_action_pressed(&"interact"):
 		return
-	if phase == Phase.BROADCASTING:
-		insert_fuse(_player_inside)
-	elif phase == Phase.FUSED:
-		switch_off()
+	if phase == Phase.BROADCASTING and insert_fuse(_player_inside):
+		get_viewport().set_input_as_handled()
+	elif phase == Phase.FUSED and switch_off():
+		get_viewport().set_input_as_handled()
 
 
 func _draw() -> void:

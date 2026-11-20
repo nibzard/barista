@@ -43,6 +43,7 @@ func _ready() -> void:
 	# The slot names the mode the next run plays: a running save answers with
 	# its own mode, a fresh slot with the default normal.
 	selected_mode = SaveSystem.new(save_file_path).saved_game_mode()
+	new_game_note.text = NEW_GAME_NOTE_TEXT
 	_sync_mode_buttons()
 	_hide_new_game_confirmation()
 
@@ -85,6 +86,7 @@ func _on_play_pressed() -> void:
 	# run: the selection persists, section 18, and the player never builds
 	# the same barista twice.
 	if save_system.has_appearance():
+		SaveSystem.park_for_scene_change(save_system)
 		get_tree().change_scene_to_file(CITY_SCENE_PATH)
 		return
 	get_tree().change_scene_to_file(CREATION_SCENE_PATH)
@@ -106,6 +108,8 @@ func _on_confirm_pressed() -> void:
 	# stand between a player and a second barista or the other mode. The
 	# cleared slot takes the picked mode like any fresh start, and the deleted
 	# look sends the player back through character creation.
+	MoveHandoff.reset_all()
+	SaveSystem.take_after_scene_change()
 	var save_system := SaveSystem.new(save_file_path)
 	save_system.delete_save()
 	save_system.record_game_mode(selected_mode)
@@ -125,9 +129,10 @@ func _hide_new_game_confirmation() -> void:
 	confirm_row.visible = false
 	play_button.visible = true
 	quit_button.visible = true
-	# The gate opens only when a save stands: a fresh slot starts through Play
-	# alone, and a second New Game would only repeat the same start.
-	new_game_button.visible = SaveSystem.new(save_file_path).has_save()
+	# The gate opens only when a run or barista exists: a slot holding only a
+	# mode selection starts through Play alone.
+	var save_system := SaveSystem.new(save_file_path)
+	new_game_button.visible = save_system.has_run_state() or save_system.has_appearance()
 
 
 func _on_quit_pressed() -> void:

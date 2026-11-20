@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/components/sleep_zone.gd" id="1"]
 
 [sub_resource type="CircleShape2D" id="ZoneShape"]
+resource_local_to_scene = true
 radius = 180.0
 
 [node name="SleepZone" type="Area2D"]

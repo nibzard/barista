@@ -95,7 +95,9 @@ func _draw_filled_cup(rect: Rect2) -> void:
 
 func _draw_empty_cup(rect: Rect2) -> void:
 	# Room for one more cup: a dashed chalk outline with no paper inside.
-	var segments := ChalkLines.dash_segments(_cup_points(rect), DASH, DASH_GAP)
+	var outline := _cup_points(rect)
+	outline.append(outline[0])
+	var segments := ChalkLines.dash_segments(outline, DASH, DASH_GAP)
 	for i: int in range(0, segments.size(), 2):
 		draw_line(segments[i], segments[i + 1], ChalkTheme.CHALK_DIM_COLOR, OUTLINE_WIDTH)
 

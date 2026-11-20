@@ -274,6 +274,20 @@ func test_the_missed_encore_releases_the_crowd_and_re_arms() -> void:
 	assert_int(_stage.quest.phase()).is_equal(SleepvanaQuest.Phase.ENCORE)
 
 
+func test_a_completed_sleepvana_resumes_silently_with_band_awake() -> void:
+	var reloaded := STEAMTLE_SCENE.instantiate() as CityRun
+	add_child(auto_free(reloaded))
+	reloaded.quest_log.load_state({"side": {"sleepvana": SideQuest.State.COMPLETE}})
+	var stage := reloaded.signature_quest as SleepvanaStage
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_bool(stage.quest.is_concert_done()).is_true()
+	for member: BandMember in stage.members():
+		assert_bool(member.is_awake()).is_true()
+	assert_bool(stage.frontman().is_awake()).is_true()
+	assert_bool(reloaded.hud.is_toast_visible()).is_false()
+
+
 func _wake_the_band() -> void:
 	# Wakes the three members on their own orders, so the quest enters the
 	# crowd stage like in live play.

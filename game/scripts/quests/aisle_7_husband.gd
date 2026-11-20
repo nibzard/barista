@@ -27,6 +27,7 @@ var _line_time_left := 0.0
 
 
 func _ready() -> void:
+	add_to_group(CureDelivery.WAKEABLE_GROUP)
 	visual.color = SLEEPING_COLOR
 	line_label.text = idle_text
 	line_label.visible = true
@@ -56,12 +57,16 @@ func try_wake(cup: BrewedCup) -> bool:
 	return true
 
 
-func wake_now() -> void:
-	# The wake beat: the green tint and the cry line, section 13.
+func wake_now(restore := false) -> void:
+	# The wake beat: the green tint and the cry line, section 13. A silent
+	# restore hides the sleeping hint without replaying the cry line.
 	if _awake:
 		return
 	_awake = true
 	visual.color = AWAKE_COLOR
+	if restore:
+		line_label.visible = false
+		return
 	if not cry_line.is_empty():
 		line_label.text = cry_line
 		line_label.visible = true

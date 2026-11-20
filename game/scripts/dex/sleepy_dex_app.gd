@@ -12,7 +12,6 @@ const COUNTER_TEXT := "%d/%d FOUND"
 const KEYCHAIN_TEXT := "TROLL DOLL KEYCHAIN\n%s"
 # Placeholder look until the art pass, in the chalk style of the HUD.
 const CHALK_COLOR := Color(0.93, 0.95, 0.88, 1)
-const KEYCHAIN_COLOR := Color(0.98, 0.9, 0.55, 1)
 const PORTRAIT_SIZE := Vector2(48, 48)
 const NOT_FOUND_DARKEN := 0.55
 # The ink of the field-guide sketch on the pajama backdrop.

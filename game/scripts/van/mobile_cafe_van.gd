@@ -72,15 +72,25 @@ func _physics_process(_delta: float) -> void:
 
 
 func bind_state(van_state: MobileCafe) -> void:
+	if state != null and state.upgraded.is_connected(_on_van_upgraded):
+		state.upgraded.disconnect(_on_van_upgraded)
 	state = van_state
-	state.upgraded.connect(func(_level: int) -> void: queue_redraw())
+	if state != null:
+		state.upgraded.connect(_on_van_upgraded)
 	queue_redraw()
 
 
 func bind_dex(sleepy_dex: SleepyDex) -> void:
 	# The completed SleepyDex hangs its keychain on the mirror, section 9.
+	if _dex != null and _dex.keychain_awarded.is_connected(queue_redraw):
+		_dex.keychain_awarded.disconnect(queue_redraw)
 	_dex = sleepy_dex
-	sleepy_dex.keychain_awarded.connect(func() -> void: queue_redraw())
+	if _dex != null:
+		_dex.keychain_awarded.connect(queue_redraw)
+	queue_redraw()
+
+
+func _on_van_upgraded(_level: int) -> void:
 	queue_redraw()
 
 
@@ -166,6 +176,7 @@ func field_base_zone() -> SleepZone:
 
 func gathered_survivors() -> Array[Sleepwalker]:
 	# The survivors that stand with the van: sent to a slot and arrived.
+	_prune_invalid_gathered()
 	var arrived: Array[Sleepwalker] = []
 	for i: int in range(_gathered.size()):
 		var survivor := _gathered[i]
@@ -178,6 +189,8 @@ func _invite_nearby_awakened() -> void:
 	# Every awakened survivor inside the field base reach drifts to a table. A
 	# survivor that follows a leader, like a Sleepvana fan on the walk to the
 	# garage, keeps walking and never takes a table again.
+	_prune_invalid_gathered()
+	var added := false
 	for node: Node in get_tree().get_nodes_in_group(&"sleepwalkers"):
 		var survivor := node as Sleepwalker
 		if survivor == null or not survivor.is_awake():
@@ -186,10 +199,13 @@ func _invite_nearby_awakened() -> void:
 			continue
 		if survivor.global_position.distance_to(global_position) > balance.field_base_radius:
 			continue
-		var slot := _gather_slot(_gathered.size())
+		var slot := _next_free_gather_slot()
 		_gather_slots.append(slot)
 		_gathered.append(survivor)
 		survivor.gather_at(global_position + slot)
+		added = true
+	if added:
+		queue_redraw()
 
 
 func release_survivors(survivors: Array[Sleepwalker]) -> void:
@@ -199,7 +215,8 @@ func release_survivors(survivors: Array[Sleepwalker]) -> void:
 		var index := _gathered.find(survivor)
 		if index < 0:
 			continue
-		survivor.stop_gathering()
+		if is_instance_valid(survivor):
+			survivor.stop_gathering()
 		_gathered.remove_at(index)
 		_gather_slots.remove_at(index)
 	queue_redraw()
@@ -207,9 +224,36 @@ func release_survivors(survivors: Array[Sleepwalker]) -> void:
 
 func _release_gathered() -> void:
 	for survivor: Sleepwalker in _gathered:
-		survivor.stop_gathering()
+		if is_instance_valid(survivor):
+			survivor.stop_gathering()
 	_gathered.clear()
 	_gather_slots.clear()
+
+
+func _prune_invalid_gathered() -> void:
+	var pruned := false
+	for i: int in range(_gathered.size() - 1, -1, -1):
+		if not is_instance_valid(_gathered[i]):
+			_gathered.remove_at(i)
+			_gather_slots.remove_at(i)
+			pruned = true
+	if pruned:
+		queue_redraw()
+
+
+func _next_free_gather_slot() -> Vector2:
+	var slot_index := 0
+	while true:
+		var candidate := _gather_slot(slot_index)
+		var taken := false
+		for existing: Vector2 in _gather_slots:
+			if existing.distance_squared_to(candidate) < 1.0:
+				taken = true
+				break
+		if not taken:
+			return candidate
+		slot_index += 1
+	return Vector2.ZERO
 
 
 func _gather_slot(index: int) -> Vector2:

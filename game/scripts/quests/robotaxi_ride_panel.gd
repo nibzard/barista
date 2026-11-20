@@ -10,10 +10,8 @@ signal closed
 const TITLE_TEXT := "ROBOTAXI - WHERE TO?"
 const STAY_TEXT := "STAY"
 const BOARD_TITLE_SIZE := 26
-const BOARD_TEXT_SIZE := 19
 const BOARD_MIN_WIDTH := 340.0
 const BOARD_TEXT_COLOR := Color(0.96, 0.93, 0.85, 1.0)
-const BOARD_BACKGROUND := Color(0.16, 0.13, 0.1, 0.97)
 # The ride board rides above the chalkboard HUD, like the brew stand overlay.
 const BOARD_LAYER := 11
 
@@ -90,9 +88,4 @@ func press_destination(stand_index: int) -> void:
 
 func press_stay() -> void:
 	# The STAY button: the player keeps his curb and the board closes.
-	closed.emit()
-
-
-func close() -> void:
-	# The board ends; the stage frees the panel.
 	closed.emit()

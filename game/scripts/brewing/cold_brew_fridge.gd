@@ -96,20 +96,22 @@ func collect(library: BrewingLibrary) -> BrewedCup:
 	return cup
 
 
-func save_state() -> Dictionary:
+func save_state(now_unix: float = -1.0) -> Dictionary:
 	# The save system stores the steep, so the player can close the app and
 	# come back later, section 18. An empty fridge stores nothing.
 	if _brew == null:
 		return {}
+	var saved_at := now_unix if now_unix >= 0.0 else Time.get_unix_time_from_system()
 	return {
 		"recipe_id": _recipe.recipe_id if _recipe != null else "",
 		"bean_id": _bean.bean_id if _bean != null else "",
 		"roast_kind": _roast_kind,
 		"elapsed": _brew.elapsed,
+		"saved_at": saved_at,
 	}
 
 
-func load_state(saved: Dictionary, library: BrewingLibrary) -> void:
+func load_state(saved: Dictionary, library: BrewingLibrary, now_unix: float = -1.0) -> void:
 	# A loaded fridge stands where it stood, silent: no signal fires. A steep
 	# that ran out while the game was closed is ready at once. Unknown recipe
 	# or bean ids drop away, so a data change never breaks a slot.
@@ -131,7 +133,12 @@ func load_state(saved: Dictionary, library: BrewingLibrary) -> void:
 	_bean = bean
 	_roast_kind = roast_kind
 	_brew = ColdBrew.new(flow.method, balance)
-	_brew.load_state({"elapsed": float(saved.get("elapsed", 0.0))})
+	var elapsed := float(saved.get("elapsed", 0.0))
+	var saved_at := float(saved.get("saved_at", 0.0))
+	if saved_at > 0.0:
+		var now := now_unix if now_unix >= 0.0 else Time.get_unix_time_from_system()
+		elapsed += maxf(0.0, now - saved_at)
+	_brew.load_state({"elapsed": elapsed})
 
 
 func _saved_roast_kind(saved: Dictionary, library: BrewingLibrary) -> int:

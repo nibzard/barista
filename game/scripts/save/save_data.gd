@@ -5,7 +5,7 @@ extends RefCounted
 
 # Bump when the document changes shape. A save from a newer version stays
 # unreadable, so a read from the future returns no document.
-const SAVE_VERSION := 7
+const SAVE_VERSION := 8
 
 # The save point kinds of section 18. The document stores the kind that wrote
 # the slot, so a reload can say where the player stands. The purchase of
@@ -75,6 +75,10 @@ var tutorial_state: Dictionary = {}
 var outro_state: Dictionary = {}
 # The paywall purchase flag.
 var purchase_unlocked := false
+# The taught Moonwalk dodge variant of section 24.
+var moonwalk_dodge := false
+# The master school lesson counts and known recipes, section 8.
+var master_lessons: Dictionary = {}
 # The cosmetic choices of character creation, section 5, as one plain dict.
 # It rides the slot beside the run state: the look outlives every save point
 # and exists before the first run writes one.
@@ -128,15 +132,17 @@ static func from_dict(saved: Dictionary) -> SaveData:
 	data.tutorial_state = dict_or_empty(plain.get("tutorial_state", {}))
 	data.outro_state = dict_or_empty(plain.get("outro_state", {}))
 	data.purchase_unlocked = bool(plain.get("purchase_unlocked", false))
+	data.moonwalk_dodge = bool(plain.get("moonwalk_dodge", false))
+	data.master_lessons = dict_or_empty(plain.get("master_lessons", {}))
 	data.appearance = dict_or_empty(plain.get("appearance", {}))
 	data.game_mode = mode_or_default(plain.get("game_mode", MODE_NORMAL))
-	var phases: Dictionary = plain.get("tower_phases", {})
+	var phases := dict_or_empty(plain.get("tower_phases", {}))
 	for city_id: String in phases:
 		data.tower_phases[city_id] = int(phases[city_id])
-	var vaults: Dictionary = plain.get("vaults_open", {})
+	var vaults := dict_or_empty(plain.get("vaults_open", {}))
 	for city_id: String in vaults:
 		data.vaults_open[city_id] = bool(vaults[city_id])
-	var worlds: Dictionary = plain.get("city_worlds", {})
+	var worlds := dict_or_empty(plain.get("city_worlds", {}))
 	for city_id: String in worlds:
 		data.city_worlds[city_id] = dict_or_empty(worlds[city_id])
 	return data
@@ -170,6 +176,8 @@ func to_dict() -> Dictionary:
 		"tutorial_state": tutorial_state.duplicate(),
 		"outro_state": outro_state.duplicate(),
 		"purchase_unlocked": purchase_unlocked,
+		"moonwalk_dodge": moonwalk_dodge,
+		"master_lessons": master_lessons.duplicate(true),
 		"appearance": appearance.duplicate(),
 		"game_mode": game_mode,
 		"tower_phases": tower_phases.duplicate(),

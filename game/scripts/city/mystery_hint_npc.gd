@@ -45,7 +45,7 @@ func _physics_process(delta: float) -> void:
 	# player who stands around out of a loop, and the next visit replays the
 	# clue because mysteries stay forgettable.
 	var near := is_player_near()
-	if near and not _player_near:
+	if near and not _player_near and hint != null:
 		speak(hint.line)
 	_player_near = near
 	if _line_time_left <= 0.0:
@@ -116,3 +116,8 @@ func _compose_notice_area() -> void:
 	shape_node.shape = circle
 	notice.add_child(shape_node)
 	add_child(notice)
+
+
+func _draw() -> void:
+	draw_rect(BODY_RECT, BODY_COLOR)
+	draw_circle(HEAD_OFFSET, HEAD_RADIUS, HEAD_COLOR)

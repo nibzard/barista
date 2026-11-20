@@ -32,6 +32,7 @@ var _members: Array[Polygon2D] = []
 
 
 func _ready() -> void:
+	add_to_group(CureDelivery.WAKEABLE_GROUP)
 	_collect_members()
 	_tint_members(SLEEPING_COLOR)
 	_build_lullaby()
@@ -113,6 +114,7 @@ func _build_lullaby() -> void:
 	_lullaby.name = LULLABY_ZONE_NAME
 	_lullaby.kind = SleepZone.Kind.BORING
 	var shape_node := _lullaby.get_node(^"CollisionShape2D") as CollisionShape2D
-	var circle := shape_node.shape as CircleShape2D
+	var circle := CircleShape2D.new()
 	circle.radius = balance.lullaby_radius
+	shape_node.shape = circle
 	add_child(_lullaby)

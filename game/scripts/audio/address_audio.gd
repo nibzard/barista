@@ -134,7 +134,7 @@ func _widest_gap_midpoint(placed: Array[float]) -> float:
 	var sorted_offsets: Array[float] = []
 	sorted_offsets.assign(placed)
 	sorted_offsets.sort()
-	var best_start := sorted_offsets[0]
+	var best_start := sorted_offsets[-1]
 	var best_gap := balance.loop_seconds - sorted_offsets[-1] + sorted_offsets[0]
 	for i: int in range(sorted_offsets.size() - 1):
 		var gap := sorted_offsets[i + 1] - sorted_offsets[i]

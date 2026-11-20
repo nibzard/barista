@@ -76,17 +76,18 @@ func test_from_dict_rejects_a_document_from_a_future_version() -> void:
 	assert_object(SaveData.from_dict({"save_version": 4, "tower_phases": {}})).is_null()
 	assert_object(SaveData.from_dict({"save_version": 5, "tower_phases": {}})).is_null()
 	assert_object(SaveData.from_dict({"save_version": 6, "tower_phases": {}})).is_null()
+	assert_object(SaveData.from_dict({"save_version": 7, "tower_phases": {}})).is_null()
 
 
 func test_from_dict_reads_plain_json_values() -> void:
 	# A JSON number loads as a float, so the document stores every phase as
 	# an int again, the plain number the tower contract pins.
 	var loaded := SaveData.from_dict(
-		{"save_version": 7, "tower_phases": {"san_coffesco": 3.0}, "wake_ups": 4.0}
+		{"save_version": 8, "tower_phases": {"san_coffesco": 3.0}, "wake_ups": 4.0}
 	)
 	assert_int(loaded.tower_phase("san_coffesco", 0)).is_equal(3)
 	assert_int(loaded.wake_ups).is_equal(4)
-	var bare := SaveData.from_dict({"save_version": 7})
+	var bare := SaveData.from_dict({"save_version": 8})
 	assert_bool(bare.has_tower_state("san_coffesco")).is_false()
 	assert_dict(bare.city_world("san_coffesco")).is_empty()
 	assert_array(bare.crowd_awake).is_empty()

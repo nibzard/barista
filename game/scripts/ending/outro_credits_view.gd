@@ -19,7 +19,7 @@ const LINE_GAP := 46.0
 # The credit roll, top to bottom. The version ends after Pourtland and the
 # three cities stay open for the post-game activities of section 23.
 const CREDIT_LINES: Array[String] = [
-	"POURLAND IS AWAKE.",
+	"POURTLAND IS AWAKE.",
 	"THE TOWER IS SILENT.",
 	"THE SLEEP JAM SINGS NO MORE.",
 	"",

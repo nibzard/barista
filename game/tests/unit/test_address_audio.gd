@@ -18,9 +18,15 @@ func test_morgen_voice_track_is_a_quiet_speech_placeholder() -> void:
 	var stream := PlaceholderTones.morgen_voice_track(2.0)
 	assert_object(stream).is_not_null()
 	assert_int(stream.loop_mode).is_equal(AudioStreamWAV.LOOP_DISABLED)
-	# The wave rides one RIFF header of 44 bytes before the PCM data.
-	assert_int(stream.data.size()).is_equal(44 + int(2.0 * PlaceholderTones.SAMPLE_RATE) * 2)
+	# AudioStreamWAV.data holds raw 16-bit mono PCM samples, no RIFF header.
+	assert_int(stream.data.size()).is_equal(int(2.0 * PlaceholderTones.SAMPLE_RATE) * 2)
 	assert_object(PlaceholderTones.morgen_voice_track(2.0)).is_same(stream)
+
+
+func test_widest_gap_midpoint_uses_wrap_start_when_wrap_gap_is_largest() -> void:
+	# Wrap gap from 3.0 across 5.0 to 1.0 is 3.0 s; its midpoint is 4.5, not 2.5.
+	var midpoint := _rules._widest_gap_midpoint([1.0, 3.0])
+	assert_float(midpoint).is_equal_approx(4.5, 0.001)
 
 
 func test_the_tres_pins_the_spec_numbers() -> void:

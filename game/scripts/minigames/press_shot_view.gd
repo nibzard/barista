@@ -44,6 +44,7 @@ var model: PressShot = null
 var held := false
 
 var _announced := false
+var _active_touch := -1
 var _step_text := ""
 
 @onready var method_label: Label = $MethodLabel
@@ -71,6 +72,7 @@ func begin(p_method: BrewingMethod) -> void:
 	# after the Grind Dial pre-step.
 	model = PressShot.new(balance)
 	_announced = false
+	_active_touch = -1
 	held = false
 	_step_text = ""
 	method_label.text = "PRESS: %s" % p_method.display_name.to_upper()
@@ -82,21 +84,35 @@ func begin(p_method: BrewingMethod) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Touch first: press and hold anywhere to build pressure, lift to release.
-	# The same path covers a held mouse button, and the action covers the
-	# keyboard. Every source only sets the hold state, so overlaps stay
-	# harmless.
+	# Track one active touch index and skip emulated mouse copies from touch.
 	var touch := event as InputEventScreenTouch
 	if touch != null:
-		held = touch.pressed
+		if touch.pressed:
+			if _active_touch == -1:
+				_active_touch = touch.index
+				held = true
+		elif touch.index == _active_touch:
+			_active_touch = -1
+			held = false
+		if get_viewport() != null:
+			get_viewport().set_input_as_handled()
 		return
 	var button := event as InputEventMouseButton
 	if button != null and button.button_index == MOUSE_BUTTON_LEFT:
+		if button.device == TouchControls.EMULATED_MOUSE_DEVICE:
+			return
 		held = button.pressed
+		if get_viewport() != null:
+			get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed(&"hold_pressure"):
 		held = true
+		if get_viewport() != null:
+			get_viewport().set_input_as_handled()
 	elif event.is_action_released(&"hold_pressure"):
 		held = false
+		if get_viewport() != null:
+			get_viewport().set_input_as_handled()
 
 
 func _announce(press_result: PressResult) -> void:

@@ -47,6 +47,7 @@ func setup(run: Node) -> void:
 	_run = run
 	flow.step_changed.connect(_on_step_changed)
 	credits_view.finished.connect(_on_credits_finished)
+	credits_view.gui_input.connect(_on_credits_gui_input)
 	credits_view.visible = false
 	_enter_step(flow.current_step(), true)
 
@@ -70,10 +71,20 @@ func demand_text() -> String:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Any press skips the credit roll, like the video of section 19.
-	if flow.current_step() == OutroFlow.Step.CREDITS and _is_press(event):
+	# Any press skips the credit roll, like the video of section 19, and the
+	# arrival/demand beats consume presses so nothing leaks to the world.
+	var step := flow.current_step()
+	if step == OutroFlow.Step.CREDITS and _is_press(event):
 		credits_view.skip()
 		get_viewport().set_input_as_handled()
+	elif (step == OutroFlow.Step.ARRIVAL or step == OutroFlow.Step.DEMAND) and _is_press(event):
+		get_viewport().set_input_as_handled()
+
+
+func _on_credits_gui_input(event: InputEvent) -> void:
+	if flow.current_step() == OutroFlow.Step.CREDITS and _is_press(event):
+		credits_view.skip()
+		credits_view.accept_event()
 
 
 func _is_press(event: InputEvent) -> bool:
@@ -120,8 +131,20 @@ func _enter_step(to_step: OutroFlow.Step, silent: bool) -> void:
 			# hit, so the new body enters the tree one frame later, outside it.
 			_stage_karen.call_deferred()
 		OutroFlow.Step.DEMAND:
-			_show_demand_line()
+			_time = 0.0
+			if silent:
+				_run.player.set_input_locked(true)
+				_run.cinematic_camera = true
+				_run.camera.global_position = _karen_spot() + Vector2(-CAMERA_WEST_OFFSET, 0.0)
+				_stage_karen_blocking.call_deferred()
+				_show_demand_line.call_deferred()
+			else:
+				_show_demand_line()
 		OutroFlow.Step.CREDITS:
+			if silent:
+				_run.player.set_input_locked(true)
+				_run.cinematic_camera = true
+				_stage_karen_blocking.call_deferred()
 			credits_view.visible = true
 			credits_view.begin(flow.caught_line(), balance.credits_roll_seconds)
 		OutroFlow.Step.POST_GAME:
@@ -159,8 +182,9 @@ func _end_outro(silent: bool) -> void:
 	credits_view.visible = false
 	_run.cinematic_camera = false
 	_run.camera.global_position = _run.player.global_position
-	if silent:
+	if _karen == null:
 		_stage_karen_blocking.call_deferred()
+	if silent:
 		return
 	_hide_demand_line()
 	_run.player.set_input_locked(false)

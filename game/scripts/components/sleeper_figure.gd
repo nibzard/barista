@@ -163,7 +163,7 @@ static func _clear_parts(visual: Polygon2D, nightcap: Polygon2D) -> void:
 	# BaristaPortrait repaint does. The Nightcap node stays: the walker
 	# engine holds a ready-time reference to it.
 	for child: Node in visual.get_children():
-		if child is Polygon2D or child is Line2D:
+		if child is Polygon2D or child is Line2D or child is ColorFill:
 			if child != nightcap:
 				child.free()
 

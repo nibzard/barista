@@ -154,7 +154,6 @@ func _build_depot() -> void:
 	_depot_position = (quest_block.global_position + quest_block.size * CONTROL_ROOM_FRACTION)
 	_engineer = ENGINEER_SCENE.instantiate() as RobotaxiEngineer
 	_engineer.name = "RoutingEngineer"
-	_engineer.brewing_balance = brewing_balance
 	_engineer.role_label = ROLE_LABEL
 	_engineer.order_code = "%s\n%s" % [ORDER_LOOP_LINE, ORDER_CODE]
 	_engineer.wake_line = WAKE_LINE
@@ -199,7 +198,7 @@ func _apply_loaded_log_state() -> void:
 	if not saved.is_complete():
 		return
 	quest.load_state({"phase": RobotaxiDepotQuest.Phase.FLEET_ROUTED})
-	_engineer.wake_now()
+	_engineer.wake_now(true)
 	_cab.retire()
 
 

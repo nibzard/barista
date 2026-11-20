@@ -103,9 +103,28 @@ func record_save_point(point: String, run_state: Dictionary) -> Error:
 	_data.tutorial_state = SaveData.dict_or_empty(run_state.get("tutorial", {}))
 	_data.outro_state = SaveData.dict_or_empty(run_state.get("outro", {}))
 	_data.purchase_unlocked = bool(run_state.get("unlock", false))
+	_data.moonwalk_dodge = bool(run_state.get("moonwalk_dodge", false))
+	_data.master_lessons = SaveData.dict_or_empty(run_state.get("master_lessons", {}))
 	# A run state that names no mode, like a partial record, keeps the mode
 	# the slot already holds: a hardcore run never softens by one save point.
 	_data.game_mode = SaveData.mode_or_default(run_state.get("game_mode", _data.game_mode))
+	_store_city_world(city_id, run_state, crowd_awake)
+	return _store.write(_data)
+
+
+func record_city_world(run_state: Dictionary) -> Error:
+	# Persist the leaving city's world and vault state before crossing a road
+	# without overwriting the active save point's scene or player position.
+	_ensure_loaded()
+	var city_id := run_state.get("city_id", "") as String
+	if city_id.is_empty():
+		return OK
+	var crowd_awake := SaveData.bool_array(run_state.get("crowd_awake", []))
+	_store_city_world(city_id, run_state, crowd_awake)
+	return _store.write(_data)
+
+
+func _store_city_world(city_id: String, run_state: Dictionary, crowd_awake: Array) -> void:
 	# A run without a tower or a vault, like a dev room, keeps the cross-city
 	# maps as they stand: a missing phase must never override a city default.
 	if int(run_state.get("tower_phase", -1)) >= 0:
@@ -131,7 +150,6 @@ func record_save_point(point: String, run_state: Dictionary) -> Error:
 				}
 			)
 		)
-	return _store.write(_data)
 
 
 func saved_run_state() -> Dictionary:
@@ -164,6 +182,8 @@ func saved_run_state() -> Dictionary:
 		"tutorial": _data.tutorial_state.duplicate(),
 		"outro": _data.outro_state.duplicate(),
 		"unlock": _data.purchase_unlocked,
+		"moonwalk_dodge": _data.moonwalk_dodge,
+		"master_lessons": _data.master_lessons.duplicate(true),
 		"game_mode": _data.game_mode,
 		"tower_phase": _data.tower_phase(_data.city_id, -1),
 		"vault_open": _data.is_vault_open(_data.city_id),

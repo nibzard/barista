@@ -4,25 +4,29 @@
 class_name CureDelivery
 extends RefCounted
 
+# Shared group for every body a cure can wake: street sleepwalkers plus boss
+# and quest wake targets (FishSeller, DemoTable, SleepJamBand, BandMember,
+# RobotaxiEngineer, Aisle7Husband).
+const WAKEABLE_GROUP := &"wakeables"
+
 
 static func splash_wake(
 	origin: Vector2, radius: float, payload: BrewedCup, tree: SceneTree, world: World2D
 ) -> int:
-	# The burst wakes every sleeping walker the coffee reaches: inside the
+	# The burst wakes every sleeping target the coffee reaches: inside the
 	# radius and clear of walls, so no coffee flies through geometry. The
 	# tinfoil hat keeps the splash off its wearer, section 6.
 	if payload == null or radius <= 0.0:
 		return 0
 	var woken := 0
-	for node: Node in tree.get_nodes_in_group(Sleepwalker.SLEEPWALKER_GROUP):
-		var sleeper := node as Sleepwalker
-		if sleeper == null or sleeper.is_awake() or sleeper.hat_stops_thrown_coffee():
+	for target: Node2D in _wakeable_targets(tree):
+		if _skip_delivery_target(target):
 			continue
-		if sleeper.global_position.distance_to(origin) > radius:
+		if target.global_position.distance_to(origin) > radius:
 			continue
-		if not LineOfSight.is_clear(origin, sleeper.global_position, world):
+		if not _has_clear_sight(origin, target, world):
 			continue
-		if sleeper.try_wake(payload):
+		if target.try_wake(payload):
 			woken += 1
 	return woken
 
@@ -36,42 +40,65 @@ static func cone_wake(
 	tree: SceneTree,
 	world: World2D
 ) -> int:
-	# The cone wakes every sleeping walker in the arc in front of the firer:
+	# The cone wakes every sleeping target in the arc in front of the firer:
 	# inside the reach, inside the angle, and clear of walls. The tinfoil hat
 	# stops the spray like any delivery, section 6.
 	if payload == null or aim == Vector2.ZERO:
 		return 0
 	var woken := 0
-	for node: Node in tree.get_nodes_in_group(Sleepwalker.SLEEPWALKER_GROUP):
-		var sleeper := node as Sleepwalker
-		if sleeper == null or sleeper.is_awake() or sleeper.hat_stops_thrown_coffee():
+	for target: Node2D in _wakeable_targets(tree):
+		if _skip_delivery_target(target):
 			continue
-		var offset := sleeper.global_position - origin
+		var offset := target.global_position - origin
 		if offset.length() > reach:
 			continue
-		var angle := absf(rad_to_deg(angle_difference(aim.angle(), offset.angle())))
-		if angle > half_angle_degrees:
+		if offset.length_squared() > 0.0001:
+			var angle := absf(rad_to_deg(angle_difference(aim.angle(), offset.angle())))
+			if angle > half_angle_degrees:
+				continue
+		if not _has_clear_sight(origin, target, world):
 			continue
-		if not LineOfSight.is_clear(origin, sleeper.global_position, world):
-			continue
-		if sleeper.try_wake(payload):
+		if target.try_wake(payload):
 			woken += 1
 	return woken
 
 
 static func drip_wake(origin: Vector2, radius: float, payload: BrewedCup, tree: SceneTree) -> int:
 	# The drip of the Auto-Drip Turret falls from above, section 11, so walls
-	# never stand in its way: every sleeping walker below the tower takes the
+	# never stand in its way: every sleeping target below the tower takes the
 	# payload, except the tinfoil hat, which keeps the drip off its wearer.
 	if payload == null or radius <= 0.0:
 		return 0
 	var woken := 0
-	for node: Node in tree.get_nodes_in_group(Sleepwalker.SLEEPWALKER_GROUP):
-		var sleeper := node as Sleepwalker
-		if sleeper == null or sleeper.is_awake() or sleeper.hat_stops_thrown_coffee():
+	for target: Node2D in _wakeable_targets(tree):
+		if _skip_delivery_target(target):
 			continue
-		if sleeper.global_position.distance_to(origin) > radius:
+		if target.global_position.distance_to(origin) > radius:
 			continue
-		if sleeper.try_wake(payload):
+		if target.try_wake(payload):
 			woken += 1
 	return woken
+
+
+static func _wakeable_targets(tree: SceneTree) -> Array[Node2D]:
+	var targets: Array[Node2D] = []
+	for node: Node in tree.get_nodes_in_group(WAKEABLE_GROUP):
+		var target := node as Node2D
+		if target != null and target.has_method(&"try_wake"):
+			targets.append(target)
+	return targets
+
+
+static func _skip_delivery_target(target: Node2D) -> bool:
+	if target.has_method(&"is_awake") and target.is_awake():
+		return true
+	if target.has_method(&"hat_stops_thrown_coffee") and target.hat_stops_thrown_coffee():
+		return true
+	return false
+
+
+static func _has_clear_sight(origin: Vector2, target: Node2D, world: World2D) -> bool:
+	var exclude: Array[RID] = []
+	if target is CollisionObject2D:
+		exclude.append((target as CollisionObject2D).get_rid())
+	return LineOfSight.is_clear(origin, target.global_position, world, exclude)

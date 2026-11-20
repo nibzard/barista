@@ -47,6 +47,8 @@ func _physics_process(delta: float) -> void:
 
 
 func _fly(delta: float) -> void:
+	if _phase == Phase.THROW and _flight_time_left <= 0.0 and landing == Vector2.INF:
+		launch(global_position + direction.normalized() * balance.travel_mug_throw_range)
 	_flight_time_left -= delta
 	var target := landing if _phase == Phase.THROW else _bounce_target
 	var progress := 1.0
@@ -72,6 +74,10 @@ func _on_body_entered(body: Node2D) -> void:
 		# The rolling mug wakes nobody on the way home. The lid is on.
 		return
 	if body.has_method(&"try_wake"):
+		# Awake survivors stand out of the flight so the mug does not waste its
+		# throw or abort a bounce on someone already woken.
+		if body.has_method(&"is_awake") and body.is_awake():
+			return
 		# Every wakeable body takes the payload: the sleepwalkers of section 6
 		# and the wakeable quest bodies, like the cup does. The mug asks the
 		# body, never its class, so no quest script joins this compile.

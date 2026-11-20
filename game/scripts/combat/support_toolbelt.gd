@@ -52,11 +52,14 @@ func _init(support_balance: SupportToolsBalance) -> void:
 
 
 func unlock(tool: Tool) -> void:
-	# A found tool joins the belt. The first find equips itself, so the belt
-	# is ready the moment it stops being empty.
+	# A found tool joins the belt in canonical cycle order. The first find
+	# equips itself, so the belt is ready the moment it stops being empty.
 	if _unlocked.has(tool):
 		return
 	_unlocked.append(tool)
+	_unlocked.sort_custom(
+		func(a: Tool, b: Tool) -> bool: return CYCLE_ORDER.find(a) < CYCLE_ORDER.find(b)
+	)
 	if _equipped == NO_TOOL:
 		_equipped = tool
 

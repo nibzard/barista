@@ -27,6 +27,9 @@ var pull_elapsed := 0.0
 # The frozen result, set once the press grades a release or runs out.
 var result: PressResult = null
 
+var _entered_zone := false
+var _pull_armed := false
+
 
 func _init(p_balance: PressBalance) -> void:
 	balance = p_balance
@@ -65,28 +68,39 @@ func is_in_zone(pressure_value: float) -> bool:
 
 func _tick_hold(delta: float, held: bool) -> void:
 	# Step one: the zone creeps upward, the needle follows the player's hold,
-	# and the time inside the zone fills the cup. Time outside it accrues as
-	# drift and taxes the score later. A full hold opens the pull; a hold that
-	# is still short when the window closes yields no shot.
+	# and the time inside the zone fills the cup. Time outside it after first
+	# entering the zone accrues as drift and taxes the score later. A full hold
+	# opens the pull; a hold that is still short when the window closes yields
+	# no shot.
 	zone_center += balance.zone_creep_per_second * delta
 	_integrate_pressure(delta, held)
 	if is_in_zone(pressure):
+		_entered_zone = true
 		fill = minf(fill + balance.hold_fill_per_second * delta, 1.0)
-	else:
+	elif _entered_zone:
 		drift_seconds += delta
 	if fill >= 1.0:
 		step = Step.RELEASE
+		_pull_armed = held
 	elif elapsed >= balance.press_window_seconds:
 		result = _grade_no_shot()
 
 
 func _tick_pull(delta: float, held: bool) -> void:
-	# Step two: the first lift is the release, graded at the pressure the
-	# player last saw before this tick moves the needle. A pull that never
-	# releases runs to its window and grades itself as maximally late.
+	# Step two: the first lift after holding in the pull step is the release,
+	# graded at the pressure the player last saw before this tick moves the
+	# needle. If step one ended on a pump lift, wait for the player to hold
+	# again before grading a release.
 	if not held:
-		result = _grade_release(pressure)
+		if _pull_armed:
+			result = _grade_release(pressure)
+			return
+		pull_elapsed += delta
+		_integrate_pressure(delta, false)
+		if pull_elapsed >= balance.pull_window_seconds:
+			result = _grade_release(pressure)
 		return
+	_pull_armed = true
 	pull_elapsed += delta
 	_integrate_pressure(delta, true)
 	if pull_elapsed >= balance.pull_window_seconds:

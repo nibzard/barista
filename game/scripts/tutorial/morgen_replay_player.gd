@@ -14,6 +14,10 @@ var _player: Player = null
 @onready var video_view: TutorialVideoView = $VideoView
 
 
+func _ready() -> void:
+	video_view.gui_input.connect(_on_video_gui_input)
+
+
 func begin(run_player: Player) -> void:
 	# The television plays the video again: the same produced view, the same
 	# pinned length, and any press skips it, like the opening.
@@ -50,6 +54,13 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not _playing or not _is_press(event):
 		return
 	get_viewport().set_input_as_handled()
+	_finish()
+
+
+func _on_video_gui_input(event: InputEvent) -> void:
+	if not _playing or not _is_press(event):
+		return
+	video_view.accept_event()
 	_finish()
 
 

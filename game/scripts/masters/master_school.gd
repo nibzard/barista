@@ -50,20 +50,36 @@ func interact() -> bool:
 	# One button at the master: a lesson while lessons remain, then only the
 	# catchphrase. Returns false when no master stands at hand.
 	var hud: Hud = _run.hud
+	var player: Player = _run.player
 	for npc: MasterNpc in masters():
 		if not npc.is_player_at_master():
 			continue
+		var skills_before := _taught_skills(npc, player.brewing_skills)
 		var outcome := npc.interact()
 		if outcome == MasterNpc.Interaction.NOT_AT_MASTER:
 			return false
-		hud.show_toast(_announce_text(npc, outcome))
+		var gain := _measured_skill_gain(npc, player, skills_before)
+		hud.show_toast(npc.announce_text(outcome, gain, player.brewing_library))
 		return true
 	return false
 
 
-func _announce_text(npc: MasterNpc, outcome: MasterNpc.Interaction) -> String:
-	# The toast confirms the skill grant and every new recipe.
-	var player: Player = _run.player
-	return npc.announce_text(
-		outcome, player.brewing_balance.master_lesson_skill_gain, player.brewing_library
-	)
+func _taught_skills(npc: MasterNpc, skills: BrewingSkills) -> Dictionary:
+	var snapshot: Dictionary = {}
+	if npc.master == null or skills == null:
+		return snapshot
+	for method_id: String in npc.master.taught_methods:
+		snapshot[method_id] = skills.skill(method_id)
+	return snapshot
+
+
+func _measured_skill_gain(npc: MasterNpc, player: Player, before: Dictionary) -> int:
+	# Report the actual clamped skill gain rather than the nominal gain when
+	# the player is already near or at the method skill cap.
+	if npc.master == null or npc.master.taught_methods.is_empty():
+		return player.brewing_balance.master_lesson_skill_gain
+	var max_gain := 0
+	for method_id: String in npc.master.taught_methods:
+		var delta := player.brewing_skills.skill(method_id) - int(before.get(method_id, 0))
+		max_gain = maxi(max_gain, delta)
+	return max_gain

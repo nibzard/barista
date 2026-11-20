@@ -64,23 +64,50 @@ func test_both_zone_edges_count_as_inside() -> void:
 
 func test_a_chased_hold_fills_the_cup_inside_the_zone() -> void:
 	# Pump the hold to chase the creeping zone. The fill grows while the needle
-	# stays inside, and only the entry time below the zone becomes drift.
+	# stays inside, and the initial climb into the zone does not count as drift.
 	var press := PressShot.new(BALANCE)
 	_chase_zone(press, 2.0)
 	assert_bool(press.is_running()).is_true()
 	assert_int(press.step).is_equal(PressShot.Step.HOLD)
 	assert_float(press.fill).is_between(0.35, 0.5)
-	assert_float(press.drift_seconds).is_between(0.4, 0.7)
+	assert_float(press.drift_seconds).is_equal(0.0)
 
 
 func test_a_steady_hold_drifts_out_of_the_creeping_zone() -> void:
 	# Holding without pumping overshoots the zone on the way up: the needle
-	# passes through it, and most of the second counts as drift.
+	# passes through it, and time above it counts as drift.
 	var press := PressShot.new(BALANCE)
 	for _i: int in range(20):
 		press.tick(CHASE_STEP, true)
-	assert_float(press.drift_seconds).is_between(0.55, 0.7)
+	assert_float(press.drift_seconds).is_between(0.1, 0.3)
 	assert_float(press.fill).is_less(0.15)
+
+
+func test_a_clean_press_reaches_perfect_tier() -> void:
+	var press := PressShot.new(BALANCE)
+	_chase_until_pull(press)
+	_lift_at(press, BALANCE.release_mark_pressure)
+	assert_int(press.result.outcome).is_equal(PressResult.Outcome.PRESSED)
+	assert_float(press.result.score).is_greater_equal(95.0)
+
+
+func test_finishing_step_one_on_a_lift_does_not_instant_fail_step_two() -> void:
+	var press := PressShot.new(BALANCE)
+	while press.is_running() and press.fill < 0.90:
+		press.tick(CHASE_STEP, press.pressure < press.zone_center)
+	# Push to upper half of the zone, then finish step 1 on a bleed (held=false).
+	while press.is_running() and press.pressure < press.zone_center + 0.06:
+		press.tick(0.01, true)
+	assert_int(press.step).is_equal(PressShot.Step.HOLD)
+	while press.is_running() and press.step == PressShot.Step.HOLD:
+		press.tick(0.01, false)
+	assert_int(press.step).is_equal(PressShot.Step.RELEASE)
+	# Continuing to lift for a few frames waits for the player to hold again.
+	press.tick(0.02, false)
+	assert_bool(press.is_running()).is_true()
+	assert_object(press.result).is_null()
+	_lift_at(press, BALANCE.release_mark_pressure)
+	assert_int(press.result.outcome).is_equal(PressResult.Outcome.PRESSED)
 
 
 func test_a_full_hold_moves_the_press_to_the_pull_step() -> void:
@@ -121,10 +148,11 @@ func test_a_release_on_the_mark_scores_the_press() -> void:
 
 
 func test_an_early_release_makes_a_sour_cup() -> void:
-	# The hold is full, then the lift comes far below the mark: the cup is
-	# sour and the score falls with the distance.
+	# The hold is full, then the player pulls briefly and lifts far below the
+	# mark: the cup is sour and the score falls with the distance.
 	var press := PressShot.new(BALANCE)
 	_chase_until_pull(press)
+	press.tick(0.05, true)
 	press.tick(0.05, false)
 	var result := press.result
 	assert_int(result.outcome).is_equal(PressResult.Outcome.SOUR)

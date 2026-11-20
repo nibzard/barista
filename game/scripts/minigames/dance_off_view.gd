@@ -67,12 +67,16 @@ func _process(delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Touch first: any tap lands a beat. The action covers keyboard and
-	# mouse, and both paths may fire on one tap, so the tap is idempotent.
+	# Touch first: any tap lands a beat. Emulated mouse clicks from touch are
+	# skipped so one tap never judges two consecutive beats.
 	if model == null or _announced:
+		return
+	if event is InputEventMouseButton and event.device == TouchControls.EMULATED_MOUSE_DEVICE:
 		return
 	if event.is_action_pressed(&"lift_pot") or _is_screen_tap(event):
 		_judge(model.tap())
+		if get_viewport() != null:
+			get_viewport().set_input_as_handled()
 
 
 func _is_screen_tap(event: InputEvent) -> bool:
@@ -133,13 +137,14 @@ func _draw() -> void:
 
 func _draw_beat(index: int) -> void:
 	# One beat falls from the right onto the hit line. A judged beat fades
-	# behind the line; the waiting ones glow like the Grind Dial sweet spot.
+	# immediately; the waiting ones glow like the Grind Dial sweet spot.
 	var remaining := model.beat_time(index) - model.elapsed()
-	if remaining < -balance.dance_good_window_seconds or remaining * FALL_SPEED > size.x:
+	var x := LINE_X + remaining * FALL_SPEED
+	if remaining < -balance.dance_good_window_seconds or x > size.x - 24.0 - BEAT_RADIUS:
 		return
-	var center := Vector2(LINE_X + remaining * FALL_SPEED, (TRACK_TOP + TRACK_BOTTOM) * 0.5)
+	var center := Vector2(x, (TRACK_TOP + TRACK_BOTTOM) * 0.5)
 	var color := BEAT_COLOR
-	if index < model.next_beat() and remaining < 0.0:
+	if index < model.next_beat():
 		color = color.darkened(0.5)
 	draw_circle(center, BEAT_RADIUS, color)
 

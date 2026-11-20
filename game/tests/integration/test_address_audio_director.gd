@@ -218,6 +218,24 @@ func test_tolerance_stops_the_grating_record() -> void:
 	await get_tree().physics_frame
 	await get_tree().physics_frame
 	assert_str(_director.diegetic_track()).is_equal("")
+	# Leaving and re-entering the cafe never restarts the stopped record.
+	_city.player.global_position = _poles[0]
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	_city.player.global_position = _map.cafe_spawn().global_position
+	await get_tree().physics_frame
+	assert_str(_director.diegetic_track()).is_equal("")
+
+
+func test_tolerance_never_raises_far_layer_cutoff() -> void:
+	_city.player.global_position = _map.cafe_spawn().global_position
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_int(_director.current_layer()).is_equal(AddressAudio.Layer.FAR)
+	_director.tolerance().expose(AddressAudioDirector.ADDRESS_ID, 30.01)
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	assert_float(_director.address_filter_hz()).is_equal(ADDRESS_BALANCE.far_low_pass_hz)
 
 
 func _scatter_the_crowd() -> void:

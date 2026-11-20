@@ -32,7 +32,7 @@ void fragment() {
 	vec4 base = COLOR;
 	float lum = dot(base.rgb, vec3(0.299, 0.587, 0.114));
 	// The sketch: dark values become graphite on paper, then a lavender wash goes over all.
-	vec3 sketch = mix(paper.rgb, graphite.rgb, smoothstep(0.85, 0.2, lum));
+	vec3 sketch = mix(paper.rgb, graphite.rgb, 1.0 - smoothstep(0.2, 0.85, lum));
 	sketch = mix(sketch, sleep_tint.rgb, sleep_tint_amount);
 	// The wake front: a ragged circle that grows from the origin.
 	float ragged = ab_noise(world_pos * 0.035) * fill_edge;

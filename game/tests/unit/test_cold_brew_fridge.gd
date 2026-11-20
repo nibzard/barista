@@ -169,7 +169,7 @@ func test_save_state_round_trips_a_running_steep() -> void:
 	var signals: Array = []
 	loaded.steep_started.connect(func(_recipe_id: String) -> void: signals.append("started"))
 	loaded.steep_ready.connect(func(_recipe_id: String) -> void: signals.append("ready"))
-	loaded.load_state(fridge.save_state(), LIBRARY)
+	loaded.load_state(fridge.save_state(1000.0), LIBRARY, 1000.0)
 	assert_bool(loaded.is_steeping()).is_true()
 	assert_str(loaded.steeped_recipe().recipe_id).is_equal("cold_brew_concentrate")
 	assert_str(loaded.steeped_bean().bean_id).is_equal("golden_coast_arabica")
@@ -179,6 +179,15 @@ func test_save_state_round_trips_a_running_steep() -> void:
 	var cup := loaded.collect(LIBRARY)
 	assert_float(cup.score).is_equal(METHOD.score_ceiling)
 	assert_str(cup.bean.bean_id).is_equal("golden_coast_arabica")
+
+
+func test_load_state_advances_steep_by_offline_wall_clock_time() -> void:
+	var fridge := _steeping_fridge()
+	fridge.tick(60.0)
+	var saved := fridge.save_state(1000.0)
+	var loaded := ColdBrewFridge.new(BALANCE)
+	loaded.load_state(saved, LIBRARY, 1000.0 + BALANCE.steep_seconds)
+	assert_bool(loaded.is_ready()).is_true()
 
 
 func test_load_state_completes_an_overdue_steep() -> void:

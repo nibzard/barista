@@ -10,6 +10,7 @@ extends RefCounted
 var _run: Node = null
 var _east: Area2D = null
 var _west: Area2D = null
+var _traveling := false
 
 
 static func build(
@@ -67,9 +68,10 @@ func arm_west() -> void:
 func travel(destination: PackedScene) -> void:
 	# A road travels only when the city scene names its destination: the road
 	# east finds none in the last city of the version, the road west none in
-	# the first one.
-	if destination == null:
+	# the first one. Guard against duplicate triggers or a sleeping player.
+	if destination == null or _traveling or _run.player.is_asleep():
 		return
+	_traveling = true
 	_park_traveler()
 	_change_scene.call_deferred(destination)
 
@@ -80,12 +82,17 @@ func _park_traveler() -> void:
 	# every belonging of the traveler, west as much as east. The quest chain
 	# already moved when the road parked its traveler, so the arriving city
 	# reads a log that names it.
+	if _run.save_system != null:
+		_run.save_system.record_city_world(_run._capture_run_state())
+		SaveSystem.park_for_scene_change(_run.save_system)
 	var van_state: MobileCafe = _run.van_state
 	if van_state != null:
 		VanHandoff.park(van_state.save_state())
 	var fridge: ColdBrewFridge = _run.cold_fridge
 	ColdBrewHandoff.park(fridge.save_state() if fridge != null else {})
-	MoveHandoff.park_traveler(_run.player, _run.dex, _run.unlock_state, _run.quest_log)
+	MoveHandoff.park_traveler(
+		_run.player, _run.dex, _run.unlock_state, _run.quest_log, _run.master_lessons
+	)
 
 
 func _change_scene(destination: PackedScene) -> void:

@@ -4,8 +4,6 @@
 class_name OutroKaren
 extends StaticBody2D
 
-signal in_place
-
 # The barrier spans the whole deck corridor, so nobody walks around her.
 const BARRIER_SIZE := Vector2(52.0, 720.0)
 
@@ -33,7 +31,6 @@ func march(delta: float, seconds: float) -> void:
 	global_position = _start.lerp(_spot, _progress)
 	if _progress >= 1.0:
 		_arrived = true
-		in_place.emit()
 
 
 func stand_at(at_spot: Vector2) -> void:

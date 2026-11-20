@@ -57,8 +57,9 @@ func open() -> void:
 	if _open:
 		return
 	_open = true
-	var barrier := get_node(^"Barrier") as CollisionShape2D
-	barrier.set_deferred("disabled", true)
+	var barrier := get_node_or_null(^"Barrier") as CollisionShape2D
+	if barrier != null:
+		barrier.set_deferred("disabled", true)
 	queue_redraw()
 	opened.emit()
 

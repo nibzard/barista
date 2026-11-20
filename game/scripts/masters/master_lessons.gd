@@ -10,7 +10,12 @@ signal school_complete(master_id: String)
 var _masters: Array[BrewingMaster] = []
 var _skills: BrewingSkills = null
 var _lessons: Dictionary = {}
+# Saved lesson counts for masters not yet registered (e.g. mid-run quest
+# masters or masters of other cities), applied when they register and
+# preserved across saves.
+var _pending_lessons: Dictionary = {}
 var _known_recipes: Array[String] = []
+var _extra_known_recipes: Array[String] = []
 
 
 func _init(masters: Array[BrewingMaster] = [], skills: BrewingSkills = null) -> void:
@@ -42,6 +47,12 @@ func register_master(master: BrewingMaster) -> bool:
 	if find_master(master.master_id) != null:
 		return false
 	_masters.append(master)
+	if _pending_lessons.has(master.master_id):
+		_lessons[master.master_id] = clampi(
+			int(_pending_lessons[master.master_id]), 0, lessons_per_master()
+		)
+		_pending_lessons.erase(master.master_id)
+		_rebuild_known_recipes()
 	return true
 
 
@@ -104,28 +115,40 @@ func known_recipes() -> Array[String]:
 
 
 func save_state() -> Dictionary:
-	# The save system stores the lesson table per master, section 18. The
-	# known recipes follow from the table and the master data.
-	return {"lessons": _lessons.duplicate()}
+	# The save system stores the lesson table per master, section 18, plus
+	# known recipes so recipes learned in earlier cities survive travel.
+	var lessons := _pending_lessons.duplicate()
+	for master_id: Variant in _lessons:
+		lessons[master_id] = _lessons[master_id]
+	return {"lessons": lessons, "known_recipes": _known_recipes.duplicate()}
 
 
 func load_state(saved: Dictionary) -> void:
-	# A loaded game never replays a lesson beat or a recipe grant. Unknown
-	# master ids drop away; impossible lesson counts clamp to the school size.
+	# A loaded game never replays a lesson beat or a recipe grant. Lesson
+	# counts for unregistered masters wait in _pending_lessons until they
+	# register; impossible counts clamp to the school size.
 	var saved_lessons: Dictionary = saved.get("lessons", {})
 	_lessons.clear()
-	for master: BrewingMaster in _masters:
-		if not saved_lessons.has(master.master_id):
-			continue
-		_lessons[master.master_id] = clampi(
-			int(saved_lessons[master.master_id]), 0, lessons_per_master()
-		)
+	_pending_lessons.clear()
+	_extra_known_recipes.clear()
+	var cap := lessons_per_master()
+	for master_id: Variant in saved_lessons:
+		var id := str(master_id)
+		var count := clampi(int(saved_lessons[master_id]), 0, cap)
+		if find_master(id) != null:
+			_lessons[id] = count
+		elif count > 0:
+			_pending_lessons[id] = count
+	for recipe_id: Variant in saved.get("known_recipes", []):
+		if recipe_id is String and not (recipe_id as String).is_empty():
+			if not _extra_known_recipes.has(recipe_id):
+				_extra_known_recipes.append(recipe_id)
 	_rebuild_known_recipes()
 
 
 func _rebuild_known_recipes() -> void:
 	# The known recipes follow from the lessons taken, so the data and the
-	# school state can never disagree.
+	# school state can never disagree, plus saved recipes from other cities.
 	_known_recipes.clear()
 	for master: BrewingMaster in _masters:
 		for lesson_number: int in range(1, lessons_taken(master.master_id) + 1):
@@ -134,3 +157,6 @@ func _rebuild_known_recipes() -> void:
 			var recipe_id: String = master.lesson_recipes[lesson_number - 1]
 			if not recipe_id.is_empty() and not _known_recipes.has(recipe_id):
 				_known_recipes.append(recipe_id)
+	for recipe_id: String in _extra_known_recipes:
+		if not _known_recipes.has(recipe_id):
+			_known_recipes.append(recipe_id)

@@ -11,7 +11,6 @@ const AWAKE_COLOR := Color(0.45, 0.85, 0.5)
 # The wake line holds for a few seconds, like the master line.
 const LINE_HOLD_SECONDS := 5.0
 
-@export var brewing_balance: BrewingBalance
 # The order written like code, section 13. The label shows it while he sleeps.
 @export var order_code := ""
 @export var role_label := ""
@@ -29,6 +28,7 @@ var _line_time_left := 0.0
 
 
 func _ready() -> void:
+	add_to_group(CureDelivery.WAKEABLE_GROUP)
 	visual.color = SLEEPING_COLOR
 	line_label.text = _idle_text()
 	line_label.visible = true
@@ -57,12 +57,16 @@ func try_wake(cup: BrewedCup) -> bool:
 	return true
 
 
-func wake_now() -> void:
+func wake_now(restore := false) -> void:
 	# The wake beat: the green tint and the code-comment thank-you, section 13.
+	# A silent restore hides the sleeping order without replaying the line.
 	if _awake:
 		return
 	_awake = true
 	visual.color = AWAKE_COLOR
+	if restore:
+		line_label.visible = false
+		return
 	if not wake_line.is_empty():
 		line_label.text = wake_line
 		line_label.visible = true
