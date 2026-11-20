@@ -14,6 +14,10 @@ const WAKE_TOAST := "THE SLEEP JAM IS AWAKE. THE SONG IS OVER."
 const SLEEPING_COLOR := Color(0.42, 0.38, 0.72)
 const AWAKE_COLOR := Color(0.45, 0.85, 0.5)
 const LULLABY_ZONE_NAME := "LullabyZone"
+# The center of the raised stage platform where thrown cups and aim-assist lock.
+const STAGE_AIM_OFFSET := Vector2(0.0, -140.0)
+# Subtle chalk arc drawn on the street in front of the stage while performing.
+const STAGE_CUE_COLOR := Color(0.95, 0.78, 0.4, 0.65)
 
 # The sleep zone scene stays a path, never a preload: several scripts share
 # this scene, and a compile-time const binds an empty scene whenever another
@@ -36,6 +40,19 @@ func _ready() -> void:
 	_collect_members()
 	_tint_members(SLEEPING_COLOR)
 	_build_lullaby()
+	queue_redraw()
+
+
+func aim_point() -> Vector2:
+	# Aim-assist, serve reach, and cure splash target the raised stage itself,
+	# so throws from the street arc cleanly into the band.
+	return global_position + STAGE_AIM_OFFSET
+
+
+func _draw() -> void:
+	if not _performing:
+		return
+	draw_arc(Vector2(0.0, -70.0), 56.0, 0.15 * PI, 0.85 * PI, 20, STAGE_CUE_COLOR, 3.0)
 
 
 static func cure_accepted(cup: BrewedCup, cure: Recipe, brew_balance: BrewingBalance) -> bool:
@@ -54,6 +71,7 @@ func try_wake(cup: BrewedCup) -> bool:
 	_performing = false
 	_lullaby.set_active(false)
 	_tint_members(AWAKE_COLOR)
+	queue_redraw()
 	if not balance.wake_line.is_empty():
 		spoke.emit(balance.wake_line)
 	band_woke.emit()
@@ -89,6 +107,7 @@ func load_state(saved: Dictionary) -> void:
 	_performing = false
 	_lullaby.set_active(false)
 	_tint_members(AWAKE_COLOR)
+	queue_redraw()
 
 
 func band_members() -> Array[Polygon2D]:

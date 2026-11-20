@@ -6,7 +6,7 @@
 [ext_resource type="Resource" path="res://resources/brewing/recipes/geisha_vault_cup.tres" id="4"]
 
 [sub_resource type="RectangleShape2D" id="Stage"]
-size = Vector2(220, 120)
+size = Vector2(220, 140)
 
 [node name="SleepJamBand" type="StaticBody2D"]
 collision_layer = 5
@@ -39,5 +39,5 @@ color = Color(0.12, 0.1, 0.14, 1)
 polygon = PackedVector2Array(-2, -26, 2, -26, 2, 0, -2, 0)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -140)
+position = Vector2(0, -130)
 shape = SubResource("Stage")

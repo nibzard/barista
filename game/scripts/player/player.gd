@@ -575,18 +575,28 @@ func throw_cup(direction: Vector2) -> CoffeeCup:
 
 
 func _reachable_sleepwalker_candidates(start: Vector2) -> Array[AimCandidate]:
-	# The cone snaps only to sleepers a thrown cup can truly reach. Walls
-	# hide the rest: a snap through a wall would break on the wall, so the
-	# aim skips the sleeper behind it. Each candidate carries its velocity,
-	# so the landing point leads a mover to its impact-time position.
+	# The cone snaps to sleeping sleepwalkers and to elevated stage targets
+	# that expose an aim_point (such as the Sleep Jam band) when a thrown cup
+	# can truly reach them. Stationary street-level sleepers stay outside the
+	# snap so throws keep full arc speed past them. Walls hide the rest: a snap
+	# through a wall would break on the wall, so the aim skips blocked targets.
 	var candidates: Array[AimCandidate] = []
-	for node: Node in get_tree().get_nodes_in_group(&"sleepwalkers"):
-		var sleepwalker := node as Sleepwalker
-		if sleepwalker == null or sleepwalker.is_awake():
+	for node: Node in get_tree().get_nodes_in_group(CureDelivery.WAKEABLE_GROUP):
+		var target := node as Node2D
+		if target == null or not (target is Sleepwalker or target.has_method(&"aim_point")):
 			continue
-		if not LineOfSight.is_clear(start, sleepwalker.global_position, get_world_2d()):
+		if target.has_method(&"is_awake") and target.is_awake():
 			continue
-		candidates.append(AimCandidate.new(sleepwalker.global_position, sleepwalker.velocity))
+		var point := CureDelivery.target_point(target)
+		var exclude: Array[RID] = []
+		if target is CollisionObject2D:
+			exclude.append((target as CollisionObject2D).get_rid())
+		if not LineOfSight.is_clear(start, point, get_world_2d(), exclude):
+			continue
+		var target_velocity := (
+			(target as Sleepwalker).velocity if target is Sleepwalker else Vector2.ZERO
+		)
+		candidates.append(AimCandidate.new(point, target_velocity))
 	return candidates
 
 
@@ -622,15 +632,14 @@ func _sleeper_in_serve_reach() -> Node2D:
 			continue
 		if target.has_method(&"is_awake") and target.is_awake():
 			continue
-		var distance := target.global_position.distance_to(global_position)
+		var point := CureDelivery.target_point(target)
+		var distance := point.distance_to(global_position)
 		if distance > best_distance:
 			continue
 		var exclude: Array[RID] = []
 		if target is CollisionObject2D:
 			exclude.append((target as CollisionObject2D).get_rid())
-		if not LineOfSight.is_clear(
-			global_position, target.global_position, get_world_2d(), exclude
-		):
+		if not LineOfSight.is_clear(global_position, point, get_world_2d(), exclude):
 			continue
 		best = target
 		best_distance = distance

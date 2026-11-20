@@ -177,9 +177,9 @@ The interface is part of the world: chalk, kraft paper, and coffee stains.
 
 ### Typography
 
-- Display text: a hand-lettered chalk face for titles and signs.
-- Body text: a warm, rounded, very readable sans serif for dialog and menus. Readability on a phone wins over style.
-- Both fonts need approval before they go into the project (open-font license only).
+- Display text: a hand-lettered chalk face for titles and signs — approved: **Patrick Hand** (`game/assets/fonts/PatrickHand-Regular.ttf`, SIL OFL 1.1).
+- Body text: a warm, rounded, very readable sans serif for dialog and menus — approved: **Nunito** (`game/assets/fonts/Nunito-Variable.ttf`, SIL OFL 1.1). Readability on a phone wins over style.
+- Both fonts ship under SIL Open Font License 1.1 (license files alongside the `.ttf` assets).
 
 ## 12. Motion
 

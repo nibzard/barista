@@ -212,6 +212,7 @@ func test_the_aisle_7_husband_wakes_and_teaches_the_turkish_method() -> void:
 	# teacher of the last masterless method.
 	var city := await _continue_from_menu(POURTLAND_SCENE_PATH)
 	_city_checks(city)
+	_park_the_crowd_west(city)
 	var stage := city.get_node(^"SignatureQuest") as Aisle7Stage
 	assert_object(stage).is_not_null()
 	city.player.global_position = stage.wife().global_position

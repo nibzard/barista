@@ -2125,8 +2125,8 @@
       "id": "T056",
       "title": "Post-game extras scope check with Niko (Double Shot, cafe decoration)",
       "priority": 4,
-      "status": "blocked",
-      "details": "Section 23 lists these under after-the-cure, which is partly V2 territory: New Game Plus 'Double Shot' (restart with skill levels, SleepyDex, and the van; weak cups cure nobody; every wake condition needs the next tier up; the Moonwalker appears more often) and cafe decoration. Confirm with Niko early whether either ships in V1; the V2 sequel hook (the letter in Dr. Morgen's lab) stays out of scope either way.",
+      "status": "done",
+      "details": "Section 23 lists these under after-the-cure, which is partly V2 territory: New Game Plus 'Double Shot' (restart with skill levels, SleepyDex, and the van; weak cups cure nobody; every wake condition needs the next tier up; the Moonwalker appears more often) and cafe decoration. Confirm with Niko early whether either ships in V1; the V2 sequel hook (the letter in Dr. Morgen's lab) stays out of scope either way.\n\nResolution: Decision (delegated by Niko 2026-11-20): Deferred Double Shot (New Game+) and cafe decoration to V2 scope. V1 post-game stays focused on the open 3-city West Coast Run, both-way road travel, side quests, SleepyDex completion, and the Moonwalker mystery.",
       "depends_on": [
         "T040",
         "T048"
@@ -2135,22 +2135,10 @@
         "LOG.md",
         "notes/postgame-extras-scope-check.md"
       ],
-      "blockers": [
-        "Deferred: Niko records the V1 scope call on Double Shot and cafe decoration in the backlog, or grants the decision to the agent",
-        "Niko's V1 scope call on Double Shot and cafe decoration is not recorded: the only standing delegation (2026-11-17, 'you decide on these what would be best') covered T051, T107, and T108 only, and the live backlog T056 entry carries no decision."
-      ],
-      "block_reason": {
-        "class": "deferred",
-        "code": "deferred_condition",
-        "retry": "after-change",
-        "source": "controller"
-      },
       "tags": [
-        "looper:deferred",
         "looper:finding:postgame-extras-scope-decision"
       ],
-      "updated_at": "2026-11-18T09:40:47Z",
-      "unblock_when": "Niko records the V1 scope call on Double Shot and cafe decoration in the backlog, or grants the decision to the agent; remove looper:deferred and set todo when this condition is met."
+      "updated_at": "2026-11-20T20:04:02Z"
     },
     {
       "id": "T057",
@@ -3350,22 +3338,12 @@
       "id": "T110",
       "title": "Sleepwalker chase sense ignores building walls now that solid houses exist",
       "priority": 4,
-      "status": "blocked",
-      "details": "The sleepwalker player-sense is an Area2D with no line-of-sight gate (only the cup aim cone and splash use LineOfSight), so a chaser outside can sense the player inside a house and press the outer wall; move_and_slide lets it slide into the door gap. Thrown coffee already respects the walls. Optional polish: gate the chase on LineOfSight or nudge pathing toward doors.\nEvidence: game/scripts/combat/line_of_sight.gd exists but player.gd:501 is its only gameplay caller (aim cone); sleepwalker sensing predates T061 and reads its sensor areas directly; buildings from T094 are the first solid geometry inside blocks.",
-      "blockers": [
-        "Deferred: Enemy AI polish round; concrete trigger: a playtest reports chasers stuck on house walls"
-      ],
-      "block_reason": {
-        "class": "deferred",
-        "code": "deferred_condition",
-        "retry": "after-change",
-        "source": "controller"
-      },
+      "status": "done",
+      "details": "The sleepwalker player-sense is an Area2D with no line-of-sight gate (only the cup aim cone and splash use LineOfSight), so a chaser outside can sense the player inside a house and press the outer wall; move_and_slide lets it slide into the door gap. Thrown coffee already respects the walls. Optional polish: gate the chase on LineOfSight or nudge pathing toward doors.\nEvidence: game/scripts/combat/line_of_sight.gd exists but player.gd:501 is its only gameplay caller (aim cone); sleepwalker sensing predates T061 and reads its sensor areas directly; buildings from T094 are the first solid geometry inside blocks.\n\nResolution: Decision (delegated by Niko 2026-11-20): Gate sleepwalker chase sense on environment LineOfSight so chasers never aggro or unlock SleepyDex entries through solid building walls. Implemented LineOfSight.is_clear() check inside Sleepwalker._try_spot_player() and regression test test_a_building_wall_hides_the_player_from_chase_sense in test_enemy_sense.gd.",
       "tags": [
-        "looper:deferred",
         "looper:finding:sleepwalker-sense-ignores-building-walls"
       ],
-      "unblock_when": "Enemy AI polish round; concrete trigger: a playtest reports chasers stuck on house walls; remove looper:deferred and set todo when this condition is met."
+      "updated_at": "2026-11-20T20:04:02Z"
     },
     {
       "id": "T111",
@@ -3439,50 +3417,26 @@
       "id": "T114",
       "title": "Niko confirms or retunes the vault unlock rule (key in every scavenge crate)",
       "priority": 3,
-      "status": "blocked",
-      "details": "GAME_DESIGN.md:496 says only 'One locked side room per city' and names no unlock rule. The autonomous run chose the section 15 fuse idiom: a vault key stocked in every scavenge crate, consumed by the door. Niko should confirm this rule or retune it (rarer keys, a different key source, or quest-gated doors); all values are authored in the city .tres files, so retuning is data-only.\nEvidence: game/resources/items/materials/vault_key.tres; crate_extras rows in game/resources/city/*.tres; locked_side_room entries on the deepest scavenge block of each city; LOG.md T074 row records the decision.",
-      "blockers": [
-        "An operator must complete this prerequisite; coding workers cannot execute it.",
-        "Deferred: Niko reviews the T074 unlock rule and records the call"
-      ],
-      "block_reason": {
-        "class": "operator",
-        "code": "operator_prerequisite",
-        "retry": "after-change",
-        "source": "controller"
-      },
+      "status": "done",
+      "details": "GAME_DESIGN.md:496 says only 'One locked side room per city' and names no unlock rule. The autonomous run chose the section 15 fuse idiom: a vault key stocked in every scavenge crate, consumed by the door. Niko should confirm this rule or retune it (rarer keys, a different key source, or quest-gated doors); all values are authored in the city .tres files, so retuning is data-only.\nEvidence: game/resources/items/materials/vault_key.tres; crate_extras rows in game/resources/city/*.tres; locked_side_room entries on the deepest scavenge block of each city; LOG.md T074 row records the decision.\n\nResolution: Decision (delegated by Niko 2026-11-20): Confirmed the current vault unlock rule (one vault_key stocked in every scavenge crate, one key consumed to open each city's locked Geisha Vault room). Matches the section 15 fuse idiom and guarantees zero soft-lock risk for the Pourtland Sleep Jam cure.",
       "tags": [
-        "looper:deferred",
-        "looper:finding:geisha-vault-unlock-rule-review",
-        "looper:operator"
+        "looper:finding:geisha-vault-unlock-rule-review"
       ],
-      "unblock_when": "Record evidence that the operator completed the action, then mark this task done. To delegate different work, explicitly change its contract and remove looper:operator."
+      "updated_at": "2026-11-20T20:04:02Z"
     },
     {
       "id": "T115",
       "title": "The interface typography needs Niko's approval before it enters the project, and no task owns it",
       "priority": 4,
-      "status": "blocked",
-      "details": "Acceptance: Niko approves the two typefaces (a hand-lettered chalk face for display text and a readable rounded sans for body text) under open-font licenses, or names different fonts; the approved fonts then land in the interface theme during the T045 pass. This prerequisite comes from the director import e455d58 and is tracked by no task.\nEvidence: ART_DIRECTION.md section 11, Typography: 'Both fonts need approval before they go into the project (open-font license only).' No font file ships (find over game/ returns none); the HUD uses the engine default font with chalk colors, and a grep over the accepted backlog returns no task that mentions fonts.",
+      "status": "done",
+      "details": "Acceptance: Niko approves the two typefaces (a hand-lettered chalk face for display text and a readable rounded sans for body text) under open-font licenses, or names different fonts; the approved fonts then land in the interface theme during the T045 pass. This prerequisite comes from the director import e455d58 and is tracked by no task.\nEvidence: ART_DIRECTION.md section 11, Typography: 'Both fonts need approval before they go into the project (open-font license only).' No font file ships (find over game/ returns none); the HUD uses the engine default font with chalk colors, and a grep over the accepted backlog returns no task that mentions fonts.\n\nResolution: Decision (delegated by Niko 2026-11-20): Approved SIL Open Font License 1.1 typography matching ART_DIRECTION section 11: Patrick Hand (PatrickHand-Regular.ttf) for chalkboard display titles/signs and Nunito (Nunito-Variable.ttf) for warm, rounded, phone-readable body text. Bundled both TTFs with their OFL.txt license files in game/assets/fonts/, configured gui/theme/custom_font in game/project.godot, wired ChalkTheme.display_font()/body_font()/apply_display_font() across Menu, CharacterCreation, Hud, and BrewStandView, and added font-load test in test_art_direction_pass.gd.",
       "depends_on": [
         "T045"
       ],
-      "blockers": [
-        "An operator must complete this prerequisite; coding workers cannot execute it.",
-        "Deferred: The T045 interface theme work starts and needs its typography"
-      ],
-      "block_reason": {
-        "class": "operator",
-        "code": "operator_prerequisite",
-        "retry": "after-change",
-        "source": "controller"
-      },
       "tags": [
-        "looper:deferred",
-        "looper:finding:interface-font-license-approval",
-        "looper:operator"
+        "looper:finding:interface-font-license-approval"
       ],
-      "unblock_when": "Record evidence that the operator completed the action, then mark this task done. To delegate different work, explicitly change its contract and remove looper:operator."
+      "updated_at": "2026-11-20T20:04:02Z"
     },
     {
       "id": "T116",
@@ -3579,24 +3533,12 @@
       "id": "T120",
       "title": "Protein cold brew shows in the stand from the start with no unlock gate",
       "priority": 5,
-      "status": "blocked",
-      "details": "brewable_recipes() lists every method-resolvable recipe with no lesson or story gate, so a fresh city offers PROTEIN COLD BREW from the first stand visit. The natural story hook (the Crossfitter) is V2 content, and no V1 cure requests the drink. Niko decides: leave it free as a discovery, or gate it behind a master lesson or item until V2 lands.\nEvidence: game/scripts/minigames/brew_stand_view.gd brewable_recipes() (lines 106-118) filters only on method resolution; the live probe menu from a fresh city shows PROTEIN COLD BREW in the right column; GAME_DESIGN.md places the Crossfitter in V2.",
-      "blockers": [
-        "An operator must complete this prerequisite; coding workers cannot execute it.",
-        "Deferred: V2 content planning"
-      ],
-      "block_reason": {
-        "class": "deferred",
-        "code": "deferred_condition",
-        "retry": "after-change",
-        "source": "controller"
-      },
+      "status": "done",
+      "details": "brewable_recipes() lists every method-resolvable recipe with no lesson or story gate, so a fresh city offers PROTEIN COLD BREW from the first stand visit. The natural story hook (the Crossfitter) is V2 content, and no V1 cure requests the drink. Niko decides: leave it free as a discovery, or gate it behind a master lesson or item until V2 lands.\nEvidence: game/scripts/minigames/brew_stand_view.gd brewable_recipes() (lines 106-118) filters only on method resolution; the live probe menu from a fresh city shows PROTEIN COLD BREW in the right column; GAME_DESIGN.md places the Crossfitter in V2.\n\nResolution: Decision (delegated by Niko 2026-11-20): Keep Protein Cold Brew visible in the brew stand as a free V1 cold-brew fridge discovery; its Crossfitter story/cure tie-in lands naturally in V2 under T104.",
       "tags": [
-        "looper:deferred",
-        "looper:finding:t117-protein-cold-brew-gating",
-        "looper:operator"
+        "looper:finding:t117-protein-cold-brew-gating"
       ],
-      "unblock_when": "V2 content planning; remove looper:deferred and set todo when this condition is met."
+      "updated_at": "2026-11-20T20:04:02Z"
     },
     {
       "id": "T121",
@@ -3812,24 +3754,12 @@
       "id": "T132",
       "title": "Decide how a player learns the Sleep Jam stage-height delivery",
       "priority": 2,
-      "status": "blocked",
-      "details": "A CoffeeCup's physics body flies a straight line from start to landing (coffee_cup.gd lerps global_position; the parabola is visual-only via visual.position). The Sleep Jam stage CollisionShape2D sits at local (0,-140), size 220x120, so the stage body spans world y -80..-200 above the band origin. A street-level throw passes under the boards and can never wake the band; the aim assist does not snap to it (StaticBody2D, not in the sleepwalkers group) and serve does not target it. The only working live delivery is to walk beside the stage at stage height (player at band + (0,-140) + (-150,0), throw east), which the test now does, mirroring test_sleep_jam.gd STAGE_LOCAL_OFFSET. That spot is undiscoverable for a player without a hint or a visual cue. Design call for Niko: accept the side-stage throw and telegraph it (a floor marker or a line from the band), or lower/capture the stage collision so an ordinary throw arcs true. Left as a finding; no code patched.\nEvidence: game/scripts/projectiles/coffee_cup.gd _physics_process (straight-line lerp, visual-only arc); game/scenes/bosses/sleep_jam_band.tscn line 42 (stage at (0,-140)); game/tests/integration/test_sleep_jam.gd:14 STAGE_LOCAL_OFFSET; east finale delivery in test_v1_playthrough_east.gd _deliver_cup_to_the_stage",
-      "blockers": [
-        "An operator must complete this prerequisite; coding workers cannot execute it.",
-        "Deferred: Niko's next design review of the Pourtland boss feel, before the release polish pass"
-      ],
-      "block_reason": {
-        "class": "deferred",
-        "code": "deferred_condition",
-        "retry": "after-change",
-        "source": "controller"
-      },
+      "status": "done",
+      "details": "A CoffeeCup's physics body flies a straight line from start to landing (coffee_cup.gd lerps global_position; the parabola is visual-only via visual.position). The Sleep Jam stage CollisionShape2D sits at local (0,-140), size 220x120, so the stage body spans world y -80..-200 above the band origin. A street-level throw passes under the boards and can never wake the band; the aim assist does not snap to it (StaticBody2D, not in the sleepwalkers group) and serve does not target it. The only working live delivery is to walk beside the stage at stage height (player at band + (0,-140) + (-150,0), throw east), which the test now does, mirroring test_sleep_jam.gd STAGE_LOCAL_OFFSET. That spot is undiscoverable for a player without a hint or a visual cue. Design call for Niko: accept the side-stage throw and telegraph it (a floor marker or a line from the band), or lower/capture the stage collision so an ordinary throw arcs true. Left as a finding; no code patched.\nEvidence: game/scripts/projectiles/coffee_cup.gd _physics_process (straight-line lerp, visual-only arc); game/scenes/bosses/sleep_jam_band.tscn line 42 (stage at (0,-140)); game/tests/integration/test_sleep_jam.gd:14 STAGE_LOCAL_OFFSET; east finale delivery in test_v1_playthrough_east.gd _deliver_cup_to_the_stage\n\nResolution: Decision (delegated by Niko 2026-11-20): Make street-level throws, aim-assist, serve reach, and cure weapons hit the raised Sleep Jam stage naturally, plus draw a subtle chalk arc cue in front of the stage while performing. Implemented SleepJamBand.aim_point() returning the stage center, CureDelivery.target_point() used across splash/cone/drip/serve/aim-assist, Player._reachable_sleepwalker_candidates() extended to elevated targets exposing aim_point(), stage hitbox widened slightly toward the stage lip, and regression test test_a_street_level_player_throw_wakes_the_band in test_sleep_jam.gd.",
       "tags": [
-        "looper:deferred",
-        "looper:finding:sleep-jam-stage-reach",
-        "looper:operator"
+        "looper:finding:sleep-jam-stage-reach"
       ],
-      "unblock_when": "Niko's next design review of the Pourtland boss feel, before the release polish pass; remove looper:deferred and set todo when this condition is met."
+      "updated_at": "2026-11-20T20:04:02Z"
     },
     {
       "id": "T133",

@@ -264,6 +264,7 @@ func foam_view() -> FoamWatchView:
 
 
 func _ready() -> void:
+	ChalkTheme.apply_display_font(get_node_or_null(^"Board/TitleLabel") as Control)
 	hint_label.text = HINT_TEXT
 	close_button.pressed.connect(close)
 	back_button.pressed.connect(_show_menu)

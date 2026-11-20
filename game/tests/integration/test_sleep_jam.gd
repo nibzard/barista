@@ -170,6 +170,21 @@ func test_a_thrown_geisha_cup_wakes_the_band() -> void:
 	assert_bool(_band.is_awake()).is_true()
 
 
+func test_a_street_level_player_throw_wakes_the_band() -> void:
+	# T132: standing on the street south of the raised stage and throwing
+	# upward snaps via aim-assist onto the stage and wakes the band.
+	_city.player.global_position = _band.global_position + Vector2(0.0, 40.0)
+	_city.player.brew_hand.receive(_brew("geisha_vault", "medium", "filter", "", 85.0), 1)
+	var cup := _city.player.throw_cup(Vector2.UP)
+	assert_object(cup).is_not_null()
+
+	var frames := 0
+	while is_instance_valid(cup) and frames < MAX_FRAMES_TO_WAIT:
+		await get_tree().physics_frame
+		frames += 1
+	assert_bool(_band.is_awake()).is_true()
+
+
 func test_a_saved_cure_lands_silent_on_a_reloaded_stage() -> void:
 	# Section 18: the cure of the song rides the run slot as one plain flag.
 	# A reloaded stage never replays the endless song: the band stands awake,

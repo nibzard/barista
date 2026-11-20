@@ -36,6 +36,7 @@ var _appearance: CharacterAppearance = null
 
 func _ready() -> void:
 	theme = ChalkTheme.build()
+	ChalkTheme.apply_display_font(get_node_or_null(^"Title") as Control)
 	if _appearance == null:
 		# A slot that already holds a look starts from it, so a revisit edits
 		# the same barista instead of resetting the choices.

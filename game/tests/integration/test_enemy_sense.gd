@@ -85,3 +85,26 @@ func test_a_hug_never_lands_on_a_locked_player() -> void:
 		await get_tree().physics_frame
 		frames += 1
 	assert_bool(_player.is_grabbed()).is_true()
+
+
+func test_a_building_wall_hides_the_player_from_chase_sense() -> void:
+	# T110: solid environment walls block sleepwalker chase sense and first_met.
+	var wall := StaticBody2D.new()
+	wall.collision_layer = 1
+	wall.position = Vector2(40.0, 0.0)
+	var shape_node := CollisionShape2D.new()
+	var rect := RectangleShape2D.new()
+	rect.size = Vector2(16.0, 240.0)
+	shape_node.shape = rect
+	wall.add_child(shape_node)
+	add_child(auto_free(wall))
+	var frozen := _neighbor.balance.duplicate() as SleepwalkerBalance
+	frozen.walk_speed = 0.0
+	_neighbor.balance = frozen
+	_neighbor.global_position = Vector2(80.0, 0.0)
+	for _i: int in range(30):
+		await get_tree().physics_frame
+
+	assert_int(_neighbor.state).is_equal(Sleepwalker.State.WANDER)
+	assert_int(_meet_count[0]).is_equal(0)
+	assert_object(_neighbor.player).is_null()

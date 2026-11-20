@@ -131,3 +131,13 @@ func test_the_wake_colors_the_figure_in_from_the_hit() -> void:
 	for _frame: int in range(80):
 		await get_tree().physics_frame
 	assert_bool(fill.is_filled()).is_true()
+
+
+func test_chalk_theme_loads_the_approved_open_license_fonts() -> void:
+	# T115 / ART_DIRECTION section 11: Patrick Hand display chalk face and
+	# Nunito warm rounded body sans are bundled under SIL OFL 1.1.
+	assert_object(ChalkTheme.display_font()).is_not_null()
+	assert_object(ChalkTheme.body_font()).is_not_null()
+	var built := ChalkTheme.build()
+	assert_object(built.default_font).is_not_null()
+	assert_object(built.get_font("font", "HeaderLarge")).is_not_null()

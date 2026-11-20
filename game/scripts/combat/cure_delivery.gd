@@ -10,6 +10,14 @@ extends RefCounted
 const WAKEABLE_GROUP := &"wakeables"
 
 
+static func target_point(target: Node2D) -> Vector2:
+	# Raised or offset wakeables (like the Sleep Jam stage) report their
+	# actual stage center so aim-assist, serve reach, and splashes land true.
+	if target.has_method(&"aim_point"):
+		return target.aim_point() as Vector2
+	return target.global_position
+
+
 static func splash_wake(
 	origin: Vector2, radius: float, payload: BrewedCup, tree: SceneTree, world: World2D
 ) -> int:
@@ -22,7 +30,7 @@ static func splash_wake(
 	for target: Node2D in _wakeable_targets(tree):
 		if _skip_delivery_target(target):
 			continue
-		if target.global_position.distance_to(origin) > radius:
+		if target_point(target).distance_to(origin) > radius:
 			continue
 		if not _has_clear_sight(origin, target, world):
 			continue
@@ -49,7 +57,7 @@ static func cone_wake(
 	for target: Node2D in _wakeable_targets(tree):
 		if _skip_delivery_target(target):
 			continue
-		var offset := target.global_position - origin
+		var offset := target_point(target) - origin
 		if offset.length() > reach:
 			continue
 		if offset.length_squared() > 0.0001:
@@ -73,7 +81,7 @@ static func drip_wake(origin: Vector2, radius: float, payload: BrewedCup, tree: 
 	for target: Node2D in _wakeable_targets(tree):
 		if _skip_delivery_target(target):
 			continue
-		if target.global_position.distance_to(origin) > radius:
+		if target_point(target).distance_to(origin) > radius:
 			continue
 		if target.try_wake(payload):
 			woken += 1
@@ -101,4 +109,4 @@ static func _has_clear_sight(origin: Vector2, target: Node2D, world: World2D) ->
 	var exclude: Array[RID] = []
 	if target is CollisionObject2D:
 		exclude.append((target as CollisionObject2D).get_rid())
-	return LineOfSight.is_clear(origin, target.global_position, world, exclude)
+	return LineOfSight.is_clear(origin, target_point(target), world, exclude)

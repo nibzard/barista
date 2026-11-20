@@ -13,12 +13,36 @@ const BUTTER_COLOR := Color("#F2C866")
 const CORNER_RADIUS := 8
 const FRAME_WIDTH := 4
 const BUTTON_FONT_SIZE := 22
+# SIL OFL 1.1 fonts per ART_DIRECTION section 11: Patrick Hand for chalkboard
+# display titles and signs, Nunito for warm, rounded, phone-readable body text.
+const DISPLAY_FONT_PATH := "res://assets/fonts/PatrickHand-Regular.ttf"
+const BODY_FONT_PATH := "res://assets/fonts/Nunito-Variable.ttf"
+
+
+static func display_font() -> Font:
+	return load(DISPLAY_FONT_PATH) as Font
+
+
+static func body_font() -> Font:
+	return load(BODY_FONT_PATH) as Font
+
+
+static func apply_display_font(control: Control) -> void:
+	var font := display_font()
+	if control != null and font != null:
+		control.add_theme_font_override(&"font", font)
 
 
 static func build() -> Theme:
 	# One theme for every menu screen: set it on the root Control and every
 	# button and label below it reads the chalkboard.
 	var theme := Theme.new()
+	var body := body_font()
+	if body != null:
+		theme.default_font = body
+	var display := display_font()
+	if display != null:
+		theme.set_font("font", "HeaderLarge", display)
 	for state: String in ["normal", "hover", "pressed", "focus", "disabled"]:
 		var brightness := 0.0
 		if state == "hover":

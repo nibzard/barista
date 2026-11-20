@@ -23,6 +23,7 @@ var _toast_time_left := 0.0
 
 
 func _ready() -> void:
+	ChalkTheme.apply_display_font(toast_label)
 	if not player_path.is_empty():
 		set_player(get_node_or_null(player_path) as Player)
 	dex_button.visible = false

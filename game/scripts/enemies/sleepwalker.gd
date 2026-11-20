@@ -656,6 +656,8 @@ func _try_spot_player() -> void:
 			continue
 		if (body as Player).is_input_locked():
 			return
+		if not LineOfSight.is_clear(global_position, body.global_position, get_world_2d()):
+			continue
 		player = body
 		state = State.CHASE
 		if not _met_announced:

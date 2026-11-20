@@ -108,6 +108,10 @@ toggle_dex={
 
 enabled=PackedStringArray("res://addons/gdUnit4/plugin.cfg")
 
+[gui]
+
+theme/custom_font="res://assets/fonts/Nunito-Variable.ttf"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"
