@@ -11,6 +11,7 @@ const TOAST_HOLD_SECONDS := 3.0
 var player: Player = null
 
 var _toast_time_left := 0.0
+var _goal_label: Label = null
 
 @onready var awake_meter: MugMeter = $Board/Margin/Rows/AwakeRow/AwakeMeter
 @onready var awake_value: Label = $Board/Margin/Rows/AwakeRow/AwakeValue
@@ -24,6 +25,7 @@ var _toast_time_left := 0.0
 
 func _ready() -> void:
 	ChalkTheme.apply_display_font(toast_label)
+	_compose_goal_label()
 	if not player_path.is_empty():
 		set_player(get_node_or_null(player_path) as Player)
 	dex_button.visible = false
@@ -112,6 +114,63 @@ func refresh() -> void:
 		player.wake_ups.remaining, player.wake_ups.balance.max_wake_ups, player.wake_ups.hardcore
 	)
 	bag_label.text = _bag_text()
+	_refresh_goal_banner()
+
+
+func _compose_goal_label() -> void:
+	_goal_label = Label.new()
+	_goal_label.name = "GoalBanner"
+	_goal_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_goal_label.offset_left = -330.0
+	_goal_label.offset_top = 18.0
+	_goal_label.offset_right = 330.0
+	_goal_label.offset_bottom = 66.0
+	_goal_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_goal_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_goal_label.add_theme_font_size_override(&"font_size", 18)
+	_goal_label.add_theme_color_override(&"font_color", ChalkTheme.BUTTER_COLOR)
+	_goal_label.add_theme_color_override(&"font_outline_color", Color(0.06, 0.05, 0.05, 0.95))
+	_goal_label.add_theme_constant_override(&"outline_size", 7)
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color(0.14, 0.13, 0.12, 0.88)
+	box.border_color = ChalkTheme.WOOD_COLOR
+	box.set_border_width_all(3)
+	box.set_corner_radius_all(8)
+	box.content_margin_left = 14.0
+	box.content_margin_right = 14.0
+	box.content_margin_top = 6.0
+	box.content_margin_bottom = 6.0
+	_goal_label.add_theme_stylebox_override(&"normal", box)
+	_goal_label.visible = false
+	add_child(_goal_label)
+
+
+func _refresh_goal_banner() -> void:
+	if _goal_label == null or player == null:
+		return
+	var run := get_parent()
+	if run == null:
+		_goal_label.visible = false
+		return
+	var tut := run.get_node_or_null(^"Tutorial")
+	if tut != null and tut.get("prompt_label") != null and (tut.prompt_label as Control).visible:
+		_goal_label.visible = false
+		return
+	if player.is_input_locked():
+		_goal_label.visible = false
+		return
+	if player.is_grabbed():
+		_goal_label.text = "HUGGED! TAP THROW OR DODGE FAST TO BREAK FREE!"
+		_goal_label.visible = true
+		return
+	var markers := (
+		run.call(&"quest_markers") as QuestMarkers if run.has_method(&"quest_markers") else null
+	)
+	if markers != null and markers.has_objective_marker():
+		_goal_label.text = "GOAL: %s →" % markers.objective_marker_label()
+		_goal_label.visible = true
+	else:
+		_goal_label.visible = false
 
 
 func _bag_text() -> String:

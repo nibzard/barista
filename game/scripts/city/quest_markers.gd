@@ -222,13 +222,16 @@ func _draw_edge_arrow(target: Vector2, view: Rect2) -> void:
 	var direction := (target - center).normalized()
 	if direction == Vector2.ZERO:
 		return
-	var inner_half := view.size * 0.5 - Vector2(EDGE_MARGIN, EDGE_MARGIN)
+	var inner_half := view.size * 0.5 - Vector2(EDGE_MARGIN + 28.0, EDGE_MARGIN + 16.0)
 	var edge := _ray_exit(center, direction, inner_half)
-	var side := Vector2(-direction.y, direction.x) * EDGE_ARROW_SIZE
-	draw_colored_polygon(
-		PackedVector2Array([edge + direction * EDGE_ARROW_SIZE, edge + side, edge - side]),
-		OBJECTIVE_RING_COLOR
-	)
+	var side := Vector2(-direction.y, direction.x) * (EDGE_ARROW_SIZE * 1.25)
+	var tip := edge + direction * (EDGE_ARROW_SIZE * 1.45)
+	draw_colored_polygon(PackedVector2Array([tip, edge + side, edge - side]), OBJECTIVE_RING_COLOR)
+	if not _objective_label.is_empty():
+		var meters := maxi(1, roundi(center.distance_to(target) / 16.0))
+		var text := "%s (%dm)" % [_objective_label, meters]
+		var label_pos := edge - direction * 86.0 + Vector2(0.0, 6.0)
+		_draw_label(label_pos, text)
 
 
 func _ray_exit(center: Vector2, direction: Vector2, half: Vector2) -> Vector2:

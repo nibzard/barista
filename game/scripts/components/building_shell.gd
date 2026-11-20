@@ -6,6 +6,7 @@ extends Node2D
 # The art direction pass, section 20: wood-brown walls on cream, espresso
 # contours, and a butter rim on the door the player can use.
 const DOOR_RIM_WIDTH := 6.0
+const CAFE_FLOOR_TILE_PATH := "res://assets/art/tiles/cafe_floor_tile.jpg"
 
 # Section 17: all cities share one block kit, so the shell keeps one shape.
 # The door stays wider than the walking bodies (28 by 40), so the player and
@@ -16,6 +17,7 @@ const DOOR_RIM_WIDTH := 6.0
 
 var _built := false
 var _palette: ArtPalette
+var _floor_tex: Texture2D = null
 
 
 func _ready() -> void:
@@ -98,12 +100,20 @@ func _rect_at(center: Vector2, rect_size: Vector2) -> Rect2:
 func _draw() -> void:
 	if not _built or _palette == null:
 		return
+	if _floor_tex == null and ResourceLoader.exists(CAFE_FLOOR_TILE_PATH):
+		_floor_tex = load(CAFE_FLOOR_TILE_PATH) as Texture2D
+	var interior := interior_rect()
+	if _floor_tex != null:
+		draw_texture_rect(_floor_tex, interior, true, Color(1.0, 0.96, 0.9, 0.96))
+	else:
+		draw_rect(interior, _palette.cream.lightened(0.06))
 	# Wood-brown walls on the cream block, with espresso contours. The door
 	# keeps its warm butter rim: it is the way in, and the value rules mark
 	# everything the player can use.
-	var wall_fill := _palette.espresso.lerp(_palette.cream, 0.58)
+	var wall_fill := _palette.espresso.lerp(_palette.cream, 0.42)
 	for rect: Rect2 in wall_rects():
+		draw_rect(rect.grow(1.0), Color(0.08, 0.06, 0.05, 0.25))
 		draw_rect(rect, wall_fill)
-		draw_rect(rect, _palette.espresso, false, 2.0)
-	draw_rect(door_rect().grow(DOOR_RIM_WIDTH * 0.5), _palette.butter)
-	draw_rect(door_rect(), _palette.espresso.lerp(_palette.butter, 0.35))
+		draw_rect(rect, _palette.espresso, false, 2.5)
+	draw_rect(door_rect().grow(DOOR_RIM_WIDTH * 0.6), _palette.butter)
+	draw_rect(door_rect(), _palette.espresso.lerp(_palette.butter, 0.48))

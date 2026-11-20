@@ -119,6 +119,32 @@ static func build(visual: Polygon2D, nightcap: Polygon2D, type: EnemyType) -> vo
 		# The cap draws last, over the head it sits on.
 		visual.move_child(nightcap, visual.get_child_count() - 1)
 	_apply_hand_drawn_material(visual)
+	_attach_cast_sprite(visual, nightcap, type)
+
+
+static func _attach_cast_sprite(visual: Polygon2D, nightcap: Polygon2D, type: EnemyType) -> void:
+	var path := "res://assets/art/sprites/%s.png" % type.type_id
+	if not ResourceLoader.exists(path):
+		return
+	var tex := load(path) as Texture2D
+	if tex == null:
+		return
+	visual.self_modulate = Color(1.0, 1.0, 1.0, 0.0)
+	if nightcap != null:
+		nightcap.self_modulate = Color(1.0, 1.0, 1.0, 0.0)
+	for child: Node in visual.get_children():
+		if child is Polygon2D:
+			(child as Polygon2D).self_modulate = Color(1.0, 1.0, 1.0, 0.0)
+			for sub: Node in child.get_children():
+				if sub is Line2D:
+					(sub as Line2D).self_modulate = Color(1.0, 1.0, 1.0, 0.0)
+	var sprite := Sprite2D.new()
+	sprite.name = "CastSprite"
+	sprite.texture = tex
+	sprite.scale = Vector2(0.34, 0.34)
+	sprite.position = Vector2(0.0, -4.0)
+	sprite.modulate = Color(0.84, 0.82, 0.95, 1.0)
+	visual.add_child(sprite)
 
 
 static func set_awake(visual: Polygon2D, awake: bool, hit_point: Vector2, instant := false) -> void:
@@ -131,6 +157,9 @@ static func set_awake(visual: Polygon2D, awake: bool, hit_point: Vector2, instan
 		if part == null:
 			continue
 		part.visible = awake if part_name.begins_with(AWAKE_ONLY_PREFIX) else not awake
+	var sprite := visual.get_node_or_null(^"CastSprite") as Sprite2D
+	if sprite != null:
+		sprite.modulate = Color(1.05, 1.02, 0.96, 1.0) if awake else Color(0.84, 0.82, 0.95, 1.0)
 	var fill := visual.get_node_or_null(NodePath(WAKE_FILL_PART)) as ColorFill
 	if fill == null:
 		return
@@ -163,7 +192,7 @@ static func _clear_parts(visual: Polygon2D, nightcap: Polygon2D) -> void:
 	# BaristaPortrait repaint does. The Nightcap node stays: the walker
 	# engine holds a ready-time reference to it.
 	for child: Node in visual.get_children():
-		if child is Polygon2D or child is Line2D or child is ColorFill:
+		if child is Polygon2D or child is Line2D or child is ColorFill or child is Sprite2D:
 			if child != nightcap:
 				child.free()
 

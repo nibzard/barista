@@ -79,6 +79,7 @@ const TOWER_FUSE_OFFSET := Vector2(140, 0)
 # corporate red of Mug Roasters Co.
 const ACCENT_WASH_ALPHA := 0.14
 const STREET_LANE_HEIGHT := 0.24
+const STREET_TILE_PATH := "res://assets/art/tiles/street_tile.jpg"
 
 @export var block: CityBlock
 @export var accent_color := Color.WHITE
@@ -106,6 +107,7 @@ const STREET_LANE_HEIGHT := 0.24
 var size := Vector2.ZERO
 var _built := false
 var _palette: ArtPalette
+var _street_tex: Texture2D = null
 
 
 func _ready() -> void:
@@ -477,11 +479,35 @@ func _draw() -> void:
 	# street lane that the crowd walks reads through the city accent wash.
 	var rect := Rect2(Vector2.ZERO, size)
 	draw_rect(rect, _palette.cream)
+	if _street_tex == null and ResourceLoader.exists(STREET_TILE_PATH):
+		_street_tex = load(STREET_TILE_PATH) as Texture2D
+	if _street_tex != null:
+		var tile_step := Vector2(360.0, 360.0)
+		var y := 0.0
+		while y < size.y:
+			var x := 0.0
+			var h := minf(tile_step.y, size.y - y)
+			while x < size.x:
+				var w := minf(tile_step.x, size.x - x)
+				draw_texture_rect(
+					_street_tex,
+					Rect2(Vector2(x, y), Vector2(w, h)),
+					false,
+					Color(1.0, 0.98, 0.94, 0.72)
+				)
+				x += tile_step.x
+			y += tile_step.y
 	var lane := Rect2(
 		Vector2(0, size.y * (1.0 - STREET_LANE_HEIGHT)),
 		Vector2(size.x, size.y * STREET_LANE_HEIGHT)
 	)
-	draw_rect(lane, _palette.espresso.lerp(_palette.cream, 0.82))
+	draw_rect(lane, Color(_palette.espresso.r, _palette.espresso.g, _palette.espresso.b, 0.14))
+	draw_line(
+		Vector2(0.0, lane.position.y),
+		Vector2(size.x, lane.position.y),
+		Color(_palette.espresso, 0.45),
+		3.0
+	)
 	if city_look != null:
 		draw_rect(lane, Color(city_look.accent, ACCENT_WASH_ALPHA))
 	draw_rect(rect, accent_color, false, ACCENT_BORDER_WIDTH)

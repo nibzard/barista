@@ -4,6 +4,7 @@ extends Control
 
 const CITY_SCENE_PATH := "res://scenes/city/san_coffesco_intro.tscn"
 const CREATION_SCENE_PATH := "res://scenes/main/character_creation.tscn"
+const BACKDROP_TEXTURE_PATH := "res://assets/art/ui/menu_backdrop.jpg"
 # Section 9: the note under the mode buttons names the rule of the selection.
 const NORMAL_NOTE_TEXT := "NORMAL: FIVE WAKE-UPS. THE CAFE WAKES YOU."
 const HARDCORE_NOTE_TEXT := "HARDCORE: NO WAKE-UPS. ONE SLEEP ENDS THE RUN. DEATH DELETES THE SAVE."
@@ -33,7 +34,13 @@ var selected_mode := SaveData.MODE_NORMAL
 func _ready() -> void:
 	# The chalkboard menu of the interface kit, ART_DIRECTION section 11.
 	theme = ChalkTheme.build()
-	ChalkTheme.apply_display_font(get_node_or_null(^"Title") as Control)
+	_compose_backdrop()
+	var title := get_node_or_null(^"Title") as Label
+	ChalkTheme.apply_display_font(title)
+	if title != null:
+		title.add_theme_color_override(&"font_outline_color", Color(0.11, 0.07, 0.05, 0.96))
+		title.add_theme_constant_override(&"outline_size", 12)
+		title.add_theme_color_override(&"font_color", ChalkTheme.BUTTER_COLOR)
 	play_button.pressed.connect(_on_play_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 	new_game_button.pressed.connect(_on_new_game_pressed)
@@ -138,3 +145,26 @@ func _hide_new_game_confirmation() -> void:
 
 func _on_quit_pressed() -> void:
 	get_tree().quit()
+
+
+func _compose_backdrop() -> void:
+	var bg := get_node_or_null(^"Background") as Control
+	if bg == null or not ResourceLoader.exists(BACKDROP_TEXTURE_PATH):
+		return
+	var tex := load(BACKDROP_TEXTURE_PATH) as Texture2D
+	if tex == null:
+		return
+	var art := TextureRect.new()
+	art.name = "BackdropArt"
+	art.texture = tex
+	art.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	art.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+	art.set_anchors_preset(Control.PRESET_FULL_RECT)
+	art.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bg.add_child(art)
+	var scrim := ColorRect.new()
+	scrim.name = "Scrim"
+	scrim.color = Color(0.08, 0.07, 0.09, 0.42)
+	scrim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	scrim.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	bg.add_child(scrim)

@@ -155,6 +155,45 @@ func _tick_combat_timers(delta: float) -> void:
 		visual.rotation = MOONWALK_LEAN
 	else:
 		visual.rotation = 0.0
+	queue_redraw()
+
+
+func _draw() -> void:
+	if _asleep:
+		return
+	draw_circle(Vector2(0.0, 16.0), 15.0, Color(0.12, 0.09, 0.07, 0.28))
+	draw_arc(Vector2(0.0, 14.0), 17.0, 0.0, TAU, 28, Color(0.98, 0.84, 0.36, 0.55), 2.0, true)
+	if _input_locked or _grabber != null or coffee_supply == null or coffee_supply.cups <= 0:
+		return
+	if cup_balance == null:
+		return
+	var aim := _last_move_direction.normalized()
+	if aim == Vector2.ZERO:
+		aim = Vector2.RIGHT
+	var start := _safe_spawn_origin()
+	var candidates := _reachable_sleepwalker_candidates(start)
+	var landing := AimCone.landing_point(
+		start,
+		aim,
+		candidates,
+		cup_balance.aim_cone_half_angle_degrees,
+		cup_balance.throw_range,
+		cup_balance.flight_time_seconds
+	)
+	var local_target := landing - global_position
+	var dist := local_target.length()
+	if dist < 24.0:
+		return
+	var dir := local_target / dist
+	var steps := 6
+	for i: int in range(1, steps):
+		var d := lerpf(24.0, minf(dist - 16.0, 170.0), float(i) / float(steps))
+		draw_circle(dir * d, 2.4, Color(0.98, 0.88, 0.48, 0.55))
+	for c: AimCandidate in candidates:
+		if c.position.distance_to(landing) < 28.0:
+			var lock_local := c.position - global_position
+			draw_arc(lock_local, 24.0, 0.0, TAU, 28, Color(0.99, 0.84, 0.32, 0.85), 2.5, true)
+			break
 
 
 func fall_asleep() -> void:

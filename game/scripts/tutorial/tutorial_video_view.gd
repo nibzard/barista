@@ -85,9 +85,16 @@ const VIGNETTE_WIDTH := 40.0
 # The cut: the video stops, and a burst of static fills the last frames.
 const STATIC_DOTS := 30
 const STATIC_JITTER_HZ := 60.0
+const PANEL_PATHS: Array[String] = [
+	"res://assets/art/intro/morgen_panel_1.jpg",
+	"res://assets/art/intro/morgen_panel_2.jpg",
+	"res://assets/art/intro/morgen_panel_3.jpg",
+	"res://assets/art/intro/morgen_panel_4.jpg",
+]
 
 var _model := MorgenVideo.new()
 var _elapsed := 0.0
+var _panels: Array[Texture2D] = []
 
 @onready var subtitle_label: Label = $SubtitleLabel
 @onready var voice_player: AudioStreamPlayer = $VoicePlayer
@@ -146,9 +153,68 @@ func _draw() -> void:
 		return
 	var flicker := _model.light_flicker(_elapsed)
 	draw_rect(Rect2(Vector2.ZERO, size), _dim(BG_COLOR, flicker))
-	_draw_scene(flicker)
-	_draw_reach_hand()
+	if not _draw_illustrated_panel(flicker):
+		_draw_scene(flicker)
+		_draw_reach_hand()
 	_draw_overlay()
+	_draw_caption_card()
+
+
+func _ensure_panels() -> void:
+	if not _panels.is_empty():
+		return
+	for path: String in PANEL_PATHS:
+		if ResourceLoader.exists(path):
+			_panels.append(load(path) as Texture2D)
+
+
+func _panel_for_shot(current_shot: MorgenVideo.Shot) -> Texture2D:
+	_ensure_panels()
+	if _panels.size() < 4:
+		return null
+	match current_shot:
+		MorgenVideo.Shot.WIDE:
+			return _panels[0]
+		MorgenVideo.Shot.MEDIUM, MorgenVideo.Shot.CLOSE:
+			return _panels[1]
+		MorgenVideo.Shot.REHEARSAL:
+			return _panels[2]
+		_:
+			return _panels[3]
+
+
+func _draw_illustrated_panel(flicker: float) -> bool:
+	var current_shot := _model.shot_at(_elapsed)
+	var tex := _panel_for_shot(current_shot)
+	if tex == null:
+		return false
+	var zoom := 1.04
+	if current_shot == MorgenVideo.Shot.CLOSE:
+		zoom = 1.14
+	elif current_shot == MorgenVideo.Shot.REACH:
+		zoom = 1.06 + _model.reach_progress(_elapsed) * 0.12
+	var beat_len := maxf(_model.beat_duration(), 0.1)
+	var beat_share := fmod(_elapsed, beat_len) / beat_len
+	zoom += beat_share * 0.04
+	var draw_size := size * zoom
+	var sway := _model.sway_offset(_elapsed) * 1.5
+	var top_left := (size - draw_size) * 0.5 + sway
+	draw_texture_rect(tex, Rect2(top_left, draw_size), false, Color(flicker, flicker, flicker, 1.0))
+	return true
+
+
+func _draw_caption_card() -> void:
+	var card := Rect2(Vector2(88.0, size.y - 166.0), Vector2(size.x - 176.0, 114.0))
+	draw_rect(card, Color(0.11, 0.1, 0.12, 0.86))
+	draw_rect(card, Color(0.42, 0.29, 0.19, 0.95), false, 3.0)
+	var active_beat := _model.beat_at(_elapsed)
+	var total := MorgenVideo.SCRIPT_LINES.size()
+	var dot_start_x := size.x * 0.5 - float(total - 1) * 11.0
+	var dot_y := size.y - 34.0
+	for i: int in total:
+		var c := Color(0.95, 0.78, 0.4, 0.95) if i == active_beat else Color(0.8, 0.78, 0.72, 0.35)
+		var r := 5.0 if i == active_beat else 3.5
+		draw_circle(Vector2(dot_start_x + float(i) * 22.0, dot_y), r, c)
 
 
 func _draw_scene(flicker: float) -> void:

@@ -1,9 +1,25 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scripts/tutorial/tutorial_director.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/tutorial/tutorial_finale_view.gd" id="3"]
 [ext_resource type="Resource" path="res://resources/balance/tutorial.tres" id="4"]
 [ext_resource type="PackedScene" path="res://scenes/tutorial/tutorial_video_view.tscn" id="5"]
+
+[sub_resource type="StyleBoxFlat" id="PromptBoard"]
+bg_color = Color(0.14, 0.13, 0.12, 0.92)
+border_width_left = 4
+border_width_top = 4
+border_width_right = 4
+border_width_bottom = 4
+border_color = Color(0.95, 0.78, 0.38, 0.95)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+content_margin_left = 18.0
+content_margin_top = 8.0
+content_margin_right = 18.0
+content_margin_bottom = 8.0
 
 [node name="Tutorial" type="CanvasLayer"]
 layer = 10
@@ -15,21 +31,21 @@ balance = ExtResource("4")
 [node name="PromptLabel" type="Label" parent="."]
 visible = false
 layout_mode = 1
-anchors_preset = 7
+anchors_preset = 5
 anchor_left = 0.5
-anchor_top = 1.0
 anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -400.0
-offset_top = -96.0
-offset_right = 400.0
-offset_bottom = -44.0
-theme_override_colors/font_color = Color(0.96, 0.93, 0.85, 1)
-theme_override_colors/font_outline_color = Color(0.05, 0.07, 0.06, 0.9)
-theme_override_constants/outline_size = 10
-theme_override_font_sizes/font_size = 26
+offset_left = -350.0
+offset_top = 16.0
+offset_right = 350.0
+offset_bottom = 82.0
+theme_override_colors/font_color = Color(0.99, 0.89, 0.48, 1)
+theme_override_colors/font_outline_color = Color(0.05, 0.07, 0.06, 0.95)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("PromptBoard")
 horizontal_alignment = 1
 vertical_alignment = 1
+autowrap_mode = 2
 text = "MOVE."
 
 [node name="FinaleView" type="Control" parent="."]

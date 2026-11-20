@@ -105,6 +105,26 @@ static func build(
 	_add_hands(body, body.color)
 	for placement: String in appearance.tattoo_placements:
 		_add_part(body, "Tattoo" + _part_suffix(placement), tattoo_polygon(placement), TATTOO_INK)
+	_attach_hero_sprite(body)
+
+
+static func _attach_hero_sprite(body: Polygon2D) -> void:
+	const HERO_SPRITE_PATH := "res://assets/art/sprites/barista.png"
+	if not ResourceLoader.exists(HERO_SPRITE_PATH):
+		return
+	var tex := load(HERO_SPRITE_PATH) as Texture2D
+	if tex == null:
+		return
+	body.self_modulate = Color(1.0, 1.0, 1.0, 0.0)
+	for child: Node in body.get_children():
+		if child is Polygon2D:
+			(child as Polygon2D).self_modulate = Color(1.0, 1.0, 1.0, 0.0)
+	var sprite := Sprite2D.new()
+	sprite.name = "HeroSprite"
+	sprite.texture = tex
+	sprite.scale = Vector2(0.34, 0.34)
+	sprite.position = Vector2(0.0, -4.0)
+	body.add_child(sprite)
 
 
 static func hair_polygon(hair_style: String) -> PackedVector2Array:
@@ -306,7 +326,7 @@ static func _clear_parts(body: Node2D) -> void:
 	# The repaint frees the parts of the previous build at once, so a caller
 	# that reads a part by name after the build always sees the new one.
 	for child: Node in body.get_children():
-		if child is Polygon2D:
+		if child is Polygon2D or child is Sprite2D:
 			child.free()
 
 

@@ -45,6 +45,21 @@ const BUTTON_ICONS := {
 	ButtonKind.WEAPON: TouchButton.Icon.RETICLE,
 	ButtonKind.WSWAP: TouchButton.Icon.CYCLE_ARROWS,
 }
+const BUTTON_CAPTIONS := {
+	ButtonKind.THROW: "THROW",
+	ButtonKind.DODGE: "DODGE",
+	ButtonKind.DRINK: "DRINK",
+	ButtonKind.SERVE: "SERVE",
+	ButtonKind.USE: "USE",
+	ButtonKind.TOOL: "TOOL",
+	ButtonKind.SWAP: "SWAP",
+	ButtonKind.REFILL: "REFILL",
+	ButtonKind.VAN: "VAN",
+	ButtonKind.BREW: "BREW",
+	ButtonKind.PLANT: "PLANT",
+	ButtonKind.WEAPON: "FIRE",
+	ButtonKind.WSWAP: "GUN",
+}
 # The context buttons wait for the run to open them; the rest are always on.
 # TOOL and SWAP wait with them: the belt starts empty until the player finds
 # the first support tool, section 11. WEAPON and WSWAP wait the same way for
@@ -93,9 +108,7 @@ func _ready() -> void:
 	# The stick and the buttons cover only their own corner of the screen, so
 	# the layer never blocks the HUD, the menus, or a minigame overlay.
 	var throw_button := _buttons[ButtonKind.THROW] as TouchButton
-	throw_button.tapped.connect(
-		func() -> void: player.try_action(&"throw_coffee", stick_view.direction())
-	)
+	throw_button.tapped.connect(func() -> void: player.try_action(&"throw_coffee", _aim_or_auto()))
 	var dodge_button := _buttons[ButtonKind.DODGE] as TouchButton
 	dodge_button.tapped.connect(func() -> void: player.try_action(&"dodge", stick_view.direction()))
 	var drink_button := _buttons[ButtonKind.DRINK] as TouchButton
@@ -140,7 +153,9 @@ func _ready() -> void:
 		(_buttons[kind] as TouchButton).set_available(false)
 	# Every coaster takes its chalk glyph, section 11.
 	for kind: ButtonKind in _buttons:
-		(_buttons[kind] as TouchButton).icon = icon_for(kind)
+		var btn := _buttons[kind] as TouchButton
+		btn.icon = icon_for(kind)
+		btn.caption = str(BUTTON_CAPTIONS.get(kind, ""))
 
 
 static func icon_for(kind: ButtonKind) -> TouchButton.Icon:
@@ -350,3 +365,29 @@ func _release_action(action: StringName) -> void:
 	# moment the finger or the overlay takes the button away.
 	if Input.is_action_pressed(action):
 		Input.action_release(action)
+
+
+func _aim_or_auto() -> Vector2:
+	var stick_dir := stick_view.direction()
+	if stick_dir != Vector2.ZERO or player == null:
+		return stick_dir
+	var best_dir := Vector2.ZERO
+	var best_dist := player.cup_balance.throw_range if player.cup_balance != null else 320.0
+	for node: Node in get_tree().get_nodes_in_group(CureDelivery.WAKEABLE_GROUP):
+		var target := node as Node2D
+		if target == null or not (target is Sleepwalker or target.has_method(&"aim_point")):
+			continue
+		if target.has_method(&"is_awake") and target.is_awake():
+			continue
+		var pt := CureDelivery.target_point(target)
+		var d := player.global_position.distance_to(pt)
+		if d > best_dist or d < 1.0:
+			continue
+		var exclude: Array[RID] = []
+		if target is CollisionObject2D:
+			exclude.append((target as CollisionObject2D).get_rid())
+		if not LineOfSight.is_clear(player.global_position, pt, player.get_world_2d(), exclude):
+			continue
+		best_dist = d
+		best_dir = (pt - player.global_position).normalized()
+	return best_dir

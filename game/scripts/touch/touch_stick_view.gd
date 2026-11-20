@@ -12,9 +12,10 @@ const BORDER_WIDTH := 2.0
 @export var balance: TouchControlsBalance
 
 var model: TouchStick = null
+var highlighted := false
 
 var _pointer := -1
-
+var _pulse_time := 0.0
 var _knob_offset := Vector2.ZERO
 
 
@@ -102,11 +103,36 @@ func _set_action(action: StringName, strength: float) -> void:
 		Input.action_release(action)
 
 
+func _process(delta: float) -> void:
+	if highlighted and visible:
+		_pulse_time += delta
+		queue_redraw()
+
+
 func _draw() -> void:
 	var center := size * 0.5
 	var base_radius: float = balance.stick_max_distance_pixels if balance != null else 88.0
+	if highlighted:
+		var pulse := 0.5 + 0.5 * sin(_pulse_time * 7.5)
+		var ring_r := base_radius + 7.0 + pulse * 5.0
+		var ring_c := Color(0.98, 0.82, 0.32, 0.55 + pulse * 0.4)
+		draw_arc(center, ring_r, 0.0, TAU, 64, ring_c, 5.0, true)
 	draw_circle(center, base_radius + BORDER_WIDTH, BOARD_COLOR)
 	draw_arc(center, base_radius, 0.0, TAU, 64, CHALK_COLOR, BORDER_WIDTH)
 	var dead_zone: float = balance.stick_dead_zone_pixels if balance != null else 20.0
 	draw_arc(center, dead_zone, 0.0, TAU, 24, CHALK_COLOR, BORDER_WIDTH * 0.5)
 	draw_circle(center + _knob_offset, base_radius * 0.36, KNOB_COLOR)
+	var font := ChalkTheme.body_font()
+	if font == null:
+		font = ThemeDB.fallback_font
+	var label := "DRAG TO MOVE" if highlighted else "MOVE"
+	var tw := font.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
+	draw_string(
+		font,
+		Vector2(center.x - tw * 0.5, center.y + base_radius - 10.0),
+		label,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		13,
+		Color(0.99, 0.86, 0.44, 0.95) if highlighted else CHALK_COLOR
+	)

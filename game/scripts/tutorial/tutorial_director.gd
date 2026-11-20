@@ -54,6 +54,8 @@ var _finale_restored := false
 var _finale_zoom_target := Vector2.ONE
 var _finale_camera_start := Vector2.ZERO
 var _finale_camera_target := Vector2.ZERO
+var _wayfinder: TutorialWayfinder = null
+var _sub_hint_label: Label = null
 
 @onready var video_view: TutorialVideoView = $VideoView
 @onready var prompt_label: Label = $PromptLabel
@@ -79,6 +81,10 @@ func setup(run: Node) -> void:
 	_actors = Node2D.new()
 	_actors.name = "TutorialActors"
 	run.add_child(_actors)
+	_wayfinder = TutorialWayfinder.new()
+	_wayfinder.name = "Wayfinder"
+	_actors.add_child(_wayfinder)
+	_compose_sub_hint()
 	flow.step_changed.connect(_on_step_changed)
 	if flow.current_step() <= TutorialFlow.Step.SURVIVOR:
 		run.quest_markers().set_suppressed(true)
@@ -139,7 +145,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if flow.current_step() == TutorialFlow.Step.VIDEO and _is_press(event):
-		flow.end_video()
+		_handle_video_press(event)
 		get_viewport().set_input_as_handled()
 	elif flow.current_step() == TutorialFlow.Step.FINALE and _is_press(event):
 		get_viewport().set_input_as_handled()
@@ -157,8 +163,37 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _on_video_gui_input(event: InputEvent) -> void:
 	if flow.current_step() == TutorialFlow.Step.VIDEO and _is_press(event):
-		flow.end_video()
+		_handle_video_press(event)
 		video_view.accept_event()
+
+
+func _handle_video_press(event: InputEvent) -> void:
+	# On mobile web (iPhone Safari), ignore the first 0.65 s of lingering
+	# touch/click synthesis from the character-creation START button, then let
+	# tapping advance one story panel at a time (or tap top-right SKIP to skip).
+	if not OS.has_feature("web") or event is InputEventKey:
+		flow.end_video()
+		return
+	if _video_time < 0.65:
+		return
+	var pos := Vector2.ZERO
+	if event is InputEventScreenTouch:
+		pos = (event as InputEventScreenTouch).position
+	elif event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		if mb.device == TouchControls.EMULATED_MOUSE_DEVICE:
+			return
+		pos = mb.position
+	if pos.x > video_view.size.x - 220.0 and pos.y < 84.0:
+		flow.end_video()
+		return
+	var beat_len := maxf(balance.video_seconds / float(MorgenVideo.SCRIPT_LINES.size()), 1.0)
+	var next_time := (floorf(_video_time / beat_len) + 1.0) * beat_len + 0.05
+	if next_time >= balance.video_seconds:
+		flow.end_video()
+	else:
+		_video_time = next_time
+		video_view.set_progress(_video_time / balance.video_seconds)
 
 
 func _is_press(event: InputEvent) -> bool:
@@ -525,6 +560,102 @@ func _refresh_prompt() -> void:
 		text = TutorialFlow.MASH_PROMPT
 	prompt_label.text = text
 	prompt_label.visible = not text.is_empty()
+	_refresh_guidance()
+
+
+func _compose_sub_hint() -> void:
+	_sub_hint_label = Label.new()
+	_sub_hint_label.name = "SubHintLabel"
+	_sub_hint_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
+	_sub_hint_label.offset_left = -350.0
+	_sub_hint_label.offset_top = 84.0
+	_sub_hint_label.offset_right = 350.0
+	_sub_hint_label.offset_bottom = 114.0
+	_sub_hint_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_sub_hint_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	_sub_hint_label.add_theme_font_size_override(&"font_size", 16)
+	_sub_hint_label.add_theme_color_override(&"font_color", Color(0.96, 0.94, 0.88, 0.96))
+	_sub_hint_label.add_theme_color_override(&"font_outline_color", Color(0.06, 0.05, 0.05, 0.95))
+	_sub_hint_label.add_theme_constant_override(&"outline_size", 6)
+	_sub_hint_label.visible = false
+	add_child(_sub_hint_label)
+
+
+func _refresh_guidance() -> void:
+	var step := flow.current_step()
+	var sub := ""
+	var has_target := false
+	var target_pos := Vector2.ZERO
+	var stick_hi := false
+	var hi_kinds: Array[TouchControls.ButtonKind] = []
+	if _run != null and _run.player != null and _run.player.is_grabbed():
+		sub = "Tap THROW or DODGE repeatedly to break the hug!"
+		hi_kinds.append(TouchControls.ButtonKind.THROW)
+		hi_kinds.append(TouchControls.ButtonKind.DODGE)
+	else:
+		match step:
+			TutorialFlow.Step.MOVE:
+				sub = "Drag the virtual stick (bottom-left) to walk around the cafe"
+				stick_hi = true
+			TutorialFlow.Step.DRINK:
+				sub = "Tap the glowing DRINK button (bottom-right) to restore your Awake Mug"
+				hi_kinds.append(TouchControls.ButtonKind.DRINK)
+			TutorialFlow.Step.DOOR:
+				sub = "Walk south through the glowing cafe doorway"
+				var cafe_blk := _cafe_block()
+				if cafe_blk != null and cafe_blk.cafe_building() != null:
+					var bld := cafe_blk.cafe_building()
+					target_pos = bld.global_position + bld.door_position()
+					has_target = true
+			TutorialFlow.Step.THROW:
+				sub = "Face the sleeping Neighbor outside and tap THROW"
+				hi_kinds.append(TouchControls.ButtonKind.THROW)
+				if _window_neighbor != null and is_instance_valid(_window_neighbor):
+					target_pos = _window_neighbor.global_position
+					has_target = true
+			TutorialFlow.Step.POLE:
+				sub = "Loudspeakers drain your meter! Step back inside the safe cafe"
+				target_pos = _cafe_center()
+				has_target = true
+			TutorialFlow.Step.SURVIVOR:
+				sub = "Walk up to the awake survivor waiting outside the cafe door"
+				if _survivor != null and is_instance_valid(_survivor):
+					target_pos = _survivor.global_position
+					has_target = true
+			TutorialFlow.Step.ROAD:
+				var rem := flow.road_lessons_remaining()
+				if rem.has(TutorialFlow.LESSON_BREW) and _run.brewing_allowed_here():
+					sub = "Tap BREW inside the cafe to grind a fresh cup"
+					hi_kinds.append(TouchControls.ButtonKind.BREW)
+				elif rem.has(TutorialFlow.LESSON_DODGE):
+					sub = "Tap DODGE to roll past sleepwalkers, or head east toward the tower"
+					hi_kinds.append(TouchControls.ButtonKind.DODGE)
+				else:
+					sub = "Walk into a Neighbor to practice breaking a hug, or head east to the tower"
+				var tw := _run.city_map().broadcast_tower() as Node2D
+				if tw != null:
+					target_pos = tw.global_position
+					has_target = true
+			TutorialFlow.Step.TOWER:
+				sub = "Walk east to the red Broadcast Tower, grab the fuse, and tap USE twice"
+				hi_kinds.append(TouchControls.ButtonKind.USE)
+				var tw := _run.city_map().broadcast_tower() as Node2D
+				if tw != null:
+					target_pos = tw.global_position
+					has_target = true
+	if _sub_hint_label != null:
+		_sub_hint_label.text = sub
+		_sub_hint_label.visible = prompt_label.visible and not sub.is_empty()
+	if _wayfinder != null and _run != null:
+		_wayfinder.set_target(_run.player, target_pos, has_target and prompt_label.visible)
+	if _run != null and _run.touch_controls != null:
+		var tc: TouchControls = _run.touch_controls
+		if tc.stick() != null:
+			tc.stick().highlighted = stick_hi
+		for kind: TouchControls.ButtonKind in TouchControls.ButtonKind.values():
+			var btn := tc.button(kind)
+			if btn != null:
+				btn.highlighted = hi_kinds.has(kind)
 
 
 func _cafe_block() -> CityBlockView:

@@ -42,8 +42,12 @@ const ICON_UNIT_RADIUS := 48.0
 @export var icon: Icon = Icon.CUP
 @export var radius := 48.0
 
+var caption := ""
+var highlighted := false
+
 var _pressed := false
 var _available := true
+var _pulse_time := 0.0
 
 
 func _ready() -> void:
@@ -100,14 +104,52 @@ func lift() -> void:
 	released.emit()
 
 
+func _process(delta: float) -> void:
+	if highlighted and visible:
+		_pulse_time += delta
+		queue_redraw()
+
+
 func _draw() -> void:
 	var center := size * 0.5
+	if highlighted:
+		var pulse := 0.5 + 0.5 * sin(_pulse_time * 7.5)
+		var ring_r := radius + 5.0 + pulse * 4.0
+		var ring_c := Color(0.98, 0.82, 0.32, 0.55 + pulse * 0.4)
+		draw_arc(center, ring_r, 0.0, TAU, 48, ring_c, 4.5, true)
 	draw_circle(center, radius, COASTER_COLOR)
 	draw_arc(center, radius - BORDER_WIDTH * 0.5, 0.0, TAU, 48, CHALK_COLOR, BORDER_WIDTH)
 	if _pressed:
 		draw_circle(center, radius - BORDER_WIDTH * 2.0, PRESSED_COLOR)
 	_draw_rim(center)
-	_draw_icon(center)
+	_draw_icon(center - Vector2(0.0, 5.0 if not caption.is_empty() else 0.0))
+	if not caption.is_empty():
+		_draw_caption(center)
+
+
+func _draw_caption(center: Vector2) -> void:
+	var font := ChalkTheme.body_font()
+	if font == null:
+		font = ThemeDB.fallback_font
+	var font_size := 13 if radius >= 46.0 else 11
+	var text_w := font.get_string_size(caption, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size).x
+	var pill_w := maxf(text_w + 14.0, 44.0)
+	var pill_h := float(font_size + 7)
+	var pill_rect := Rect2(
+		Vector2(center.x - pill_w * 0.5, center.y + radius - pill_h - 1.0), Vector2(pill_w, pill_h)
+	)
+	draw_rect(pill_rect, Color(0.14, 0.11, 0.09, 0.92))
+	var border_c := Color(0.98, 0.82, 0.32, 0.95) if highlighted else RIM_COLOR
+	draw_rect(pill_rect, border_c, false, 1.6)
+	draw_string(
+		font,
+		Vector2(center.x - text_w * 0.5, pill_rect.position.y + pill_h - 4.0),
+		caption,
+		HORIZONTAL_ALIGNMENT_LEFT,
+		-1,
+		font_size,
+		Color(0.99, 0.88, 0.48, 1.0) if highlighted else CHALK_COLOR
+	)
 
 
 func _draw_rim(center: Vector2) -> void:
