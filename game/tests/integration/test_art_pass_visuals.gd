@@ -5,6 +5,9 @@ extends GdUnitTestSuite
 const BLOCK := Vector2(853.0, 720.0)
 const LANE := 0.24
 const NEIGHBOR_PATH := "res://resources/enemies/neighbor.tres"
+const CITY_MAP_SCENE_PATH := "res://scenes/city/city_map.tscn"
+const SAN_COFFESCO_PATH := "res://resources/city/san_coffesco.tres"
+const CITY_BALANCE_PATH := "res://resources/balance/city.tres"
 # The cafe anchors of CityBlockView that the furniture must keep clear.
 const CAFE_ANCHORS: Array[Vector2] = [
 	Vector2(-0.72, -0.45), Vector2(0.65, -0.5), Vector2(-0.75, 0.68)
@@ -69,3 +72,57 @@ func test_waking_a_figure_pops_one_burst_and_a_restore_pops_none() -> void:
 	SleeperFigure.set_awake(visual, false, Vector2.ZERO)
 	SleeperFigure.set_awake(visual, true, Vector2.ZERO)
 	assert_object(visual.get_node_or_null(^"WakeBurst")).is_not_null()
+
+
+func test_camera_shake_clamps_and_settles_back_to_rest() -> void:
+	var camera: Camera2D = auto_free(Camera2D.new())
+	var shake := CameraShake.new()
+	shake.name = CameraShake.NODE_NAME
+	camera.add_child(shake)
+	add_child(camera)
+	shake.kick(0.7)
+	shake.kick(0.7)
+	assert_float(shake.trauma).is_equal(CameraShake.MAX_TRAUMA)
+	var waited := 0.0
+	while shake.trauma > 0.0 and waited < 2.0:
+		await get_tree().process_frame
+		waited += get_process_delta_time()
+	await get_tree().process_frame
+	assert_float(shake.trauma).is_equal(0.0)
+	assert_that(camera.offset).is_equal(Vector2.ZERO)
+
+
+func test_squash_returns_the_figure_to_rest_scale() -> void:
+	var figure: Node2D = auto_free(Node2D.new())
+	add_child(figure)
+	Squash.play(figure)
+	assert_bool(figure.scale.is_equal_approx(Vector2.ONE)).is_false()
+	var waited := 0.0
+	while not figure.scale.is_equal_approx(Vector2.ONE) and waited < 1.0:
+		await get_tree().process_frame
+		waited += get_process_delta_time()
+	assert_bool(figure.scale.is_equal_approx(Vector2.ONE)).is_true()
+
+
+func test_chibi_look_is_stable_per_name() -> void:
+	var first := ChibiPainter.look_for("James Offmug")
+	assert_that(ChibiPainter.look_for("James Offmug")).is_equal(first)
+	assert_bool(ChibiPainter.SKIN_TONES.has(first["skin"])).is_true()
+	assert_bool(ChibiPainter.HAIR_COLORS.has(first["hair"])).is_true()
+
+
+func test_tower_bloom_plays_on_the_live_switch_and_never_on_a_load() -> void:
+	var loaded := _build_city()
+	loaded.load_tower_state(BroadcastTower.Phase.BIRDSONG)
+	assert_object(loaded.get_node_or_null(^"TowerBloom")).is_null()
+	var live := _build_city()
+	live.broadcast_tower().switched_off.emit()
+	assert_object(live.get_node_or_null(^"TowerBloom")).is_not_null()
+
+
+func _build_city() -> CityMap:
+	var map := (load(CITY_MAP_SCENE_PATH) as PackedScene).instantiate() as CityMap
+	map.definition = load(SAN_COFFESCO_PATH) as CityDefinition
+	map.balance = load(CITY_BALANCE_PATH) as CityBalance
+	add_child(auto_free(map))
+	return map

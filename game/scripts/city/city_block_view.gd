@@ -511,11 +511,14 @@ func _draw() -> void:
 	StreetPainter.paint_trees(self, size, get_index() * 7919 + 13, _palette)
 	StreetPainter.paint_lamps(self, size, STREET_LANE_HEIGHT, _palette)
 	StreetPainter.paint_marker(self, size * 0.5, _marker_radius(), _marker_color(), _palette)
+	# The tower stands on its own marker and carries its own label, so the
+	# kind name would only cover the prop.
+	var kind_text := "" if block.kind == CityBlock.Kind.TOWER else CityRules.kind_name(block.kind)
 	StreetPainter.paint_sign_text(
 		self,
 		Vector2(0, size.y * 0.5 + StreetPainter.KIND_TEXT_SIZE * 0.35),
 		size.x,
-		CityRules.kind_name(block.kind).to_upper(),
+		kind_text.to_upper(),
 		StreetPainter.KIND_TEXT_SIZE,
 		_palette.cream
 	)

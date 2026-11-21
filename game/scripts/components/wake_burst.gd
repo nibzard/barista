@@ -11,19 +11,28 @@ const SPARK_DISTANCE := 54.0
 const BUTTER := Color("#F2C866")
 const CHALK := Color("#F4F0E6")
 
+# The tower bloom reuses the burst at a larger scale and a longer time.
+var duration := DURATION
+# How hard the burst bumps the camera when it appears.
+var kick_strength := 0.22
+
 var _age := 0.0
+
+
+func _ready() -> void:
+	CameraShake.kick_in(get_viewport(), kick_strength)
 
 
 func _process(delta: float) -> void:
 	_age += delta
-	if _age >= DURATION:
+	if _age >= duration:
 		queue_free()
 		return
 	queue_redraw()
 
 
 func progress() -> float:
-	return clampf(_age / DURATION, 0.0, 1.0)
+	return clampf(_age / duration, 0.0, 1.0)
 
 
 func _draw() -> void:

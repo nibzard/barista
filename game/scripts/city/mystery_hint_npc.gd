@@ -7,13 +7,9 @@ extends Node2D
 const HINT_GROUP := &"mystery_hints"
 # The spoken line holds for a few seconds, like the master line.
 const LINE_HOLD_SECONDS := 5.0
-# Placeholder awake figure until the art pass: a pastel outfit, a head, and
+# The awake figure: a ChibiPainter person in a pastel outfit, and
 # the speaker name in chalk above.
-const HEAD_COLOR := Color(0.96, 0.85, 0.72, 1)
 const BODY_COLOR := Color(0.55, 0.62, 0.82, 1)
-const HEAD_RADIUS := 9.0
-const HEAD_OFFSET := Vector2(0.0, -24.0)
-const BODY_RECT := Rect2(-14.0, -16.0, 28.0, 38.0)
 const NAME_TEXT_SIZE := 13
 const NAME_TEXT_COLOR := Color(0.96, 0.93, 0.85, 1)
 const NAME_OFFSET := Vector2(-120.0, -92.0)
@@ -119,5 +115,4 @@ func _compose_notice_area() -> void:
 
 
 func _draw() -> void:
-	draw_rect(BODY_RECT, BODY_COLOR)
-	draw_circle(HEAD_OFFSET, HEAD_RADIUS, HEAD_COLOR)
+	ChibiPainter.paint(self, BODY_COLOR, name)

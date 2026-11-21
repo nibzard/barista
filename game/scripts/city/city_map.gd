@@ -4,6 +4,9 @@ class_name CityMap
 extends Node2D
 
 const CITY_BLOCK_SCENE := preload("res://scenes/city/city_block.tscn")
+# The tower bloom: the wake burst at city scale, ART_DIRECTION section 1.
+const TOWER_BLOOM_SCALE := 7.0
+const TOWER_BLOOM_SECONDS := 1.4
 
 @export var definition: CityDefinition
 @export var balance: CityBalance
@@ -113,10 +116,17 @@ func load_tower_state(saved_phase: int) -> void:
 		if stage != null:
 			# A loaded city never replays the sunrise: the morning stands.
 			stage.bring_morning(true)
-		_on_tower_switched_off()
+		_silence_city()
 
 
 func _on_tower_switched_off() -> void:
+	# The live switch: the city goes quiet and the reward bloom plays. A
+	# loaded save calls _silence_city alone, so it never replays the beat.
+	_silence_city()
+	_bloom_at_tower()
+
+
+func _silence_city() -> void:
 	# The address of the city is dead: every speaker pole zone goes quiet.
 	for view: CityBlockView in _block_views:
 		var pole := view.pole_zone()
@@ -125,6 +135,21 @@ func _on_tower_switched_off() -> void:
 	var stage := look_stage()
 	if stage != null:
 		stage.bring_morning()
+
+
+func _bloom_at_tower() -> void:
+	# The reward beat of section 19 step 9: a big ring of morning light runs
+	# out from the dead tower, and the camera takes one strong bump.
+	var tower_block := find_block_of_kind(CityBlock.Kind.TOWER)
+	if tower_block == null:
+		return
+	var bloom := WakeBurst.new()
+	bloom.name = "TowerBloom"
+	bloom.duration = TOWER_BLOOM_SECONDS
+	bloom.kick_strength = 0.9
+	bloom.scale = Vector2.ONE * TOWER_BLOOM_SCALE
+	bloom.position = tower_block.position + tower_block.size * 0.5
+	add_child(bloom)
 
 
 func block_count() -> int:

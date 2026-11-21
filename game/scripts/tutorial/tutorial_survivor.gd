@@ -3,13 +3,9 @@
 class_name TutorialSurvivor
 extends Node2D
 
-# Placeholder awake-survivor look until the art pass: green clothes, a head,
+# The awake survivor: a ChibiPainter person in green clothes, with
 # one raised arm that waves the player over.
-const HEAD_COLOR := Color(0.96, 0.85, 0.72, 1.0)
 const BODY_COLOR := Color(0.45, 0.6, 0.42, 1.0)
-const BODY_RECT := Rect2(-14.0, -16.0, 28.0, 38.0)
-const HEAD_RADIUS := 9.0
-const HEAD_OFFSET := Vector2(0.0, -24.0)
 const ARM_COLOR := Color(0.96, 0.85, 0.72, 1.0)
 const LINE_WIDTH := 300.0
 const LINE_TEXT_SIZE := 18
@@ -62,7 +58,6 @@ func is_speaking() -> bool:
 
 
 func _draw() -> void:
-	draw_rect(BODY_RECT, BODY_COLOR)
-	draw_circle(HEAD_OFFSET, HEAD_RADIUS, HEAD_COLOR)
+	ChibiPainter.paint(self, BODY_COLOR, "tutorial_survivor")
 	# The waving arm, raised toward the player.
 	draw_line(Vector2(10.0, -8.0), Vector2(26.0, -26.0), ARM_COLOR, 4.0)

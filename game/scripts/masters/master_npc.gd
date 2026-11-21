@@ -16,13 +16,12 @@ const LINE_HOLD_SECONDS := 4.0
 const LESSON_TOAST_TEXT := "%s, LESSON %d OF %d. +%d SKILL."
 const LESSON_RECIPE_TEXT := " NEW RECIPE: %s."
 const SCHOOL_DONE_TOAST_TEXT := "%s HAS TAUGHT EVERY LESSON."
-# Placeholder master figure until the art pass: a robe in the master color,
-# a head, and one cup in the hand.
-const HEAD_COLOR := Color(0.96, 0.85, 0.72, 1)
+# The master figure: ChibiPainter draws the colored person, and the cup and
+# the name stand on top. The robe rect keeps the name height.
 const HEAD_RADIUS := 10.0
 const ROBE_RECT := Rect2(-16.0, -18.0, 32.0, 44.0)
 const CUP_COLOR := Color(0.93, 0.87, 0.72, 1)
-const CUP_CENTER := Vector2(22.0, 2.0)
+const CUP_CENTER := Vector2(19.0, 0.0)
 const CUP_RADIUS := 6.0
 const NAME_TEXT_SIZE := 18
 const NAME_TEXT_COLOR := Color(0.96, 0.93, 0.85, 1)
@@ -140,9 +139,9 @@ func _compose_notice_area() -> void:
 func _draw() -> void:
 	if master == null:
 		return
-	draw_rect(ROBE_RECT, master.accent_color)
-	draw_circle(Vector2(0.0, ROBE_RECT.position.y - HEAD_RADIUS * 0.5), HEAD_RADIUS, HEAD_COLOR)
+	ChibiPainter.paint(self, master.accent_color, master.display_name)
 	draw_circle(CUP_CENTER, CUP_RADIUS, CUP_COLOR)
+	draw_arc(CUP_CENTER, CUP_RADIUS, 0.0, TAU, 14, ChalkTheme.ESPRESSO_COLOR, 1.5, true)
 	draw_line(
 		CUP_CENTER + Vector2(0.0, -CUP_RADIUS - 1.5),
 		CUP_CENTER + Vector2(0.0, -CUP_RADIUS - 7.0),

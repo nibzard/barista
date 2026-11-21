@@ -3,15 +3,11 @@
 class_name Aisle7Wife
 extends Node2D
 
-# Placeholder look until the art pass: a rose dress, a head, the photo in her
+# The wife: a ChibiPainter person in a rose dress, the photo in her
 # hand while she waits, and one small heart while the hug holds.
-const HEAD_COLOR := Color(0.96, 0.85, 0.72, 1.0)
 const DRESS_COLOR := Color(0.85, 0.5, 0.52, 1.0)
 const PHOTO_COLOR := Color(0.97, 0.96, 0.9, 1.0)
 const HEART_COLOR := Color(0.9, 0.3, 0.35, 1.0)
-const DRESS_RECT := Rect2(-14.0, -16.0, 28.0, 38.0)
-const HEAD_RADIUS := 9.0
-const HEAD_OFFSET := Vector2(0.0, -24.0)
 const PHOTO_RECT := Rect2(14.0, -8.0, 13.0, 17.0)
 const HEART_CENTER := Vector2(0.0, -56.0)
 const HEART_DOT_OFFSET := 3.0
@@ -141,8 +137,7 @@ func _compose_notice_area() -> void:
 
 
 func _draw() -> void:
-	draw_rect(DRESS_RECT, DRESS_COLOR)
-	draw_circle(HEAD_OFFSET, HEAD_RADIUS, HEAD_COLOR)
+	ChibiPainter.paint(self, DRESS_COLOR, "aisle_7_wife")
 	if _holds_photo:
 		draw_rect(PHOTO_RECT, PHOTO_COLOR)
 	if _hugging:

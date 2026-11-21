@@ -286,6 +286,9 @@ func set_grabbed_by(sleepwalker: Sleepwalker) -> void:
 	if _grabber == null or not is_instance_valid(_grabber):
 		_grabber = sleepwalker
 		_mash_presses = 0
+		# The hug lands with a bump and a squeeze, so the grab reads at once.
+		CameraShake.kick_in(get_viewport(), 0.45)
+		Squash.play(get_node_or_null(^"Visual") as Node2D, Vector2(0.82, 1.16))
 
 
 func clear_grab(sleepwalker: Sleepwalker) -> void:
@@ -610,6 +613,7 @@ func throw_cup(direction: Vector2) -> CoffeeCup:
 	cup.global_position = start
 	cup.launch(landing)
 	brew_hand.consume()
+	Squash.play(get_node_or_null(^"Visual") as Node2D)
 	return cup
 
 
