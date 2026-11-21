@@ -1,0 +1,12 @@
+# Context
+
+## Why this way
+No image generator is available in this session, so people are drawn
+in code (ChibiPainter) until illustrated sprites exist. Skin and hair
+come from a hash of the name, so no new data is authored.
+
+## Gotchas
+- CityMap.load_tower_state now calls _silence_city, not the live
+  handler, so a reload never replays the bloom or the camera kick.
+- CameraShake.kick_in finds the shake through the viewport camera.
+  Scenes without it ignore kicks.
