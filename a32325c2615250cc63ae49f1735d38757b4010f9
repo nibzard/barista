@@ -1,0 +1,18 @@
+# Context
+
+## Background
+Niko asked for a review of the look and feel. Screenshots of 14 screens
+showed that the illustrated assets were good, but most screens used the
+default Godot look and the city was one repeated tile.
+
+## Why this way
+Phase 1 of a three-phase plan: code-only fixes first (theme, streets,
+cafe, minigames, wake burst). New illustrated assets come in phase 2.
+
+## Gotchas
+- After a change to ChalkTheme.build(), regenerate
+  resources/ui/chalk_theme.tres with ResourceSaver.save(). Otherwise
+  test_chalk_theme fails.
+- Do not set gui/theme/custom_font. It brings back the thin weight-200
+  Nunito.
+- Street props and cafe furniture are draw-only. They never collide.
