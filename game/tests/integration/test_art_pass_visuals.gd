@@ -1,4 +1,4 @@
-# ABOUTME: Tests for the art pass pieces: street props, cafe furniture, and the wake burst.
+# ABOUTME: Tests for the art pass pieces: street props, cafe furniture, figures, and bursts.
 # ABOUTME: They pin placement rules and lifetimes, never rendered pixels.
 extends GdUnitTestSuite
 
@@ -126,3 +126,40 @@ func _build_city() -> CityMap:
 	map.balance = load(CITY_BALANCE_PATH) as CityBalance
 	add_child(auto_free(map))
 	return map
+
+
+func test_person_figure_hides_the_body_and_follows_its_color() -> void:
+	var body: Polygon2D = auto_free(Polygon2D.new())
+	body.color = PersonFigure.DEFAULT_SLEEP_COLOR
+	var vest := Polygon2D.new()
+	body.add_child(vest)
+	var figure := PersonFigure.dress(body, "x", Color.RED, ChibiPainter.Gear.VEST)
+	assert_object(PersonFigure.dress(body, "x", Color.RED, ChibiPainter.Gear.VEST)).is_same(figure)
+	assert_float(body.self_modulate.a).is_equal(0.0)
+	assert_bool(vest.visible).is_false()
+	add_child(body)
+	assert_bool(figure.is_awake()).is_false()
+	body.color = Color(0.45, 0.85, 0.5)
+	await get_tree().process_frame
+	assert_bool(figure.is_awake()).is_true()
+	PersonFigure.celebrate(body)
+	assert_object(body.get_node_or_null(^"WakeBurst")).is_not_null()
+
+
+func test_band_member_gear_follows_the_role() -> void:
+	assert_int(BandMember.gear_for("THE DRUMMER", false)).is_equal(ChibiPainter.Gear.STICKS)
+	assert_int(BandMember.gear_for("THE BASSIST", false)).is_equal(ChibiPainter.Gear.BASS)
+	assert_int(BandMember.gear_for("THE GUITARIST", false)).is_equal(ChibiPainter.Gear.GUITAR)
+	assert_int(BandMember.gear_for("THE FRONTMAN", true)).is_equal(ChibiPainter.Gear.MIC)
+
+
+func test_pitch_screen_follows_the_lit_color() -> void:
+	var screen: Polygon2D = auto_free(Polygon2D.new())
+	screen.polygon = PackedVector2Array([Vector2(-10, -10), Vector2(10, -10), Vector2(10, 10)])
+	screen.color = SamOatman.SCREEN_LIT_COLOR
+	var art := PitchHallArt.attach(screen, PitchHallArt.Kind.SCREEN, SamOatman.SCREEN_LIT_COLOR)
+	add_child(screen)
+	assert_bool(art.is_lit()).is_true()
+	screen.color = SamOatman.SCREEN_DARK_COLOR
+	await get_tree().process_frame
+	assert_bool(art.is_lit()).is_false()

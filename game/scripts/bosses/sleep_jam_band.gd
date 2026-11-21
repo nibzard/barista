@@ -18,6 +18,11 @@ const LULLABY_ZONE_NAME := "LullabyZone"
 const STAGE_AIM_OFFSET := Vector2(0.0, -140.0)
 # Subtle chalk arc drawn on the street in front of the stage while performing.
 const STAGE_CUE_COLOR := Color(0.95, 0.78, 0.4, 0.65)
+# The stage outfit once awake, and one instrument per member, left to right.
+const OUTFIT_COLOR := Color("#7A3B5E")
+const MEMBER_GEAR: Array[ChibiPainter.Gear] = [
+	ChibiPainter.Gear.GUITAR, ChibiPainter.Gear.MIC, ChibiPainter.Gear.BASS
+]
 
 # The sleep zone scene stays a path, never a preload: several scripts share
 # this scene, and a compile-time const binds an empty scene whenever another
@@ -39,6 +44,10 @@ func _ready() -> void:
 	add_to_group(CureDelivery.WAKEABLE_GROUP)
 	_collect_members()
 	_tint_members(SLEEPING_COLOR)
+	for i: int in _members.size():
+		PersonFigure.dress(
+			_members[i], "sleep_jam_%d" % i, OUTFIT_COLOR, MEMBER_GEAR[i % MEMBER_GEAR.size()]
+		)
 	_build_lullaby()
 	queue_redraw()
 
@@ -71,6 +80,8 @@ func try_wake(cup: BrewedCup) -> bool:
 	_performing = false
 	_lullaby.set_active(false)
 	_tint_members(AWAKE_COLOR)
+	for member: Polygon2D in _members:
+		PersonFigure.celebrate(member)
 	queue_redraw()
 	if not balance.wake_line.is_empty():
 		spoke.emit(balance.wake_line)

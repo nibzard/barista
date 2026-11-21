@@ -13,6 +13,8 @@ const AWAKE_COLOR := Color(0.45, 0.85, 0.5)
 const LINE_HOLD_SECONDS := 4.0
 # The frontman sleeps behind the crowd rule, so his label says so, section 13.
 const FRONTMAN_HINT := "THE FRONTMAN WAKES ONLY TO A FULL CROWD."
+# The band tour shirt once the member is awake.
+const OUTFIT_COLOR := Color("#2F2A3A")
 
 @export var brewing_balance: BrewingBalance
 # The order that wakes this member: one of the three simple orders, or the
@@ -40,6 +42,7 @@ var _line_time_left := 0.0
 func _ready() -> void:
 	add_to_group(CureDelivery.WAKEABLE_GROUP)
 	visual.color = SLEEPING_COLOR
+	PersonFigure.dress(visual, role_label, OUTFIT_COLOR, gear_for(role_label, is_frontman))
 	line_label.visible = true
 	line_label.text = _idle_text()
 
@@ -50,6 +53,19 @@ func _physics_process(delta: float) -> void:
 	_line_time_left = maxf(0.0, _line_time_left - delta)
 	if _line_time_left == 0.0:
 		line_label.visible = false
+
+
+static func gear_for(role: String, frontman: bool) -> ChibiPainter.Gear:
+	# The instrument tells the role before the label does.
+	if frontman:
+		return ChibiPainter.Gear.MIC
+	if role.contains("DRUM"):
+		return ChibiPainter.Gear.STICKS
+	if role.contains("BASS"):
+		return ChibiPainter.Gear.BASS
+	if role.contains("GUITAR"):
+		return ChibiPainter.Gear.GUITAR
+	return ChibiPainter.Gear.NONE
 
 
 func bind_stage(quest_stage: Node, index: int) -> void:
@@ -95,6 +111,7 @@ func wake_now(restore := false) -> void:
 	if restore:
 		line_label.visible = false
 		return
+	PersonFigure.celebrate(visual)
 	if not wake_line.is_empty():
 		line_label.text = wake_line
 		line_label.visible = true

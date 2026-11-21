@@ -10,6 +10,8 @@ const SLEEPING_COLOR := Color(0.42, 0.38, 0.72)
 const AWAKE_COLOR := Color(0.45, 0.85, 0.5)
 # The wake line holds for a few seconds, like the master line.
 const LINE_HOLD_SECONDS := 5.0
+# His hoodie once he is awake: the teal of the depot screens.
+const OUTFIT_COLOR := Color("#3E9C9A")
 
 # The order written like code, section 13. The label shows it while he sleeps.
 @export var order_code := ""
@@ -30,6 +32,7 @@ var _line_time_left := 0.0
 func _ready() -> void:
 	add_to_group(CureDelivery.WAKEABLE_GROUP)
 	visual.color = SLEEPING_COLOR
+	PersonFigure.dress(visual, "robotaxi_engineer", OUTFIT_COLOR, ChibiPainter.Gear.HEADSET)
 	line_label.text = _idle_text()
 	line_label.visible = true
 
@@ -67,6 +70,7 @@ func wake_now(restore := false) -> void:
 	if restore:
 		line_label.visible = false
 		return
+	PersonFigure.celebrate(visual)
 	if not wake_line.is_empty():
 		line_label.text = wake_line
 		line_label.visible = true

@@ -10,6 +10,8 @@ const AWAKE_COLOR := Color(0.45, 0.85, 0.5)
 # His cry line holds longer than a common wake line: the beat is the payoff of
 # the quest.
 const LINE_HOLD_SECONDS := 6.0
+# His work shirt once he is awake: a hardware store blue.
+const OUTFIT_COLOR := Color("#5B7FA8")
 
 @export var idle_text := ""
 @export var cry_line := ""
@@ -29,6 +31,7 @@ var _line_time_left := 0.0
 func _ready() -> void:
 	add_to_group(CureDelivery.WAKEABLE_GROUP)
 	visual.color = SLEEPING_COLOR
+	PersonFigure.dress(visual, "aisle_7_husband", OUTFIT_COLOR, ChibiPainter.Gear.TIE)
 	line_label.text = idle_text
 	line_label.visible = true
 
@@ -67,6 +70,7 @@ func wake_now(restore := false) -> void:
 	if restore:
 		line_label.visible = false
 		return
+	PersonFigure.celebrate(visual)
 	if not cry_line.is_empty():
 		line_label.text = cry_line
 		line_label.visible = true

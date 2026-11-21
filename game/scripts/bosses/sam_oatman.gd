@@ -19,6 +19,10 @@ const AWAKE_COLOR := Color(0.45, 0.85, 0.5)
 # live demo runs.
 const SCREEN_LIT_COLOR := Color(0.85, 0.83, 0.72, 1)
 const SCREEN_DARK_COLOR := Color(0.12, 0.1, 0.16, 1)
+# The guru and his founders all wear the fleece vest over a dark shirt.
+const OUTFIT_COLOR := Color("#2B2B33")
+const GURU_SCALE := 1.15
+const FOUNDER_SCALE := 0.8
 const SLIDES_ZONE_NAME := "SlidesZone"
 const DRIPPER_POINT_NAME := "DripperPoint"
 # The cure gear stands beside the demo table, off the table body itself.
@@ -53,6 +57,16 @@ var _opened := false
 func _ready() -> void:
 	_collect_hall()
 	_tint_hall(SLEEPING_COLOR)
+	PersonFigure.dress(_guru, "sam_oatman", OUTFIT_COLOR, ChibiPainter.Gear.VEST, GURU_SCALE)
+	for i: int in _founders.size():
+		PersonFigure.dress(
+			_founders[i], "founder_%d" % i, OUTFIT_COLOR, ChibiPainter.Gear.VEST, FOUNDER_SCALE
+		)
+	PitchHallArt.attach(_screen, PitchHallArt.Kind.SCREEN, SCREEN_LIT_COLOR)
+	if _table != null:
+		PitchHallArt.attach(
+			_table.get_node_or_null(^"Visual") as Polygon2D, PitchHallArt.Kind.TABLE
+		)
 	_build_slides()
 	_build_dripper_point()
 	_table.bind_show(self)
@@ -254,6 +268,7 @@ func _wake_the_guru() -> void:
 	for drone: Drone in _drones:
 		drone.land_for_good()
 	_tint_hall(AWAKE_COLOR)
+	PersonFigure.celebrate(_guru)
 	if not balance.wake_line.is_empty():
 		spoke.emit(balance.wake_line)
 	boss_woke.emit()

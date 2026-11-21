@@ -141,27 +141,114 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
+func _process(_delta: float) -> void:
+	# Only the live broadcast animates: the waves pulse from the beacon.
+	if phase == Phase.BROADCASTING or phase == Phase.FUSED:
+		queue_redraw()
+
+
 func _draw() -> void:
-	# The corporate landmark: black mast, red logo panel with the smiling
-	# mug, and the beacon that carries the address. The fuse slot waits at
-	# the foot, and a silenced tower wears the chalk strike of the survivors.
+	# The corporate landmark: a black lattice mast on a concrete plinth, a
+	# red logo billboard with the smiling mug, and the beacon that carries
+	# the address. The fuse slot waits at the foot, and a silenced tower
+	# wears the chalk strike of the survivors.
 	if _palette == null:
 		return
-	var base_rect := Rect2(-BASE_WIDTH * 0.5, -BASE_HEIGHT * 0.5, BASE_WIDTH, BASE_HEIGHT)
-	draw_rect(base_rect, _palette.mug_black)
-	draw_rect(Rect2(-MAST_WIDTH * 0.5, -MAST_HEIGHT, MAST_WIDTH, MAST_HEIGHT), _palette.mug_black)
-	draw_circle(Vector2(0, -MAST_HEIGHT - BEACON_RADIUS), BEACON_RADIUS, _beacon_color())
+	_draw_plinth()
+	_draw_mast()
+	_draw_beacon()
 	_draw_logo_panel()
-	draw_rect(Rect2(-SLOT_SIZE * 0.5, BASE_HEIGHT * 0.5, SLOT_SIZE, SLOT_SIZE), _slot_color())
+	var slot := Rect2(-SLOT_SIZE * 0.5, BASE_HEIGHT * 0.5, SLOT_SIZE, SLOT_SIZE)
+	draw_rect(slot.grow(2.0), _palette.mug_black)
+	draw_rect(slot, _slot_color())
+
+
+func _draw_plinth() -> void:
+	# The shadow falls to the bottom-left in the low sun, section 5.
+	var shadow := PackedVector2Array(
+		[
+			Vector2(-MAST_WIDTH, BASE_HEIGHT * 0.5),
+			Vector2(MAST_WIDTH, BASE_HEIGHT * 0.5),
+			Vector2(-MAST_HEIGHT * 0.45, BASE_HEIGHT * 0.5 + MAST_HEIGHT * 0.3),
+			Vector2(-MAST_HEIGHT * 0.6, BASE_HEIGHT * 0.5 + MAST_HEIGHT * 0.25),
+		]
+	)
+	draw_colored_polygon(shadow, Color(0.2, 0.22, 0.32, 0.22))
+	# Guy wires hold the mast down at both sides.
+	for side: float in [-1.0, 1.0]:
+		draw_line(
+			Vector2(side * MAST_WIDTH * 0.3, -MAST_HEIGHT * 0.62),
+			Vector2(side * BASE_WIDTH * 1.4, BASE_HEIGHT * 0.4),
+			Color(_palette.mug_black, 0.55),
+			1.2,
+			true
+		)
+	var base_rect := Rect2(-BASE_WIDTH * 0.5, -BASE_HEIGHT * 0.5, BASE_WIDTH, BASE_HEIGHT)
+	var concrete := _palette.cream.lerp(_palette.rain, 0.35)
+	draw_rect(base_rect.grow(3.0), _palette.mug_black)
+	draw_rect(base_rect, concrete)
+	draw_rect(Rect2(base_rect.position, Vector2(BASE_WIDTH, 4.0)), concrete.lightened(0.25))
+
+
+func _draw_mast() -> void:
+	# A tapered steel truss with cross braces, black like every Mug Roasters
+	# object, so it reads as a real tower and not a pole.
+	var foot := MAST_WIDTH * 1.4
+	var head := MAST_WIDTH * 0.35
+	var top := -MAST_HEIGHT
+	var bottom := -BASE_HEIGHT * 0.5
+	var ink := _palette.mug_black
+	for side: float in [-1.0, 1.0]:
+		draw_line(Vector2(side * foot, bottom), Vector2(side * head, top), ink, 3.0, true)
+	var sections := 6
+	for i: int in sections:
+		var t0 := float(i) / float(sections)
+		var t1 := float(i + 1) / float(sections)
+		var y0 := lerpf(bottom, top, t0)
+		var y1 := lerpf(bottom, top, t1)
+		var w0 := lerpf(foot, head, t0)
+		var w1 := lerpf(foot, head, t1)
+		draw_line(Vector2(-w0, y0), Vector2(w1, y1), ink, 1.5, true)
+		draw_line(Vector2(w0, y0), Vector2(-w1, y1), ink, 1.5, true)
+		draw_line(Vector2(-w1, y1), Vector2(w1, y1), ink, 1.5, true)
+	# Two dish antennas on the upper mast.
+	for dish: Vector2 in [Vector2(-1.0, -0.72), Vector2(1.0, -0.82)]:
+		var center := Vector2(dish.x * (head + 6.0), MAST_HEIGHT * dish.y)
+		draw_circle(center, 5.5, _palette.cream.lerp(_palette.rain, 0.3))
+		draw_arc(center, 5.5, 0.0, TAU, 12, ink, 1.5, true)
+
+
+func _draw_beacon() -> void:
+	var center := Vector2(0, -MAST_HEIGHT - BEACON_RADIUS)
+	var color := _beacon_color()
+	if phase == Phase.BROADCASTING or phase == Phase.FUSED:
+		# The sleep signal ripples out from the beacon in red rings.
+		var t := fmod(float(Time.get_ticks_msec()) * 0.001, 1.6) / 1.6
+		for ring: int in 3:
+			var p := fmod(t + float(ring) / 3.0, 1.0)
+			draw_arc(
+				center,
+				BEACON_RADIUS + 6.0 + 46.0 * p,
+				PI * 1.1,
+				PI * 1.9,
+				18,
+				Color(_palette.mug_red, 0.6 * (1.0 - p)),
+				2.5,
+				true
+			)
+	draw_circle(center, BEACON_RADIUS + 5.0, Color(color, 0.25))
+	draw_circle(center, BEACON_RADIUS, color)
+	draw_arc(center, BEACON_RADIUS, 0.0, TAU, 16, _palette.mug_black, 2.0, true)
+	draw_circle(center + Vector2(-3.0, -3.0), 2.5, Color(1.0, 1.0, 1.0, 0.6))
 
 
 func _draw_logo_panel() -> void:
 	# Mug Roasters Co. is flat, perfect print in a hand-drawn world: mug red
 	# and mug black only, no paper grain. The mascot smiles too much.
 	var panel_rect := Rect2(PANEL_OFFSET - PANEL_SIZE * 0.5, PANEL_SIZE)
-	draw_rect(panel_rect, _palette.mug_black)
-	draw_rect(panel_rect.grow(-2.0), _palette.mug_red)
-	var face := PANEL_OFFSET + Vector2(-PANEL_SIZE.x * 0.22, 0)
+	draw_rect(panel_rect.grow(2.0), _palette.mug_black)
+	draw_rect(panel_rect, _palette.mug_red)
+	var face := PANEL_OFFSET + Vector2(-PANEL_SIZE.x * 0.28, 0)
 	draw_circle(face, MUG_FACE_RADIUS, Color.WHITE)
 	draw_circle(face + Vector2(-3.0, -2.0), 1.1, _palette.mug_black)
 	draw_circle(face + Vector2(3.0, -2.0), 1.1, _palette.mug_black)
@@ -171,14 +258,16 @@ func _draw_logo_panel() -> void:
 	draw_arc(
 		face + Vector2(MUG_FACE_RADIUS + 2.0, 0), 3.0, -PI * 0.5, PI * 0.5, 8, Color.WHITE, 1.6
 	)
-	var text_center := PANEL_OFFSET + Vector2(PANEL_SIZE.x * 0.18, 0)
+	# The word sits right of the mug and fits the panel at every font size.
+	var text_left := face.x + MUG_FACE_RADIUS + 6.0
+	var text_width := panel_rect.end.x - 3.0 - text_left
 	draw_string(
-		ThemeDB.fallback_font,
-		text_center + Vector2(-22.0, 4.0),
+		ChalkTheme.display_font(),
+		Vector2(text_left, PANEL_OFFSET.y + 5.0),
 		"GRIND",
 		HORIZONTAL_ALIGNMENT_CENTER,
-		44.0,
-		11,
+		text_width,
+		13,
 		Color.WHITE
 	)
 	if is_switched_off():

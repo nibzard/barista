@@ -13,6 +13,9 @@ const WAKE_TOAST := "THE FISH THROWERS ARE AWAKE. ONE LAST THROW, AND THE MARKET
 const SLEEPING_COLOR := Color(0.42, 0.38, 0.72)
 const AWAKE_COLOR := Color(0.45, 0.85, 0.5)
 const SENSE_ZONE_NAME := "MarketSense"
+# The market shirt under the rubber apron, and the taller head fishmonger.
+const OUTFIT_COLOR := Color("#35507A")
+const HEAD_SCALE := 1.1
 const FLIGHTS_NAME := "FishFlights"
 
 const FISH_SCENE := preload("res://scenes/projectiles/fish.tscn")
@@ -33,6 +36,7 @@ var _cured := false
 func _ready() -> void:
 	_collect_members()
 	_tint_members(SLEEPING_COLOR)
+	_dress_members()
 	_build_sense()
 	_flights = Node2D.new()
 	_flights.name = FLIGHTS_NAME
@@ -142,6 +146,20 @@ func _collect_members() -> void:
 			_head = member
 
 
+func _dress_members() -> void:
+	# Every seller wears the yellow rubber apron. The head stands a little
+	# taller, so the player sees who holds the cure apron.
+	for i: int in _members.size():
+		var member: FishSeller = _members[i]
+		PersonFigure.dress(
+			member.get_node(^"Visual") as Polygon2D,
+			"fish_seller_%d" % i,
+			OUTFIT_COLOR,
+			ChibiPainter.Gear.RUBBER_APRON,
+			HEAD_SCALE if member.is_head else 1.0
+		)
+
+
 func _tint_members(tint: Color) -> void:
 	for member: FishSeller in _members:
 		var visual := member.get_node(^"Visual") as Polygon2D
@@ -186,6 +204,7 @@ func _wake_the_market() -> void:
 	_tint_members(AWAKE_COLOR)
 	for member: FishSeller in _members:
 		member.set_awake(true)
+		PersonFigure.celebrate(member.get_node(^"Visual") as Polygon2D)
 	for fish: Fish in live_fish():
 		fish.harmless = true
 	# The wake can arrive inside a physics callback, like the landing of the
