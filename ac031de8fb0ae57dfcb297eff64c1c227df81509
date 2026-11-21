@@ -1,0 +1,14 @@
+# Context
+
+## Why this way
+The placeholder bodies are Polygon2D nodes whose .color is the sleep or
+wake state, and many tests assert on that color. PersonFigure and
+PitchHallArt poll the parent color each frame and only draw, so no game
+logic changed. The body fill hides through self_modulate alpha 0, which
+does not affect children.
+
+## Gotchas
+- PersonFigure.celebrate is called only in live wake paths. Do not call
+  it from load_state, or a reload replays the burst and camera kick.
+- Placeholder Polygon2D children of a dressed body (Vest, Apron) are
+  hidden by dress(). Nothing referenced them.
