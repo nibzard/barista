@@ -5,15 +5,12 @@ extends Control
 
 signal finished(press_result: PressResult)
 
-# Placeholder chalkboard look until the art pass, in the style of the HUD.
-const BOARD_COLOR := Color(0.11, 0.15, 0.13, 0.92)
+# Chalk colors of the gauges. MinigamePainter draws the board and the coffee.
 const CHALK_COLOR := Color(0.93, 0.95, 0.88, 0.9)
-const TRACK_COLOR := Color(0.07, 0.1, 0.08, 1)
 const ZONE_COLOR := Color(0.62, 0.82, 0.55, 1)
 const ZONE_DONE_COLOR := Color(0.62, 0.82, 0.55, 0.25)
 const MARKER_COLOR := Color(0.95, 0.8, 0.3, 1)
 const MARK_WAIT_COLOR := Color(0.95, 0.8, 0.3, 0.25)
-const COFFEE_COLOR := Color(0.72, 0.55, 0.35, 0.95)
 const MAX_TICK_COLOR := Color(0.93, 0.95, 0.88, 0.45)
 const BORDER_WIDTH := 2.0
 const NEEDLE_HEIGHT := 4.0
@@ -150,28 +147,23 @@ func _draw() -> void:
 	if model == null:
 		return
 	var board := Rect2(Vector2.ZERO, size)
-	draw_rect(board, BOARD_COLOR)
-	draw_rect(board, CHALK_COLOR, false, BORDER_WIDTH)
+	MinigamePainter.paint_board(self, board.size)
 	_draw_gauge()
 	_draw_cup()
 
 
 func _draw_gauge() -> void:
 	var gauge := Rect2(GAUGE_LEFT, GAUGE_TOP, GAUGE_WIDTH, GAUGE_HEIGHT)
-	draw_rect(gauge, TRACK_COLOR)
-	draw_rect(_zone_rect(), _zone_color())
+	MinigamePainter.paint_track(self, gauge)
+	MinigamePainter.paint_zone(self, _zone_rect(), _zone_color())
 	draw_rect(_max_tick_rect(), MAX_TICK_COLOR)
 	draw_rect(_mark_rect(), _mark_color())
-	draw_rect(_needle_rect(), CHALK_COLOR)
-	draw_rect(gauge, CHALK_COLOR, false, BORDER_WIDTH)
+	MinigamePainter.paint_marker(self, _needle_rect(), CHALK_COLOR)
 
 
 func _draw_cup() -> void:
 	var cup := Rect2(CUP_LEFT, CUP_TOP, CUP_WIDTH, CUP_HEIGHT)
-	draw_rect(cup, TRACK_COLOR)
-	if model.fill > 0.0:
-		draw_rect(_coffee_rect(), COFFEE_COLOR)
-	draw_rect(cup, CHALK_COLOR, false, BORDER_WIDTH)
+	MinigamePainter.paint_glass(self, cup, _coffee_rect(), model.fill)
 
 
 func _zone_rect() -> Rect2:

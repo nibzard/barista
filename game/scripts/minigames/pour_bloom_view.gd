@@ -5,8 +5,7 @@ extends Control
 
 signal finished(pour_result: PourResult)
 
-# Placeholder chalkboard look until the art pass, in the style of the HUD.
-const BOARD_COLOR := Color(0.11, 0.15, 0.13, 0.92)
+# Chalk colors of the gauges. MinigamePainter draws the board and the coffee.
 const CHALK_COLOR := Color(0.93, 0.95, 0.88, 0.9)
 const TRACK_COLOR := Color(0.07, 0.1, 0.08, 1)
 const ZONE_COLOR := Color(0.62, 0.82, 0.55, 1)
@@ -183,16 +182,14 @@ func _draw() -> void:
 	if model == null:
 		return
 	var board := Rect2(Vector2.ZERO, size)
-	draw_rect(board, BOARD_COLOR)
-	draw_rect(board, CHALK_COLOR, false, BORDER_WIDTH)
+	MinigamePainter.paint_board(self, board.size)
 	_draw_bed()
 	_draw_gauge()
 
 
 func _draw_bed() -> void:
-	draw_arc(RING_CENTER, BED_RADIUS, 0.0, TAU, ARC_POINTS, CHALK_COLOR, BORDER_WIDTH)
-	if model.excess > 0.0:
-		draw_circle(RING_CENTER, _puddle_radius(), WATER_COLOR)
+	var puddle := _puddle_radius() if model.excess > 0.0 else 0.0
+	MinigamePainter.paint_brew_bed(self, RING_CENTER, BED_RADIUS, model.fill, puddle)
 	draw_arc(RING_CENTER, RING_RADIUS, 0.0, TAU, ARC_POINTS, TRACK_COLOR, RING_WIDTH)
 	if model.fill > 0.0:
 		draw_arc(
@@ -205,16 +202,15 @@ func _draw_bed() -> void:
 			RING_WIDTH
 		)
 	if _pointer_down:
-		draw_line(_dot_position(), _stream_end(), WATER_COLOR, STREAM_WIDTH)
+		draw_line(_dot_position(), _stream_end(), WATER_COLOR, STREAM_WIDTH + 2.0)
 		draw_circle(_dot_position(), POUR_DOT_RADIUS, MARKER_COLOR)
 
 
 func _draw_gauge() -> void:
 	var gauge := Rect2(GAUGE_LEFT, GAUGE_TOP, GAUGE_WIDTH, GAUGE_HEIGHT)
-	draw_rect(gauge, TRACK_COLOR)
-	draw_rect(_band_rect(), ZONE_COLOR)
-	draw_rect(_marker_rect(), MARKER_COLOR)
-	draw_rect(gauge, CHALK_COLOR, false, BORDER_WIDTH)
+	MinigamePainter.paint_track(self, gauge)
+	MinigamePainter.paint_zone(self, _band_rect(), ZONE_COLOR)
+	MinigamePainter.paint_marker(self, _marker_rect(), MARKER_COLOR)
 
 
 func _puddle_radius() -> float:

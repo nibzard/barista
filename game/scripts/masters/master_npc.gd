@@ -24,7 +24,7 @@ const ROBE_RECT := Rect2(-16.0, -18.0, 32.0, 44.0)
 const CUP_COLOR := Color(0.93, 0.87, 0.72, 1)
 const CUP_CENTER := Vector2(22.0, 2.0)
 const CUP_RADIUS := 6.0
-const NAME_TEXT_SIZE := 15
+const NAME_TEXT_SIZE := 18
 const NAME_TEXT_COLOR := Color(0.96, 0.93, 0.85, 1)
 
 @export var master: BrewingMaster
@@ -149,11 +149,10 @@ func _draw() -> void:
 		NAME_TEXT_COLOR,
 		1.5
 	)
-	draw_string(
-		ThemeDB.fallback_font,
+	ChalkTheme.draw_chalk_text(
+		self,
 		Vector2(-100.0, ROBE_RECT.position.y - HEAD_RADIUS * 2.0 - 8.0),
 		master.display_name.to_upper(),
-		HORIZONTAL_ALIGNMENT_CENTER,
 		200.0,
 		NAME_TEXT_SIZE,
 		NAME_TEXT_COLOR

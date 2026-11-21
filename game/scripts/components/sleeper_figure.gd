@@ -138,6 +138,13 @@ static func _attach_cast_sprite(visual: Polygon2D, nightcap: Polygon2D, type: En
 			for sub: Node in child.get_children():
 				if sub is Line2D:
 					(sub as Line2D).self_modulate = Color(1.0, 1.0, 1.0, 0.0)
+	# A soft rainy-blue ground shadow under the feet, cast to the bottom-left
+	# by the low sun, so the walker stands on the street, section 5.
+	var shadow := Polygon2D.new()
+	shadow.name = "CastShadow"
+	shadow.polygon = _ellipse(Vector2(-3.0, 27.0), 17.0, 5.5)
+	shadow.color = Color(0.2, 0.22, 0.32, 0.3)
+	visual.add_child(shadow)
 	var sprite := Sprite2D.new()
 	sprite.name = "CastSprite"
 	sprite.texture = tex
@@ -168,6 +175,10 @@ static func set_awake(visual: Polygon2D, awake: bool, hit_point: Vector2, instan
 			fill.fill_now()
 		else:
 			fill.start(hit_point)
+			# The pop of light when the coffee lands, ART_DIRECTION section 7.
+			var burst := WakeBurst.new()
+			burst.name = "WakeBurst"
+			visual.add_child(burst)
 	else:
 		fill.reset()
 

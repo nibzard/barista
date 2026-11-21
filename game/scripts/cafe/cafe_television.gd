@@ -20,7 +20,7 @@ const CUP_RECT := Rect2(-7.0, -13.0, 14.0, 16.0)
 const CUP_HANDLE_CENTER := Vector2(9.0, -6.0)
 const CUP_HANDLE_RADIUS := 4.0
 const NAME_TEXT := "DR. MORGEN"
-const NAME_TEXT_SIZE := 15
+const NAME_TEXT_SIZE := 17
 const NAME_RECT := Rect2(-90.0, -58.0, 180.0, 20.0)
 
 # How close the player stands to start a replay, in pixels.
@@ -64,12 +64,6 @@ func _draw() -> void:
 	draw_arc(CUP_HANDLE_CENTER, CUP_HANDLE_RADIUS, -PI * 0.5, PI * 0.5, 8, CUP_GLYPH_COLOR, 2.0)
 	draw_circle(STANDBY_CENTER, STANDBY_RADIUS, STANDBY_COLOR)
 	draw_rect(SHELF_RECT, SHELF_COLOR)
-	draw_string(
-		ThemeDB.fallback_font,
-		NAME_RECT.position,
-		NAME_TEXT,
-		HORIZONTAL_ALIGNMENT_CENTER,
-		NAME_RECT.size.x,
-		NAME_TEXT_SIZE,
-		NAME_TEXT_COLOR
+	ChalkTheme.draw_chalk_text(
+		self, NAME_RECT.position, NAME_TEXT, NAME_RECT.size.x, NAME_TEXT_SIZE, NAME_TEXT_COLOR
 	)

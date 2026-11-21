@@ -13,18 +13,19 @@ var player: Player = null
 var _toast_time_left := 0.0
 var _goal_label: Label = null
 
-@onready var awake_meter: MugMeter = $Board/Margin/Rows/AwakeRow/AwakeMeter
-@onready var awake_value: Label = $Board/Margin/Rows/AwakeRow/AwakeValue
-@onready var cup_row: PaperCupRow = $Board/Margin/Rows/CoffeeRow/CupRow
-@onready var wake_clocks: AlarmClocks = $Board/Margin/Rows/WakeUpsRow/WakeClocks
-@onready var bag_label: Label = $Board/Margin/Rows/BagLabel
+@onready var awake_meter: MugMeter = $Board/Rows/Stats/AwakeRow/AwakeMeter
+@onready var awake_value: Label = $Board/Rows/Stats/AwakeRow/AwakeValue
+@onready var cup_row: PaperCupRow = $Board/Rows/Stats/CoffeeRow/CupRow
+@onready var wake_clocks: AlarmClocks = $Board/Rows/Stats/WakeUpsRow/WakeClocks
+@onready var bag_label: Label = $Board/Rows/BagLabel
 @onready var toast_label: Label = $Toast
 @onready var dex_button: Button = $DexButton
 @onready var dex_app: SleepyDexApp = $DexApp
 
 
 func _ready() -> void:
-	ChalkTheme.apply_display_font(toast_label)
+	ChalkTheme.apply_world_label(toast_label, 32)
+	toast_label.add_theme_color_override(&"font_color", ChalkTheme.BUTTER_COLOR)
 	_compose_goal_label()
 	if not player_path.is_empty():
 		set_player(get_node_or_null(player_path) as Player)
@@ -114,6 +115,8 @@ func refresh() -> void:
 		player.wake_ups.remaining, player.wake_ups.balance.max_wake_ups, player.wake_ups.hardcore
 	)
 	bag_label.text = _bag_text()
+	# The compact board shows the bag line only when the bag holds something.
+	bag_label.visible = bag_label.text != EMPTY_BAG_TEXT
 	_refresh_goal_banner()
 
 
@@ -121,21 +124,26 @@ func _compose_goal_label() -> void:
 	_goal_label = Label.new()
 	_goal_label.name = "GoalBanner"
 	_goal_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	_goal_label.offset_left = -330.0
-	_goal_label.offset_top = 18.0
-	_goal_label.offset_right = 330.0
-	_goal_label.offset_bottom = 66.0
+	# The banner sits between the status board and the phone button, and long
+	# lines wrap instead of running under either of them.
+	_goal_label.offset_left = -200.0
+	_goal_label.offset_top = 12.0
+	_goal_label.offset_right = 200.0
+	_goal_label.offset_bottom = 72.0
+	_goal_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	ChalkTheme.apply_display_font(_goal_label)
 	_goal_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_goal_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	_goal_label.add_theme_font_size_override(&"font_size", 18)
+	_goal_label.add_theme_font_size_override(&"font_size", 22)
 	_goal_label.add_theme_color_override(&"font_color", ChalkTheme.BUTTER_COLOR)
 	_goal_label.add_theme_color_override(&"font_outline_color", Color(0.06, 0.05, 0.05, 0.95))
 	_goal_label.add_theme_constant_override(&"outline_size", 7)
 	var box := StyleBoxFlat.new()
-	box.bg_color = Color(0.14, 0.13, 0.12, 0.88)
+	box.bg_color = Color(0.18, 0.19, 0.17, 0.82)
 	box.border_color = ChalkTheme.WOOD_COLOR
 	box.set_border_width_all(3)
-	box.set_corner_radius_all(8)
+	box.border_width_bottom = 5
+	box.set_corner_radius_all(12)
 	box.content_margin_left = 14.0
 	box.content_margin_right = 14.0
 	box.content_margin_top = 6.0

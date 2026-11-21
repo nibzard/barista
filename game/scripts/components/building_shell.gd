@@ -6,6 +6,10 @@ extends Node2D
 # The art direction pass, section 20: wood-brown walls on cream, espresso
 # contours, and a butter rim on the door the player can use.
 const DOOR_RIM_WIDTH := 6.0
+# The height illusion: the visible south face of each east-west wall.
+const WALL_FACE_HEIGHT := 12.0
+const BRICK_LENGTH := 22.0
+const SHADOW_OFFSET := Vector2(-14.0, 12.0)
 const CAFE_FLOOR_TILE_PATH := "res://assets/art/tiles/cafe_floor_tile.jpg"
 
 # Section 17: all cities share one block kit, so the shell keeps one shape.
@@ -102,18 +106,67 @@ func _draw() -> void:
 		return
 	if _floor_tex == null and ResourceLoader.exists(CAFE_FLOOR_TILE_PATH):
 		_floor_tex = load(CAFE_FLOOR_TILE_PATH) as Texture2D
+	# The low morning sun casts the house shadow to the bottom-left, section 5.
+	# Shade is rainy blue, not gray.
+	var footprint := footprint_rect()
+	draw_rect(
+		Rect2(footprint.position + SHADOW_OFFSET, footprint.size),
+		Color(_palette.rain.darkened(0.45), 0.28)
+	)
 	var interior := interior_rect()
 	if _floor_tex != null:
 		draw_texture_rect(_floor_tex, interior, true, Color(1.0, 0.96, 0.9, 0.96))
 	else:
 		draw_rect(interior, _palette.cream.lightened(0.06))
-	# Wood-brown walls on the cream block, with espresso contours. The door
-	# keeps its warm butter rim: it is the way in, and the value rules mark
-	# everything the player can use.
-	var wall_fill := _palette.espresso.lerp(_palette.cream, 0.42)
+	# The north wall shades a band of the floor below it.
+	var shade := Rect2(interior.position, Vector2(interior.size.x, WALL_FACE_HEIGHT * 2.2))
+	draw_rect(shade, Color(_palette.espresso, 0.16))
+	draw_rect(
+		Rect2(interior.position, Vector2(WALL_FACE_HEIGHT * 0.9, interior.size.y)),
+		Color(_palette.espresso, 0.1)
+	)
+	# Wood-brown walls with espresso contours. The three-quarter camera of
+	# section 7 shows the south face of each east-west wall as a brick band,
+	# so the walls read as walls with height, not as lines on the floor.
+	var wall_top := _palette.espresso.lerp(_palette.cream, 0.5)
+	var wall_face := _palette.brick.lerp(_palette.espresso, 0.35)
 	for rect: Rect2 in wall_rects():
-		draw_rect(rect.grow(1.0), Color(0.08, 0.06, 0.05, 0.25))
-		draw_rect(rect, wall_fill)
+		if rect.size.x > rect.size.y:
+			_draw_wall_face(
+				Rect2(Vector2(rect.position.x, rect.end.y), Vector2(rect.size.x, WALL_FACE_HEIGHT)),
+				wall_face
+			)
+	for rect: Rect2 in wall_rects():
+		draw_rect(rect, wall_top)
+		draw_line(
+			rect.position + Vector2(2.0, 2.0),
+			Vector2(rect.end.x - 2.0, rect.position.y + 2.0),
+			Color(_palette.cream, 0.45),
+			2.0
+		)
 		draw_rect(rect, _palette.espresso, false, 2.5)
+	# The door keeps its warm butter rim: it is the way in, and the value
+	# rules mark everything the player can use. A mat waits outside it.
 	draw_rect(door_rect().grow(DOOR_RIM_WIDTH * 0.6), _palette.butter)
 	draw_rect(door_rect(), _palette.espresso.lerp(_palette.butter, 0.48))
+	var mat := Rect2(
+		Vector2(-door_width * 0.4, building_size.y * 0.5 + WALL_FACE_HEIGHT + 4.0),
+		Vector2(door_width * 0.8, 16.0)
+	)
+	draw_rect(mat, _palette.brick.lerp(_palette.cream, 0.25))
+	draw_rect(mat, _palette.espresso, false, 1.5)
+
+
+func _draw_wall_face(face: Rect2, color: Color) -> void:
+	draw_rect(face, color)
+	var joint := Color(_palette.espresso, 0.55)
+	var mid := face.position.y + face.size.y * 0.5
+	draw_line(Vector2(face.position.x, mid), Vector2(face.end.x, mid), joint, 1.0)
+	var x := face.position.x + BRICK_LENGTH * 0.5
+	var row := 0
+	while x < face.end.x:
+		var top := face.position.y if row % 2 == 0 else mid
+		draw_line(Vector2(x, top), Vector2(x, top + face.size.y * 0.5), joint, 1.0)
+		x += BRICK_LENGTH * 0.5
+		row += 1
+	draw_rect(face, _palette.espresso, false, 2.0)

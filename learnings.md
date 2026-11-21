@@ -147,3 +147,14 @@
   every restored walker. city_run.gd sat one line under the file cap, so
   the snapshot helpers live in CrowdBuilder (awake_flags captures the live
   crowd, saved_flags reads the world dict) and the run changed two lines.
+- The Nunito font file is a variable font whose default instance is weight
+  200 (ExtraLight). Loaded as a plain FontFile, every body label draws
+  spindly. ChalkTheme.body_font() wraps it in a FontVariation at wght 650.
+  The project theme lives in resources/ui/chalk_theme.tres, generated with
+  ResourceSaver.save(ChalkTheme.build(), path); project.godot points
+  gui/theme/custom at it, and test_chalk_theme fails when the saved copy
+  drifts from build(). Do not set gui/theme/custom_font again: it overrides
+  the theme default font with the thin instance (art pass, 2026-11-21).
+- scenes/cafe/cafe.tscn is the development room, not the player cafe. The
+  player cafe is the CAFE block of the city kit: BuildingShell plus the
+  CafeDressing furniture node (art pass, 2026-11-21).

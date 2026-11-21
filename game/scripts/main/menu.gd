@@ -41,6 +41,10 @@ func _ready() -> void:
 		title.add_theme_color_override(&"font_outline_color", Color(0.11, 0.07, 0.05, 0.96))
 		title.add_theme_constant_override(&"outline_size", 12)
 		title.add_theme_color_override(&"font_color", ChalkTheme.BUTTER_COLOR)
+	# The notes stand on the painted street, so they carry an espresso outline.
+	for note: Label in [mode_note, new_game_note]:
+		note.add_theme_color_override(&"font_outline_color", ChalkTheme.OUTLINE_COLOR)
+		note.add_theme_constant_override(&"outline_size", 6)
 	play_button.pressed.connect(_on_play_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 	new_game_button.pressed.connect(_on_new_game_pressed)

@@ -5,12 +5,10 @@ extends Control
 
 signal finished(foam_result: FoamResult)
 
-# Placeholder chalkboard look until the art pass, in the style of the HUD.
-const BOARD_COLOR := Color(0.11, 0.15, 0.13, 0.92)
+# Chalk colors of the gauges. MinigamePainter draws the board and the coffee.
 const CHALK_COLOR := Color(0.93, 0.95, 0.88, 0.9)
 const TRACK_COLOR := Color(0.07, 0.1, 0.08, 1)
 const MARKER_COLOR := Color(0.95, 0.8, 0.3, 1)
-const COFFEE_COLOR := Color(0.45, 0.3, 0.18, 0.95)
 const FOAM_COLOR := Color(0.9, 0.85, 0.7, 0.95)
 const DANGER_COLOR := Color(0.85, 0.35, 0.3, 1)
 const FLAME_COLOR := Color(0.95, 0.55, 0.25, 0.9)
@@ -146,8 +144,7 @@ func _draw() -> void:
 	if model == null:
 		return
 	var board := Rect2(Vector2.ZERO, size)
-	draw_rect(board, BOARD_COLOR)
-	draw_rect(board, CHALK_COLOR, false, BORDER_WIDTH)
+	MinigamePainter.paint_board(self, board.size)
 	_draw_pot()
 	_draw_flame()
 	_draw_grace_bar()
@@ -155,8 +152,8 @@ func _draw() -> void:
 
 func _draw_pot() -> void:
 	var pot := Rect2(POT_LEFT, POT_TOP, POT_WIDTH, POT_HEIGHT)
-	draw_rect(pot, TRACK_COLOR)
-	draw_rect(_coffee_rect(), COFFEE_COLOR)
+	MinigamePainter.paint_track(self, pot)
+	draw_rect(_coffee_rect(), MinigamePainter.COFFEE)
 	if model.foam > 0.0:
 		draw_rect(_foam_rect(), _foam_color())
 	draw_rect(_rush_tick_rect(), _rush_tick_color())

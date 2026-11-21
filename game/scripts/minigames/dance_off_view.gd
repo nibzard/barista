@@ -13,10 +13,8 @@ const MISS_TEXT := "CLUMSY."
 const WIN_TEXT := "HE BOWS. THE MOONWALK IS YOURS."
 const LOSE_TEXT := "HE NODS. NOT SMOOTH ENOUGH."
 
-# Placeholder chalkboard look until the art pass, like the brew minigames.
-const BOARD_COLOR := Color(0.11, 0.15, 0.13, 0.92)
+# Chalk colors of the gauges. MinigamePainter draws the board and the coffee.
 const CHALK_COLOR := Color(0.93, 0.95, 0.88, 0.9)
-const TRACK_COLOR := Color(0.07, 0.1, 0.08, 1)
 const BEAT_COLOR := Color(0.95, 0.8, 0.3, 1)
 const LINE_COLOR := Color(0.93, 0.95, 0.88, 1)
 const GLOVE_COLOR := Color(0.98, 0.98, 0.94, 1)
@@ -124,10 +122,9 @@ func _on_finished(dance_won: bool) -> void:
 func _draw() -> void:
 	if model == null:
 		return
-	draw_rect(Rect2(Vector2.ZERO, size), BOARD_COLOR)
+	MinigamePainter.paint_board(self, size)
 	var track := Rect2(24.0, TRACK_TOP, size.x - 48.0, TRACK_BOTTOM - TRACK_TOP)
-	draw_rect(track, TRACK_COLOR)
-	draw_rect(track, CHALK_COLOR, false, BORDER_WIDTH)
+	MinigamePainter.paint_track(self, track)
 	# The hit line: the tall chalk line the beats must meet.
 	draw_line(Vector2(LINE_X, TRACK_TOP), Vector2(LINE_X, TRACK_BOTTOM), LINE_COLOR, BORDER_WIDTH)
 	_draw_glove(Vector2(LINE_X - GLOVE_SIZE.x * 0.5, TRACK_TOP - GLOVE_SIZE.y - 4.0))

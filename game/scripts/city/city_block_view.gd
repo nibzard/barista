@@ -19,14 +19,11 @@ const BUILDING_SHELL_SCENE := preload("res://scenes/components/building_shell.ts
 const LOCKED_SIDE_ROOM_SCENE := preload("res://scenes/components/locked_side_room.tscn")
 const CAFE_TELEVISION_SCENE := preload("res://scenes/cafe/cafe_television.tscn")
 
-const ACCENT_BORDER_WIDTH := 6.0
 const KIND_MARKER_RADIUS := 70.0
 # Section 10: the cafe marker grows with the cafe tier of the city. The tier
 # steps stay presentation-only; the safe zone radius lives in the balance.
 const CAFE_MARKER_TIER_STEP := 0.4
 const QUEST_SITE_MARKER_RADIUS := 45.0
-const KIND_TEXT_SIZE := 26
-const LABEL_TEXT_SIZE := 17
 const LABEL_GAP := 8.0
 const CROWD_MARKER_SPACING := 90.0
 const CROWD_MARKER_LANE_Y := 0.5
@@ -292,6 +289,11 @@ func _compose() -> void:
 			CityRules.cafe_interior_size(balance, cafe_tier) + Vector2(wall, wall) * 2.0
 		)
 		add_child(cafe_building)
+		# The furniture of the cafe: it rides the shell and never collides.
+		var dressing := CafeDressing.new()
+		dressing.name = "CafeDressing"
+		dressing.interior_size = cafe_building.interior_rect().size
+		cafe_building.add_child(dressing)
 		var cafe_safe_zone := _sleep_zone_scene().instantiate() as SleepZone
 		cafe_safe_zone.name = "CafeSafeZone"
 		cafe_safe_zone.kind = SleepZone.Kind.SAFE
@@ -497,45 +499,33 @@ func _draw() -> void:
 				)
 				x += tile_step.x
 			y += tile_step.y
-	var lane := Rect2(
-		Vector2(0, size.y * (1.0 - STREET_LANE_HEIGHT)),
-		Vector2(size.x, size.y * STREET_LANE_HEIGHT)
-	)
-	draw_rect(lane, Color(_palette.espresso.r, _palette.espresso.g, _palette.espresso.b, 0.14))
-	draw_line(
-		Vector2(0.0, lane.position.y),
-		Vector2(size.x, lane.position.y),
-		Color(_palette.espresso, 0.45),
-		3.0
-	)
+	# The road, the curb, and the sidewalk of the kit, with its crosswalk at
+	# the west corner. The curb lip carries the city accent, section 6.
+	var accent := city_look.accent if city_look != null else accent_color
+	StreetPainter.paint_road(self, size, STREET_LANE_HEIGHT, _palette, accent)
 	if city_look != null:
-		draw_rect(lane, Color(city_look.accent, ACCENT_WASH_ALPHA))
-	draw_rect(rect, accent_color, false, ACCENT_BORDER_WIDTH)
-	var marker_color := _marker_color()
-	draw_circle(size * 0.5, _marker_radius(), marker_color)
-	draw_arc(size * 0.5, _marker_radius() - 2.0, 0.0, TAU, 40, _palette.espresso, 2.0)
-	draw_string(
-		ThemeDB.fallback_font,
-		Vector2(0, size.y * 0.5 + KIND_TEXT_SIZE * 0.5),
-		CityRules.kind_name(block.kind).to_upper(),
-		HORIZONTAL_ALIGNMENT_CENTER,
+		draw_rect(
+			StreetPainter.lane_rect(size, STREET_LANE_HEIGHT),
+			Color(city_look.accent, ACCENT_WASH_ALPHA)
+		)
+	StreetPainter.paint_trees(self, size, get_index() * 7919 + 13, _palette)
+	StreetPainter.paint_lamps(self, size, STREET_LANE_HEIGHT, _palette)
+	StreetPainter.paint_marker(self, size * 0.5, _marker_radius(), _marker_color(), _palette)
+	StreetPainter.paint_sign_text(
+		self,
+		Vector2(0, size.y * 0.5 + StreetPainter.KIND_TEXT_SIZE * 0.35),
 		size.x,
-		KIND_TEXT_SIZE,
-		_palette.espresso
+		CityRules.kind_name(block.kind).to_upper(),
+		StreetPainter.KIND_TEXT_SIZE,
+		_palette.cream
 	)
-	var label_y := size.y * 0.5 + KIND_TEXT_SIZE * 0.5
+	var label_y := size.y * 0.5 + StreetPainter.KIND_TEXT_SIZE * 0.35
 	for label: String in [landmark_label, site_label]:
 		if label.is_empty():
 			continue
-		label_y += LABEL_TEXT_SIZE + LABEL_GAP
-		draw_string(
-			ThemeDB.fallback_font,
-			Vector2(0, label_y),
-			label,
-			HORIZONTAL_ALIGNMENT_CENTER,
-			size.x,
-			LABEL_TEXT_SIZE,
-			_palette.espresso
+		label_y += StreetPainter.LABEL_TEXT_SIZE + LABEL_GAP
+		StreetPainter.paint_sign_text(
+			self, Vector2(0, label_y), size.x, label, StreetPainter.LABEL_TEXT_SIZE, _palette.butter
 		)
 
 

@@ -5,10 +5,8 @@ extends Control
 
 signal finished(grind_result: GrindResult)
 
-# Placeholder chalkboard look until the art pass, in the style of the HUD.
-const BOARD_COLOR := Color(0.11, 0.15, 0.13, 0.92)
+# Chalk colors of the gauges. MinigamePainter draws the board and the coffee.
 const CHALK_COLOR := Color(0.93, 0.95, 0.88, 0.9)
-const TRACK_COLOR := Color(0.07, 0.1, 0.08, 1)
 const ZONE_COLOR := Color(0.62, 0.82, 0.55, 1)
 const MARKER_COLOR := Color(0.95, 0.8, 0.3, 1)
 const BORDER_WIDTH := 2.0
@@ -107,11 +105,10 @@ func _draw() -> void:
 	if model == null:
 		return
 	var board := Rect2(Vector2.ZERO, size)
-	draw_rect(board, BOARD_COLOR)
-	draw_rect(board, CHALK_COLOR, false, BORDER_WIDTH)
-	draw_rect(_track_rect(), TRACK_COLOR)
-	draw_rect(_zone_rect(), ZONE_COLOR)
-	draw_rect(_marker_rect(), MARKER_COLOR)
+	MinigamePainter.paint_board(self, board.size)
+	MinigamePainter.paint_track(self, _track_rect())
+	MinigamePainter.paint_zone(self, _zone_rect(), ZONE_COLOR)
+	MinigamePainter.paint_marker(self, _marker_rect(), MARKER_COLOR)
 
 
 func _track_rect() -> Rect2:

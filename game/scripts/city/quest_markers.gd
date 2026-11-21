@@ -202,16 +202,16 @@ func _draw_objective() -> void:
 
 
 func _draw_label(at: Vector2, text: String) -> void:
-	var font := ThemeDB.fallback_font
+	var font := ChalkTheme.display_font()
 	var width := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, LABEL_TEXT_SIZE).x
-	draw_string(
-		font,
+	ChalkTheme.draw_chalk_text(
+		self,
 		at + Vector2(-width * 0.5, 0.0),
 		text,
-		HORIZONTAL_ALIGNMENT_LEFT,
 		-1,
 		LABEL_TEXT_SIZE,
-		LABEL_COLOR
+		LABEL_COLOR,
+		HORIZONTAL_ALIGNMENT_LEFT
 	)
 
 
